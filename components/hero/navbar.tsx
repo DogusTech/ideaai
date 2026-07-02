@@ -1,9 +1,15 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import Link from "next/link"
 import { motion } from "framer-motion"
 
-const LINKS = ["Product", "Community", "Pricing", "About"]
+const LINKS = [
+  { label: "About", href: "/about" },
+  { label: "Blog", href: "/blog" },
+  { label: "Press", href: "/press" },
+  { label: "Contact", href: "/contact" },
+]
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
@@ -27,41 +33,41 @@ export function Navbar() {
       }`}
     >
       <nav className="mx-auto flex h-[72px] max-w-[1400px] items-center justify-between px-6 lg:px-10">
-        <a href="#" className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2">
           <span className="flex size-8 items-center justify-center rounded-xl bg-brand-blue text-white">
             <span className="size-3 rounded-full bg-white" aria-hidden="true" />
           </span>
           <span className="text-lg font-bold tracking-tight text-foreground">
             togetlink
           </span>
-        </a>
+        </Link>
 
         <ul className="hidden items-center gap-8 md:flex">
           {LINKS.map((link) => (
-            <li key={link}>
-              <a
-                href="#"
+            <li key={link.href}>
+              <Link
+                href={link.href}
                 className="text-sm font-medium text-foreground/70 transition-colors hover:text-foreground"
               >
-                {link}
-              </a>
+                {link.label}
+              </Link>
             </li>
           ))}
         </ul>
 
         <div className="flex items-center gap-3">
-          <a
-            href="#"
+          <Link
+            href="/login"
             className="hidden text-sm font-medium text-foreground/70 transition-colors hover:text-foreground sm:inline"
           >
             Sign in
-          </a>
-          <a
-            href="#"
+          </Link>
+          <Link
+            href="/register"
             className="inline-flex h-10 items-center justify-center rounded-full bg-brand-blue px-5 text-sm font-semibold text-white transition-colors hover:bg-[#2569cc]"
           >
             Get started
-          </a>
+          </Link>
         </div>
       </nav>
     </motion.header>
