@@ -1,9 +1,14 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import Link from "next/link"
 import { motion } from "framer-motion"
 
-const LINKS = ["Product", "Community", "Pricing", "About"]
+const LINKS: { label: string; href: string }[] = [
+  { label: "Explore", href: "/explore" },
+  { label: "Blog", href: "/explore#guide" },
+  { label: "Pricing", href: "/#pricing" },
+]
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
@@ -38,30 +43,30 @@ export function Navbar() {
 
         <ul className="hidden items-center gap-8 md:flex">
           {LINKS.map((link) => (
-            <li key={link}>
-              <a
-                href="#"
+            <li key={link.label}>
+              <Link
+                href={link.href}
                 className="text-sm font-medium text-foreground/70 transition-colors hover:text-foreground"
               >
-                {link}
-              </a>
+                {link.label}
+              </Link>
             </li>
           ))}
         </ul>
 
         <div className="flex items-center gap-3">
-          <a
+          <Link
             href="#"
             className="hidden text-sm font-medium text-foreground/70 transition-colors hover:text-foreground sm:inline"
           >
             Sign in
-          </a>
-          <a
-            href="#"
+          </Link>
+          <Link
+            href="/explore"
             className="inline-flex h-10 items-center justify-center rounded-full bg-brand-blue px-5 text-sm font-semibold text-white transition-colors hover:bg-[#2569cc]"
           >
             Get started
-          </a>
+          </Link>
         </div>
       </nav>
     </motion.header>
