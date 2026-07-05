@@ -5,6 +5,7 @@ import Link from "next/link"
 import { motion } from "framer-motion"
 
 const LINKS = [
+  { label: "Explore", href: "/explore" },
   { label: "About", href: "/about" },
   { label: "Blog", href: "/blog" },
   { label: "Press", href: "/press" },

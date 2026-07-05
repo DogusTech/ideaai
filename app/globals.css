@@ -185,3 +185,10 @@
     @apply font-sans;
   }
 }
+
+@layer utilities {
+  /* Soft grey shell for dashboard/explore-style pages */
+  .tl-dashboard-shell {
+    background-color: #f4f6f9;
+  }
+}
