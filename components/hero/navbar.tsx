@@ -4,10 +4,12 @@ import { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Menu, X } from "lucide-react"
 import Image from "next/image"
+import Link from "next/link"
 
 const NAV_LINKS = [
   { label: "How it works", href: "#how-it-works" },
   { label: "Places", href: "#places" },
+  { label: "Explore", href: "/explore" },
   { label: "Plans", href: "#plans" },
   { label: "FAQ", href: "#faq" },
 ]
@@ -37,7 +39,7 @@ export function Navbar() {
       >
         <nav className="mx-auto flex h-[72px] max-w-[1400px] items-center justify-between px-6 lg:px-10">
           {/* Logo */}
-          <a href="#" className="flex items-center gap-2.5" aria-label="TogetLink home">
+          <Link href="/" className="flex items-center gap-2.5" aria-label="TogetLink home">
             <Image
               src="/placeholder-logo.png"
               alt="TogetLink logo"
@@ -48,36 +50,36 @@ export function Navbar() {
             <span className="text-lg font-bold tracking-tight text-foreground">
               TogetLink
             </span>
-          </a>
+          </Link>
 
           {/* Desktop nav */}
           <ul className="hidden items-center gap-8 md:flex" role="list">
             {NAV_LINKS.map((link) => (
               <li key={link.label}>
-                <a
+                <Link
                   href={link.href}
                   className="text-sm font-medium text-foreground/70 transition-colors hover:text-foreground"
                 >
                   {link.label}
-                </a>
+                </Link>
               </li>
             ))}
           </ul>
 
           {/* Desktop CTAs */}
           <div className="hidden items-center gap-3 md:flex">
-            <a
-              href="#how-it-works"
+            <Link
+              href="/login"
               className="text-sm font-medium text-foreground/70 transition-colors hover:text-foreground"
             >
-              Learn more
-            </a>
-            <a
-              href="#plans"
+              Sign in
+            </Link>
+            <Link
+              href="/register"
               className="inline-flex h-10 items-center justify-center rounded-full bg-[var(--brand-blue)] px-5 text-sm font-semibold text-white transition-colors hover:bg-[#2569cc]"
             >
               Join early access
-            </a>
+            </Link>
           </div>
 
           {/* Mobile hamburger */}
@@ -105,31 +107,31 @@ export function Navbar() {
             <ul className="flex flex-col gap-1" role="list">
               {NAV_LINKS.map((link) => (
                 <li key={link.label}>
-                  <a
+                  <Link
                     href={link.href}
                     onClick={() => setMobileOpen(false)}
                     className="block rounded-xl px-3 py-3 text-sm font-medium text-foreground/80 transition-colors hover:bg-muted hover:text-foreground"
                   >
                     {link.label}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
             <div className="mt-4 flex flex-col gap-2">
-              <a
-                href="#plans"
+              <Link
+                href="/register"
                 onClick={() => setMobileOpen(false)}
                 className="flex h-11 w-full items-center justify-center rounded-full bg-[var(--brand-blue)] text-sm font-semibold text-white"
               >
                 Join early access
-              </a>
-              <a
-                href="#how-it-works"
+              </Link>
+              <Link
+                href="/login"
                 onClick={() => setMobileOpen(false)}
                 className="flex h-11 w-full items-center justify-center rounded-full border border-border text-sm font-medium text-foreground/80"
               >
-                Learn more
-              </a>
+                Sign in
+              </Link>
             </div>
           </motion.div>
         )}

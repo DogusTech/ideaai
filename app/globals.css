@@ -17,6 +17,7 @@
   --color-brand-surface: var(--brand-surface);
   --color-brand-warm: var(--brand-warm);
   --color-brand-muted: var(--brand-muted);
+  --color-dashboard-bg: var(--dashboard-bg);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -70,6 +71,8 @@
   --brand-surface: #eaf0fb;
   --brand-warm: #f8efd7;
   --brand-muted: #ae9b8d;
+  /* Application/dashboard-style shell background (Explore, hub detail, panels). */
+  --dashboard-bg: #f5f5f5;
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
@@ -183,5 +186,22 @@
   }
   html {
     @apply font-sans;
+  }
+}
+
+/* Application shell surface — used by Explore, hub detail, and dashboard-like
+   layouts. Kept scoped so the landing page background is never affected. */
+.tl-dashboard-shell {
+  background: var(--dashboard-bg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
   }
 }
