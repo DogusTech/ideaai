@@ -1,0 +1,12 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // We use strict default rules because the frontend uses the Firebase
+    // Client SDK only for Auth, while reads and writes to Firestore are 
+    // performed via the Go backend using the Firebase Admin SDK.
+    // The Admin SDK bypasses these security rules entirely.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
