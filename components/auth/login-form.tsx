@@ -50,7 +50,13 @@ export function LoginForm() {
       }, 1000)
     } catch (err: any) {
       console.error(err)
-      setErrors({ submit: "Invalid email or password." })
+      // Check if it's a Firebase auth error
+      if (err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found') {
+        setErrors({ submit: "Invalid email or password." })
+      } else {
+        // If it's a backend/network error, show the real message
+        setErrors({ submit: err.message || "An unexpected error occurred. Please try again." })
+      }
       setStatus("idle")
     }
   }
