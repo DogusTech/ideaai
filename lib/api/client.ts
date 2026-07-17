@@ -7,13 +7,20 @@ export async function apiFetch<T>(
   path: string,
   init?: RequestInit,
 ): Promise<T> {
+  const csrfToken = getCookie("togetlink_csrf");
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+    ...(init?.headers ?? {}),
+  };
+  
+  if (csrfToken) {
+    (headers as Record<string, string>)["X-CSRF-Token"] = csrfToken;
+  }
+
   const res = await fetch(`${API_BASE_URL}${path}`, {
     ...init,
     credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-      ...(init?.headers ?? {}),
-    },
+    headers,
   })
 
   if (!res.ok) {
