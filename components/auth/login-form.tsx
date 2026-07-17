@@ -2,18 +2,23 @@
 
 import { useState, type FormEvent } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Loader2, CheckCircle2 } from "lucide-react"
 import { TextField } from "@/components/ui/field"
 import { SocialButtons } from "./social-buttons"
+import { auth } from "@/lib/firebase"
+import { signInWithEmailAndPassword } from "firebase/auth"
+import { createSession } from "@/lib/api/auth"
 
-type Errors = { email?: string; password?: string }
+type Errors = { email?: string; password?: string; submit?: string }
 type Status = "idle" | "submitting" | "success"
 
 export function LoginForm() {
+  const router = useRouter()
   const [errors, setErrors] = useState<Errors>({})
   const [status, setStatus] = useState<Status>("idle")
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const form = new FormData(event.currentTarget)
     const email = String(form.get("email") ?? "").trim()
@@ -24,15 +29,30 @@ export function LoginForm() {
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       nextErrors.email = "Enter a valid email address."
     if (!password) nextErrors.password = "Please enter your password."
-    else if (password.length < 8)
-      nextErrors.password = "Password must be at least 8 characters."
 
     setErrors(nextErrors)
     if (Object.keys(nextErrors).length > 0) return
 
-    // Frontend-only mock: no real authentication is performed.
     setStatus("submitting")
-    setTimeout(() => setStatus("success"), 900)
+
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password)
+      const idToken = await userCredential.user.getIdToken()
+      
+      await createSession(idToken)
+      
+      setStatus("success")
+      
+      setTimeout(() => {
+        const params = new URLSearchParams(window.location.search)
+        const redirect = params.get("redirect") || "/dashboard"
+        router.push(redirect)
+      }, 1000)
+    } catch (err: any) {
+      console.error(err)
+      setErrors({ submit: "Invalid email or password." })
+      setStatus("idle")
+    }
   }
 
   if (status === "success") {
@@ -40,10 +60,10 @@ export function LoginForm() {
       <div className="rounded-2xl border border-brand-green/30 bg-brand-green/10 p-6 text-center">
         <CheckCircle2 className="mx-auto size-10 text-brand-green" />
         <h2 className="mt-3 text-lg font-semibold text-foreground">
-          You&apos;re signed in (demo)
+          You're signed in!
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          This is a frontend-only preview, so no session was created.
+          Redirecting you to your workspace...
         </p>
       </div>
     )
@@ -62,6 +82,11 @@ export function LoginForm() {
       </div>
 
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
+        {errors.submit && (
+          <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+            {errors.submit}
+          </div>
+        )}
         <TextField
           label="Email"
           name="email"

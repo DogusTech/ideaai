@@ -39,6 +39,8 @@ export interface HubPhoto {
 export interface HubCheckIn {
   /** Display name — first name only or initials */
   displayName: string
+  /** Profile avatar image URL */
+  avatarUrl?: string
   role: string
   /** Broad venue area — never exact seat or table */
   broadArea: string

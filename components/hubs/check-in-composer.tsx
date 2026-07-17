@@ -30,7 +30,7 @@ export function CheckInComposer({ hub }: CheckInComposerProps) {
 
         {/* Broad area preview */}
         <div className="mt-3 flex flex-wrap gap-2">
-          {hub.broadAreas.map((area) => (
+          {(hub.broadAreas || []).map((area) => (
             <span
               key={area}
               className="flex items-center gap-1 rounded-full border border-border/50 bg-muted/60 px-2.5 py-1 text-xs text-muted-foreground"

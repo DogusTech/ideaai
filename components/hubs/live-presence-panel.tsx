@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils"
 const DEFAULT_DEMO: HubCheckIn[] = [
   {
     displayName: "Emre K.",
+    avatarUrl: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=150&h=150&fit=crop&q=80",
     role: "Founder",
     broadArea: "Main coworking floor",
     workIntent: "Working on Firebase schema design",
@@ -15,6 +16,7 @@ const DEFAULT_DEMO: HubCheckIn[] = [
   },
   {
     displayName: "Selin A.",
+    avatarUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&q=80",
     role: "Product Designer",
     broadArea: "Quiet desk zone",
     workIntent: "Reviewing onboarding flows for a SaaS product",
@@ -24,6 +26,7 @@ const DEFAULT_DEMO: HubCheckIn[] = [
   },
   {
     displayName: "Marcus L.",
+    avatarUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&q=80",
     role: "Software Engineer",
     broadArea: "Garden seating",
     workIntent: "Open to discussing Next.js architecture",
@@ -33,6 +36,7 @@ const DEFAULT_DEMO: HubCheckIn[] = [
   },
   {
     displayName: "Lale B.",
+    avatarUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&q=80",
     role: "Student Founder",
     broadArea: "Main coworking floor",
     workIntent: "Preparing a pitch deck",
@@ -87,13 +91,20 @@ export function LivePresencePanel({ presence }: LivePresencePanelProps) {
           >
             <div className="flex items-start justify-between gap-2">
               <div className="flex items-center gap-2.5">
-                {/* Avatar placeholder */}
-                <div
-                  aria-hidden="true"
-                  className="flex size-9 shrink-0 items-center justify-center rounded-full bg-brand-surface text-sm font-semibold text-brand-blue"
-                >
-                  {person.displayName.charAt(0)}
-                </div>
+                {person.avatarUrl ? (
+                  <img
+                    src={person.avatarUrl}
+                    alt={person.displayName}
+                    className="size-9 shrink-0 rounded-full object-cover shadow-sm"
+                  />
+                ) : (
+                  <div
+                    aria-hidden="true"
+                    className="flex size-9 shrink-0 items-center justify-center rounded-full bg-brand-surface text-sm font-semibold text-brand-blue shadow-sm"
+                  >
+                    {person.displayName.charAt(0)}
+                  </div>
+                )}
                 <div>
                   <p className="text-sm font-semibold text-foreground leading-none">
                     {person.displayName}

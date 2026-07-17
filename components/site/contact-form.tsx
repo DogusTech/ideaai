@@ -11,7 +11,7 @@ export function ContactForm() {
   const [errors, setErrors] = useState<Errors>({})
   const [status, setStatus] = useState<Status>("idle")
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const form = new FormData(event.currentTarget)
     const name = String(form.get("name") ?? "").trim()
@@ -30,9 +30,20 @@ export function ContactForm() {
     setErrors(nextErrors)
     if (Object.keys(nextErrors).length > 0) return
 
-    // Frontend-only mock: nothing is sent to a server.
     setStatus("submitting")
-    setTimeout(() => setStatus("success"), 900)
+    try {
+      const res = await fetch(process.env.NEXT_PUBLIC_API_BASE_URL + "/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, subject, message }),
+      })
+      if (!res.ok) throw new Error("Failed to send message")
+      setStatus("success")
+    } catch (err) {
+      console.error(err)
+      setErrors({ message: "Something went wrong. Please try again." })
+      setStatus("idle")
+    }
   }
 
   if (status === "success") {
@@ -40,11 +51,10 @@ export function ContactForm() {
       <div className="rounded-3xl border border-brand-green/30 bg-brand-green/10 p-8 text-center">
         <CheckCircle2 className="mx-auto size-12 text-brand-green" />
         <h2 className="mt-4 text-xl font-semibold text-foreground">
-          Message sent (demo)
+          Message sent successfully!
         </h2>
         <p className="mx-auto mt-2 max-w-md text-pretty text-muted-foreground">
-          Thanks for reaching out. This is a frontend-only preview, so nothing
-          was actually delivered — but the flow works.
+          Thanks for reaching out. We've received your message and will get back to you shortly.
         </p>
         <button
           type="button"

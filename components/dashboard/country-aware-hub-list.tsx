@@ -81,7 +81,9 @@ export function CountryAwareHubList({ hubs }: CountryAwareHubListProps) {
 
       {/* Hub list */}
       <div className="space-y-4">
-        {ranked.hubs.map((hub) => {
+        {[...ranked.hubs]
+          .sort((a, b) => (b.checkedInCount ?? 0) - (a.checkedInCount ?? 0))
+          .map((hub) => {
           const distanceKm =
             userCoords && hub.location
               ? haversineKm(userCoords, hub.location)

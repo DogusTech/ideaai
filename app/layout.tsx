@@ -41,6 +41,8 @@ export const viewport: Viewport = {
   ],
 }
 
+import { AuthProvider } from '@/lib/auth/context'
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -52,8 +54,10 @@ export default function RootLayout({
       className={`light bg-background ${geistSans.variable} ${geistMono.variable}`}
     >
       <body className="font-sans antialiased">
-        {children}
-        {process.env.NODE_ENV === 'production' && <Analytics />}
+        <AuthProvider>
+          {children}
+          {process.env.NODE_ENV === 'production' && <Analytics />}
+        </AuthProvider>
       </body>
     </html>
   )

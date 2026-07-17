@@ -1,10 +1,11 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { MOCK_HUBS } from "@/lib/places/mock-hubs"
 import { detectRegion, regionToCountryOrder } from "@/lib/places/region-detection"
 import type { CategoryFilter } from "./hub-filter-tabs"
 import type { RegionId } from "@/lib/places/types"
+import type { Hub } from "@/lib/api/types"
+import { getHubs } from "@/lib/api/hubs"
 import { HubSearchBar } from "./hub-search-bar"
 import { HubFilterTabs } from "./hub-filter-tabs"
 import { RegionSwitcher } from "./region-switcher"
@@ -15,18 +16,32 @@ export function HubExplorePage() {
   const [query, setQuery] = useState("")
   const [category, setCategory] = useState<CategoryFilter>("all")
   const [region, setRegion] = useState<RegionId>("global")
+  const [allHubs, setAllHubs] = useState<Hub[]>([])
+  const [loading, setLoading] = useState(true)
 
-  // Detect region once on mount (client-side only)
+  // Detect region and load hubs on mount
   useEffect(() => {
     const detected = detectRegion()
     setRegion(detected.region)
+
+    const fetchHubs = async () => {
+      try {
+        const h = await getHubs(false)
+        setAllHubs(h)
+      } catch (err) {
+        console.error("Failed to load hubs", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchHubs()
   }, [])
 
   const filteredHubs = useMemo(() => {
     const regionBias = regionToCountryOrder(region)
     const q = query.toLowerCase().trim()
 
-    let hubs = [...MOCK_HUBS]
+    let hubs = [...allHubs]
 
     // Query filter — cross-country, never blocked
     if (q) {

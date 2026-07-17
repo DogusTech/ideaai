@@ -23,8 +23,8 @@ func main() {
 	// Simple script to invoke /api/places/sync against the local backend
 	
 	seeds := []SeedRequest{
-		{PlaceID: "ChIJZ3U2Vf-4yhQR5-H6fOaN87Y", Category: "coworking", City: "Istanbul", Country: "TR", Visibility: "public"}, // Fake place IDs for demo
-		{PlaceID: "ChIJU-R-K9-vzhQRoKjE6D_Ew1M", Category: "coworking", City: "Izmir", Country: "TR", Visibility: "public"},
+		{PlaceID: "ChIJmXYXdGe2yhQR3vkR5tjvb5M", Category: "coworking", City: "Istanbul", Country: "TR", Visibility: "public"},
+		{PlaceID: "ChIJTQetquG5yhQRERNsVspY4Fc", Category: "coworking", City: "Istanbul", Country: "TR", Visibility: "public"},
 	}
 
 	for _, s := range seeds {

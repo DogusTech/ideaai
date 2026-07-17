@@ -129,7 +129,7 @@ func (h *Handlers) Sync(w http.ResponseWriter, r *http.Request) {
 	// 2. Map cache
 	pc := MapToPlaceCache(raw, time.Now().Add(time.Duration(h.cache.ttl)))
 	if err := h.cache.Set(r.Context(), pc); err != nil {
-		httpx.Error(w, http.StatusInternalServerError, "failed to cache place")
+		httpx.Error(w, http.StatusInternalServerError, "failed to cache place: "+err.Error())
 		return
 	}
 
@@ -138,7 +138,7 @@ func (h *Handlers) Sync(w http.ResponseWriter, r *http.Request) {
 		ID:               pc.PlaceID, // simple 1:1 for now
 		PlaceID:          pc.PlaceID,
 		ResourceName:     pc.ResourceName,
-		Slug:             "hub-" + pc.PlaceID, // simplistic
+		Slug:             strings.ToLower("hub-" + pc.PlaceID), // simplistic
 		Name:             pc.DisplayName,
 		NormalizedName:   strings.ToLower(pc.DisplayName),
 		Category:         req.Category,

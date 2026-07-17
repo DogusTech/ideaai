@@ -1,10 +1,15 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import Link from "next/link"
-import { MapPin, Star, Users, ArrowLeft, Image as ImageIcon } from "lucide-react"
+import { MapPin, Star, Users, ArrowLeft, Image as ImageIcon, Lock } from "lucide-react"
 import type { TogetlinkHub } from "@/lib/places/types"
 import { LivePresencePanel } from "./live-presence-panel"
 import { HubBlogPreview } from "./hub-blog-preview"
 import { CheckInComposer } from "./check-in-composer"
 import { ProMeetingCard } from "./pro-meeting-card"
+import { auth } from "@/lib/firebase"
+import { onAuthStateChanged } from "firebase/auth"
 
 const CATEGORY_LABELS: Record<TogetlinkHub["category"], string> = {
   coworking: "Coworking",
@@ -21,7 +26,17 @@ interface HubDetailPageProps {
 }
 
 export function HubDetailPage({ hub }: HubDetailPageProps) {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setIsAuthenticated(!!user)
+    })
+    return () => unsubscribe()
+  }, [])
+
   const countryLabel = hub.country === "TR" ? "Turkey" : "United States"
+  const photoSrc = hub.photo?.photoUri || hub.photo?.url
 
   return (
     <div className="tl-dashboard-shell min-h-screen">
@@ -74,21 +89,51 @@ export function HubDetailPage({ hub }: HubDetailPageProps) {
 
             {/* Hero area */}
             <div className="mt-4">
-              {/* Photo placeholder */}
-              <div
-                className="flex h-48 w-full items-center justify-center rounded-2xl bg-brand-surface/50 sm:h-64"
-                aria-label="Hub photo placeholder"
-              >
-                <div className="flex flex-col items-center gap-2 text-center">
-                  <ImageIcon
-                    className="size-8 text-muted-foreground/40"
-                    aria-hidden="true"
+              {/* Photo placeholder or real image */}
+              {photoSrc ? (
+                <div className="relative h-48 w-full overflow-hidden rounded-2xl sm:h-64">
+                  <img
+                    src={photoSrc}
+                    alt={`${hub.name} venue photo`}
+                    className="h-full w-full object-cover"
                   />
-                  <p className="text-xs text-muted-foreground/60">
-                    Photo attribution will be shown when loaded from Google Places
-                  </p>
+                  {/* Attribution */}
+                  {hub.photo?.attributions && hub.photo.attributions.length > 0 ? (
+                    <div className="absolute bottom-0 left-0 right-0 bg-black/50 px-2 py-1 text-[10px] text-white">
+                      Photo:{" "}
+                      {hub.photo.attributions.map((a: any, i: number) => a.uri ? (
+                        <span key={a.uri}>
+                          <a href={a.uri} target="_blank" rel="noreferrer noopener" className="underline hover:text-white/80 transition-colors">
+                            {a.displayName ?? "Google Maps contributor"}
+                          </a>
+                          {i < hub.photo!.attributions.length - 1 && ", "}
+                        </span>
+                      ) : (
+                        <span key={a.displayName}>{a.displayName ?? "Google Maps contributor"}</span>
+                      ))}
+                    </div>
+                  ) : hub.photo?.attribution ? (
+                    <p className="absolute bottom-0 left-0 right-0 bg-black/50 px-2 py-1 text-[10px] text-white">
+                      Photo: {hub.photo.attribution}
+                    </p>
+                  ) : null}
                 </div>
-              </div>
+              ) : (
+                <div
+                  className="flex h-48 w-full items-center justify-center rounded-2xl bg-brand-surface/50 sm:h-64"
+                  aria-label="Hub photo placeholder"
+                >
+                  <div className="flex flex-col items-center gap-2 text-center">
+                    <ImageIcon
+                      className="size-8 text-muted-foreground/40"
+                      aria-hidden="true"
+                    />
+                    <p className="text-xs text-muted-foreground/60">
+                      Photo attribution will be shown when loaded from Google Places
+                    </p>
+                  </div>
+                </div>
+              )}
 
               {/* Hub name + meta */}
               <div className="mt-5">
@@ -149,7 +194,7 @@ export function HubDetailPage({ hub }: HubDetailPageProps) {
 
               {/* Broad areas */}
               <div className="mt-4 flex flex-wrap items-center gap-2">
-                {hub.broadAreas.map((area) => (
+                {(hub.broadAreas || []).map((area) => (
                   <span
                     key={area}
                     className="flex items-center gap-1 rounded-full border border-border/50 bg-muted/60 px-2.5 py-1 text-xs text-muted-foreground"
@@ -159,22 +204,33 @@ export function HubDetailPage({ hub }: HubDetailPageProps) {
                   </span>
                 ))}
               </div>
-
-              {/* Google Places metadata note */}
-              <p className="mt-3 text-[11px] text-muted-foreground/60">
-                Google Places data:{" "}
-                <span className="font-medium">
-                  placeId, formattedAddress, googleMapsUri, location, rating
-                </span>{" "}
-                — loaded server-side via Places API when integrated. Photo attribution
-                will be displayed as required by Google policy.
-              </p>
             </div>
 
-            {/* Live presence */}
-            <div className="mt-8">
-              <LivePresencePanel presence={hub.demoPresence} />
-            </div>
+            {/* Gated Content or Live Presence */}
+            {isAuthenticated === false ? (
+              <div className="mt-12 rounded-2xl border border-border/60 bg-white p-8 text-center shadow-sm relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-t from-white via-white/80 to-transparent z-10" />
+                <div className="relative z-20 flex flex-col items-center justify-center">
+                  <div className="flex size-14 items-center justify-center rounded-full bg-brand-surface text-brand-blue mb-4">
+                    <Lock className="size-6" />
+                  </div>
+                  <h3 className="text-xl font-bold text-foreground">Sign up to see who is here</h3>
+                  <p className="mt-2 max-w-md text-sm text-muted-foreground mx-auto">
+                    Create an account to see who is currently in {hub.name}, where they are sitting, and what they are working on.
+                  </p>
+                  <Link
+                    href={`/register?redirect=${encodeURIComponent(`/hubs/${hub.country}/${hub.city}/${hub.slug}`)}`}
+                    className="mt-6 flex items-center justify-center rounded-xl bg-brand-blue px-8 py-3 text-sm font-semibold text-white shadow-sm hover:bg-brand-blue/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2"
+                  >
+                    Create Account
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <div className="mt-8">
+                <LivePresencePanel presence={hub.demoPresence} />
+              </div>
+            )}
 
             {/* Hub guide / blog preview — public, no login required */}
             {hub.guide && (
@@ -185,13 +241,15 @@ export function HubDetailPage({ hub }: HubDetailPageProps) {
           </main>
 
           {/* Sidebar */}
-          <aside
-            aria-label="Hub actions"
-            className="flex w-full flex-col gap-5 lg:sticky lg:top-[88px] lg:w-[300px] lg:shrink-0"
-          >
-            <CheckInComposer hub={hub} />
-            <ProMeetingCard />
-          </aside>
+          {isAuthenticated !== false && (
+            <aside
+              aria-label="Hub actions"
+              className="flex w-full flex-col gap-5 lg:sticky lg:top-[88px] lg:w-[300px] lg:shrink-0"
+            >
+              <CheckInComposer hub={hub} />
+              <ProMeetingCard />
+            </aside>
+          )}
         </div>
       </div>
     </div>

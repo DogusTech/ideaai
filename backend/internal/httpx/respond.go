@@ -2,6 +2,7 @@ package httpx
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 )
 
@@ -23,6 +24,7 @@ type ErrorDetail struct {
 }
 
 func Error(w http.ResponseWriter, status int, message string) {
+	log.Printf("HTTP Error %d: %s", status, message)
 	JSON(w, status, ErrorResponse{
 		Error: ErrorDetail{
 			Code:    status,

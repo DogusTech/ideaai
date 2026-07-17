@@ -2,27 +2,36 @@
 
 import { useState, type FormEvent } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Loader2, CheckCircle2 } from "lucide-react"
 import { TextField } from "@/components/ui/field"
 import { SocialButtons } from "./social-buttons"
+import { auth } from "@/lib/firebase"
+import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth"
+import { createSession } from "@/lib/api/auth"
+import { fetchApi } from "@/lib/api/client"
 
 type Errors = {
   name?: string
+  headline?: string
   email?: string
   password?: string
   confirm?: string
   terms?: string
+  submit?: string
 }
 type Status = "idle" | "submitting" | "success"
 
 export function RegisterForm() {
+  const router = useRouter()
   const [errors, setErrors] = useState<Errors>({})
   const [status, setStatus] = useState<Status>("idle")
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const form = new FormData(event.currentTarget)
     const name = String(form.get("name") ?? "").trim()
+    const headline = String(form.get("headline") ?? "").trim()
     const email = String(form.get("email") ?? "").trim()
     const password = String(form.get("password") ?? "")
     const confirm = String(form.get("confirm") ?? "")
@@ -30,6 +39,7 @@ export function RegisterForm() {
 
     const nextErrors: Errors = {}
     if (!name) nextErrors.name = "Please enter your full name."
+    if (!headline) nextErrors.headline = "Please enter your professional headline."
     if (!email) nextErrors.email = "Please enter your email address."
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       nextErrors.email = "Enter a valid email address."
@@ -42,9 +52,42 @@ export function RegisterForm() {
     setErrors(nextErrors)
     if (Object.keys(nextErrors).length > 0) return
 
-    // Frontend-only mock: no account is created.
     setStatus("submitting")
-    setTimeout(() => setStatus("success"), 900)
+
+    try {
+      // 1. Create User in Firebase
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password)
+      const user = userCredential.user
+
+      // 2. Update Firebase Profile
+      await updateProfile(user, { displayName: name })
+
+      // 3. Create Server Session Cookie
+      const idToken = await user.getIdToken()
+      await createSession(idToken)
+
+      // 4. Create User Profile Document in Backend
+      await fetchApi("/users/me", {
+        method: "PUT",
+        body: JSON.stringify({
+          name,
+          headline,
+        }),
+      })
+
+      setStatus("success")
+      
+      // Redirect to dashboard (or returnUrl if available)
+      setTimeout(() => {
+        const params = new URLSearchParams(window.location.search)
+        const redirect = params.get("redirect") || "/dashboard"
+        router.push(redirect)
+      }, 1000)
+    } catch (err: any) {
+      console.error(err)
+      setErrors({ submit: err.message || "An error occurred during registration." })
+      setStatus("idle")
+    }
   }
 
   if (status === "success") {
@@ -52,10 +95,10 @@ export function RegisterForm() {
       <div className="rounded-2xl border border-brand-green/30 bg-brand-green/10 p-6 text-center">
         <CheckCircle2 className="mx-auto size-10 text-brand-green" />
         <h2 className="mt-3 text-lg font-semibold text-foreground">
-          Account created (demo)
+          Account created successfully!
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          This is a frontend-only preview, so nothing was saved.
+          Redirecting you to your workspace...
         </p>
       </div>
     )
@@ -74,6 +117,11 @@ export function RegisterForm() {
       </div>
 
       <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
+        {errors.submit && (
+          <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">
+            {errors.submit}
+          </div>
+        )}
         <TextField
           label="Full name"
           name="name"
@@ -81,6 +129,13 @@ export function RegisterForm() {
           autoComplete="name"
           placeholder="Ada Lovelace"
           error={errors.name}
+        />
+        <TextField
+          label="Professional Headline"
+          name="headline"
+          type="text"
+          placeholder="e.g. Senior Frontend Developer at TechCorp"
+          error={errors.headline}
         />
         <TextField
           label="Email"

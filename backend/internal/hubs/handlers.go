@@ -32,7 +32,7 @@ func (h *Handlers) List(w http.ResponseWriter, r *http.Request) {
 	iter := h.fs.Collection("hubs").Where("visibility", "==", "public").Limit(24).Documents(ctx)
 	hubs, err := h.FetchHubs(ctx, iter)
 	if err != nil {
-		httpx.Error(w, http.StatusInternalServerError, "failed to fetch hubs")
+		httpx.Error(w, http.StatusInternalServerError, "failed to fetch hubs: "+err.Error())
 		return
 	}
 
