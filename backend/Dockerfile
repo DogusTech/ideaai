@@ -2,17 +2,16 @@ FROM golang:1.22-alpine AS builder
 
 WORKDIR /app
 
-# Copy go mod and sum files
-COPY go.mod go.sum ./
+# Copy go mod and sum files from the backend directory
+COPY backend/go.mod backend/go.sum ./
 
 # Download dependencies
 RUN go mod download
 
-# Copy the source code
-COPY . .
+# Copy the rest of the backend source code
+COPY backend/ .
 
 # Build the application
-# We build from the cmd/api directory as configured in the project
 RUN CGO_ENABLED=0 GOOS=linux go build -o /api ./cmd/api
 
 # Create a minimal production image
