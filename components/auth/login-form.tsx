@@ -36,11 +36,18 @@ export function LoginForm() {
     setStatus("submitting")
 
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password)
-      const idToken = await userCredential.user.getIdToken()
-      
-      await createSession(idToken)
-      
+      // Create a global timeout for the entire login flow
+      await Promise.race([
+        (async () => {
+          const userCredential = await signInWithEmailAndPassword(auth, email, password)
+          const idToken = await userCredential.user.getIdToken()
+          await createSession(idToken)
+        })(),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error("Timeout: Login process took too long. Please check your internet connection and API keys.")), 15000)
+        )
+      ]);
+
       setStatus("success")
       
       setTimeout(() => {

@@ -55,25 +55,33 @@ export function RegisterForm() {
     setStatus("submitting")
 
     try {
-      // 1. Create User in Firebase
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password)
-      const user = userCredential.user
+      // Create a global timeout for the entire registration flow
+      await Promise.race([
+        (async () => {
+          // 1. Create User in Firebase
+          const userCredential = await createUserWithEmailAndPassword(auth, email, password)
+          const user = userCredential.user
 
-      // 2. Update Firebase Profile
-      await updateProfile(user, { displayName: name })
+          // 2. Update Firebase Profile
+          await updateProfile(user, { displayName: name })
 
-      // 3. Create Server Session Cookie
-      const idToken = await user.getIdToken()
-      await createSession(idToken)
+          // 3. Create Server Session Cookie
+          const idToken = await user.getIdToken()
+          await createSession(idToken)
 
-      // 4. Create User Profile Document in Backend
-      await fetchApi("/users/me", {
-        method: "PUT",
-        body: JSON.stringify({
-          name,
-          headline,
-        }),
-      })
+          // 4. Create User Profile Document in Backend
+          await fetchApi("/users/me", {
+            method: "PUT",
+            body: JSON.stringify({
+              name,
+              headline,
+            }),
+          })
+        })(),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error("Timeout: Registration process took too long. Please check your internet connection and API keys.")), 15000)
+        )
+      ]);
 
       setStatus("success")
       

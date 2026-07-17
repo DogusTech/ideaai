@@ -23,11 +23,28 @@ export async function apiFetch<T>(
     (headers as Record<string, string>)["X-CSRF-Token"] = csrfToken;
   }
 
-  const res = await fetch(`${API_BASE_URL}${path}`, {
-    ...init,
-    credentials: "include",
-    headers,
-  })
+  // Create an explicit timeout of 10 seconds to prevent indefinite UI hangs
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+  let res: Response;
+  try {
+    res = await fetch(`${API_BASE_URL}${path}`, {
+      ...init,
+      credentials: "include",
+      headers,
+      signal: controller.signal,
+    });
+  } catch (error: any) {
+    // If the error was caused by our timeout, throw a specific message
+    if (error.name === 'AbortError') {
+      throw new Error("Network timeout: The server took too long to respond. Please check your connection or backend status.");
+    }
+    // Otherwise it's a CORS, DNS, or TCP connection error
+    throw new Error(`Network Error: ${error.message || "Failed to fetch"}`);
+  } finally {
+    clearTimeout(timeoutId);
+  }
 
   if (!res.ok) {
     let errorText = "Request failed";
