@@ -7,7 +7,7 @@ const nextConfig = {
     unoptimized: true,
   },
   async rewrites() {
-    // İsmi Vercel'in çakışma yaratamayacağı özgün bir kelimeye çevirdik
+    // İsmi Vercel'in otomatik kurallarla ezemeyeceği bir kelimeye çevirdik
     const baseUrl = (process.env.TOGETLINK_BACKEND_URL || 'https://togetlink-ui-production.up.railway.app').replace(/\/$/, '');
 
     return [
