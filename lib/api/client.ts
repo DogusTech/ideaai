@@ -31,8 +31,8 @@ export async function fetchApi(endpoint: string, options: RequestInit = {}) {
   // Add /api prefix if API_BASE_URL is empty for backwards compatibility 
   // with older calls that didn't include it.
   let path = endpoint;
-  if (!path.startsWith('/api') && !API_BASE_URL) {
-    path = `/api${path}`;
+  if (!path.startsWith('/api')) {
+    path = `/api${path.startsWith('/') ? '' : '/'}${path.replace(/^\//, '')}`;
   }
   return apiFetch<any>(path, options);
 }
