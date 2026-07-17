@@ -1,7 +1,11 @@
-import { fetchApi } from "./client";
+import { fetchApi, setCsrfToken } from "./client";
 
 export async function getCsrfToken() {
-  return fetchApi("/auth/csrf");
+  const res = await fetchApi("/auth/csrf");
+  if (res && res.token) {
+    setCsrfToken(res.token);
+  }
+  return res;
 }
 
 export async function createSession(idToken: string) {
