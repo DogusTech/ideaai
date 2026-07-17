@@ -2,6 +2,8 @@ import type { Metadata } from "next"
 import { DashboardShell } from "@/components/dashboard/dashboard-shell"
 import { RecommendedHubs } from "@/components/dashboard/recommended-hubs"
 
+export const dynamic = "force-dynamic"
+
 export const metadata: Metadata = {
   title: "Dashboard — TogetLink",
   description: "Discover professional hubs and connect with builders near you.",
