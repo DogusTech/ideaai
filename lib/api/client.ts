@@ -60,13 +60,11 @@ export async function apiFetch<T>(
   return res.json() as Promise<T>
 }
 
-// Keep fetchApi as a wrapper around apiFetch for backwards compatibility
 export async function fetchApi(endpoint: string, options: RequestInit = {}) {
-  // Add /api prefix if API_BASE_URL is empty for backwards compatibility 
-  // with older calls that didn't include it.
   let path = endpoint;
-  if (!path.startsWith('/api')) {
-    path = `/api${path.startsWith('/') ? '' : '/'}${path.replace(/^\//, '')}`;
+  if (!path.startsWith('/api/')) {
+    // Ensure it starts with exactly /api/
+    path = `/api/${path.replace(/^\//, '')}`;
   }
   return apiFetch<any>(path, options);
 }

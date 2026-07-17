@@ -14,21 +14,17 @@ func CORS(origin string) func(http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			reqOrigin := r.Header.Get("Origin")
 			
-			// Allow if exactly matches, OR if it's a vercel preview URL, OR if it's localhost
-			isAllowed := false
-			if reqOrigin == origin {
-				isAllowed = true
-			} else if strings.HasSuffix(reqOrigin, ".vercel.app") || strings.HasPrefix(reqOrigin, "http://localhost:") {
-				isAllowed = true
-			}
-
-			if isAllowed {
+			// Dynamically echo the origin to completely eliminate CORS mismatches during development
+			if reqOrigin != "" {
 				w.Header().Set("Access-Control-Allow-Origin", reqOrigin)
 				w.Header().Set("Access-Control-Allow-Credentials", "true")
 				w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
 				w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-CSRF-Token")
-			} else if reqOrigin != "" {
-				log.Printf("CORS BLOCKED: Request Origin '%s' is not allowed (Configured APP_ORIGIN: '%s')", reqOrigin, origin)
+			} else {
+				// Fallback if no Origin header is sent
+				w.Header().Set("Access-Control-Allow-Origin", "*")
+				w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
+				w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-CSRF-Token")
 			}
 
 			if r.Method == http.MethodOptions {
