@@ -66,6 +66,15 @@ export async function POST(req: Request) {
       maxAge: 60 * 60 * 24 * 5, // 5 days
     });
 
+    // DIAGNOSTIC TEST COOKIE
+    response.cookies.set("session_test", "route_executed_successfully_length_" + sessionValue.length, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 5,
+    });
+
     return response;
 
   } catch (error: any) {
