@@ -31,7 +31,7 @@ export function HeroCard({
     <motion.div
       className="absolute z-20"
       style={{ left: `${x}%`, top: `${y}%`, translateX: "-50%", translateY: "-50%" }}
-      initial={{ opacity: 0, scale: 0.85 }}
+      initial={false}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.7, delay: delay * 0.12, ease: [0.22, 1, 0.36, 1] }}
     >

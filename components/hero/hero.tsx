@@ -39,7 +39,7 @@ export function Hero() {
             <motion.p
               custom={3}
               variants={fadeUp}
-              initial="hidden"
+              initial={false}
               animate="show"
               className="mt-6 max-w-[560px] text-pretty text-lg leading-relaxed text-muted-foreground"
             >
@@ -51,7 +51,7 @@ export function Hero() {
             <motion.div
               custom={4}
               variants={fadeUp}
-              initial="hidden"
+              initial={false}
               animate="show"
               className="mt-8"
             >
@@ -61,7 +61,7 @@ export function Hero() {
             <motion.p
               custom={5}
               variants={fadeUp}
-              initial="hidden"
+              initial={false}
               animate="show"
               className="mt-5 text-sm text-muted-foreground"
             >

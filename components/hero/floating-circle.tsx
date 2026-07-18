@@ -73,7 +73,7 @@ export function FloatingCircle() {
               stroke="var(--brand-blue-soft)"
               strokeWidth={0.6}
               strokeLinecap="round"
-              initial={{ pathLength: 0, opacity: 0 }}
+              initial={false}
               animate={{ pathLength: 1, opacity: 0.6 }}
               transition={{ duration: 1, delay: 0.4 + i * 0.12 }}
             />
@@ -86,7 +86,7 @@ export function FloatingCircle() {
             cy={n.y}
             r={n.id === "a" ? 5 : 3.2}
             fill={n.color}
-            initial={{ scale: 0, opacity: 0 }}
+            initial={false}
             animate={
               reduceMotion
                 ? { scale: 1, opacity: 1 }

@@ -35,11 +35,7 @@ export function AnimatedHeadline() {
         <AnimatePresence mode="popLayout">
           <motion.span
             key={current.text}
-            initial={
-              reduceMotion
-                ? { opacity: 0 }
-                : { opacity: 0, y: "0.4em", filter: "blur(8px)" }
-            }
+            initial={false}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             exit={
               reduceMotion
