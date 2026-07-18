@@ -37,7 +37,7 @@ func (h *Handlers) CSRF(w http.ResponseWriter, r *http.Request) {
 		Value:    token,
 		Path:     "/",
 		MaxAge:   3600, // 1 hour
-		Secure:   os.Getenv("SESSION_COOKIE_SECURE") == "true",
+		Secure:   true,
 		SameSite: http.SameSiteNoneMode,
 		HttpOnly: false,
 	})
@@ -81,7 +81,7 @@ func (h *Handlers) Session(w http.ResponseWriter, r *http.Request) {
 		MaxAge:   int(expiresIn.Seconds()),
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   os.Getenv("SESSION_COOKIE_SECURE") == "true",
+		Secure:   true,
 		SameSite: http.SameSiteNoneMode,
 	})
 
@@ -112,7 +112,7 @@ func (h *Handlers) Logout(w http.ResponseWriter, r *http.Request) {
 		MaxAge:   -1,
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   os.Getenv("SESSION_COOKIE_SECURE") == "true",
+		Secure:   true,
 		SameSite: http.SameSiteNoneMode,
 	})
 
