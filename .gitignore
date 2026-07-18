@@ -25,5 +25,7 @@ backend/.env.*
 # Service accounts and credentials
 serviceAccount*.json
 backend/serviceAccount*.json
+*-firebase-adminsdk-*.json
+*credentials*.json
 *.pem
 *.key

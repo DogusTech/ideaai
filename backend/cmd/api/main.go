@@ -24,7 +24,10 @@ func main() {
 
 	firebaseConfig := &firebase.Config{ProjectID: cfg.FirebaseProjectID}
 
-	if credFile := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS"); credFile != "" {
+	if credJSON := os.Getenv("GOOGLE_CREDENTIALS_JSON"); credJSON != "" {
+		opt := option.WithCredentialsJSON([]byte(credJSON))
+		app, err = firebase.NewApp(ctx, firebaseConfig, opt)
+	} else if credFile := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS"); credFile != "" {
 		opt := option.WithCredentialsFile(credFile)
 		app, err = firebase.NewApp(ctx, firebaseConfig, opt)
 	} else {
