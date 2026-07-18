@@ -62,7 +62,7 @@ export async function POST(req: Request) {
     cookieStore.set("session", sessionValue, {
       httpOnly: true,
       secure: true,
-      sameSite: "none",
+      sameSite: "lax",
       path: "/",
       maxAge: 60 * 60 * 24 * 5, // 5 days
     });
