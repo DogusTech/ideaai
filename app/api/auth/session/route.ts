@@ -57,9 +57,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Failed to parse session cookie" }, { status: 500 });
     }
 
-    // Let Next.js explicitly set the cookie on the browser
-    const cookieStore = await cookies();
-    cookieStore.set("session", sessionValue, {
+    const response = NextResponse.json({ status: "success" });
+    response.cookies.set("session", sessionValue, {
       httpOnly: true,
       secure: true,
       sameSite: "lax",
@@ -67,7 +66,7 @@ export async function POST(req: Request) {
       maxAge: 60 * 60 * 24 * 5, // 5 days
     });
 
-    return NextResponse.json({ status: "success" });
+    return response;
 
   } catch (error: any) {
     console.error("Session route error:", error);

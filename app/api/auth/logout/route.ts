@@ -41,15 +41,15 @@ export async function POST(req: Request) {
     });
 
     // Regardless of backend success, we MUST clear the cookie locally
-    cookieStore.delete("session");
+    const response = NextResponse.json({ status: "success" });
+    response.cookies.delete("session");
 
-    return NextResponse.json({ status: "success" });
+    return response;
 
   } catch (error: any) {
     console.error("Logout route error:", error);
-    // Still clear the cookie on failure
-    const cookieStore = await cookies();
-    cookieStore.delete("session");
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    const response = NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    response.cookies.delete("session");
+    return response;
   }
 }
