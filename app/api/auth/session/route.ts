@@ -57,22 +57,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Failed to parse session cookie" }, { status: 500 });
     }
 
-    const response = NextResponse.json({ status: "success" });
+    const response = NextResponse.json({ status: "success", sessionValue: sessionValue });
     response.cookies.set("session", sessionValue, {
       httpOnly: true,
       secure: true,
       sameSite: "lax",
       path: "/",
       maxAge: 60 * 60 * 24 * 5, // 5 days
-    });
-
-    // DIAGNOSTIC TEST COOKIE
-    response.cookies.set("session_test", "route_executed_successfully_length_" + sessionValue.length, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "lax",
-      path: "/",
-      maxAge: 60 * 60 * 24 * 5,
     });
 
     return response;
