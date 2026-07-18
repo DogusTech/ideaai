@@ -28,7 +28,7 @@ export function Hero() {
         }}
       />
 
-      <div className="mx-auto flex min-h-[92vh] max-w-[1400px] flex-col justify-center px-6 pb-16 pt-28 lg:px-10 lg:pt-32">
+      <div className="mx-auto flex min-h-[92vh] max-w-[1400px] flex-col px-6 pb-16 pt-28 lg:justify-center lg:px-10 lg:pt-32">
         <AnnouncementBar />
 
         <div className="mt-10 grid grid-cols-1 items-center gap-12 lg:mt-12 lg:grid-cols-12 lg:gap-8">
