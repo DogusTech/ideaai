@@ -48,7 +48,7 @@ func main() {
 	handler := server.New(cfg, authClient, firestoreClient)
 
 	srv := &http.Server{
-		Addr:         ":" + cfg.Port,
+		Addr:         "0.0.0.0:" + cfg.Port,
 		Handler:      handler,
 		ReadHeaderTimeout: 5 * time.Second,
 		ReadTimeout:  10 * time.Second,

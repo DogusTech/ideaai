@@ -22,8 +22,8 @@ WORKDIR /app
 # Copy the binary from the builder stage
 COPY --from=builder /api /app/api
 
-# The application listens on port 8080
-EXPOSE 8080
+# Railway automatically assigns and routes to the dynamic PORT variable
+# EXPOSE is removed to prevent port routing conflicts
 
 # Run the binary
 CMD ["/app/api"]
