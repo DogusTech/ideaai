@@ -13,17 +13,8 @@ export default async function NetworkPage() {
   const cookieStore = await cookies()
   const session = cookieStore.get("session")
 
-  const allCookies = cookieStore.getAll().map(c => c.name).join(", ");
-  
   if (!session) {
-    return (
-      <div className="p-12 text-center text-red-500 font-bold">
-        <h1>Diagnostic Error</h1>
-        <p>The session cookie is missing!</p>
-        <p>Cookies received by Next.js: {allCookies || "None"}</p>
-        <p>Please take a screenshot of this page and send it to me.</p>
-      </div>
-    );
+    redirect("/login?redirect=/network")
   }
 
   return (
