@@ -10,12 +10,14 @@ const nextConfig = {
     // İsmi Vercel'in otomatik kurallarla ezemeyeceği bir kelimeye çevirdik
     const baseUrl = (process.env.TOGETLINK_BACKEND_URL || 'https://togetlink-ui-production.up.railway.app').replace(/\/$/, '');
 
-    return [
-      {
-        source: '/api/:path*',
-        destination: `${baseUrl}/api/:path*`,
-      },
-    ]
+    return {
+      fallback: [
+        {
+          source: '/api/:path*',
+          destination: `${baseUrl}/api/:path*`,
+        },
+      ]
+    }
   },
 }
 
