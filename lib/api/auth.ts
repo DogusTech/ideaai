@@ -9,21 +9,34 @@ export async function getCsrfToken() {
 }
 
 export async function createSession(idToken: string) {
-  // We need CSRF first
-  await getCsrfToken();
-  const res = await fetchApi("/auth/session", {
+  // Call Next.js API Route directly, bypassing proxy
+  const res = await fetch("/api/auth/login", {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify({ idToken })
   });
   
-  // Client-side fallback to guarantee the cookie is saved even if Set-Cookie header is dropped
-  if (res && res.sessionValue && typeof document !== 'undefined') {
-    const date = new Date();
-    date.setTime(date.getTime() + (5 * 24 * 60 * 60 * 1000)); // 5 days
-    document.cookie = `session=${res.sessionValue}; expires=${date.toUTCString()}; path=/; secure; samesite=lax`;
+  let data;
+  try {
+    data = await res.json();
+  } catch (e) {
+    throw new Error("Failed to parse login response");
+  }
+
+  if (!res.ok) {
+    throw new Error(`API Error (${res.status}): ${data.error || "Unknown error"}`);
   }
   
-  return res;
+  // Client-side fallback to guarantee the cookie is saved even if Set-Cookie header is dropped
+  if (data && data.sessionValue && typeof document !== 'undefined') {
+    const date = new Date();
+    date.setTime(date.getTime() + (5 * 24 * 60 * 60 * 1000)); // 5 days
+    document.cookie = `session=${data.sessionValue}; expires=${date.toUTCString()}; path=/; secure; samesite=lax`;
+  }
+  
+  return data;
 }
 
 export async function logout() {
