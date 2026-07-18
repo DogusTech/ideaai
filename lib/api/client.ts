@@ -38,7 +38,7 @@ export async function apiFetch<T>(
   } catch (error: any) {
     // If the error was caused by our timeout, throw a specific message
     if (error.name === 'AbortError') {
-      throw new Error("Network timeout: The server took too long to respond. Please check your connection or backend status.");
+      throw new Error(`Network timeout: The request to ${path} took too long to respond. Please check your connection or backend status.`);
     }
     // Otherwise it's a CORS, DNS, or TCP connection error
     throw new Error(`Network Error: ${error.message || "Failed to fetch"}`);
