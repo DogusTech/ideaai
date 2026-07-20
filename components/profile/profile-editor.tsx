@@ -14,6 +14,8 @@ type ProfileData = {
   linkedin: string
   website: string
   city: string
+}
+
 export function ProfileEditor() {
   const { user, loading: authLoading } = useAuth()
   const [data, setData] = useState<ProfileData>({
