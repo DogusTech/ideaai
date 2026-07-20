@@ -14,10 +14,8 @@ type ProfileData = {
   linkedin: string
   website: string
   city: string
-}
-
 export function ProfileEditor() {
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const [data, setData] = useState<ProfileData>({
     name: "",
     headline: "",
@@ -31,7 +29,13 @@ export function ProfileEditor() {
   const [errorMsg, setErrorMsg] = useState("")
 
   useEffect(() => {
-    if (!user) return
+    if (authLoading) return // wait for firebase auth to initialize
+    
+    if (!user) {
+      setStatus("idle")
+      return
+    }
+
     async function loadProfile() {
       try {
         const res = await fetchApi("/users/me")
@@ -53,7 +57,7 @@ export function ProfileEditor() {
       }
     }
     loadProfile()
-  }, [user])
+  }, [user, authLoading])
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
