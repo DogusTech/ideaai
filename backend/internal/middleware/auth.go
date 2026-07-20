@@ -20,10 +20,6 @@ func UserIDFromContext(ctx context.Context) string {
 func RequireAuth(authClient *auth.Client) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			if r.Method == "PUT" && r.URL.Path == "/api/users/me" {
-				log.Printf("PUT /api/users/me headers: %v", r.Header)
-			}
-			
 			cookie, err := r.Cookie("session")
 			if err != nil {
 				http.Error(w, "Unauthorized (missing cookie): "+err.Error(), http.StatusUnauthorized)
