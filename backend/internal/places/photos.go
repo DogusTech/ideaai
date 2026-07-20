@@ -15,12 +15,14 @@ import (
 type PhotoResolver struct {
 	httpClient *http.Client
 	apiKey     string
+	appOrigin  string
 }
 
 func NewPhotoResolver(cfg *config.Config) *PhotoResolver {
 	return &PhotoResolver{
 		httpClient: &http.Client{Timeout: 10 * time.Second},
 		apiKey:     cfg.GooglePlacesAPIKey,
+		appOrigin:  cfg.AppOrigin,
 	}
 }
 
@@ -45,6 +47,10 @@ func (r *PhotoResolver) Resolve(ctx context.Context, photoName string, maxWidth,
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
+	}
+
+	if r.appOrigin != "" {
+		req.Header.Set("Referer", r.appOrigin+"/")
 	}
 
 	resp, err := r.httpClient.Do(req)

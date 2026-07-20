@@ -17,12 +17,14 @@ const baseURL = "https://places.googleapis.com/v1"
 type Client struct {
 	httpClient *http.Client
 	apiKey     string
+	appOrigin  string
 }
 
 func NewClient(cfg *config.Config) *Client {
 	return &Client{
 		httpClient: &http.Client{Timeout: 15 * time.Second},
 		apiKey:     cfg.GooglePlacesAPIKey,
+		appOrigin:  cfg.AppOrigin,
 	}
 }
 
@@ -62,6 +64,10 @@ func (c *Client) PlaceDetails(ctx context.Context, placeID string) (map[string]i
 }
 
 func (c *Client) doReq(req *http.Request) (map[string]interface{}, error) {
+	if c.appOrigin != "" {
+		req.Header.Set("Referer", c.appOrigin+"/")
+	}
+
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
 		return nil, err
