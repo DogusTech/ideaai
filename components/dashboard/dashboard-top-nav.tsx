@@ -23,6 +23,9 @@ import {
   MapPin
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { logout } from "@/lib/api/auth"
+import { auth } from "@/lib/firebase"
+import { signOut } from "firebase/auth"
 
 const NAV_ITEMS = [
   { label: "Home", href: "/dashboard", icon: Home },
@@ -60,6 +63,16 @@ export function DashboardTopNav() {
     },
     [pathname],
   )
+
+  const handleLogout = async () => {
+    try {
+      await logout()
+      await signOut(auth)
+      window.location.href = "/login"
+    } catch (err) {
+      console.error("Logout failed:", err)
+    }
+  }
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -260,14 +273,14 @@ export function DashboardTopNav() {
 
                   <hr className="my-1 border-[#e0e0e0]" />
 
-                  <Link
-                    href="/logout"
+                  <button
+                    onClick={handleLogout}
                     role="menuitem"
-                    className="flex items-center gap-3 px-4 py-2 text-sm text-brand-red-soft hover:bg-brand-red-soft/5 transition-colors"
+                    className="flex w-full items-center gap-3 px-4 py-2 text-left text-sm text-brand-red-soft hover:bg-brand-red-soft/5 transition-colors"
                   >
                     <LogOut className="size-4 shrink-0" />
                     Sign Out
-                  </Link>
+                  </button>
                 </div>
               )}
             </li>
@@ -367,14 +380,13 @@ export function DashboardTopNav() {
                   </li>
                 ))}
                 <li>
-                  <Link
-                    href="/logout"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-4 rounded-xl px-4 py-3 text-sm font-medium text-brand-red-soft hover:bg-brand-red-soft/5 transition-colors"
+                  <button
+                    onClick={handleLogout}
+                    className="flex w-full items-center gap-4 rounded-xl px-4 py-3 text-left text-sm font-medium text-brand-red-soft hover:bg-brand-red-soft/5 transition-colors"
                   >
                     <LogOut className="size-4" />
                     Sign Out
-                  </Link>
+                  </button>
                 </li>
               </ul>
             </div>
