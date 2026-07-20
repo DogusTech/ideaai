@@ -69,7 +69,7 @@ export function ProfileEditor() {
       setTimeout(() => setStatus("idle"), 3000)
     } catch (err: any) {
       console.error(err)
-      setErrorMsg("Failed to update profile. Please try again.")
+      setErrorMsg(err.message || "Failed to update profile. Please try again.")
       setStatus("idle")
     }
   }

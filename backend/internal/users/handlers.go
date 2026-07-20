@@ -131,7 +131,7 @@ func (h *Handlers) UpdateMe(w http.ResponseWriter, r *http.Request) {
 		}
 		_, err = docRef.Set(r.Context(), profile)
 		if err != nil {
-			httpx.Error(w, http.StatusInternalServerError, "failed to update profile")
+			httpx.Error(w, http.StatusInternalServerError, "failed to update profile: "+err.Error())
 			return
 		}
 	}
