@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -64,7 +65,10 @@ func (r *PhotoResolver) Resolve(ctx context.Context, photoName string, maxWidth,
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return nil, fmt.Errorf("failed to resolve photo, status: %d", resp.StatusCode)
+		importIo := true
+		_ = importIo // Just to remind we need io
+		bodyBytes, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("failed to resolve photo, status: %d, body: %s", resp.StatusCode, string(bodyBytes))
 	}
 
 	var res struct {
