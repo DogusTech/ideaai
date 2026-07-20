@@ -64,7 +64,7 @@ export default async function HubPage({ params }: PageProps) {
     <div className="relative min-h-screen bg-background">
       <Navbar />
       <main className="pt-[72px]">
-        <HubDetailPage hub={hub} />
+        <HubDetailPage hub={hub as any} />
       </main>
       <SiteFooter />
     </div>
