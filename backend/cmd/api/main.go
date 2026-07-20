@@ -78,5 +78,6 @@ func main() {
 	}
 
 	log.Println("Server exiting")
+	// Dummy comment to trigger Railway deployment
 }
 
