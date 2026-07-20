@@ -96,6 +96,7 @@ func (h *Handlers) RedirectPhoto(w http.ResponseWriter, r *http.Request) {
 
 	photo, err := h.resolver.Resolve(r.Context(), photoName, maxWidth, maxHeight)
 	if err != nil {
+		// Log and return the detailed error for debugging 403s
 		http.Error(w, "failed to resolve photo: "+err.Error(), http.StatusBadGateway)
 		return
 	}
