@@ -1,8 +1,9 @@
-let API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? ""
-if (typeof window === "undefined" && !API_BASE_URL) {
-  API_BASE_URL = "http://127.0.0.1:8080"
-}
+let API_BASE_URL = ""
 
+// For server-side rendering (SSR), we must use the direct backend URL
+if (typeof window === "undefined") {
+  API_BASE_URL = process.env.TOGETLINK_BACKEND_URL || process.env.NEXT_PUBLIC_API_BASE_URL || "https://togetlink-ui-production.up.railway.app"
+}
 let globalCsrfToken: string | null = null;
 
 export function setCsrfToken(token: string) {
