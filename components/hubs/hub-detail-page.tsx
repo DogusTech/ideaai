@@ -38,8 +38,7 @@ export function HubDetailPage({ hub }: HubDetailPageProps) {
   const countryLabel = hub.country === "TR" ? "Turkey" : "United States"
   let photoSrc = hub.photo?.photoUri || (hub as any).photo?.url
   if (!photoSrc && hub.heroPhoto?.name) {
-    const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "https://togetlink-api-production.up.railway.app/api"
-    photoSrc = `${apiBase}/places/photo/redirect?photoName=${encodeURIComponent(hub.heroPhoto.name)}&maxWidthPx=1200`
+    photoSrc = `/api/places/photo/redirect?photoName=${encodeURIComponent(hub.heroPhoto.name)}&maxWidthPx=1200`
   }
 
   return (

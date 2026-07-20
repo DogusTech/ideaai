@@ -71,8 +71,7 @@ export function DashboardHubCard({
   } else if ((hub as any).photo?.url) {
     photoSrc = (hub as any).photo.url
   } else if (hub.cardPhoto?.name) {
-    const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "https://togetlink-api-production.up.railway.app/api"
-    photoSrc = `${apiBase}/places/photo/redirect?photoName=${encodeURIComponent(hub.cardPhoto.name)}&maxWidthPx=400`
+    photoSrc = `/api/places/photo/redirect?photoName=${encodeURIComponent(hub.cardPhoto.name)}&maxWidthPx=400`
   }
   
   const categoryLabel = CATEGORY_LABELS[hub.category] || hub.category

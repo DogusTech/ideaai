@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       type: "website",
       images: [
         {
-          url: hub.photo?.photoUri || (hub as any).photo?.url || (hub.heroPhoto?.name ? `https://togetlink-api-production.up.railway.app/api/places/photo/redirect?photoName=${encodeURIComponent(hub.heroPhoto.name)}&maxWidthPx=1200` : "https://togetlink.com/images/fallback-hub.svg"),
+          url: hub.photo?.photoUri || (hub as any).photo?.url || (hub.heroPhoto?.name ? `${process.env.NEXT_PUBLIC_APP_URL || "https://togetlink.com"}/api/places/photo/redirect?photoName=${encodeURIComponent(hub.heroPhoto.name)}&maxWidthPx=1200` : "https://togetlink.com/images/fallback-hub.svg"),
           width: 1200,
           height: 630,
           alt: `${hub.name} venue photo`,
