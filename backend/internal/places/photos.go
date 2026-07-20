@@ -33,7 +33,7 @@ func (r *PhotoResolver) Resolve(ctx context.Context, photoName string, maxWidth,
 		return nil, fmt.Errorf("invalid photoName format")
 	}
 
-	url := fmt.Sprintf("%s/%s/media?skipHttpRedirect=true&key=%s", baseURL, photoName, r.apiKey)
+	url := fmt.Sprintf("%s/%s/media?skipHttpRedirect=true", baseURL, photoName)
 	
 	if maxWidth > 0 && maxWidth <= 4800 {
 		url += fmt.Sprintf("&maxWidthPx=%d", maxWidth)
@@ -53,6 +53,7 @@ func (r *PhotoResolver) Resolve(ctx context.Context, photoName string, maxWidth,
 	if r.appOrigin != "" {
 		req.Header.Set("Referer", r.appOrigin+"/")
 	}
+	req.Header.Set("X-Goog-Api-Key", r.apiKey)
 
 	resp, err := r.httpClient.Do(req)
 	if err != nil {
