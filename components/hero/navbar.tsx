@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
+import { auth } from "@/lib/firebase"
+import { onAuthStateChanged } from "firebase/auth"
 
 const LINKS = [
   { label: "Explore", href: "/explore" },
@@ -14,6 +16,14 @@ const LINKS = [
 
 export function Navbar() {
   const [scrolled, setScrolled] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setIsAuthenticated(!!user)
+    })
+    return () => unsubscribe()
+  }, [])
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12)
@@ -57,18 +67,37 @@ export function Navbar() {
         </ul>
 
         <div className="flex items-center gap-3">
-          <Link
-            href="/login"
-            className="hidden text-sm font-medium text-foreground/70 transition-colors hover:text-foreground sm:inline"
-          >
-            Sign in
-          </Link>
-          <Link
-            href="/register"
-            className="inline-flex h-10 items-center justify-center rounded-full bg-brand-blue px-5 text-sm font-semibold text-white transition-colors hover:bg-[#2569cc]"
-          >
-            Get started
-          </Link>
+          {isAuthenticated === null ? null : isAuthenticated ? (
+            <>
+              <Link
+                href="/dashboard"
+                className="hidden text-sm font-medium text-foreground/70 transition-colors hover:text-foreground sm:inline"
+              >
+                Dashboard
+              </Link>
+              <Link
+                href="/profile"
+                className="inline-flex h-10 items-center justify-center rounded-full bg-brand-blue px-5 text-sm font-semibold text-white transition-colors hover:bg-[#2569cc]"
+              >
+                Profile
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/login"
+                className="hidden text-sm font-medium text-foreground/70 transition-colors hover:text-foreground sm:inline"
+              >
+                Sign in
+              </Link>
+              <Link
+                href="/register"
+                className="inline-flex h-10 items-center justify-center rounded-full bg-brand-blue px-5 text-sm font-semibold text-white transition-colors hover:bg-[#2569cc]"
+              >
+                Get started
+              </Link>
+            </>
+          )}
         </div>
       </nav>
     </motion.header>
