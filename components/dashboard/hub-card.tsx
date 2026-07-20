@@ -65,7 +65,15 @@ export function DashboardHubCard({
   const countryLabel = hub.country === "TR" ? "Turkey" : hub.country === "US" ? "United States" : hub.country
 
   // Photo
-  const photoSrc = hub.photo?.photoUri || hub.photo?.url || "/images/fallback-hub.svg"
+  let photoSrc = "/images/fallback-hub.svg"
+  if (hub.photo?.photoUri) {
+    photoSrc = hub.photo.photoUri
+  } else if ((hub as any).photo?.url) {
+    photoSrc = (hub as any).photo.url
+  } else if (hub.cardPhoto?.name) {
+    const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL || "https://togetlink-api-production.up.railway.app/api"
+    photoSrc = `${apiBase}/places/photo/redirect?photoName=${encodeURIComponent(hub.cardPhoto.name)}&maxWidthPx=400`
+  }
   
   const categoryLabel = CATEGORY_LABELS[hub.category] || hub.category
   const categoryColor = CATEGORY_COLORS[hub.category] || "bg-muted text-foreground"

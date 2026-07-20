@@ -20,6 +20,8 @@ export interface Hub {
   userRatingCount?: number;
   photo?: HubPhoto;
   photos?: HubPhoto[];
+  cardPhoto?: { name: string; widthPx?: number; heightPx?: number };
+  heroPhoto?: { name: string; widthPx?: number; heightPx?: number };
   googleMapsUri?: string;
   broadAreas?: string[];
   formattedAddress?: string;
