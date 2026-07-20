@@ -137,7 +137,7 @@ export function LoginForm() {
         <button
           type="submit"
           disabled={status === "submitting"}
-          className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand-blue text-sm font-semibold text-white transition-colors hover:bg-[#2569cc] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-blue/30 disabled:opacity-70"
+          className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-md bg-brand-blue text-sm font-semibold text-white transition-colors hover:bg-[#2569cc] focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-blue/30 disabled:opacity-70"
         >
           {status === "submitting" && (
             <Loader2 className="size-4 animate-spin" aria-hidden="true" />

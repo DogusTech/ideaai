@@ -109,13 +109,13 @@ export function HubCard({ hub, className }: HubCardProps) {
       <div className="mt-4 flex items-center gap-2">
         <Link
           href={detailHref}
-          className="flex-1 rounded-xl bg-brand-blue py-2 text-center text-sm font-semibold text-white transition-colors hover:bg-[#2569cc] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-1"
+          className="flex-1 rounded-md bg-brand-blue py-2 text-center text-sm font-semibold text-white transition-colors hover:bg-[#2569cc] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-1"
         >
           View hub
         </Link>
         <Link
           href={`/register?intent=checkin&hub=${hub.slug}`}
-          className="rounded-xl border border-border/70 px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-1"
+          className="flex-1 rounded-md border border-[#e0e0e0] px-4 py-2 text-center text-sm font-semibold text-brand-blue transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-1"
         >
           Check in
         </Link>

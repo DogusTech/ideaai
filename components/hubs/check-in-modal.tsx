@@ -4,6 +4,7 @@ import { useState } from "react"
 import { X, MapPin, Loader2 } from "lucide-react"
 import { apiFetch } from "@/lib/api/client"
 import { cn } from "@/lib/utils"
+import { TextField, TextAreaField } from "@/components/ui/field"
 
 interface CheckInModalProps {
   isOpen: boolean
@@ -79,55 +80,40 @@ export function CheckInModal({ isOpen, onClose, hubId, hubName, onSuccess }: Che
 
         {/* Body */}
         <form onSubmit={handleSubmit} className="p-6">
-          <div className="space-y-5">
+          <div className="space-y-6">
             
             {/* Field 1 */}
-            <div className="space-y-1.5">
-              <label htmlFor="locationStatus" className="text-sm font-semibold text-foreground">
-                Where are you located in the hub?
-              </label>
-              <input
-                id="locationStatus"
-                type="text"
-                placeholder="e.g. 2nd floor, by the window, main cafe area"
-                value={locationStatus}
-                onChange={(e) => setLocationStatus(e.target.value)}
-                disabled={isSubmitting}
-                className="w-full rounded-xl border border-[#e0e0e0] bg-[#fdfdfd] px-4 py-2.5 text-sm transition-colors focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue disabled:opacity-50"
-              />
-            </div>
+            <TextField
+              label="Where are you located in the hub?"
+              name="locationStatus"
+              value={locationStatus}
+              onChange={(e) => setLocationStatus(e.target.value)}
+              disabled={isSubmitting}
+              placeholder="e.g. 2nd floor, by the window, main cafe area"
+              required
+            />
 
             {/* Field 2 */}
-            <div className="space-y-1.5">
-              <label htmlFor="workingOn" className="text-sm font-semibold text-foreground">
-                What are you currently working on / doing?
-              </label>
-              <textarea
-                id="workingOn"
-                rows={3}
-                placeholder="e.g. Building a SaaS startup, reading a book, open to chat..."
-                value={workingOn}
-                onChange={(e) => setWorkingOn(e.target.value)}
-                disabled={isSubmitting}
-                className="w-full resize-none rounded-xl border border-[#e0e0e0] bg-[#fdfdfd] px-4 py-2.5 text-sm transition-colors focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue disabled:opacity-50"
-              />
-            </div>
+            <TextAreaField
+              label="What are you currently working on / doing?"
+              name="workingOn"
+              value={workingOn}
+              onChange={(e) => setWorkingOn(e.target.value)}
+              disabled={isSubmitting}
+              placeholder="e.g. Building a SaaS startup, reading a book, open to chat..."
+              required
+            />
 
             {/* Field 3 */}
-            <div className="space-y-1.5">
-              <label htmlFor="appearance" className="text-sm font-semibold text-foreground">
-                How do you look?
-              </label>
-              <input
-                id="appearance"
-                type="text"
-                placeholder="e.g. Wearing a black t-shirt, using a Mac with headphones"
-                value={appearance}
-                onChange={(e) => setAppearance(e.target.value)}
-                disabled={isSubmitting}
-                className="w-full rounded-xl border border-[#e0e0e0] bg-[#fdfdfd] px-4 py-2.5 text-sm transition-colors focus:border-brand-blue focus:outline-none focus:ring-1 focus:ring-brand-blue disabled:opacity-50"
-              />
-            </div>
+            <TextField
+              label="How do you look?"
+              name="appearance"
+              value={appearance}
+              onChange={(e) => setAppearance(e.target.value)}
+              disabled={isSubmitting}
+              placeholder="e.g. Wearing a black t-shirt, using a Mac with headphones"
+              required
+            />
 
             {error && (
               <p className="rounded-lg bg-brand-red-soft/10 p-3 text-sm font-medium text-brand-red-soft">
@@ -137,19 +123,19 @@ export function CheckInModal({ isOpen, onClose, hubId, hubName, onSuccess }: Che
           </div>
 
           {/* Footer Actions */}
-          <div className="mt-8 flex items-center justify-end gap-3">
+          <div className="mt-8 flex items-center justify-between gap-3">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="rounded-xl px-5 py-2.5 text-sm font-semibold text-muted-foreground hover:bg-muted transition-colors disabled:opacity-50"
+              className="flex-1 rounded-md border border-brand-blue px-5 py-2.5 text-sm font-semibold text-brand-blue hover:bg-muted transition-colors disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex items-center justify-center gap-2 rounded-xl bg-brand-blue px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-blue/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 disabled:opacity-70"
+              className="flex flex-1 items-center justify-center gap-2 rounded-md bg-brand-blue px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-blue/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2 disabled:opacity-70"
             >
               {isSubmitting ? (
                 <>
@@ -157,7 +143,7 @@ export function CheckInModal({ isOpen, onClose, hubId, hubName, onSuccess }: Che
                   Joining...
                 </>
               ) : (
-                "Check In"
+                "Save & Continue"
               )}
             </button>
           </div>

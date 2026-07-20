@@ -206,7 +206,7 @@ export function DashboardHubCard({
               <button
                 type="button"
                 onClick={() => setIsModalOpen(true)}
-                className="flex flex-1 items-center justify-center rounded-xl bg-brand-blue py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-blue/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-1"
+                className="flex flex-1 items-center justify-center rounded-md bg-brand-blue py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-blue/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-1"
               >
                 {ctaLabel}
               </button>
@@ -214,7 +214,7 @@ export function DashboardHubCard({
               {/* Secondary CTA: View Hub */}
               <Link
                 href={detailHref}
-                className="flex items-center justify-center gap-2 rounded-xl border border-[#e0e0e0] px-4 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-1"
+                className="flex flex-1 items-center justify-center rounded-md border border-[#e0e0e0] px-4 py-2.5 text-sm font-medium text-brand-blue transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-1"
               >
                 View Hub
               </Link>

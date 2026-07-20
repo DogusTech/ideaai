@@ -1,8 +1,8 @@
 "use client"
 
 import { useState, useEffect, type FormEvent } from "react"
-import { Loader2, CheckCircle2 } from "lucide-react"
-import { TextField } from "@/components/ui/field"
+import { Loader2, CheckCircle2, Globe } from "lucide-react"
+import { TextField, TextAreaField } from "@/components/ui/field"
 import { fetchApi } from "@/lib/api/client"
 import { useAuth } from "@/lib/auth/context"
 
@@ -145,6 +145,7 @@ export function ProfileEditor() {
           value={data.linkedin}
           onChange={(e) => setData({ ...data, linkedin: e.target.value })}
           placeholder="https://linkedin.com/in/yourprofile"
+          leftIcon={<Globe className="size-4" />}
         />
         <TextField
           label="Personal Website"
@@ -153,25 +154,19 @@ export function ProfileEditor() {
           value={data.website}
           onChange={(e) => setData({ ...data, website: e.target.value })}
           placeholder="https://yourwebsite.com"
+          leftIcon={<Globe className="size-4" />}
         />
       </div>
 
-      <div className="flex flex-col gap-2">
-        <label htmlFor="bio" className="text-sm font-medium text-foreground">
-          Bio
-        </label>
-        <textarea
-          id="bio"
-          name="bio"
-          rows={4}
-          className="rounded-xl border border-input bg-transparent px-4 py-3 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/40"
-          value={data.bio}
-          onChange={(e) => setData({ ...data, bio: e.target.value })}
-          placeholder="Tell us a little bit about yourself..."
-        />
-      </div>
+      <TextAreaField
+        label="Bio"
+        name="bio"
+        value={data.bio}
+        onChange={(e) => setData({ ...data, bio: e.target.value })}
+        placeholder="Tell us a little bit about yourself..."
+      />
 
-      <div className="flex justify-end">
+      <div className="flex justify-end mt-4">
         <button
           type="submit"
           disabled={status === "submitting"}
