@@ -42,7 +42,13 @@ export async function POST(req: Request) {
 
     // Regardless of backend success, we MUST clear the cookie locally
     const response = NextResponse.json({ status: "success" });
-    response.cookies.delete("session");
+    response.cookies.set("session", "", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      path: "/",
+      maxAge: 0,
+    });
 
     return response;
 
