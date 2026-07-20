@@ -22,13 +22,13 @@ func RequireAuth(authClient *auth.Client) func(http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			cookie, err := r.Cookie("session")
 			if err != nil {
-				http.Error(w, "Unauthorized", http.StatusUnauthorized)
+				http.Error(w, "Unauthorized (missing cookie): "+err.Error(), http.StatusUnauthorized)
 				return
 			}
 
 			token, err := authClient.VerifySessionCookieAndCheckRevoked(r.Context(), cookie.Value)
 			if err != nil {
-				http.Error(w, "Unauthorized", http.StatusUnauthorized)
+				http.Error(w, "Unauthorized (invalid token): "+err.Error(), http.StatusUnauthorized)
 				return
 			}
 
