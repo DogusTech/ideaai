@@ -33,7 +33,7 @@ export async function createSession(idToken: string) {
   if (data && data.sessionValue && typeof document !== 'undefined') {
     const date = new Date();
     date.setTime(date.getTime() + (5 * 24 * 60 * 60 * 1000)); // 5 days
-    document.cookie = `session=${data.sessionValue}; expires=${date.toUTCString()}; path=/; secure; samesite=lax`;
+    document.cookie = `session=${data.sessionValue}; expires=${date.toUTCString()}; path=/; secure; samesite=none`;
   }
   
   return data;
