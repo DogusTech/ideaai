@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import Link from "next/link"
 import { Check, Sparkles } from "lucide-react"
 
@@ -17,6 +16,8 @@ const PLANS = [
       "Explore nearby hubs",
       "Basic visibility controls",
     ],
+    cta: "Current Plan",
+    ctaType: "secondary",
   },
   {
     id: "pro",
@@ -32,6 +33,8 @@ const PLANS = [
       "Early access features",
     ],
     recommended: true,
+    cta: "Upgrade to Pro",
+    ctaType: "primary",
   },
   {
     id: "enterprise",
@@ -46,164 +49,120 @@ const PLANS = [
       "Custom trust and moderation workflows",
       "Partnership support",
     ],
+    cta: "Contact Sales",
+    ctaType: "secondary",
   },
 ]
 
 export function PricingSection() {
-  const [selected, setSelected] = useState<string>("pro")
-
   return (
     <section
       aria-labelledby="pricing-heading"
-      style={{ backgroundColor: "#eaf0fb" }}
-      className="px-4 py-20 sm:px-6 lg:px-8"
+      className="bg-[#f5f5f5] px-4 py-12 sm:px-6 lg:px-8 min-h-screen"
     >
-      {/* Outer container */}
-      <div className="mx-auto max-w-4xl rounded-3xl bg-white px-6 py-12 shadow-sm sm:px-10 sm:py-14">
-
+      <div className="mx-auto max-w-5xl">
         {/* Top icon */}
-        <div className="mb-5 flex justify-center">
+        <div className="mb-6 flex justify-center">
           <span
-            className="flex size-12 items-center justify-center rounded-2xl"
-            style={{ backgroundColor: "#eaf0fb" }}
+            className="flex size-12 items-center justify-center rounded-2xl bg-white shadow-sm border border-[#e2e5ea]"
             aria-hidden="true"
           >
             <Sparkles
-              className="size-6"
-              style={{ color: "#2f7ae7" }}
+              className="size-6 text-brand-blue"
               strokeWidth={1.75}
             />
           </span>
         </div>
 
         {/* Heading + subtext */}
-        <div className="mb-8 text-center">
+        <div className="mb-12 text-center">
           <h2
             id="pricing-heading"
             className="text-balance text-2xl font-bold tracking-tight text-foreground sm:text-3xl"
           >
-            Choose how you want to build with TogetLink
+            Upgrade your real-world network
           </h2>
-          <p className="mt-3 text-pretty text-sm text-muted-foreground sm:text-base">
-            Pick the plan that fits where you are today. Upgrade any time as your real-world network grows.
+          <p className="mt-3 text-pretty text-sm text-muted-foreground sm:text-base max-w-2xl mx-auto">
+            Pick the plan that fits where you are today. Enhance your visibility and connect with the right professionals.
           </p>
         </div>
 
         {/* Cards row */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
           {PLANS.map((plan) => {
-            const isSelected = selected === plan.id
             return (
-              <button
+              <div
                 key={plan.id}
-                type="button"
-                onClick={() => setSelected(plan.id)}
-                aria-pressed={isSelected}
-                className="relative flex flex-col rounded-2xl border-2 p-5 text-left transition-shadow focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2f7ae7] focus-visible:ring-offset-2"
-                style={{
-                  borderColor: isSelected ? "#2f7ae7" : "#e2e5ea",
-                  boxShadow: isSelected
-                    ? "0 4px 18px 0 rgba(47,122,231,0.14)"
-                    : "none",
-                  backgroundColor: "#ffffff",
-                }}
+                className="relative flex flex-col rounded-2xl border border-[#e2e5ea] bg-[#ffffff] p-6 text-left shadow-sm transition-shadow hover:shadow-md"
               >
-                {/* Selected check / unselected radio */}
-                <span className="absolute right-4 top-4" aria-hidden="true">
-                  {isSelected ? (
-                    <span
-                      className="flex size-6 items-center justify-center rounded-full"
-                      style={{ backgroundColor: "#2f7ae7" }}
-                    >
-                      <Check className="size-3.5 text-white" strokeWidth={3} />
-                    </span>
-                  ) : (
-                    <span
-                      className="flex size-6 items-center justify-center rounded-full border-2"
-                      style={{ borderColor: "#c8cdd6" }}
-                    />
-                  )}
-                </span>
-
                 {/* Pill label */}
                 <span
-                  className="mb-3 inline-flex items-center rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-widest"
-                  style={{
-                    backgroundColor: "#eaf0fb",
-                    color: "#2f7ae7",
-                  }}
+                  className="mb-4 inline-flex w-fit items-center rounded-full bg-brand-blue/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-widest text-brand-blue"
                 >
                   {plan.label}
                 </span>
 
                 {/* Price */}
-                <div className="mb-0.5 flex items-baseline gap-1">
+                <div className="mb-1 flex items-baseline gap-1">
                   <span
                     className="text-3xl font-bold leading-none sm:text-4xl"
-                    style={{ color: "#2f7ae7" }}
+                    style={{ color: "#3c4043" }}
                   >
                     {plan.price}
                   </span>
                   {plan.period && (
-                    <span className="text-sm text-muted-foreground">
+                    <span className="text-sm font-medium text-muted-foreground">
                       {plan.period}
                     </span>
                   )}
                 </div>
 
-                {/* Small plan name in blue */}
-                <p
-                  className="mb-3 text-xs font-medium"
-                  style={{ color: "#2f7ae7" }}
-                >
+                {/* Small plan name */}
+                <p className="mb-4 text-sm font-semibold text-foreground">
                   {plan.name} plan
                 </p>
 
                 {/* Description */}
-                <p className="mb-4 text-xs leading-relaxed text-muted-foreground">
+                <p className="mb-6 text-sm leading-relaxed text-muted-foreground min-h-[60px]">
                   {plan.description}
                 </p>
 
+                {/* CTAs */}
+                <div className="mb-8">
+                  {plan.ctaType === "primary" ? (
+                    <button
+                      className="w-full rounded-md bg-brand-blue py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-blue/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2"
+                    >
+                      {plan.cta}
+                    </button>
+                  ) : (
+                    <button
+                      className="w-full rounded-md border border-brand-blue bg-[#ffffff] py-2.5 text-sm font-semibold text-brand-blue transition-colors hover:bg-brand-blue/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2"
+                    >
+                      {plan.cta}
+                    </button>
+                  )}
+                </div>
+
                 {/* Benefits */}
-                <ul className="mt-auto space-y-2" aria-label={`${plan.name} plan features`}>
+                <ul className="mt-auto space-y-3" aria-label={`${plan.name} plan features`}>
                   {plan.benefits.map((benefit) => (
-                    <li key={benefit} className="flex items-start gap-2 text-xs text-foreground/80">
+                    <li key={benefit} className="flex items-start gap-3 text-sm text-foreground/80">
                       <Check
-                        className="mt-0.5 size-3.5 shrink-0"
-                        style={{ color: "#55a170" }}
+                        className="mt-0.5 size-4 shrink-0 text-brand-blue"
                         strokeWidth={2.5}
                         aria-hidden="true"
                       />
-                      {benefit}
+                      <span>{benefit}</span>
                     </li>
                   ))}
                 </ul>
-              </button>
+              </div>
             )
           })}
         </div>
 
-        {/* Bottom callout bar */}
-        <div
-          className="mt-6 flex flex-col items-start justify-between gap-4 rounded-2xl px-5 py-4 sm:flex-row sm:items-center"
-          style={{ backgroundColor: "#eaf0fb" }}
-        >
-          <div>
-            <p className="text-sm font-semibold text-foreground">
-              Start free. Upgrade when your real-world network grows.
-            </p>
-            <p className="mt-0.5 text-xs text-muted-foreground">
-              No credit card required to get started.
-            </p>
-          </div>
-          <Link
-            href="/register"
-            className="inline-flex shrink-0 items-center justify-center rounded-full px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#2f7ae7] focus-visible:ring-offset-2"
-            style={{ backgroundColor: "#2f7ae7" }}
-          >
-            Get started
-          </Link>
-        </div>
+        {/* Bottom callout bar removed as each card now has its own CTA suitable for logged in users */}
       </div>
     </section>
   )
