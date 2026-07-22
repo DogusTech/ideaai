@@ -10,10 +10,61 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'togetlink — Build together, meet nearby',
+  metadataBase: new URL('https://togetlink.com'),
+  title: {
+    default: 'togetlink — Professional Networking & Co-working Hubs',
+    template: '%s | togetlink',
+  },
   description:
-    'togetlink connects you with builders, designers, and founders right around the corner so your next great collaboration starts with a real conversation.',
-  generator: 'v0.app',
+    'togetlink connects you with builders, designers, and founders right around the corner. Discover local professional hubs in USA and Turkey to start your next great collaboration with a real conversation.',
+  keywords: [
+    'professional networking', 
+    'local hubs', 
+    'builders', 
+    'founders', 
+    'co-working', 
+    'networking in Istanbul', 
+    'networking in USA', 
+    'startup collaboration', 
+    'meet founders',
+    'check in to work',
+    'TogetLink'
+  ],
+  authors: [{ name: 'DogusTech' }],
+  creator: 'TogetLink',
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://togetlink.com',
+    title: 'togetlink — Professional Networking & Co-working Hubs',
+    description: 'Connect with builders, designers, and founders right around the corner in curated hubs.',
+    siteName: 'togetlink',
+    images: [
+      {
+        url: '/icon-light-32x32.png',
+        width: 800,
+        height: 600,
+        alt: 'togetlink - Professional Networking',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'togetlink — Professional Networking & Co-working Hubs',
+    description: 'Connect with builders, designers, and founders right around the corner.',
+    images: ['/icon-light-32x32.png'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
   icons: {
     icon: [
       {
@@ -42,6 +93,34 @@ export const viewport: Viewport = {
 }
 
 import { AuthProvider } from '@/lib/auth/context'
+import Script from 'next/script'
+
+const globalSchema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://togetlink.com/#organization",
+      "name": "TogetLink",
+      "url": "https://togetlink.com",
+      "logo": "https://togetlink.com/icon-light-32x32.png",
+      "sameAs": [
+        "https://twitter.com/togetlink",
+        "https://linkedin.com/company/togetlink"
+      ],
+      "description": "TogetLink connects builders, designers, and founders in local hubs across the USA and Turkey."
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://togetlink.com/#website",
+      "url": "https://togetlink.com",
+      "name": "TogetLink",
+      "publisher": {
+        "@id": "https://togetlink.com/#organization"
+      }
+    }
+  ]
+};
 
 export default function RootLayout({
   children,
@@ -53,6 +132,13 @@ export default function RootLayout({
       lang="en"
       className={`light bg-background ${geistSans.variable} ${geistMono.variable}`}
     >
+      <head>
+        <Script
+          id="global-schema"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(globalSchema) }}
+        />
+      </head>
       <body className="font-sans antialiased">
         <AuthProvider>
           {children}
