@@ -10,7 +10,7 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://togetlink.com'),
+  metadataBase: new URL('https://www.togetlink.com'),
   alternates: {
     canonical: '/',
   },
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     template: '%s | togetlink',
   },
   description:
-    'Connect with builders and founders nearby. Discover local professional networking hubs in the USA and Turkey to start your next great collaboration.',
+    'Where local builders build together and meet nearby. Discover professional hubs across USA and Turkey to find collaborators and ship faster.',
   keywords: [
     'professional networking', 
     'local hubs', 
@@ -38,9 +38,9 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://togetlink.com',
+    url: 'https://www.togetlink.com',
     title: 'togetlink — Professional Networking & Co-working Hubs',
-    description: 'Connect with builders and founders nearby. Discover local professional networking hubs.',
+    description: 'Where local builders build together and meet nearby. Discover professional hubs across USA and Turkey to find collaborators and ship faster.',
     siteName: 'togetlink',
     images: [
       {
@@ -54,7 +54,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'togetlink — Professional Networking & Co-working Hubs',
-    description: 'Connect with builders and founders nearby. Discover local professional networking hubs.',
+    description: 'Where local builders build together and meet nearby. Discover professional hubs across USA and Turkey to find collaborators and ship faster.',
     images: ['/icon-light-32x32.png'],
   },
   robots: {

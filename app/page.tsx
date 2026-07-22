@@ -12,10 +12,10 @@ const webpageSchema = {
   "@context": "https://schema.org",
   "@type": "WebPage",
   "name": "TogetLink - Build together, meet nearby",
-  "description": "TogetLink connects you with builders, designers, and founders right around the corner. Discover local professional hubs in USA and Turkey.",
-  "url": "https://togetlink.com",
+  "description": "Where local builders build together and meet nearby. Discover professional hubs across USA and Turkey to find collaborators and ship faster.",
+  "url": "https://www.togetlink.com",
   "publisher": {
-    "@id": "https://togetlink.com/#organization"
+    "@id": "https://www.togetlink.com/#organization"
   }
 }
 
