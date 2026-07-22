@@ -17,7 +17,7 @@ const GOALS: Goal[] = [
     iconColor: "text-[#2f7ae7]",
     title: "Discover nearby professional hubs",
     description:
-      "Find co-working spaces, meetups, and professional communities that are active near you right now.",
+      "Find curated co-working spaces, local tech meetups, and professional networking communities that are active near you right now. We map out the best physical locations in cities like San Francisco and Istanbul where real builders gather.",
   },
   {
     icon: <Share2 className="size-7" aria-hidden="true" />,
@@ -25,15 +25,15 @@ const GOALS: Goal[] = [
     iconColor: "text-[#f19c16]",
     title: "Share professional intent",
     description:
-      "Signal what you are working on and what kind of connections would move your work forward.",
+      "Signal exactly what you are working on and what kind of connections would move your startup forward. Whether you need a technical co-founder or a UX designer, your profile broadcasts your immediate needs to the right people.",
   },
   {
     icon: <Users className="size-7" aria-hidden="true" />,
     iconBg: "bg-[#fde8e7]",
     iconColor: "text-[#ea402d]",
-    title: "Meet with consent",
+    title: "Meet with complete consent",
     description:
-      "Connections happen only when both sides choose to engage — no cold outreach, no unexpected contact.",
+      "Professional networking shouldn't be spammy. Connections happen only when both sides explicitly choose to engage — no cold outreach, no unexpected contact. We prioritize your privacy while maximizing serendipitous meetings.",
   },
   {
     icon: <Building2 className="size-7" aria-hidden="true" />,
@@ -41,7 +41,7 @@ const GOALS: Goal[] = [
     iconColor: "text-[#55a170]",
     title: "Build together in real places",
     description:
-      "Move beyond the screen and collaborate in the shared spaces that make long-term partnerships possible.",
+      "Move beyond the digital screen and collaborate in the shared physical spaces that make long-term partnerships possible. We believe the best companies are built when founders and builders share the same room.",
   },
   {
     icon: <ArrowRightLeft className="size-7" aria-hidden="true" />,
@@ -49,7 +49,7 @@ const GOALS: Goal[] = [
     iconColor: "text-[#8dadd7]",
     title: "Turn solo work into trusted introductions",
     description:
-      "Let your professional presence do the work of making the right people aware of each other.",
+      "Let your verified professional presence do the heavy lifting. By simply checking into a hub, our platform works to make the right people aware of your skills, turning isolated work sessions into valuable network expansions.",
   },
 ]
 

@@ -1,0 +1,18 @@
+# TogetLink
+
+TogetLink is a professional networking platform that bridges the digital and physical worlds. It connects builders, designers, and founders through local co-working spaces, meetups, and tech hubs, with a strong focus on high-intent networking and face-to-face collaboration.
+
+## Core Values
+- **Real-World First**: We believe the most impactful connections happen in person, not in a digital feed.
+- **Intent-Driven**: Users signal their exact professional needs (e.g., "looking for a technical co-founder") to ensure relevant matches.
+- **Consent and Privacy**: Connections only occur through mutual opt-in. No cold outreach, no spam.
+
+## Ecosystem
+TogetLink currently maps out dynamic tech ecosystems, with major hubs curated in cities like San Francisco, USA and Istanbul, Turkey. It is trusted by a growing community of pioneer builders and early adopters who use the platform to turn isolated work sessions into valuable network expansions.
+
+## Key Features
+- **Hub Discovery**: Explore active professional communities and workspaces nearby.
+- **Check-In**: Share your current location to signal availability to other verified builders in the same space.
+- **Goal Sharing**: Broadcast what you're working on to find serendipitous collaborations.
+
+For more information or to join the community for free, visit https://togetlink.com.

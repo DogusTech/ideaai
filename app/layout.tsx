@@ -11,12 +11,15 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://togetlink.com'),
+  alternates: {
+    canonical: '/',
+  },
   title: {
     default: 'togetlink — Professional Networking & Co-working Hubs',
     template: '%s | togetlink',
   },
   description:
-    'togetlink connects you with builders, designers, and founders right around the corner. Discover local professional hubs in USA and Turkey to start your next great collaboration with a real conversation.',
+    'Connect with builders and founders nearby. Discover local professional networking hubs in the USA and Turkey to start your next great collaboration.',
   keywords: [
     'professional networking', 
     'local hubs', 
@@ -37,7 +40,7 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: 'https://togetlink.com',
     title: 'togetlink — Professional Networking & Co-working Hubs',
-    description: 'Connect with builders, designers, and founders right around the corner in curated hubs.',
+    description: 'Connect with builders and founders nearby. Discover local professional networking hubs.',
     siteName: 'togetlink',
     images: [
       {
@@ -51,7 +54,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'togetlink — Professional Networking & Co-working Hubs',
-    description: 'Connect with builders, designers, and founders right around the corner.',
+    description: 'Connect with builders and founders nearby. Discover local professional networking hubs.',
     images: ['/icon-light-32x32.png'],
   },
   robots: {

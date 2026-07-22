@@ -64,7 +64,7 @@ export function PricingSection() {
         {/* Top icon */}
         <div className="mb-6 flex justify-center">
           <span
-            className="flex size-12 items-center justify-center rounded-2xl bg-white shadow-sm border border-[#e2e5ea]"
+            className="flex size-12 items-center justify-center rounded-2xl bg-white shadow-sm border border-border"
             aria-hidden="true"
           >
             <Sparkles

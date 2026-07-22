@@ -21,11 +21,7 @@ export function Hero() {
       {/* Premium surface background */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 -z-10"
-        style={{
-          background:
-            "radial-gradient(1200px 600px at 75% 20%, var(--brand-surface) 0%, rgba(234,240,251,0.35) 40%, transparent 70%), radial-gradient(900px 500px at 10% 90%, rgba(248,239,215,0.5) 0%, transparent 65%)",
-        }}
+        className="hero-gradient pointer-events-none absolute inset-0 -z-10"
       />
 
       <div className="mx-auto flex min-h-[92vh] max-w-[1400px] flex-col px-6 pb-16 pt-28 lg:justify-center lg:px-10 lg:pt-32">

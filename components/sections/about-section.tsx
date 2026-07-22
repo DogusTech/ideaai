@@ -12,14 +12,17 @@ export function AboutSection() {
               id="about-heading"
               className="text-balance text-3xl font-bold tracking-tight text-foreground sm:text-4xl mb-6"
             >
-              Building a more connected real-world ecosystem
+              Building a more connected real-world ecosystem for professional networking
             </h2>
             <div className="space-y-6 text-lg leading-relaxed text-muted-foreground text-pretty">
               <p>
-                TogetLink was founded on a simple premise: the best professional connections don't happen in a crowded feed or an algorithmic timeline. They happen in coffee shops, coworking spaces, and local tech hubs where real work gets done.
+                TogetLink was founded on a simple premise: the most impactful professional connections don't happen in a crowded feed or an algorithmic timeline. They happen in local coffee shops, bustling coworking spaces, and vibrant tech hubs where real, tangible work gets done. By bridging the digital and physical worlds, we make it easier to discover the right people exactly when you need them.
               </p>
               <p>
-                We are building the definitive network for professionals who value in-person serendipity. Whether you are a solo founder shipping your first MVP, or a designer looking for your next co-founder, TogetLink puts you in the same room as people who share your drive.
+                We are rapidly building the definitive platform for ambitious professionals who value in-person serendipity. Whether you are a solo founder shipping your first MVP, an engineer exploring new architectures, or a designer looking for your next co-founder, TogetLink intentionally places you in the same room as people who share your drive and vision.
+              </p>
+              <p>
+                Through advanced intent matching and proximity algorithms, our community of builders can effortlessly signal their availability, share their current projects, and invite meaningful collaborations. We eliminate the friction of cold outreach by fostering an environment built on mutual consent, shared goals, and genuine, face-to-face professional networking.
               </p>
             </div>
           </div>
