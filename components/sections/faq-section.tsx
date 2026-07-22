@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { Plus, Minus } from "lucide-react"
+import Script from "next/script"
 
 type FAQItem = {
   question: string
@@ -68,8 +69,26 @@ export function FAQSection() {
     return allOpen || openIndex === index
   }
 
+  const faqSchema = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": FAQS.map((faq) => ({
+      "@type": "Question",
+      "name": faq.question,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": faq.answer
+      }
+    }))
+  }
+
   return (
     <section aria-labelledby="faq-heading" className="bg-background py-20 lg:py-28">
+      <Script
+        id="faq-schema"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
       <div className="mx-auto max-w-[860px] px-5 lg:px-8">
         {/* Header row */}
         <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-baseline">

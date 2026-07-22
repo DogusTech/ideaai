@@ -2,6 +2,7 @@ import { Navbar } from "@/components/hero/navbar"
 import { Hero } from "@/components/hero/hero"
 import { GoalsSection } from "@/components/sections/goals-section"
 import { FeaturedHubsSection } from "@/components/sections/featured-hubs-section"
+import { AboutSection } from "@/components/sections/about-section"
 import { PricingSection } from "@/components/sections/pricing-section"
 import { FAQSection } from "@/components/sections/faq-section"
 import { SiteFooter } from "@/components/site/site-footer"
@@ -36,6 +37,8 @@ export default function Page() {
         <GoalsSection />
 
         <FeaturedHubsSection />
+
+        <AboutSection />
 
         <PricingSection />
 

@@ -30,8 +30,11 @@ export function AnimatedHeadline() {
 
   return (
     <h1 className="max-w-[650px] text-balance text-5xl font-bold leading-[0.98] tracking-tight text-foreground sm:text-6xl lg:text-7xl">
-      <span className="block">Where local builders</span>
-      <span className="relative block h-[1.05em] overflow-hidden">
+      <span className="sr-only">
+        Where local builders build together, meet nearby, find collaborators, and ship faster in professional hubs across USA and Turkey.
+      </span>
+      <span className="block" aria-hidden="true">Where local builders</span>
+      <span className="relative block h-[1.05em] overflow-hidden" aria-hidden="true">
         <AnimatePresence mode="popLayout">
           <motion.span
             key={current.text}

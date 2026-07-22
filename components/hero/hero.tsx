@@ -44,7 +44,7 @@ export function Hero() {
               className="mt-6 max-w-[560px] text-pretty text-lg leading-relaxed text-muted-foreground"
             >
               togetlink connects you with builders, designers, and founders
-              right around the corner — so your next great collaboration starts
+              right around the corner — discovering local co-working spaces and networking meetups so your next great collaboration starts
               with a real conversation.
             </motion.p>
 
@@ -65,7 +65,7 @@ export function Hero() {
               animate="show"
               className="mt-5 text-sm text-muted-foreground"
             >
-              Free to join · No credit card · 12,000+ builders nearby
+              Free to join · No credit card · Trusted by 500+ pioneer builders
             </motion.p>
           </div>
 
