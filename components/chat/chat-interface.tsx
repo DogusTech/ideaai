@@ -143,7 +143,7 @@ export function ChatInterface() {
     }
   }
 
-  const currentUserUid = auth.currentUser?.uid
+  const currentUserUid = process.env.NODE_ENV === "development" ? "me" : auth.currentUser?.uid
 
   return (
     <div className="flex h-[calc(100vh-140px)] w-full overflow-hidden rounded-2xl border border-[#e5e5e5] bg-white shadow-sm">

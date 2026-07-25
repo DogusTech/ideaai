@@ -29,6 +29,11 @@ export function HubDetailPage({ hub }: HubDetailPageProps) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null)
 
   useEffect(() => {
+    if (process.env.NODE_ENV === "development") {
+      setIsAuthenticated(true)
+      return
+    }
+
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setIsAuthenticated(!!user)
     })

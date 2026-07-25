@@ -13,7 +13,7 @@ export default async function NetworkPage() {
   const cookieStore = await cookies()
   const session = cookieStore.get("session")
 
-  if (!session) {
+  if (!session && process.env.NODE_ENV !== "development") {
     redirect("/login?redirect=/network")
   }
 

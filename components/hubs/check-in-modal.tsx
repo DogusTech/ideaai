@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { X, MapPin, Loader2 } from "lucide-react"
 import { apiFetch } from "@/lib/api/client"
 import { cn } from "@/lib/utils"
@@ -21,11 +21,68 @@ export function CheckInModal({ isOpen, onClose, hubId, hubName, onSuccess }: Che
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  if (!isOpen) return null
+  // Marketing Mode: Auto-type effect
+  useEffect(() => {
+    if (process.env.NODE_ENV !== "development" || !isOpen) return
+
+    setLocationStatus("")
+    setWorkingOn("")
+    setAppearance("")
+    
+    const locText = "Main cafe area, by the big window"
+    const workText = "Building my SaaS startup and open to brainstorm!"
+    const appText = "Black hoodie, gray Macbook"
+    
+    let i = 0, j = 0, k = 0
+    let typeLoc: any, typeWork: any, typeApp: any
+    let autoSubmitTimer: any
+
+    const startTyping = () => {
+      typeLoc = setInterval(() => {
+        if (i <= locText.length) { setLocationStatus(locText.slice(0, i)); i++ }
+        else {
+          clearInterval(typeLoc)
+          typeWork = setInterval(() => {
+            if (j <= workText.length) { setWorkingOn(workText.slice(0, j)); j++ }
+            else {
+              clearInterval(typeWork)
+              typeApp = setInterval(() => {
+                if (k <= appText.length) { setAppearance(appText.slice(0, k)); k++ }
+                else {
+                  clearInterval(typeApp)
+                  // Auto submit after short pause
+                  autoSubmitTimer = setTimeout(() => {
+                    const fakeEvent = { preventDefault: () => {} } as React.FormEvent
+                    handleSubmit(fakeEvent)
+                  }, 800)
+                }
+              }, 40) // fast typing
+            }
+          }, 30)
+        }
+      }, 40)
+    }
+
+    const initialDelay = setTimeout(startTyping, 500)
+
+    return () => {
+      clearTimeout(initialDelay)
+      clearTimeout(autoSubmitTimer)
+      clearInterval(typeLoc)
+      clearInterval(typeWork)
+      clearInterval(typeApp)
+    }
+  }, [isOpen])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!locationStatus.trim() || !workingOn.trim() || !appearance.trim()) {
+    
+    // Use current state OR the final string if in auto-type mode
+    const finalLoc = process.env.NODE_ENV === "development" ? "Main cafe area, by the big window" : locationStatus
+    const finalWork = process.env.NODE_ENV === "development" ? "Building my SaaS startup and open to brainstorm!" : workingOn
+    const finalApp = process.env.NODE_ENV === "development" ? "Black hoodie, gray Macbook" : appearance
+
+    if (!finalLoc.trim() || !finalWork.trim() || !finalApp.trim()) {
       setError("Please fill out all fields so others can find you.")
       return
     }
@@ -33,14 +90,24 @@ export function CheckInModal({ isOpen, onClose, hubId, hubName, onSuccess }: Che
     setIsSubmitting(true)
     setError(null)
 
+    if (process.env.NODE_ENV === "development") {
+      // Fake API request delay
+      setTimeout(() => {
+        onSuccess()
+        onClose()
+        setIsSubmitting(false)
+      }, 1500)
+      return
+    }
+
     try {
       await apiFetch("/api/checkins", {
         method: "POST",
         body: JSON.stringify({
           hubId,
-          locationStatus: locationStatus.trim(),
-          workingOn: workingOn.trim(),
-          appearance: appearance.trim(),
+          locationStatus: finalLoc.trim(),
+          workingOn: finalWork.trim(),
+          appearance: finalApp.trim(),
         }),
       })
       onSuccess()
@@ -51,6 +118,8 @@ export function CheckInModal({ isOpen, onClose, hubId, hubName, onSuccess }: Che
       setIsSubmitting(false)
     }
   }
+
+  if (!isOpen) return null
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">

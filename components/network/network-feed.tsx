@@ -24,6 +24,42 @@ type Checkin = {
   }
 }
 
+const MOCK_NETWORK_FEED: Checkin[] = [
+  {
+    id: "net-1",
+    hubId: "soho-house",
+    uid: "u-1",
+    locationStatus: "heads_down",
+    workingOn: "Building a fintech MVP, looking for early testers.",
+    appearance: "Black hoodie, AirPods",
+    createdAt: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
+    user: { name: "Alex Rivera", headline: "Frontend Developer", company: "Vercel" },
+    hub: { name: "Soho House", city: "Istanbul" }
+  },
+  {
+    id: "net-2",
+    hubId: "kolektif-house",
+    uid: "u-2",
+    locationStatus: "open_to_collab",
+    workingOn: "Drafting our seed deck. Open to chat!",
+    appearance: "White t-shirt",
+    createdAt: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
+    user: { name: "Sarah Chen", headline: "Startup Founder", company: "TechFlow" },
+    hub: { name: "Kolektif House", city: "Istanbul" }
+  },
+  {
+    id: "net-3",
+    hubId: "wework-sf",
+    uid: "u-3",
+    locationStatus: "heads_down",
+    workingOn: "Figma grinding all afternoon.",
+    appearance: "Glasses, blue sweater",
+    createdAt: new Date(Date.now() - 1000 * 60 * 120).toISOString(),
+    user: { name: "Mehmet Yılmaz", headline: "Product Designer", company: "Acme Corp" },
+    hub: { name: "WeWork Salesforce", city: "San Francisco" }
+  }
+];
+
 export function NetworkFeed() {
   const [feed, setFeed] = useState<Checkin[]>([])
   const [loading, setLoading] = useState(true)
@@ -33,12 +69,23 @@ export function NetworkFeed() {
     async function loadFeed() {
       try {
         const data = await fetchApi("/checkins/recent")
-        setFeed(data || [])
+        if (data && data.length > 0) {
+          setFeed(data)
+        } else if (process.env.NODE_ENV === "development") {
+          setFeed(MOCK_NETWORK_FEED)
+        } else {
+          setFeed([])
+        }
         setLoading(false)
       } catch (err) {
         console.error(err)
-        setError(true)
-        setLoading(false)
+        if (process.env.NODE_ENV === "development") {
+          setFeed(MOCK_NETWORK_FEED)
+          setLoading(false)
+        } else {
+          setError(true)
+          setLoading(false)
+        }
       }
     }
     loadFeed()
