@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import { DashboardShell } from "@/components/dashboard/dashboard-shell"
 import { RecommendedHubs } from "@/components/dashboard/recommended-hubs"
+import { MarketingFeed } from "@/components/dashboard/marketing-feed"
 
 export const dynamic = "force-dynamic"
 
@@ -35,6 +36,10 @@ export default function DashboardPage() {
               View profile
             </a>
           </div>
+
+          {process.env.NODE_ENV === "development" && (
+            <MarketingFeed />
+          )}
         </aside>
       </div>
     </DashboardShell>
