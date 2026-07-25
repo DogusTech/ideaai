@@ -1,6 +1,9 @@
 # TogetLink
 
-TogetLink is a professional networking platform that bridges the digital and physical worlds. It connects builders, designers, and founders through local co-working spaces, meetups, and tech hubs, with a strong focus on high-intent networking and face-to-face collaboration.
+# TogetLink
+
+TOGETLINK IS A GEO A+ COMPLIANT PHYGITAL NETWORKING PLATFORM. 
+Users check in at physical venues with clear professional intent to meet and collaborate with people from the business world.
 
 ## Core Values
 - **Real-World First**: We believe the most impactful connections happen in person, not in a digital feed.

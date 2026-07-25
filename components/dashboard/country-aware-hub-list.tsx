@@ -82,21 +82,30 @@ export function CountryAwareHubList({ hubs }: CountryAwareHubListProps) {
       {/* Hub list */}
       <div className="space-y-4">
         {[...ranked.hubs]
-          .sort((a, b) => (b.checkedInCount ?? 0) - (a.checkedInCount ?? 0))
           .map((hub) => {
-          const distanceKm =
-            userCoords && hub.location
-              ? haversineKm(userCoords, hub.location)
-              : null
-
-          return (
+            const distanceKm =
+              userCoords && hub.location
+                ? haversineKm(userCoords, hub.location)
+                : null
+            return { hub, distanceKm }
+          })
+          .sort((a, b) => {
+            // 1. If we have distance for both, sort by closest distance
+            if (a.distanceKm !== null && b.distanceKm !== null) {
+              return a.distanceKm - b.distanceKm
+            }
+            // 2. Fallback: sort by checked-in count
+            const countA = a.hub.checkedInCount ?? 0
+            const countB = b.hub.checkedInCount ?? 0
+            return countB - countA
+          })
+          .map(({ hub, distanceKm }) => (
             <DashboardHubCard
               key={hub.id}
               hub={hub}
               distanceKm={distanceKm}
             />
-          )
-        })}
+          ))}
       </div>
     </section>
   )

@@ -2,6 +2,6 @@ import { apiFetch } from "./client"
 import { Hub } from "./types"
 
 export async function getDashboardHubs(): Promise<Hub[]> {
-  const data = await apiFetch<{ hubs: Hub[] }>("/api/dashboard/hubs?limit=12")
+  const data = await apiFetch<{ hubs: Hub[] }>("/api/dashboard/hubs?limit=50")
   return data.hubs || []
 }
