@@ -1,16 +1,42 @@
 "use client"
 
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { auth } from "@/lib/firebase"
+import { GoogleAuthProvider, signInWithPopup } from "firebase/auth"
+import { createSession } from "@/lib/api/auth"
+import { Loader2 } from "lucide-react"
+
 export function SocialButtons() {
+  const router = useRouter()
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false)
+
+  const handleGoogleLogin = async () => {
+    setIsGoogleLoading(true)
+    try {
+      const provider = new GoogleAuthProvider()
+      const userCredential = await signInWithPopup(auth, provider)
+      const idToken = await userCredential.user.getIdToken()
+      await createSession(idToken)
+      
+      const params = new URLSearchParams(window.location.search)
+      const redirect = params.get("redirect") || "/dashboard"
+      router.push(redirect)
+    } catch (error) {
+      console.error("Google sign in failed:", error)
+      setIsGoogleLoading(false)
+    }
+  }
+
   return (
     <div className="flex flex-col gap-3">
       <button
         type="button"
-        onClick={() => {
-          // Visual-only mock. No authentication is performed.
-        }}
-        className="inline-flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-input bg-background text-sm font-semibold text-foreground shadow-sm transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-blue/15"
+        onClick={handleGoogleLogin}
+        disabled={isGoogleLoading}
+        className="inline-flex h-12 w-full items-center justify-center gap-3 rounded-xl border border-input bg-background text-sm font-semibold text-foreground shadow-sm transition-colors hover:bg-muted focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-blue/15 disabled:opacity-70"
       >
-        <GoogleGlyph />
+        {isGoogleLoading ? <Loader2 className="size-5 animate-spin" /> : <GoogleGlyph />}
         Continue with Google
       </button>
 
