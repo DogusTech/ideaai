@@ -1,15 +1,67 @@
 import { CountryAwareHubList } from "@/components/dashboard/country-aware-hub-list"
 import { getDashboardHubs } from "@/lib/api/dashboard"
 
+const MOCK_MARKETING_HUBS = [
+  {
+    id: "mock-soho",
+    name: "Soho House Istanbul",
+    city: "Istanbul",
+    country: "TR",
+    category: "coworking",
+    checkedInCount: 42,
+    rating: 4.8,
+    userRatingCount: 2501,
+    description: "Exclusive members club and workspace.",
+    photo: { photoUri: "https://images.unsplash.com/photo-1527192491265-7e15c55b1ed2?w=800&q=80" },
+    location: { lat: 41.028, lng: 28.974 },
+    slug: "soho-house",
+    broadAreas: ["Beyoğlu", "Creative Hub"]
+  },
+  {
+    id: "mock-kolektif",
+    name: "Kolektif House Levent",
+    city: "Istanbul",
+    country: "TR",
+    category: "coworking",
+    checkedInCount: 128,
+    rating: 4.6,
+    userRatingCount: 1483,
+    description: "Vibrant coworking space for tech startups.",
+    photo: { photoUri: "https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=800&q=80" },
+    location: { lat: 41.076, lng: 29.012 },
+    slug: "kolektif-house",
+    broadAreas: ["Levent", "Tech"]
+  },
+  {
+    id: "mock-wework-sf",
+    name: "WeWork Salesforce Tower",
+    city: "San Francisco",
+    country: "US",
+    category: "coworking",
+    checkedInCount: 85,
+    rating: 4.5,
+    userRatingCount: 890,
+    description: "Premium workspace in the heart of SF.",
+    photo: { photoUri: "https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80" },
+    location: { lat: 37.789, lng: -122.396 },
+    slug: "wework-sf",
+    broadAreas: ["SOMA", "Enterprise"]
+  }
+]
+
 export async function RecommendedHubs() {
-  let hubs = []
+  let hubs: any[] = []
   let error = false
 
   try {
     hubs = await getDashboardHubs()
   } catch (err) {
     console.error("Failed to fetch dashboard hubs:", err)
-    error = true
+    if (process.env.NODE_ENV === "development") {
+      hubs = MOCK_MARKETING_HUBS
+    } else {
+      error = true
+    }
   }
 
   return (
