@@ -6,6 +6,36 @@ import { cn } from "@/lib/utils"
 import { getConversations, getMessages, sendMessage, type Conversation, type Message } from "@/lib/api/chat"
 import { auth } from "@/lib/firebase"
 
+const MOCK_CONVERSATIONS: Conversation[] = [
+  {
+    id: "conv-1",
+    otherUser: { id: "u-1", name: "Alex Rivera", headline: "Frontend Developer" },
+    lastMessage: "Working on some Next.js animations. Come say hi!",
+    lastMessageAt: new Date(Date.now() - 1000 * 60 * 2).toISOString(),
+    unreadCount: 2
+  },
+  {
+    id: "conv-2",
+    otherUser: { id: "u-2", name: "Sarah Chen", headline: "Startup Founder" },
+    lastMessage: "I'll be at Kolektif House tomorrow. Let's grab coffee.",
+    lastMessageAt: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
+    unreadCount: 0
+  }
+];
+
+const MOCK_MESSAGES: Record<string, Message[]> = {
+  "conv-1": [
+    { id: "m1", senderId: "u-1", text: "Hey! Saw you checked into Soho House.", createdAt: new Date(Date.now() - 1000 * 60 * 5).toISOString() },
+    { id: "m2", senderId: "me", text: "Yes, I'm working from here today.", createdAt: new Date(Date.now() - 1000 * 60 * 4).toISOString() },
+    { id: "m3", senderId: "u-1", text: "Working on some Next.js animations. Come say hi!", createdAt: new Date(Date.now() - 1000 * 60 * 2).toISOString() }
+  ],
+  "conv-2": [
+    { id: "m4", senderId: "me", text: "Hey Sarah, still looking for a technical co-founder?", createdAt: new Date(Date.now() - 1000 * 60 * 60).toISOString() },
+    { id: "m5", senderId: "u-2", text: "Yes I am! We should chat.", createdAt: new Date(Date.now() - 1000 * 60 * 50).toISOString() },
+    { id: "m6", senderId: "u-2", text: "I'll be at Kolektif House tomorrow. Let's grab coffee.", createdAt: new Date(Date.now() - 1000 * 60 * 15).toISOString() }
+  ]
+};
+
 export function ChatInterface() {
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [activeChat, setActiveChat] = useState<Conversation | null>(null)
@@ -22,12 +52,19 @@ export function ChatInterface() {
     const fetchChats = async () => {
       try {
         const chats = await getConversations()
-        setConversations(chats)
         if (chats.length > 0) {
+          setConversations(chats)
           setActiveChat(chats[0])
+        } else if (process.env.NODE_ENV === "development") {
+          setConversations(MOCK_CONVERSATIONS)
+          setActiveChat(MOCK_CONVERSATIONS[0])
         }
       } catch (err) {
         console.error("Failed to load conversations", err)
+        if (process.env.NODE_ENV === "development") {
+          setConversations(MOCK_CONVERSATIONS)
+          setActiveChat(MOCK_CONVERSATIONS[0])
+        }
       } finally {
         setLoadingChats(false)
       }
@@ -43,9 +80,20 @@ export function ChatInterface() {
       setLoadingMessages(true)
       try {
         const msgs = await getMessages(activeChat.id)
-        if (isMounted) setMessages(msgs)
+        if (isMounted) {
+          if (msgs.length > 0) {
+            setMessages(msgs)
+          } else if (process.env.NODE_ENV === "development" && MOCK_MESSAGES[activeChat.id]) {
+            setMessages(MOCK_MESSAGES[activeChat.id])
+          } else {
+            setMessages(msgs)
+          }
+        }
       } catch (err) {
         console.error("Failed to load messages", err)
+        if (isMounted && process.env.NODE_ENV === "development" && MOCK_MESSAGES[activeChat.id]) {
+          setMessages(MOCK_MESSAGES[activeChat.id])
+        }
       } finally {
         if (isMounted) setLoadingMessages(false)
       }
