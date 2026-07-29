@@ -1,5 +1,5 @@
 import React from "react";
-import { Mail, Github, Linkedin, MapPin, ExternalLink } from "lucide-react";
+import { Mail, MapPin, ExternalLink } from "lucide-react";
 import Link from "next/link";
 
 export default function CVPage() {
@@ -19,13 +19,13 @@ export default function CVPage() {
               <span>info@aeternexus.com</span>
             </div>
             <div className="flex items-center gap-3 justify-center md:justify-start">
-              <Github className="w-4 h-4 text-emerald-400" />
+              <ExternalLink className="w-4 h-4 text-emerald-400" />
               <Link href="https://github.com/DogusTech" target="_blank" className="hover:text-white transition-colors">
                 github.com/DogusTech
               </Link>
             </div>
             <div className="flex items-center gap-3 justify-center md:justify-start">
-              <Linkedin className="w-4 h-4 text-emerald-400" />
+              <ExternalLink className="w-4 h-4 text-emerald-400" />
               <Link href="https://linkedin.com/company/togetlink" target="_blank" className="hover:text-white transition-colors">
                 LinkedIn Profilim
               </Link>
