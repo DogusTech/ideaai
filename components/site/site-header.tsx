@@ -26,11 +26,11 @@ export function SiteHeader() {
     <header className="sticky top-0 z-50 border-b border-border/70 bg-background/80 backdrop-blur-xl">
       <nav className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-5 lg:px-8">
         <Link href="/" className="flex items-center gap-2">
-          <span className="flex size-8 items-center justify-center rounded-xl bg-brand-blue text-white">
-            <span className="size-3 rounded-full bg-white" aria-hidden="true" />
+          <span className="flex size-8 items-center justify-center bg-[#0543B8] text-white font-black text-xl leading-none">
+            TL
           </span>
-          <span className="text-lg font-bold tracking-tight text-foreground">
-            togetlink
+          <span className="text-xl font-bold tracking-tight text-foreground">
+            TogetLink
           </span>
         </Link>
 

@@ -33,11 +33,11 @@ export function AuthShell({ title, subtitle, children, footer }: AuthShellProps)
       {/* Brand / trust panel */}
       <aside className="relative hidden overflow-hidden bg-gradient-to-br from-brand-surface to-brand-warm/60 lg:flex lg:flex-col lg:justify-between lg:p-12">
         <Link href="/" className="flex items-center gap-2">
-          <span className="flex size-9 items-center justify-center rounded-xl bg-brand-blue text-white">
-            <span className="size-3 rounded-full bg-white" aria-hidden="true" />
+          <span className="flex size-9 items-center justify-center bg-[#0543B8] text-white font-black text-2xl leading-none">
+            TL
           </span>
           <span className="text-xl font-bold tracking-tight text-foreground">
-            togetlink
+            TogetLink
           </span>
         </Link>
 
@@ -71,11 +71,11 @@ export function AuthShell({ title, subtitle, children, footer }: AuthShellProps)
       <div className="flex flex-col bg-background">
         <div className="flex items-center justify-between px-5 py-6 lg:hidden">
           <Link href="/" className="flex items-center gap-2">
-            <span className="flex size-8 items-center justify-center rounded-xl bg-brand-blue text-white">
-              <span className="size-3 rounded-full bg-white" aria-hidden="true" />
+            <span className="flex size-8 items-center justify-center bg-[#0543B8] text-white font-black text-xl leading-none">
+              TL
             </span>
-            <span className="text-lg font-bold tracking-tight text-foreground">
-              togetlink
+            <span className="text-xl font-bold tracking-tight text-foreground">
+              TogetLink
             </span>
           </Link>
         </div>

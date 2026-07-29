@@ -7,7 +7,7 @@ export function CTAButtons() {
   return (
     <div className="flex flex-col gap-3 sm:flex-row">
       <motion.a
-        href="#"
+        href="/register"
         whileHover={{ y: -2 }}
         whileTap={{ y: 0 }}
         transition={{ duration: 0.25, ease: "easeOut" }}
@@ -18,7 +18,7 @@ export function CTAButtons() {
       </motion.a>
 
       <motion.a
-        href="#"
+        href="/explore"
         whileHover={{ y: -2 }}
         whileTap={{ y: 0 }}
         transition={{ duration: 0.25, ease: "easeOut" }}

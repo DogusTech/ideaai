@@ -12,7 +12,7 @@ export function AnnouncementBar() {
       className="flex justify-center"
     >
       <a
-        href="#"
+        href="/explore"
         className="group inline-flex items-center gap-2 rounded-full border border-border/70 bg-brand-surface/60 px-4 py-1.5 text-sm text-foreground/80 backdrop-blur transition-colors hover:bg-brand-surface"
       >
         <Sparkles className="size-4 text-brand-blue" aria-hidden="true" />

@@ -130,17 +130,19 @@ export function PricingSection() {
                 {/* CTAs */}
                 <div className="mb-8">
                   {plan.ctaType === "primary" ? (
-                    <button
-                      className="w-full rounded-md bg-brand-blue py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-blue/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2"
+                    <Link
+                      href="/register"
+                      className="flex w-full items-center justify-center rounded-md bg-brand-blue py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-blue/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2"
                     >
                       {plan.cta}
-                    </button>
+                    </Link>
                   ) : (
-                    <button
-                      className="w-full rounded-md border border-brand-blue bg-[#ffffff] py-2.5 text-sm font-semibold text-brand-blue transition-colors hover:bg-brand-blue/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2"
+                    <Link
+                      href="/register"
+                      className="flex w-full items-center justify-center rounded-md border border-brand-blue bg-[#ffffff] py-2.5 text-sm font-semibold text-brand-blue transition-colors hover:bg-brand-blue/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2"
                     >
                       {plan.cta}
-                    </button>
+                    </Link>
                   )}
                 </div>
 
