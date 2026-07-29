@@ -31,7 +31,7 @@ export function IdeaAIInterface() {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault()
-      if (input.trim()) {
+      if ((input || "").trim()) {
         const fakeEvent = new Event("submit") as unknown as React.FormEvent<HTMLFormElement>
         handleSubmit(fakeEvent)
       }
@@ -194,7 +194,7 @@ export function IdeaAIInterface() {
                   {/* Textarea */}
                   <div className="px-2 pt-2">
                     <textarea
-                      value={input}
+                      value={input || ""}
                       onChange={handleInputChange}
                       onKeyDown={handleKeyDown}
                       onFocus={() => setIsFocused(true)}
@@ -233,9 +233,9 @@ export function IdeaAIInterface() {
                       ) : (
                         <button 
                           type="submit"
-                          disabled={!input.trim()}
+                          disabled={!(input || "").trim()}
                           className={`flex items-center justify-center p-2 rounded-full font-semibold transition-all ${
-                            input.trim() 
+                            (input || "").trim() 
                               ? "bg-[#eff0f0] text-[#454e84] hover:bg-[#e2e3e3]" 
                               : "bg-[#eff0f0]/50 text-[#99817b]/50 cursor-not-allowed"
                           }`}
