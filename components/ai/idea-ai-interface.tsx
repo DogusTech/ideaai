@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { useChat } from "ai/react"
+import { useChat } from "@ai-sdk/react"
 import { 
   Plus, 
   Settings, 
