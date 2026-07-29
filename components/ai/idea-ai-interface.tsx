@@ -4,26 +4,22 @@ import React, { useState, useEffect, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useChat } from "ai/react"
 import { 
-  Bot, 
   Plus, 
-  MessageSquare, 
   Settings, 
-  Search, 
-  Sparkles, 
   Mic, 
-  Send,
-  Cpu,
-  ChevronDown,
-  LayoutTemplate,
+  ArrowRight,
+  Folder,
   History,
-  User,
+  Calendar,
+  ChevronDown,
+  Monitor,
   StopCircle
 } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 
 export function IdeaAIInterface() {
-  const { messages, input, handleInputChange, handleSubmit, isLoading, stop, setInput } = useChat()
+  const { messages, input, handleInputChange, handleSubmit, isLoading, stop } = useChat()
   const [isFocused, setIsFocused] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -43,118 +39,105 @@ export function IdeaAIInterface() {
   }
 
   return (
-    <div className="flex h-screen w-full bg-[#09090b] text-zinc-100 font-sans overflow-hidden selection:bg-[#0543B8]/30">
+    <div className="flex h-screen w-full font-sans overflow-hidden text-[#454e84]" style={{ backgroundColor: "#eff0f0" }}>
       
       {/* SIDEBAR */}
-      <aside className="w-[280px] shrink-0 border-r border-zinc-800/60 bg-[#09090b] flex flex-col justify-between hidden md:flex">
-        <div className="p-4 space-y-6 flex-1 overflow-y-auto">
-          {/* Logo */}
-          <div className="flex items-center gap-3 px-2 mt-2">
-            <div className="flex size-8 items-center justify-center bg-[#0543B8] rounded-md shadow-lg shadow-[#0543B8]/20 text-white font-black text-sm leading-none">
-              TL
-            </div>
-            <span className="text-xl font-bold tracking-tight text-white">IdeaAI</span>
+      <aside className="w-[260px] shrink-0 border-r border-[#81a7d4]/30 bg-[#eff0f0] flex flex-col justify-between hidden md:flex">
+        <div className="flex flex-col h-full">
+          {/* Header / Logo */}
+          <div className="h-12 flex items-center px-4 font-medium text-sm text-[#454e84] border-b border-transparent">
+            IdeaAI
           </div>
 
-          {/* New Chat Button */}
-          <button 
-            onClick={() => window.location.reload()}
-            className="w-full flex items-center justify-center gap-2 bg-zinc-800 hover:bg-zinc-700 text-white px-4 py-3 rounded-xl border border-zinc-700/50 transition-all font-semibold shadow-sm"
-          >
-            <Plus className="w-4 h-4" />
-            New Idea Session
-          </button>
+          <div className="p-3 space-y-4 flex-1 overflow-y-auto">
+            {/* New Conversation Button */}
+            <button 
+              onClick={() => window.location.reload()}
+              className="w-full flex items-center gap-2 bg-white hover:bg-gray-50 text-[#454e84] px-4 py-2 rounded-full border border-[#81a7d4]/30 transition-all font-medium text-sm shadow-sm"
+            >
+              <Plus className="w-4 h-4 text-[#7b83f4]" />
+              New Conversation
+            </button>
 
-          {/* History */}
-          <div className="space-y-1">
-            <div className="px-2 text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-3 flex items-center gap-2 mt-6">
-              <History className="w-3 h-3" /> Recent Projects
-            </div>
-            {["Next.js SaaS Boilerplate", "Phygital Networking DB", "AI Job Matcher", "Real-time Chat Protocol"].map((item, i) => (
-              <button key={i} className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/50 rounded-lg transition-colors text-left group">
-                <MessageSquare className="w-4 h-4 shrink-0 opacity-50 group-hover:opacity-100 transition-opacity" />
-                <span className="truncate">{item}</span>
+            {/* Menu Items */}
+            <div className="space-y-1 mt-2">
+              <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-[#454e84] hover:bg-[#81a7d4]/10 rounded-lg transition-colors text-left">
+                <History className="w-4 h-4 shrink-0 text-[#99817b]" />
+                <span>Conversation History</span>
               </button>
-            ))}
-          </div>
-        </div>
-
-        {/* User / Settings Footer */}
-        <div className="p-4 border-t border-zinc-800/60">
-          <button className="w-full flex items-center justify-between px-3 py-3 hover:bg-zinc-800/50 rounded-xl transition-colors text-sm">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#0543B8] to-purple-500 flex items-center justify-center text-xs font-bold text-white shadow-inner">
-                DY
-              </div>
-              <div className="flex flex-col items-start">
-                <span className="font-medium text-zinc-200">Doğuş Yılmaz</span>
-                <span className="text-xs text-emerald-400 font-medium">Pro Plan</span>
-              </div>
+              <button className="w-full flex items-center gap-3 px-3 py-2 text-sm text-[#454e84] hover:bg-[#81a7d4]/10 rounded-lg transition-colors text-left">
+                <Calendar className="w-4 h-4 shrink-0 text-[#99817b]" />
+                <span>Scheduled Tasks</span>
+              </button>
             </div>
-            <Settings className="w-4 h-4 text-zinc-500" />
-          </button>
+
+            {/* Projects */}
+            <div className="space-y-1 pt-4">
+              <div className="px-3 text-xs font-semibold text-[#99817b] mb-2 flex items-center justify-between">
+                <span>Projects</span>
+                <div className="flex gap-1">
+                  <button className="hover:bg-[#81a7d4]/20 p-1 rounded"><Plus className="w-3 h-3" /></button>
+                  <button className="hover:bg-[#81a7d4]/20 p-1 rounded"><Folder className="w-3 h-3" /></button>
+                </div>
+              </div>
+              
+              {[
+                { name: "SaaS Mimarisi", time: "2m" },
+                { name: "Veritabanı Şeması", time: "1d" },
+                { name: "API Entegrasyonu", time: "2d" },
+                { name: "Next.js Kurulumu", time: "3d" }
+              ].map((item, i) => (
+                <button key={i} className="w-full flex items-center justify-between px-3 py-2 text-sm text-[#454e84] hover:bg-[#81a7d4]/10 rounded-lg transition-colors text-left group">
+                  <div className="flex items-center gap-2 overflow-hidden">
+                    <Folder className="w-4 h-4 shrink-0 text-[#deb987]" />
+                    <span className="truncate">{item.name}</span>
+                  </div>
+                  <span className="text-xs text-[#99817b]">{item.time}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Settings Footer */}
+          <div className="p-3 border-t border-[#81a7d4]/30">
+            <button className="w-full flex items-center gap-3 px-3 py-2 hover:bg-[#81a7d4]/10 rounded-lg transition-colors text-sm text-[#454e84]">
+              <Settings className="w-4 h-4 text-[#99817b]" />
+              <span>Settings</span>
+            </button>
+          </div>
         </div>
       </aside>
 
       {/* MAIN CONTENT */}
-      <main className="flex-1 flex flex-col relative overflow-hidden bg-gradient-to-b from-[#09090b] to-[#121214]">
+      <main className="flex-1 flex flex-col relative overflow-hidden bg-[#eff0f0]">
         
-        {/* Top Nav (Mobile & Settings) */}
-        <header className="h-14 flex items-center justify-between px-6 shrink-0 z-10 bg-[#09090b]/80 backdrop-blur border-b border-transparent">
-          <div className="md:hidden flex items-center gap-2">
-            <div className="flex size-7 items-center justify-center bg-[#0543B8] rounded-md text-white font-black text-xs leading-none">
-              TL
-            </div>
-            <span className="font-bold text-white">IdeaAI</span>
+        {/* Top Nav */}
+        <header className="h-12 flex items-center justify-between px-4 shrink-0 z-10 w-full">
+          <div className="md:hidden flex items-center font-medium text-[#454e84]">
+            IdeaAI
           </div>
-          <div className="ml-auto flex items-center gap-4 text-sm font-medium">
-            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400 cursor-pointer hover:text-white transition-colors hover:border-zinc-600">
-              <Cpu className="w-4 h-4 text-emerald-400" />
-              <span>Model: LLaMA 3</span>
-              <ChevronDown className="w-3 h-3 ml-1 opacity-70" />
-            </div>
+          <div className="ml-auto flex items-center gap-3">
+            <button className="bg-[#7b83f4] text-white text-xs font-medium px-4 py-1.5 rounded-full hover:bg-[#7b83f4]/90 transition-colors shadow-sm">
+              Restart to Update →
+            </button>
+            <button className="flex items-center gap-2 text-sm font-medium text-[#454e84] hover:bg-[#81a7d4]/10 px-3 py-1.5 rounded-lg transition-colors">
+              <Monitor className="w-4 h-4 text-[#81a7d4]" />
+              Install IDE
+            </button>
           </div>
         </header>
 
         {/* Chat History Canvas (Scrollable) */}
-        <div className="flex-1 overflow-y-auto px-4 sm:px-6 w-full pt-10 pb-36">
-          <div className="max-w-3xl mx-auto space-y-8">
+        <div className="flex-1 overflow-y-auto px-4 sm:px-6 w-full pt-4 pb-36">
+          <div className="max-w-3xl mx-auto space-y-6">
             
             {messages.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full min-h-[50vh]">
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5 }}
-                  className="text-center mb-10 space-y-4"
-                >
-                  <h1 className="text-4xl md:text-5xl font-semibold tracking-tight text-white mb-2">
-                    What do you want to create?
-                  </h1>
-                </motion.div>
-                
-                {/* Quick Suggestions */}
-                <motion.div 
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5, delay: 0.3 }}
-                  className="flex flex-wrap items-center justify-center gap-3 mt-4"
-                >
-                  <span className="text-sm text-zinc-500 mr-2">Try:</span>
-                  {[
-                    "Real-time chat architecture",
-                    "SaaS pricing models",
-                    "Location-based matchmaking"
-                  ].map((suggestion, i) => (
-                    <button 
-                      key={i}
-                      onClick={() => setInput(suggestion)}
-                      className="px-4 py-2 rounded-full border border-zinc-800 bg-zinc-900/50 text-xs font-medium text-zinc-400 hover:text-white hover:border-zinc-600 hover:bg-zinc-800 transition-all"
-                    >
-                      {suggestion}
-                    </button>
-                  ))}
-                </motion.div>
+              <div className="flex flex-col items-center justify-center h-full min-h-[60vh]">
+                <div className="flex items-center gap-2 mb-8 text-sm font-medium text-[#99817b] bg-[#81a7d4]/10 px-3 py-1.5 rounded-md border border-[#81a7d4]/20">
+                  <Folder className="w-4 h-4 text-[#81a7d4]" />
+                  <span>c:\Users\dogus\Downloads\togetlinkk</span>
+                  <ChevronDown className="w-3 h-3 ml-1" />
+                </div>
               </div>
             ) : (
               messages.map((message) => (
@@ -166,21 +149,21 @@ export function IdeaAIInterface() {
                 >
                   <div className="shrink-0 mt-1">
                     {message.role === "user" ? (
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#0543B8] to-purple-500 flex items-center justify-center text-xs font-bold text-white shadow-inner">
+                      <div className="w-8 h-8 rounded bg-[#7b83f4] flex items-center justify-center text-xs font-bold text-white shadow-sm">
                         DY
                       </div>
                     ) : (
-                      <div className="w-8 h-8 rounded-full bg-zinc-800 flex items-center justify-center text-white border border-zinc-700">
-                        <Sparkles className="w-4 h-4 text-emerald-400" />
+                      <div className="w-8 h-8 rounded bg-white flex items-center justify-center text-[#454e84] border border-[#81a7d4]/30 shadow-sm">
+                        <Monitor className="w-5 h-5 text-[#83be69]" />
                       </div>
                     )}
                   </div>
                   
                   <div className="flex-1 space-y-2 overflow-hidden">
-                    <div className="font-semibold text-sm text-zinc-300">
-                      {message.role === "user" ? "You" : "IdeaAI"}
+                    <div className="font-semibold text-sm text-[#454e84]">
+                      {message.role === "user" ? "Doğuş" : "IdeaAI"}
                     </div>
-                    <div className="prose prose-invert prose-zinc max-w-none text-zinc-300">
+                    <div className="prose prose-sm max-w-none text-[#454e84] prose-p:leading-relaxed prose-pre:bg-white prose-pre:border prose-pre:border-[#81a7d4]/30 prose-pre:text-[#454e84] prose-code:text-[#694849]">
                       <ReactMarkdown remarkPlugins={[remarkGfm]}>
                         {message.content}
                       </ReactMarkdown>
@@ -195,44 +178,47 @@ export function IdeaAIInterface() {
           </div>
         </div>
 
-        {/* INPUT BOX (Fixed to bottom) */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-[#09090b] via-[#09090b]/90 to-transparent pt-12">
-          <div className="max-w-3xl mx-auto">
+        {/* INPUT BOX (Centered if empty, bottom if has messages) */}
+        <div className={`absolute left-0 right-0 p-4 transition-all duration-500 ease-in-out flex justify-center ${
+          messages.length === 0 ? "top-1/2 -translate-y-1/2" : "bottom-0 bg-gradient-to-t from-[#eff0f0] via-[#eff0f0]/90 to-transparent pt-12"
+        }`}>
+          <div className="w-full max-w-3xl">
             <form onSubmit={handleSubmit}>
               <motion.div 
-                className={`w-full bg-[#18181b]/95 backdrop-blur-xl rounded-2xl border transition-all duration-300 shadow-2xl ${
-                  isFocused ? "border-[#0543B8] shadow-[0_0_30px_-5px_rgba(5,67,184,0.2)]" : "border-zinc-800/80 hover:border-zinc-700"
+                className={`w-full bg-white rounded-2xl border transition-all duration-300 shadow-sm ${
+                  isFocused ? "border-[#81a7d4] shadow-md shadow-[#81a7d4]/10" : "border-[#81a7d4]/30 hover:border-[#81a7d4]/60"
                 }`}
               >
-                <div className="p-4 flex flex-col">
-                  <textarea
-                    value={input}
-                    onChange={handleInputChange}
-                    onKeyDown={handleKeyDown}
-                    onFocus={() => setIsFocused(true)}
-                    onBlur={() => setIsFocused(false)}
-                    placeholder="Ask IdeaAI to brainstorm..."
-                    className="w-full bg-transparent border-none outline-none resize-none min-h-[60px] max-h-[200px] text-zinc-200 placeholder:text-zinc-500 text-base leading-relaxed"
-                    rows={messages.length === 0 ? 3 : 1}
-                  />
+                <div className="p-3 flex flex-col">
                   
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mt-2">
-                    {/* Tools/Modifiers */}
+                  {/* Textarea */}
+                  <div className="px-2 pt-2">
+                    <textarea
+                      value={input}
+                      onChange={handleInputChange}
+                      onKeyDown={handleKeyDown}
+                      onFocus={() => setIsFocused(true)}
+                      onBlur={() => setIsFocused(false)}
+                      placeholder="Ask anything, @ to mention, / for actions"
+                      className="w-full bg-transparent border-none outline-none resize-none min-h-[44px] max-h-[200px] text-[#454e84] placeholder:text-[#99817b] text-base leading-relaxed"
+                      rows={1}
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between gap-4 mt-2">
+                    
+                    {/* Model Selector */}
                     <div className="flex items-center gap-1.5">
-                      <button type="button" className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-zinc-800/80 text-xs font-medium text-zinc-400 hover:text-zinc-200 transition-colors border border-zinc-800/50">
-                        <Plus className="w-3.5 h-3.5" />
-                        Attach
-                      </button>
-                      <button type="button" className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-zinc-800/80 text-xs font-medium text-zinc-400 hover:text-zinc-200 transition-colors border border-zinc-800/50">
-                        <LayoutTemplate className="w-3.5 h-3.5" />
-                        Project
-                        <ChevronDown className="w-3 h-3 ml-1" />
+                      <button type="button" className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg hover:bg-[#eff0f0] text-xs font-medium text-[#454e84] transition-colors">
+                        <Plus className="w-4 h-4 text-[#99817b]" />
+                        IdeaAI LLaMA 3 (Fast)
+                        <ChevronDown className="w-3 h-3 ml-1 text-[#99817b]" />
                       </button>
                     </div>
 
                     {/* Submit / Stop / Mic */}
-                    <div className="flex items-center gap-2 ml-auto">
-                      <button type="button" className="p-2.5 rounded-full bg-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-700 transition-colors" title="Voice Input">
+                    <div className="flex items-center gap-1">
+                      <button type="button" className="p-2 rounded-full text-[#99817b] hover:text-[#454e84] hover:bg-[#eff0f0] transition-colors" title="Voice Input">
                         <Mic className="w-4 h-4" />
                       </button>
                       
@@ -240,7 +226,7 @@ export function IdeaAIInterface() {
                         <button 
                           type="button"
                           onClick={stop}
-                          className="flex items-center justify-center p-2.5 rounded-full font-semibold transition-all bg-red-500/20 text-red-500 hover:bg-red-500/30"
+                          className="flex items-center justify-center p-2 rounded-full font-semibold transition-all bg-[#694849]/10 text-[#694849] hover:bg-[#694849]/20"
                         >
                           <StopCircle className="w-4 h-4" />
                         </button>
@@ -248,65 +234,32 @@ export function IdeaAIInterface() {
                         <button 
                           type="submit"
                           disabled={!input.trim()}
-                          className={`flex items-center justify-center p-2.5 rounded-full font-semibold transition-all ${
+                          className={`flex items-center justify-center p-2 rounded-full font-semibold transition-all ${
                             input.trim() 
-                              ? "bg-white text-black hover:bg-zinc-200" 
-                              : "bg-zinc-800 text-zinc-600 cursor-not-allowed"
+                              ? "bg-[#eff0f0] text-[#454e84] hover:bg-[#e2e3e3]" 
+                              : "bg-[#eff0f0]/50 text-[#99817b]/50 cursor-not-allowed"
                           }`}
                         >
-                          <Send className="w-4 h-4" />
+                          <ArrowRight className="w-4 h-4" />
                         </button>
                       )}
                     </div>
                   </div>
+                  
+                  {/* Bottom Bar inside Input Box */}
+                  <div className="mt-2 border-t border-[#81a7d4]/10 pt-2 px-2 flex items-center">
+                     <button type="button" className="flex items-center gap-1.5 text-xs font-medium text-[#99817b] hover:text-[#454e84] transition-colors">
+                       <Monitor className="w-3.5 h-3.5" />
+                       Local
+                       <ChevronDown className="w-3 h-3" />
+                     </button>
+                  </div>
                 </div>
               </motion.div>
             </form>
-
-            {/* Warning Message Match Reference Image */}
-            <AnimatePresence>
-              {messages.length === 0 && (
-                <motion.div 
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="w-full mt-4 flex items-center justify-between px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm overflow-hidden"
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="flex items-center justify-center w-5 h-5 rounded-full bg-red-500/20 font-bold text-xs">!</span>
-                    <span>IdeaAI Beta is currently limited to selected developers.</span>
-                  </div>
-                  <button type="button" className="font-medium hover:underline flex items-center gap-1">
-                    <ExternalLink className="w-3.5 h-3.5" /> Request Access
-                  </button>
-                </motion.div>
-              )}
-            </AnimatePresence>
           </div>
         </div>
       </main>
     </div>
-  )
-}
-
-function ExternalLink(props: any) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-      <polyline points="15 3 21 3 21 9" />
-      <line x1="10" x2="21" y1="14" y2="3" />
-    </svg>
   )
 }
