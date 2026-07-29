@@ -26,7 +26,8 @@ import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 
 export function IdeaAIInterface() {
-  const { messages, input, setInput, append, isLoading, stop } = useChat()
+  const { messages, append, isLoading, stop } = useChat()
+  const [input, setInput] = useState("")
   const [isFocused, setIsFocused] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
