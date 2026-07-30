@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect, useRef } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion } from "framer-motion"
 import { useChat } from "@ai-sdk/react"
 import { 
   Search, 
@@ -15,19 +15,17 @@ import {
   MoreHorizontal, 
   Plus, 
   Mic, 
-  PanelLeftClose,
+  Sidebar,
   Image as ImageIcon,
   ArrowRight,
   StopCircle,
-  Hash,
   Globe
 } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 
 export function IdeaAIInterface() {
-  const { messages, append, isLoading, stop } = useChat()
-  const [input, setInput] = useState("")
+  const { messages, input, setInput, append, isLoading, stop } = useChat()
   const [isFocused, setIsFocused] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -54,20 +52,20 @@ export function IdeaAIInterface() {
     <div className="flex h-screen w-full font-sans overflow-hidden bg-white text-[#0a0a0a]">
       
       {/* SIDEBAR */}
-      <aside className="w-[280px] shrink-0 bg-[#f9fafb] border-r border-gray-100 flex flex-col justify-between hidden md:flex">
+      <aside className="w-[260px] shrink-0 bg-[#f9fafb] border-r border-gray-200 flex flex-col justify-between hidden md:flex">
         <div className="flex flex-col h-full overflow-hidden">
           
           {/* Workspace Header */}
-          <div className="h-14 flex items-center justify-between px-3 shrink-0">
-            <button className="flex items-center gap-2 hover:bg-gray-100 p-1.5 rounded-md transition-colors text-[15px] font-medium text-gray-800">
-              <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-white shadow-sm overflow-hidden border border-blue-700">
-                <Globe className="w-3.5 h-3.5 opacity-80" />
+          <div className="h-[56px] flex items-center justify-between px-3 shrink-0">
+            <button className="flex items-center hover:bg-gray-100 p-1.5 rounded-md transition-colors text-[14px] font-medium text-gray-900">
+              <div className="w-[22px] h-[22px] rounded-full bg-[#2563eb] flex items-center justify-center text-white mr-2 shadow-sm">
+                <Globe className="w-3.5 h-3.5 opacity-90" />
               </div>
               dogustech's projects
-              <ChevronsUpDown className="w-3.5 h-3.5 text-gray-400 ml-1" />
+              <ChevronsUpDown className="w-3.5 h-3.5 text-gray-400 ml-1.5" />
             </button>
             <button className="p-1.5 hover:bg-gray-100 rounded-md text-gray-500 transition-colors">
-              <PanelLeftClose className="w-4 h-4" />
+              <Sidebar className="w-[18px] h-[18px]" />
             </button>
           </div>
 
@@ -75,29 +73,29 @@ export function IdeaAIInterface() {
           <div className="px-3 pb-3">
             <button 
               onClick={() => window.location.reload()}
-              className="w-full flex items-center justify-between bg-white hover:bg-gray-50 text-gray-800 px-3 py-2 rounded-lg border border-gray-200 transition-all text-sm font-medium shadow-sm"
+              className="w-full relative flex items-center justify-center bg-white hover:bg-gray-50 text-gray-900 py-[6px] rounded-[8px] border border-gray-200 transition-all text-[14px] font-medium shadow-sm"
             >
               New Chat
-              <ChevronDown className="w-4 h-4 text-gray-400" />
+              <ChevronDown className="w-4 h-4 text-gray-500 absolute right-2.5" />
             </button>
           </div>
 
           <div className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar">
             {/* Main Navigation */}
             <div className="px-2 space-y-0.5">
-              <NavItem icon={<Search className="w-4 h-4" />} label="Search" />
-              <NavItem icon={<Home className="w-4 h-4" />} label="Home" active />
-              <NavItem icon={<LayoutGrid className="w-4 h-4" />} label="Projects" />
-              <NavItem icon={<MessageSquare className="w-4 h-4" />} label="Chats" />
-              <NavItem icon={<PenTool className="w-4 h-4" />} label="Design Systems" />
-              <NavItem icon={<FileText className="w-4 h-4" />} label="Templates" />
+              <NavItem icon={<Search className="w-[18px] h-[18px]" />} label="Search" />
+              <NavItem icon={<Home className="w-[18px] h-[18px]" />} label="Home" active />
+              <NavItem icon={<LayoutGrid className="w-[18px] h-[18px]" />} label="Projects" />
+              <NavItem icon={<MessageSquare className="w-[18px] h-[18px]" />} label="Chats" />
+              <NavItem icon={<PenTool className="w-[18px] h-[18px]" />} label="Design Systems" />
+              <NavItem icon={<FileText className="w-[18px] h-[18px]" />} label="Templates" />
             </div>
 
             {/* Recent Chats */}
             <div className="mt-6">
-              <div className="px-4 text-xs font-medium text-gray-500 mb-1 flex items-center justify-between">
+              <div className="px-4 text-[13px] font-medium text-gray-500 mb-1 flex items-center justify-between">
                 Recent Chats
-                <ChevronDown className="w-3 h-3" />
+                <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
               </div>
               <div className="px-2 space-y-0.5">
                 <ChatNavItem label="Untitled chat" />
@@ -105,8 +103,8 @@ export function IdeaAIInterface() {
                 <ChatNavItem label="Untitled chat" />
                 <ChatNavItem label="TogetLink Hub Discovery" />
                 <ChatNavItem label="Untitled chat (2)" />
-                <button className="w-full flex items-center gap-2.5 px-2 py-1.5 text-sm text-gray-500 hover:bg-gray-100 rounded-md transition-colors text-left group">
-                  <MoreHorizontal className="w-4 h-4 shrink-0" />
+                <button className="w-full flex items-center gap-2.5 px-2 py-1.5 text-[14px] text-gray-600 hover:bg-gray-100 rounded-md transition-colors text-left group mt-1">
+                  <MoreHorizontal className="w-[18px] h-[18px] shrink-0 text-gray-400 group-hover:text-gray-600 transition-colors" />
                   <span className="truncate">More</span>
                 </button>
               </div>
@@ -117,14 +115,14 @@ export function IdeaAIInterface() {
         {/* Footer Area */}
         <div className="p-3 bg-[#f9fafb]">
           {/* User Profile */}
-          <div className="flex items-center justify-between">
-            <button className="flex items-center gap-2 hover:bg-gray-100 p-1.5 rounded-md transition-colors text-sm font-medium text-gray-700">
-              <div className="w-6 h-6 rounded-full bg-indigo-100 flex items-center justify-center border border-indigo-200 overflow-hidden relative">
-                <div className="absolute bottom-0 w-3 h-2 bg-indigo-500 rounded-t-sm" />
+          <div className="flex items-center justify-between mt-2">
+            <button className="flex items-center gap-2 hover:bg-gray-100 p-1.5 rounded-md transition-colors text-[14px] font-medium text-gray-800">
+              <div className="w-[22px] h-[22px] rounded-full bg-blue-100 flex items-center justify-center border border-blue-200 overflow-hidden relative shadow-sm">
+                <div className="absolute bottom-0 w-3 h-2 bg-blue-500 rounded-t-sm" />
               </div>
               dogustech
             </button>
-            <div className="px-2.5 py-1 bg-white border border-gray-200 rounded text-xs font-semibold text-gray-800 shadow-sm">
+            <div className="px-2.5 py-1 bg-white border border-gray-200 rounded-[6px] text-[13px] font-semibold text-gray-800 shadow-sm">
               $49
             </div>
           </div>
@@ -140,7 +138,7 @@ export function IdeaAIInterface() {
             
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full min-h-[50vh]">
-                {/* We moved the H1 down to the input box container to make it stick to the top of the box */}
+                {/* Empty container to allow positioning logic */}
               </div>
             ) : (
               messages.map((message) => (
@@ -182,36 +180,38 @@ export function IdeaAIInterface() {
         </div>
 
         {/* INPUT BOX */}
-        <div className={`absolute left-0 right-0 p-4 transition-all duration-500 ease-in-out flex justify-center ${
-          messages.length === 0 ? "top-[50%] -translate-y-[60%]" : "bottom-0 bg-gradient-to-t from-white via-white/95 to-transparent pt-12"
+        <div className={`absolute left-0 right-0 px-4 pb-8 transition-all duration-500 ease-in-out flex justify-center ${
+          messages.length === 0 ? "top-[40%] -translate-y-1/2" : "bottom-0 bg-gradient-to-t from-white via-white/95 to-transparent pt-12"
         }`}>
           <div className="w-full max-w-3xl">
             
             {/* Hero Heading attached directly to the top of the input box */}
             {messages.length === 0 && (
-              <h1 className="text-center text-[32px] md:text-[36px] font-semibold tracking-tight text-[#0a0a0a] mb-6 font-sans">
+              <h1 className="text-center text-[34px] font-bold tracking-tight text-[#0a0a0a] mb-6 font-sans">
                 What do you want to create?
               </h1>
             )}
 
             <div 
-              className={`w-full bg-white rounded-xl border transition-all duration-300 shadow-sm ${
-                isFocused ? "border-gray-300 shadow-md" : "border-gray-200 hover:border-gray-300"
+              className={`w-full bg-white rounded-[16px] border transition-all duration-300 shadow-[0_2px_12px_rgba(0,0,0,0.04)] ${
+                isFocused ? "border-gray-300 shadow-[0_4px_24px_rgba(0,0,0,0.08)]" : "border-gray-200 hover:border-gray-300"
               }`}
             >
-              <div className="p-3 flex flex-col">
+              <div className="p-2.5 flex flex-col">
                 
                 {/* File Attachment Tag (Static for visual copy) */}
                 {messages.length === 0 && (
-                  <div className="flex items-center gap-1.5 px-2 py-1 bg-gray-100 border border-gray-200 rounded-md text-xs font-medium text-gray-600 w-max mb-2">
-                    <ImageIcon className="w-3.5 h-3.5 opacity-70" />
+                  <div className="flex items-center gap-1.5 px-2 py-1 bg-gray-50/80 border border-gray-200 rounded-[6px] text-[13px] font-medium text-gray-700 w-max mb-1 ml-1 mt-0.5">
+                    <div className="w-[18px] h-[18px] bg-white border border-gray-200 rounded-[4px] flex items-center justify-center">
+                       <ImageIcon className="w-[10px] h-[10px] text-gray-500" />
+                    </div>
                     image.png
-                    <button className="text-gray-400 hover:text-gray-600 ml-1"><Plus className="w-3 h-3 rotate-45" /></button>
+                    <button className="text-gray-400 hover:text-gray-600 ml-0.5"><Plus className="w-3.5 h-3.5 rotate-45" /></button>
                   </div>
                 )}
                 
                 {/* Textarea */}
-                <div className="px-1">
+                <div className="px-2 pt-1">
                   <textarea
                     value={input || ""}
                     onChange={(e) => setInput(e.target.value)}
@@ -224,57 +224,64 @@ export function IdeaAIInterface() {
                   />
                 </div>
                 
-                <div className="flex items-center justify-between gap-4 mt-3 border-t border-transparent">
+                <div className="flex items-center justify-between mt-2.5 ml-1 mr-1 pb-1">
                   
                   {/* Left Actions */}
-                  <div className="flex items-center gap-2">
-                    <button type="button" className="p-1 rounded-md text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors">
-                      <Plus className="w-4 h-4" />
+                  <div className="flex items-center">
+                    <button type="button" className="p-1 rounded-md text-gray-400 hover:text-gray-600 transition-colors">
+                      <Plus className="w-5 h-5" />
                     </button>
                     
-                    <button type="button" className="flex items-center gap-1 px-2 py-1 rounded-md hover:bg-gray-100 text-[13px] font-medium text-gray-500 transition-colors">
-                      <span className="font-serif italic mr-0.5">@</span> v0 Pro
+                    <button type="button" className="flex items-center gap-1.5 px-2 py-1 ml-0.5 rounded-md hover:bg-gray-100 text-[13px] font-medium text-gray-500 transition-colors">
+                      <span className="font-serif italic text-gray-400 text-[14px]">@</span> v0 Pro
                       <ChevronDown className="w-3.5 h-3.5 ml-0.5 text-gray-400" />
                     </button>
 
                     {messages.length === 0 && (
-                      <div className="flex items-center gap-1 px-2 py-1 bg-blue-50/50 text-blue-600 rounded-md text-[13px] font-medium">
-                        <Hash className="w-3.5 h-3.5" />
-                        material-3
-                        <button className="text-blue-400 hover:text-blue-600 ml-1"><Plus className="w-3 h-3 rotate-45" /></button>
-                      </div>
+                      <>
+                        {/* Vertical divider */}
+                        <div className="w-px h-[14px] bg-gray-200 mx-2"></div>
+
+                        <div className="flex items-center gap-1.5 px-2 py-1 bg-[#eff6ff] text-[#1d4ed8] rounded-[6px] text-[13px] font-medium cursor-pointer hover:bg-blue-100/50 transition-colors">
+                          <div className="w-[16px] h-[16px] rounded-full bg-[#3b82f6] flex items-center justify-center text-white">
+                            <span className="text-[10px] font-bold">M</span>
+                          </div>
+                          material-3
+                          <button className="text-blue-400 hover:text-blue-600 ml-0.5"><Plus className="w-3.5 h-3.5 rotate-45" /></button>
+                        </div>
+                      </>
                     )}
                   </div>
 
                   {/* Right Actions */}
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3">
                     <button type="button" className="flex items-center gap-1 text-[13px] font-medium text-gray-500 hover:text-gray-700 transition-colors">
                       Project
-                      <ChevronDown className="w-3.5 h-3.5" />
+                      <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
                     </button>
                     
                     {isLoading ? (
                       <button 
                         type="button"
                         onClick={stop}
-                        className="flex items-center justify-center p-1.5 rounded-lg transition-all bg-red-100 text-red-600 hover:bg-red-200"
+                        className="flex items-center justify-center w-[32px] h-[32px] rounded-[8px] transition-all bg-red-100 text-red-600 hover:bg-red-200"
                       >
-                        <StopCircle className="w-4 h-4" />
+                        <StopCircle className="w-[18px] h-[18px]" />
                       </button>
                     ) : (input || "").trim() ? (
                       <button 
                         type="button"
                         onClick={submitMessage}
-                        className="flex items-center justify-center p-1.5 rounded-lg transition-all bg-black text-white hover:bg-gray-800 shadow-sm"
+                        className="flex items-center justify-center w-[32px] h-[32px] rounded-[8px] transition-all bg-black text-white hover:bg-gray-800 shadow-sm"
                       >
-                        <ArrowRight className="w-4 h-4" />
+                        <ArrowRight className="w-[18px] h-[18px]" />
                       </button>
                     ) : (
                       <button 
                         type="button"
-                        className="flex items-center justify-center p-1.5 rounded-lg transition-all bg-black text-white hover:bg-gray-800 shadow-sm"
+                        className="flex items-center justify-center w-[32px] h-[32px] rounded-[8px] transition-all bg-black text-white hover:bg-gray-800 shadow-sm"
                       >
-                        <Mic className="w-4 h-4" />
+                        <Mic className="w-[18px] h-[18px]" />
                       </button>
                     )}
                   </div>
@@ -288,18 +295,17 @@ export function IdeaAIInterface() {
       {/* Add custom scrollbar styling globally for the sidebar */}
       <style dangerouslySetInnerHTML={{__html: `
         .custom-scrollbar::-webkit-scrollbar {
-          width: 8px;
+          width: 6px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
           background: transparent;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background-color: #d1d5db;
-          border-radius: 20px;
-          border: 2px solid #f9fafb;
+          background-color: #e5e7eb;
+          border-radius: 10px;
         }
         .custom-scrollbar:hover::-webkit-scrollbar-thumb {
-          background-color: #9ca3af;
+          background-color: #d1d5db;
         }
       `}} />
     </div>
@@ -308,10 +314,10 @@ export function IdeaAIInterface() {
 
 function NavItem({ icon, label, active = false }: { icon: React.ReactNode, label: string, active?: boolean }) {
   return (
-    <button className={`w-full flex items-center gap-2.5 px-2 py-1.5 text-[14px] rounded-md transition-colors text-left group ${
-      active ? "bg-gray-100 text-gray-900 font-medium" : "text-gray-600 hover:bg-gray-100"
+    <button className={`w-full flex items-center gap-2.5 px-2 py-[7px] text-[14px] rounded-md transition-colors text-left group ${
+      active ? "bg-gray-100/80 text-gray-900 font-medium" : "text-gray-600 hover:bg-gray-100"
     }`}>
-      <span className={active ? "text-gray-900" : "text-gray-400 group-hover:text-gray-600 transition-colors"}>
+      <span className={active ? "text-gray-800" : "text-gray-400 group-hover:text-gray-600 transition-colors"}>
         {icon}
       </span>
       {label}
@@ -321,9 +327,9 @@ function NavItem({ icon, label, active = false }: { icon: React.ReactNode, label
 
 function ChatNavItem({ label }: { label: string }) {
   return (
-    <button className="w-full flex items-center gap-2.5 px-2 py-1.5 text-[14px] text-gray-500 hover:bg-gray-100 rounded-md transition-colors text-left group">
-      <div className="w-4 h-4 shrink-0 flex items-center justify-center">
-        <div className="w-[11px] h-[11px] rounded-full border-[1.5px] border-dashed border-gray-400 group-hover:border-gray-500 transition-colors" />
+    <button className="w-full flex items-center gap-2.5 px-2 py-[7px] text-[14px] text-gray-500 hover:bg-gray-100 rounded-md transition-colors text-left group">
+      <div className="w-[18px] h-[18px] shrink-0 flex items-center justify-center">
+        <div className="w-[12px] h-[12px] rounded-full border-[1.5px] border-dashed border-gray-300 group-hover:border-gray-400 transition-colors" />
       </div>
       <span className="truncate">{label}</span>
     </button>
