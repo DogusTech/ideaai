@@ -57,45 +57,50 @@ export function IdeaAIInterface() {
           
           {/* Workspace Header */}
           <div className="h-[56px] flex items-center justify-between px-3 shrink-0">
-            <button className="flex items-center hover:bg-[#f5f5f5] p-1.5 rounded-md transition-colors text-[14px] font-medium text-[#171717]">
+            <button className="flex items-center hover:bg-[#f0f0f0] p-1.5 rounded-md transition-colors text-[14px] font-medium text-[#171717]">
               <div className="w-[24px] h-[24px] rounded-full bg-[#2563eb] flex items-center justify-center text-white mr-2.5 shadow-sm">
                 <Globe className="w-[14px] h-[14px] opacity-90" strokeWidth={2} />
               </div>
               dogustech's projects
-              <ChevronsUpDown className="w-4 h-4 text-[#a3a3a3] ml-1.5" strokeWidth={1.5} />
+              <ChevronsUpDown className="w-4 h-4 text-[#a3a3a3] ml-1.5" strokeWidth={2} />
             </button>
-            <button className="p-1.5 hover:bg-[#f5f5f5] rounded-md text-[#525252] transition-colors">
-              <Sidebar className="w-[20px] h-[20px]" strokeWidth={1.5} />
+            <button className="p-1.5 hover:bg-[#f0f0f0] rounded-md text-[#525252] transition-colors">
+              <Sidebar className="w-[18px] h-[18px]" strokeWidth={2} />
             </button>
           </div>
 
-          {/* New Chat Button */}
+          {/* New Chat Button (Split Button) */}
           <div className="px-3 pb-4">
-            <button 
-              onClick={() => window.location.reload()}
-              className="w-full relative flex items-center justify-center bg-white hover:bg-[#f5f5f5] text-[#171717] py-[7px] rounded-[8px] border border-[#e5e5e5] transition-all text-[14px] font-medium shadow-[0_1px_2px_rgba(0,0,0,0.02)]"
-            >
-              New Chat
-              <ChevronDown className="w-[18px] h-[18px] text-[#737373] absolute right-2.5" strokeWidth={1.5} />
-            </button>
+            <div className="flex w-full bg-white hover:bg-[#f9f9f9] rounded-[8px] border border-[#e5e5e5] transition-all shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+              <button 
+                onClick={() => window.location.reload()}
+                className="flex-1 flex items-center justify-center py-[7px] text-[14px] font-medium text-[#171717] rounded-l-[8px]"
+              >
+                New Chat
+              </button>
+              <div className="w-px bg-[#e5e5e5]"></div>
+              <button className="px-2.5 flex items-center justify-center text-[#737373] hover:text-[#171717] rounded-r-[8px] hover:bg-[#f0f0f0] transition-colors">
+                <ChevronDown className="w-[18px] h-[18px]" strokeWidth={2} />
+              </button>
+            </div>
           </div>
 
           <div className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar">
             {/* Main Navigation */}
-            <div className="px-2 space-y-0.5">
-              <NavItem icon={<Search className="w-[20px] h-[20px]" strokeWidth={1.5} />} label="Search" />
-              <NavItem icon={<Home className="w-[20px] h-[20px]" strokeWidth={1.5} />} label="Home" active />
-              <NavItem icon={<LayoutGrid className="w-[20px] h-[20px]" strokeWidth={1.5} />} label="Projects" />
-              <NavItem icon={<MessageSquare className="w-[20px] h-[20px]" strokeWidth={1.5} />} label="Chats" />
-              <NavItem icon={<PenTool className="w-[20px] h-[20px]" strokeWidth={1.5} />} label="Design Systems" />
-              <NavItem icon={<FileText className="w-[20px] h-[20px]" strokeWidth={1.5} />} label="Templates" />
+            <div className="px-2 space-y-[2px]">
+              <NavItem icon={<Search className="w-[18px] h-[18px]" strokeWidth={2} />} label="Search" />
+              <NavItem icon={<Home className="w-[18px] h-[18px]" strokeWidth={2} />} label="Home" active />
+              <NavItem icon={<LayoutGrid className="w-[18px] h-[18px]" strokeWidth={2} />} label="Projects" />
+              <NavItem icon={<MessageSquare className="w-[18px] h-[18px]" strokeWidth={2} />} label="Chats" />
+              <NavItem icon={<PenTool className="w-[18px] h-[18px]" strokeWidth={2} />} label="Design Systems" />
+              <NavItem icon={<FileText className="w-[18px] h-[18px]" strokeWidth={2} />} label="Templates" />
             </div>
 
             {/* Favorites */}
             <div className="mt-8">
               <div className="px-4 text-[13px] font-medium text-[#737373] mb-1.5 flex items-center justify-between">
                 Favorites
-                <ChevronDown className="w-4 h-4 text-[#a3a3a3] -rotate-90" strokeWidth={1.5} />
+                <ChevronDown className="w-4 h-4 text-[#a3a3a3] -rotate-90" strokeWidth={2} />
               </div>
             </div>
 
@@ -103,16 +108,16 @@ export function IdeaAIInterface() {
             <div className="mt-6">
               <div className="px-4 text-[13px] font-medium text-[#737373] mb-1.5 flex items-center justify-between">
                 Recent Chats
-                <ChevronDown className="w-4 h-4 text-[#a3a3a3]" strokeWidth={1.5} />
+                <ChevronDown className="w-4 h-4 text-[#a3a3a3]" strokeWidth={2} />
               </div>
-              <div className="px-2 space-y-0.5 pb-4">
+              <div className="px-2 space-y-[2px] pb-4">
                 <ChatNavItem label="Untitled chat" />
-                <ChatNavItem label="Untitled chat (3)" />
+                <ChatNavItem label="Untitled chat (3)" isBranch />
                 <ChatNavItem label="Untitled chat" />
-                <ChatNavItem label="TogetLink Hub Discovery" />
-                <ChatNavItem label="Untitled chat (2)" />
-                <button className="w-full flex items-center gap-3 px-3 py-[8px] text-[14px] text-[#525252] hover:bg-[#f5f5f5] rounded-md transition-colors text-left group mt-1">
-                  <MoreHorizontal className="w-[20px] h-[20px] shrink-0 text-[#a3a3a3] group-hover:text-[#525252] transition-colors" strokeWidth={1.5} />
+                <ChatNavItem label="TogetLink Hub Discovery" isBranch />
+                <ChatNavItem label="Untitled chat (2)" isBranch />
+                <button className="w-full flex items-center gap-3 px-3 py-[7px] text-[14px] text-[#525252] hover:bg-[#f0f0f0] rounded-md transition-colors text-left group mt-1">
+                  <MoreHorizontal className="w-[18px] h-[18px] shrink-0 text-[#737373] group-hover:text-[#525252] transition-colors" strokeWidth={2} />
                   <span className="truncate">More</span>
                 </button>
               </div>
@@ -124,7 +129,7 @@ export function IdeaAIInterface() {
         <div className="p-3 bg-[#f9fafb]">
           {/* User Profile */}
           <div className="flex items-center justify-between mt-2">
-            <button className="flex items-center gap-2 hover:bg-[#f5f5f5] p-1.5 rounded-md transition-colors text-[14px] font-medium text-[#171717]">
+            <button className="flex items-center gap-2 hover:bg-[#f0f0f0] p-1.5 rounded-md transition-colors text-[14px] font-medium text-[#171717]">
               <div className="w-[24px] h-[24px] rounded-full bg-[#e0e7ff] flex items-center justify-center border border-[#c7d2fe] overflow-hidden relative shadow-sm">
                 <div className="absolute bottom-0 w-3.5 h-2 bg-[#4f46e5] rounded-t-sm" />
               </div>
@@ -311,8 +316,9 @@ export function IdeaAIInterface() {
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
           background-color: #d4d4d4;
-          border-radius: 10px;
-          border: 4px solid #f9fafb;
+          border-radius: 9999px;
+          border: 4px solid rgba(0,0,0,0);
+          background-clip: padding-box;
         }
         .custom-scrollbar:hover::-webkit-scrollbar-thumb {
           background-color: #a3a3a3;
@@ -352,10 +358,10 @@ export function IdeaAIInterface() {
 
 function NavItem({ icon, label, active = false }: { icon: React.ReactNode, label: string, active?: boolean }) {
   return (
-    <button className={`w-full flex items-center gap-3 px-3 py-[8px] text-[14px] rounded-md transition-colors text-left group ${
-      active ? "bg-[#f5f5f5] text-[#171717] font-medium" : "text-[#525252] hover:bg-[#f5f5f5]"
+    <button className={`w-full flex items-center gap-3 px-3 py-[7px] text-[14px] rounded-md transition-colors text-left group ${
+      active ? "bg-[#f0f0f0] text-[#171717] font-medium" : "text-[#525252] hover:bg-[#f0f0f0]"
     }`}>
-      <span className={active ? "text-[#171717]" : "text-[#a3a3a3] group-hover:text-[#525252] transition-colors"}>
+      <span className={active ? "text-[#171717]" : "text-[#737373] group-hover:text-[#525252] transition-colors"}>
         {icon}
       </span>
       {label}
@@ -363,11 +369,20 @@ function NavItem({ icon, label, active = false }: { icon: React.ReactNode, label
   )
 }
 
-function ChatNavItem({ label }: { label: string }) {
+function ChatNavItem({ label, isBranch = false }: { label: string, isBranch?: boolean }) {
   return (
-    <button className="w-full flex items-center gap-3 px-3 py-[8px] text-[14px] text-[#525252] hover:bg-[#f5f5f5] rounded-md transition-colors text-left group">
-      <div className="w-[20px] h-[20px] shrink-0 flex items-center justify-center">
-        <div className="w-[13px] h-[13px] rounded-full border-[1.5px] border-dashed border-[#d4d4d4] group-hover:border-[#a3a3a3] transition-colors" />
+    <button className="w-full flex items-center gap-3 px-3 py-[7px] text-[14px] text-[#525252] hover:bg-[#f0f0f0] rounded-md transition-colors text-left group">
+      <div className="w-[18px] h-[18px] shrink-0 flex items-center justify-center">
+        {isBranch ? (
+          <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="text-[#737373] group-hover:text-[#525252] transition-colors">
+            <line x1="6" y1="3" x2="6" y2="15"></line>
+            <circle cx="18" cy="6" r="3"></circle>
+            <circle cx="6" cy="18" r="3"></circle>
+            <path d="M18 9a9 9 0 0 1-9 9"></path>
+          </svg>
+        ) : (
+          <div className="w-[14px] h-[14px] rounded-full border-[2px] border-dashed border-[#737373] group-hover:border-[#525252] transition-colors" />
+        )}
       </div>
       <span className="truncate">{label}</span>
     </button>
