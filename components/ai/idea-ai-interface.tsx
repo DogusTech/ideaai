@@ -206,25 +206,25 @@ export function IdeaAIInterface() {
             )}
 
             <div 
-              className={`w-full bg-white rounded-[14px] border transition-all duration-300 shadow-[0_2px_8px_rgba(0,0,0,0.04)] ${
-                isFocused ? "border-[#d4d4d4] shadow-[0_4px_16px_rgba(0,0,0,0.08)]" : "border-[#e5e5e5] hover:border-[#d4d4d4]"
+              className={`w-full bg-white rounded-2xl border transition-all duration-300 shadow-[0_2px_8px_rgba(0,0,0,0.04)] ${
+                isFocused ? "border-[#a3a3a3] shadow-[0_4px_16px_rgba(0,0,0,0.08)]" : "border-[#d4d4d4] hover:border-[#a3a3a3]"
               }`}
             >
-              <div className="p-2.5 flex flex-col">
+              <div className="p-2 flex flex-col">
                 
                 {/* File Attachment Tag (Static for visual copy) */}
                 {messages.length === 0 && (
-                  <div className="flex items-center gap-1.5 px-2 py-[5px] bg-[#f9fafb] border border-[#e5e5e5] rounded-[6px] text-[13px] font-medium text-[#525252] w-max mb-1.5 ml-1 mt-0.5">
-                    <div className="w-[18px] h-[18px] bg-white border border-[#e5e5e5] rounded-[4px] flex items-center justify-center shadow-sm">
+                  <div className="flex items-center gap-1.5 px-2 py-[3px] bg-[#f9fafb] border border-[#e5e5e5] rounded-[6px] text-[12px] font-medium text-[#525252] w-max mb-1 ml-1 mt-0.5 shadow-sm">
+                    <div className="w-[16px] h-[16px] bg-white border border-[#e5e5e5] rounded-[4px] flex items-center justify-center">
                        <ImageIcon className="w-[10px] h-[10px] text-[#737373]" strokeWidth={2} />
                     </div>
                     image.png
-                    <button className="text-[#a3a3a3] hover:text-[#525252] ml-0.5"><Plus className="w-3.5 h-3.5 rotate-45" strokeWidth={2} /></button>
+                    <button className="text-[#a3a3a3] hover:text-[#525252] ml-0.5"><Plus className="w-3 h-3 rotate-45" strokeWidth={2.5} /></button>
                   </div>
                 )}
                 
                 {/* Textarea */}
-                <div className="px-2 pt-1 pb-2">
+                <div className="px-2 pt-1 pb-1">
                   <textarea
                     value={input || ""}
                     onChange={(e) => setInput(e.target.value)}
@@ -232,69 +232,69 @@ export function IdeaAIInterface() {
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
                     placeholder="Ask anything, @ to mention, / for actions"
-                    className="w-full bg-transparent border-none outline-none resize-none min-h-[24px] max-h-[200px] text-[#171717] placeholder:text-[#a3a3a3] text-[15px] leading-relaxed font-sans"
+                    className="w-full bg-transparent border-none outline-none resize-none min-h-[22px] max-h-[200px] text-[#171717] placeholder:text-[#a3a3a3] text-[14px] leading-relaxed font-sans"
                     rows={1}
                   />
                 </div>
                 
-                <div className="flex items-center justify-between mt-1 ml-1 mr-1 pb-1">
+                <div className="flex items-center justify-between mt-1 ml-1 mr-1 pb-0.5">
                   
                   {/* Left Actions */}
                   <div className="flex items-center">
                     <button type="button" className="p-1 rounded-md text-[#a3a3a3] hover:text-[#525252] transition-colors">
-                      <Plus className="w-5 h-5" strokeWidth={1.5} />
+                      <Plus className="w-4 h-4" strokeWidth={2} />
                     </button>
                     
-                    <button type="button" className="flex items-center gap-1.5 px-2 py-1 ml-0.5 rounded-md hover:bg-[#f5f5f5] text-[14px] font-medium text-[#525252] transition-colors">
-                      <span className="font-serif italic text-[#a3a3a3] text-[15px] font-medium">@</span> v0 Pro
-                      <ChevronDown className="w-4 h-4 ml-0.5 text-[#a3a3a3]" strokeWidth={1.5} />
+                    <button type="button" className="flex items-center gap-1 px-1.5 py-1 ml-0.5 rounded-md hover:bg-[#f5f5f5] text-[13px] font-medium text-[#525252] transition-colors">
+                      <span className="font-serif italic text-[#a3a3a3] text-[14px] font-medium">@</span> v0 Pro
+                      <ChevronDown className="w-3.5 h-3.5 ml-0.5 text-[#a3a3a3]" strokeWidth={2} />
                     </button>
 
                     {messages.length === 0 && (
                       <>
                         {/* Vertical divider */}
-                        <div className="w-[1px] h-[16px] bg-[#e5e5e5] mx-2"></div>
+                        <div className="w-[1px] h-[14px] bg-[#e5e5e5] mx-1.5"></div>
 
-                        <div className="flex items-center gap-1.5 px-2 py-1 bg-[#eff6ff] text-[#1d4ed8] rounded-[6px] text-[13px] font-medium cursor-pointer hover:bg-blue-100/50 transition-colors">
-                          <div className="w-[16px] h-[16px] rounded-full bg-[#3b82f6] flex items-center justify-center text-white">
-                            <span className="text-[10px] font-bold">M</span>
+                        <div className="flex items-center gap-1.5 px-1.5 py-[3px] bg-[#eff6ff] text-[#1d4ed8] rounded-[6px] text-[12px] font-medium cursor-pointer hover:bg-blue-100/50 transition-colors">
+                          <div className="w-[14px] h-[14px] rounded-full bg-[#3b82f6] flex items-center justify-center text-white">
+                            <span className="text-[9px] font-bold">M</span>
                           </div>
                           material-3
-                          <button className="text-blue-400 hover:text-blue-600 ml-0.5"><Plus className="w-3.5 h-3.5 rotate-45" strokeWidth={2} /></button>
+                          <button className="text-blue-400 hover:text-blue-600 ml-0.5"><Plus className="w-3 h-3 rotate-45" strokeWidth={2.5} /></button>
                         </div>
                       </>
                     )}
                   </div>
 
                   {/* Right Actions */}
-                  <div className="flex items-center gap-3">
-                    <button type="button" className="flex items-center gap-1.5 text-[14px] font-medium text-[#525252] hover:text-[#171717] transition-colors">
+                  <div className="flex items-center gap-2.5">
+                    <button type="button" className="flex items-center gap-1 text-[13px] font-medium text-[#525252] hover:text-[#171717] transition-colors">
                       Project
-                      <ChevronDown className="w-4 h-4 text-[#a3a3a3]" strokeWidth={1.5} />
+                      <ChevronDown className="w-3.5 h-3.5 text-[#a3a3a3]" strokeWidth={2} />
                     </button>
                     
                     {isLoading ? (
                       <button 
                         type="button"
                         onClick={stop}
-                        className="flex items-center justify-center w-[32px] h-[32px] rounded-[8px] transition-all bg-red-100 text-red-600 hover:bg-red-200"
+                        className="flex items-center justify-center w-[28px] h-[28px] rounded-[8px] transition-all bg-red-100 text-red-600 hover:bg-red-200"
                       >
-                        <StopCircle className="w-[18px] h-[18px]" strokeWidth={1.5} />
+                        <StopCircle className="w-[16px] h-[16px]" strokeWidth={2} />
                       </button>
                     ) : (
                       <button 
                         type="button"
                         onClick={submitMessage}
-                        className={`flex items-center justify-center w-[32px] h-[32px] rounded-[8px] transition-all shadow-sm ${
+                        className={`flex items-center justify-center w-[28px] h-[28px] rounded-[8px] transition-all shadow-sm ${
                           messages.length === 0 || (input || "").trim() 
                             ? "bg-[#171717] text-white hover:bg-[#262626]" 
                             : "bg-[#f5f5f5] text-[#a3a3a3] cursor-not-allowed border border-[#e5e5e5]"
                         }`}
                       >
                         {messages.length === 0 || (input || "").trim() ? (
-                           <ArrowUp className="w-[18px] h-[18px]" strokeWidth={2} />
+                           <ArrowUp className="w-[16px] h-[16px]" strokeWidth={2.5} />
                         ) : (
-                           <Mic className="w-[18px] h-[18px]" strokeWidth={2} />
+                           <Mic className="w-[16px] h-[16px]" strokeWidth={2.5} />
                         )}
                       </button>
                     )}
