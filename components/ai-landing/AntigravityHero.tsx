@@ -41,6 +41,41 @@ export function AntigravityHero() {
     mouseY.set(y)
   }
 
+  // Deterministic radial particles (Phyllotaxis spiral / burst)
+  const particles = Array.from({ length: 400 }).map((_, i) => {
+    const angle = i * 2.39996; // Golden angle in radians
+    const radius = Math.pow(i, 0.6) * 18; // Exponential spread outward
+    // Pseudo-random length for dashes
+    const length = Math.abs(Math.sin(i * 345)) * 6 + 4; // Between 4px and 10px
+    const thickness = Math.abs(Math.cos(i * 123)) * 1.5 + 1.5; // Between 1.5px and 3px
+    
+    // Calculate exact X and Y from center
+    const x = Math.cos(angle) * radius;
+    const y = Math.sin(angle) * radius;
+
+    // Pick colors simulating the screenshot (blue, purple, pink, indigo, slate)
+    const colors = ['bg-blue-600', 'bg-pink-600', 'bg-purple-600', 'bg-indigo-600', 'bg-slate-800'];
+    const color = colors[i % colors.length];
+
+    // Angle in degrees to rotate the dash so it points outwards
+    const rotationDeg = (angle * 180) / Math.PI;
+
+    return (
+      <div 
+        key={i}
+        className={`absolute rounded-full ${color}`}
+        style={{
+          width: `${length}px`,
+          height: `${thickness}px`,
+          left: `calc(50% + ${x}px)`,
+          top: `calc(50% + ${y}px)`,
+          transform: `rotate(${rotationDeg}deg)`,
+          opacity: Math.max(0.2, 1 - (radius / 800)), // Fade out at edges
+        }}
+      />
+    );
+  });
+
   return (
     <section 
       ref={containerRef} 
@@ -50,27 +85,19 @@ export function AntigravityHero() {
       {/* Abstract Particle Background with Mouse Parallax & Ocean Wave Pulse */}
       <motion.div 
         style={{ x: bgX, y: bgY }}
-        animate={{ scale: [1, 1.15, 1], rotate: [0, 2, -2, 0] }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        animate={{ scale: [1, 1.05, 1], rotate: [0, 1, -1, 0] }}
+        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
         className="absolute inset-0 pointer-events-none overflow-visible flex items-center justify-center -z-10"
       >
         <motion.div 
-          animate={{ opacity: [0.6, 0.9, 0.6] }}
-          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-          className="w-[800px] h-[800px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-50/50 via-white/0 to-white/0 rounded-full blur-3xl absolute"
+          animate={{ opacity: [0.3, 0.6, 0.3] }}
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+          className="w-[1000px] h-[1000px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-50/50 via-white/0 to-white/0 rounded-full blur-3xl absolute"
         />
-        {/* We can use a lightweight SVG pattern for the dots to simulate the burst */}
-        <svg className="absolute w-[150%] h-[150%] opacity-[0.25]" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern id="particle-pattern" x="0" y="0" width="50" height="50" patternUnits="userSpaceOnUse">
-              <circle cx="5" cy="5" r="1.5" fill="#3b82f6" />
-              <circle cx="25" cy="30" r="2" fill="#ec4899" />
-              <circle cx="45" cy="15" r="1.5" fill="#8b5cf6" />
-              <circle cx="15" cy="45" r="1" fill="#f59e0b" />
-            </pattern>
-          </defs>
-          <rect x="0" y="0" width="100%" height="100%" fill="url(#particle-pattern)" />
-        </svg>
+        {/* Radial Particle Burst */}
+        <div className="absolute w-full h-full">
+          {particles}
+        </div>
       </motion.div>
 
       <div className="z-10 flex flex-col items-center text-center px-4 max-w-5xl mx-auto">
