@@ -27,9 +27,13 @@ export function AntigravityHero() {
   const springX = useSpring(mouseX, { damping: 50, stiffness: 400 })
   const springY = useSpring(mouseY, { damping: 50, stiffness: 400 })
   
-  // Parallax move direction (following the mouse, stretching towards it)
-  const bgX = useTransform(springX, [-1, 1], [-50, 50])
-  const bgY = useTransform(springY, [-1, 1], [-50, 50])
+  // Parallax move direction (opposite to mouse for that floating 3D feel)
+  const bgX = useTransform(springX, [-1, 1], [40, -40])
+  const bgY = useTransform(springY, [-1, 1], [40, -40])
+
+  // 3D Tilt effect based on mouse
+  const rotateX = useTransform(springY, [-1, 1], [15, -15])
+  const rotateY = useTransform(springX, [-1, 1], [-15, 15])
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!containerRef.current) return
@@ -80,24 +84,28 @@ export function AntigravityHero() {
     <section 
       ref={containerRef} 
       onMouseMove={handleMouseMove}
-      className="relative w-full bg-white flex flex-col items-center pt-32 pb-48 overflow-hidden min-h-[150vh]"
+      className="relative w-full bg-white flex flex-col items-center pt-32 pb-48 overflow-hidden min-h-[150vh] [perspective:1000px]"
     >
-      {/* Abstract Particle Background with Mouse Parallax & Ocean Wave Pulse */}
+      {/* Abstract Particle Background with 3D Mouse Parallax & Continuous Rotation */}
       <motion.div 
-        style={{ x: bgX, y: bgY }}
-        animate={{ scale: [1, 1.05, 1], rotate: [0, 1, -1, 0] }}
-        transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+        style={{ x: bgX, y: bgY, rotateX, rotateY }}
         className="absolute inset-0 pointer-events-none overflow-visible flex items-center justify-center z-0"
       >
-        <motion.div 
-          animate={{ opacity: [0.3, 0.6, 0.3] }}
-          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-          className="w-[1000px] h-[1000px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-50/50 via-white/0 to-white/0 rounded-full blur-3xl absolute"
-        />
-        {/* Radial Particle Burst */}
-        <div className="absolute w-full h-full">
-          {particles}
-        </div>
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 120, repeat: Infinity, ease: "linear" }}
+          className="relative w-full h-full flex items-center justify-center"
+        >
+          <motion.div 
+            animate={{ opacity: [0.3, 0.6, 0.3] }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+            className="w-[1000px] h-[1000px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-50/50 via-white/0 to-white/0 rounded-full blur-3xl absolute"
+          />
+          {/* Radial Particle Burst */}
+          <div className="absolute w-full h-full">
+            {particles}
+          </div>
+        </motion.div>
       </motion.div>
 
       <div className="z-10 flex flex-col items-center text-center px-4 max-w-5xl mx-auto">
