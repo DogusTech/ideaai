@@ -49,10 +49,10 @@ export function IdeaAIInterface() {
   }
 
   return (
-    <div className="flex h-screen w-full font-sans overflow-hidden bg-white text-[#171717]">
+    <div className="flex h-screen w-full font-sans overflow-hidden bg-[#fafafa] text-[#171717]">
       
       {/* SIDEBAR */}
-      <aside className="w-[280px] shrink-0 bg-[#f9fafb] border-r border-[#e5e5e5] flex flex-col justify-between hidden md:flex">
+      <aside className="w-[280px] shrink-0 bg-[#fafafa] border-r border-[#e5e5e5] flex flex-col justify-between hidden md:flex">
         <div className="flex flex-col h-full overflow-hidden">
           
           {/* Workspace Header */}
@@ -126,7 +126,7 @@ export function IdeaAIInterface() {
         </div>
 
         {/* Footer Area */}
-        <div className="p-3 bg-[#f9fafb]">
+        <div className="p-3 bg-[#fafafa]">
           {/* User Profile */}
           <div className="flex items-center justify-between mt-2">
             <button className="flex items-center gap-2 hover:bg-[#f0f0f0] p-1.5 rounded-md transition-colors text-[14px] font-medium text-[#171717]">
@@ -143,7 +143,7 @@ export function IdeaAIInterface() {
       </aside>
 
       {/* MAIN CONTENT */}
-      <main className="flex-1 flex flex-col relative overflow-hidden bg-white">
+      <main className="flex-1 flex flex-col relative overflow-hidden bg-[#fafafa]">
         
         {/* Chat History Canvas (Scrollable) */}
         <div className="flex-1 overflow-y-auto px-4 sm:px-6 w-full pt-6 pb-48">
@@ -194,7 +194,7 @@ export function IdeaAIInterface() {
 
         {/* INPUT BOX */}
         <div className={`absolute left-0 right-0 px-4 pb-8 transition-all duration-500 ease-in-out flex justify-center ${
-          messages.length === 0 ? "top-[42%] -translate-y-1/2" : "bottom-0 bg-gradient-to-t from-white via-white/95 to-transparent pt-12"
+          messages.length === 0 ? "top-[42%] -translate-y-1/2" : "bottom-0 bg-gradient-to-t from-[#fafafa] via-[#fafafa]/95 to-transparent pt-12"
         }`}>
           <div className="w-full max-w-[672px]">
             
