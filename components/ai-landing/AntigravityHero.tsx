@@ -104,6 +104,10 @@ export function AntigravityHero() {
     );
   });
 
+  // Text for typewriter animation
+  const titleText = "Experience liftoff with the next-gen agent platform";
+  const titleWords = titleText.split(" ");
+
   return (
     <section 
       ref={containerRef} 
@@ -112,6 +116,9 @@ export function AntigravityHero() {
     >
       {/* Abstract Particle Background with 3D Mouse Parallax & Continuous Rotation */}
       <motion.div 
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
         style={{ x: bgX, y: bgY, rotateX, rotateY }}
         className="absolute inset-0 pointer-events-none overflow-visible flex items-center justify-center z-0"
       >
@@ -136,30 +143,50 @@ export function AntigravityHero() {
         
         {/* Logo area */}
         <motion.div 
-          initial={{ opacity: 0, y: -20 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
+          transition={{ duration: 0.4, delay: 0.2 }}
           className="flex items-center gap-2 mb-8 text-[#171717] font-medium text-lg"
         >
           <Sparkles className="w-6 h-6 text-blue-500" />
           <span>TogetLink <span className="font-semibold">IdeaAI</span></span>
         </motion.div>
 
-        {/* Huge Title */}
+        {/* Huge Title (Typewriter Effect) */}
         <motion.h1 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: { opacity: 0 },
+            visible: {
+              opacity: 1,
+              transition: {
+                staggerChildren: 0.04,
+                delayChildren: 0.3
+              }
+            }
+          }}
           className="text-6xl sm:text-7xl md:text-[5.5rem] font-medium tracking-tight text-[#171717] leading-[1.05] mb-12 max-w-4xl"
         >
-          Experience liftoff with the next-gen agent platform
+          {titleWords.map((word, idx) => (
+            <motion.span 
+              key={idx} 
+              variants={{
+                hidden: { opacity: 0, y: 10 },
+                visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" } }
+              }}
+              className="inline-block mr-[0.25em]"
+            >
+              {word}
+            </motion.span>
+          ))}
         </motion.h1>
 
         {/* Action Buttons */}
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.8, ease: "easeOut" }}
           className="flex flex-col sm:flex-row items-center gap-4 mb-24"
         >
           <button className="flex items-center gap-2 px-6 py-3.5 bg-[#171717] text-white rounded-full font-medium text-[15px] hover:bg-[#262626] transition-all shadow-md hover:shadow-lg">
