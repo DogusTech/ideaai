@@ -27,9 +27,9 @@ export function AntigravityHero() {
   const springX = useSpring(mouseX, { damping: 50, stiffness: 400 })
   const springY = useSpring(mouseY, { damping: 50, stiffness: 400 })
   
-  // Parallax move direction (opposite to mouse)
-  const bgX = useTransform(springX, [-1, 1], [30, -30])
-  const bgY = useTransform(springY, [-1, 1], [30, -30])
+  // Parallax move direction (following the mouse, stretching towards it)
+  const bgX = useTransform(springX, [-1, 1], [-50, 50])
+  const bgY = useTransform(springY, [-1, 1], [-50, 50])
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!containerRef.current) return
@@ -47,19 +47,26 @@ export function AntigravityHero() {
       onMouseMove={handleMouseMove}
       className="relative w-full bg-white flex flex-col items-center pt-32 pb-48 overflow-hidden min-h-[150vh]"
     >
-      {/* Abstract Particle Background with Mouse Parallax */}
+      {/* Abstract Particle Background with Mouse Parallax & Ocean Wave Pulse */}
       <motion.div 
         style={{ x: bgX, y: bgY }}
-        className="absolute inset-0 pointer-events-none overflow-visible flex items-center justify-center -z-10 scale-110"
+        animate={{ scale: [1, 1.15, 1], rotate: [0, 2, -2, 0] }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute inset-0 pointer-events-none overflow-visible flex items-center justify-center -z-10"
       >
-        <div className="w-[800px] h-[800px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-50/50 via-white/0 to-white/0 rounded-full blur-3xl opacity-70"></div>
+        <motion.div 
+          animate={{ opacity: [0.6, 0.9, 0.6] }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+          className="w-[800px] h-[800px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-50/50 via-white/0 to-white/0 rounded-full blur-3xl absolute"
+        />
         {/* We can use a lightweight SVG pattern for the dots to simulate the burst */}
-        <svg className="absolute w-full h-full opacity-[0.15]" xmlns="http://www.w3.org/2000/svg">
+        <svg className="absolute w-[150%] h-[150%] opacity-[0.25]" xmlns="http://www.w3.org/2000/svg">
           <defs>
-            <pattern id="particle-pattern" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-              <circle cx="2" cy="2" r="1.5" fill="#3b82f6" />
-              <circle cx="20" cy="20" r="1" fill="#ec4899" />
-              <circle cx="38" cy="10" r="2" fill="#8b5cf6" />
+            <pattern id="particle-pattern" x="0" y="0" width="50" height="50" patternUnits="userSpaceOnUse">
+              <circle cx="5" cy="5" r="1.5" fill="#3b82f6" />
+              <circle cx="25" cy="30" r="2" fill="#ec4899" />
+              <circle cx="45" cy="15" r="1.5" fill="#8b5cf6" />
+              <circle cx="15" cy="45" r="1" fill="#f59e0b" />
             </pattern>
           </defs>
           <rect x="0" y="0" width="100%" height="100%" fill="url(#particle-pattern)" />
