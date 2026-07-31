@@ -87,7 +87,7 @@ export function AntigravityHero() {
         style={{ x: bgX, y: bgY }}
         animate={{ scale: [1, 1.05, 1], rotate: [0, 1, -1, 0] }}
         transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-        className="absolute inset-0 pointer-events-none overflow-visible flex items-center justify-center -z-10"
+        className="absolute inset-0 pointer-events-none overflow-visible flex items-center justify-center z-0"
       >
         <motion.div 
           animate={{ opacity: [0.3, 0.6, 0.3] }}
