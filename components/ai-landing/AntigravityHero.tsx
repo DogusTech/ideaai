@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useRef } from "react"
-import { motion, useScroll, useTransform } from "framer-motion"
+import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion"
 import { Monitor, Sparkles } from "lucide-react"
 
 export function AntigravityHero() {
@@ -14,17 +14,44 @@ export function AntigravityHero() {
   })
 
   // Scale the video card from 0.85 to 1 as we scroll down
-  const scale = useTransform(scrollYProgress, [0, 1], [0.85, 1])
-  const opacity = useTransform(scrollYProgress, [0, 0.5], [0.5, 1])
-  const y = useTransform(scrollYProgress, [0, 1], [100, 0])
+  // Adjusting the bounds to match the video more closely:
+  // Starts slightly smaller and grows as the user scrolls.
+  const scale = useTransform(scrollYProgress, [0, 0.7], [0.85, 1])
+  const opacity = useTransform(scrollYProgress, [0, 0.4], [0.3, 1])
+  const y = useTransform(scrollYProgress, [0, 0.7], [100, 0])
+
+  // Mouse Parallax for Background
+  const mouseX = useMotionValue(0)
+  const mouseY = useMotionValue(0)
+
+  const springX = useSpring(mouseX, { damping: 50, stiffness: 400 })
+  const springY = useSpring(mouseY, { damping: 50, stiffness: 400 })
+  
+  // Parallax move direction (opposite to mouse)
+  const bgX = useTransform(springX, [-1, 1], [30, -30])
+  const bgY = useTransform(springY, [-1, 1], [30, -30])
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!containerRef.current) return
+    const { left, top, width, height } = containerRef.current.getBoundingClientRect()
+    // Normalize -1 to 1
+    const x = (e.clientX - left - width / 2) / (width / 2)
+    const y = (e.clientY - top - height / 2) / (height / 2)
+    mouseX.set(x)
+    mouseY.set(y)
+  }
 
   return (
     <section 
       ref={containerRef} 
+      onMouseMove={handleMouseMove}
       className="relative w-full bg-white flex flex-col items-center pt-32 pb-48 overflow-hidden min-h-[150vh]"
     >
-      {/* Abstract Particle Background (Simplified CSS pattern) */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden flex items-center justify-center -z-10">
+      {/* Abstract Particle Background with Mouse Parallax */}
+      <motion.div 
+        style={{ x: bgX, y: bgY }}
+        className="absolute inset-0 pointer-events-none overflow-visible flex items-center justify-center -z-10 scale-110"
+      >
         <div className="w-[800px] h-[800px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-50/50 via-white/0 to-white/0 rounded-full blur-3xl opacity-70"></div>
         {/* We can use a lightweight SVG pattern for the dots to simulate the burst */}
         <svg className="absolute w-full h-full opacity-[0.15]" xmlns="http://www.w3.org/2000/svg">
@@ -37,7 +64,7 @@ export function AntigravityHero() {
           </defs>
           <rect x="0" y="0" width="100%" height="100%" fill="url(#particle-pattern)" />
         </svg>
-      </div>
+      </motion.div>
 
       <div className="z-10 flex flex-col items-center text-center px-4 max-w-5xl mx-auto">
         

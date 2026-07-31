@@ -12,8 +12,8 @@ export function TypewriterStatement() {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.3,
+        staggerChildren: 0.05,
+        delayChildren: 0.2,
       }
     }
   }
@@ -23,7 +23,7 @@ export function TypewriterStatement() {
     visible: { 
       opacity: 1, 
       y: 0,
-      transition: { type: "spring", stiffness: 100, damping: 12 }
+      transition: { duration: 0.2, ease: "easeOut" }
     }
   }
 

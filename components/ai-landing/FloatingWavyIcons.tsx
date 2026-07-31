@@ -1,7 +1,7 @@
 "use client"
 
-import React from "react"
-import { motion, Variants } from "framer-motion"
+import React, { useRef } from "react"
+import { motion, Variants, useScroll, useTransform } from "framer-motion"
 import { 
   Command, 
   Wand2, 
@@ -20,7 +20,18 @@ import {
 } from "lucide-react"
 
 export function FloatingWavyIcons() {
+  const sectionRef = useRef<HTMLElement>(null)
   
+  // Track scroll progress for this specific section
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"]
+  })
+
+  // Translate the icons horizontally based on scroll
+  // The icons will move from right (150px) to left (-150px) as we scroll past them
+  const xTransform = useTransform(scrollYProgress, [0, 1], [150, -150])
+
   // Icon configuration with specific base Y offsets to create the "wave" shape
   const icons = [
     { id: 1, Icon: Command, baseOffsetY: 0 },
@@ -40,20 +51,23 @@ export function FloatingWavyIcons() {
   ]
 
   return (
-    <section className="w-full bg-white py-32 overflow-hidden relative">
+    <section ref={sectionRef} className="w-full bg-white py-32 overflow-hidden relative">
       <div className="max-w-[1400px] mx-auto px-4 w-full flex items-center justify-center min-h-[200px]">
-        <div className="flex items-center justify-center gap-4 sm:gap-6 lg:gap-8 w-full max-w-full overflow-x-auto pb-10 hide-scrollbar px-10">
+        <motion.div 
+          style={{ x: xTransform }}
+          className="flex items-center justify-center gap-4 sm:gap-6 lg:gap-8 w-full max-w-full overflow-visible pb-10 px-10"
+        >
           {icons.map((item, index) => {
             // Floating animation up and down around the baseOffsetY
             const floatVariants: Variants = {
               animate: {
-                y: [item.baseOffsetY - 10, item.baseOffsetY + 10, item.baseOffsetY - 10],
+                y: [item.baseOffsetY - 15, item.baseOffsetY + 15, item.baseOffsetY - 15],
                 transition: {
                   duration: 4,
                   repeat: Infinity,
                   ease: "easeInOut",
                   // Delay based on index to create a wave propagation effect
-                  delay: index * 0.2,
+                  delay: index * 0.15,
                 }
               }
             }
@@ -70,19 +84,8 @@ export function FloatingWavyIcons() {
               </motion.div>
             )
           })}
-        </div>
+        </motion.div>
       </div>
-      
-      {/* CSS to hide scrollbar for the overflowing icon container */}
-      <style dangerouslySetInnerHTML={{__html: `
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .hide-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-      `}} />
     </section>
   )
 }
