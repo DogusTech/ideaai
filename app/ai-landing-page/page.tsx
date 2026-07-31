@@ -1,18 +1,20 @@
-import { HeroSection } from "@/components/ai-landing/HeroSection"
-import { FeatureScrollReveal } from "@/components/ai-landing/FeatureScrollReveal"
-import { DepartmentVideoGrid } from "@/components/ai-landing/DepartmentVideoGrid"
+import { AntigravityHero } from "@/components/ai-landing/AntigravityHero"
+import { FloatingWavyIcons } from "@/components/ai-landing/FloatingWavyIcons"
+import { TypewriterStatement } from "@/components/ai-landing/TypewriterStatement"
+import { FeatureSplitSection } from "@/components/ai-landing/FeatureSplitSection"
 
 export const metadata = {
-  title: "TogetLink IdeaAI 2.0 | Yeni Nesil Yapay Zeka Asistanınız",
-  description: "TogetLink IdeaAI ile pazarlama, büyüme, SEO ve yazılım süreçlerinizi tek platformdan yönetin.",
+  title: "TogetLink IdeaAI 2.0 | Next-gen agent platform",
+  description: "Experience liftoff with TogetLink IdeaAI, our agentic development platform.",
 }
 
 export default function AILandingPage() {
   return (
-    <main className="flex min-h-screen flex-col bg-[#fafafa]">
-      <HeroSection />
-      <FeatureScrollReveal />
-      <DepartmentVideoGrid />
+    <main className="flex min-h-screen flex-col bg-white">
+      <AntigravityHero />
+      <FloatingWavyIcons />
+      <TypewriterStatement />
+      <FeatureSplitSection />
     </main>
   )
 }
