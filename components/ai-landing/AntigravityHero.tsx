@@ -45,21 +45,43 @@ export function AntigravityHero() {
     mouseY.set(y)
   }
 
-  // Deterministic radial particles (Phyllotaxis spiral / burst)
-  const particles = Array.from({ length: 400 }).map((_, i) => {
+  // Deterministic radial particles (Phyllotaxis spiral / burst) with 3D Depth and Google Colors
+  const particles = Array.from({ length: 450 }).map((_, i) => {
     const angle = i * 2.39996; // Golden angle in radians
-    const radius = Math.pow(i, 0.6) * 18; // Exponential spread outward
+    const radius = Math.pow(i, 0.65) * 20; // Spread outward
+    
     // Pseudo-random length for dashes
-    const length = Math.abs(Math.sin(i * 345)) * 6 + 4; // Between 4px and 10px
-    const thickness = Math.abs(Math.cos(i * 123)) * 1.5 + 1.5; // Between 1.5px and 3px
+    const length = Math.abs(Math.sin(i * 345)) * 8 + 4; // Between 4px and 12px
+    const thickness = Math.abs(Math.cos(i * 123)) * 2 + 1.5; // Between 1.5px and 3.5px
+    
+    // Z-depth for true 3D parallax
+    const zDepth = Math.sin(i * 876) * 300; // Between -300px and 300px
     
     // Calculate exact X and Y from center
     const x = Math.cos(angle) * radius;
     const y = Math.sin(angle) * radius;
 
-    // Pick colors simulating the screenshot (blue, purple, pink, indigo, slate)
-    const colors = ['bg-blue-600', 'bg-pink-600', 'bg-purple-600', 'bg-indigo-600', 'bg-slate-800'];
-    const color = colors[i % colors.length];
+    // Determine exact colors based on quadrant/angle to match the Antigravity screenshot
+    let normalizedAngle = angle % (Math.PI * 2);
+    if (normalizedAngle < 0) normalizedAngle += Math.PI * 2;
+    
+    let colorHex = '#4285F4'; // Google Blue
+    if (normalizedAngle < Math.PI * 0.3) {
+       // Bottom Right: Purple / Indigo / Blue
+       colorHex = ['#4285F4', '#8b5cf6', '#6366f1'][i % 3];
+    } else if (normalizedAngle < Math.PI * 0.7) {
+       // Bottom / Bottom Left: Pink / Red
+       colorHex = ['#d946ef', '#ec4899', '#EA4335'][i % 3];
+    } else if (normalizedAngle < Math.PI * 1.2) {
+       // Left: Google Red / Orange
+       colorHex = ['#EA4335', '#f97316', '#ef4444'][i % 3];
+    } else if (normalizedAngle < Math.PI * 1.6) {
+       // Top Left: Google Yellow / Orange
+       colorHex = ['#FBBC05', '#f59e0b', '#f97316'][i % 3];
+    } else {
+       // Top / Top Right: Google Green / Google Blue
+       colorHex = ['#34A853', '#10b981', '#4285F4'][i % 3];
+    }
 
     // Angle in degrees to rotate the dash so it points outwards
     const rotationDeg = (angle * 180) / Math.PI;
@@ -67,14 +89,16 @@ export function AntigravityHero() {
     return (
       <div 
         key={i}
-        className={`absolute rounded-full ${color}`}
+        className="absolute rounded-full"
         style={{
+          backgroundColor: colorHex,
           width: `${length}px`,
           height: `${thickness}px`,
           left: `calc(50% + ${x}px)`,
           top: `calc(50% + ${y}px)`,
-          transform: `rotate(${rotationDeg}deg)`,
-          opacity: Math.max(0.2, 1 - (radius / 800)), // Fade out at edges
+          // Include translateZ for the 3D depth effect during mouse parallax
+          transform: `translateZ(${zDepth}px) rotate(${rotationDeg}deg)`,
+          opacity: Math.max(0.15, 1 - (radius / 1000)), // Fade out at extreme edges
         }}
       />
     );
@@ -84,7 +108,7 @@ export function AntigravityHero() {
     <section 
       ref={containerRef} 
       onMouseMove={handleMouseMove}
-      className="relative w-full bg-white flex flex-col items-center pt-32 pb-48 overflow-hidden min-h-[150vh] [perspective:1000px]"
+      className="relative w-full bg-white flex flex-col items-center pt-32 pb-48 overflow-hidden min-h-[150vh] [perspective:1200px]"
     >
       {/* Abstract Particle Background with 3D Mouse Parallax & Continuous Rotation */}
       <motion.div 
