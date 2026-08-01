@@ -168,7 +168,7 @@ export function AntigravityCanvas({ className = "" }: AntigravityCanvasProps) {
     const particles: Particle[] = []
     
     // Fibonacci sphere for even 3D distribution
-    const gridSize = 1200 
+    const gridSize = 400 // Reduced from 1200 for sparsity and performance, matching the screenshot
     
     for (let i = 0; i < gridSize; i++) {
       const phi = Math.acos(1 - 2 * (i + 0.5) / gridSize);
@@ -296,7 +296,8 @@ export function AntigravityCanvas({ className = "" }: AntigravityCanvasProps) {
       const scaleDiff = sizePower - p.scale;
       p.scale += scaleDiff * 0.1;
       
-      const baseSize = Math.max(0.1, p.scale) * depthScale * perspective * 8.0;
+      // Make particles smaller to match the screenshot (multiplier reduced from 8.0 to 3.0)
+      const baseSize = Math.max(0.1, p.scale) * depthScale * perspective * 3.0;
 
       // Dash angle follows the flow field roughly
       const angle = Math.atan2(projY, projX) + (Math.PI / 2) + (noiseDisp * 2.0);
@@ -308,7 +309,8 @@ export function AntigravityCanvas({ className = "" }: AntigravityCanvasProps) {
         size: baseSize,
         angle: angle,
         color: pColor,
-        alpha: smoothstep(-1.0, 1.0, finalZ) * 0.9 // Fade out particles in the back
+        // Reduce alpha overall to make them fainter, multiplied by 0.5
+        alpha: smoothstep(-1.0, 1.0, finalZ) * 0.45 
       });
     }
 
