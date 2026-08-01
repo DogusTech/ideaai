@@ -24,16 +24,17 @@ export function AntigravityHero() {
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
 
-  const springX = useSpring(mouseX, { damping: 50, stiffness: 400 })
-  const springY = useSpring(mouseY, { damping: 50, stiffness: 400 })
+  // Snappy, fast physics for mouse parallax
+  const springX = useSpring(mouseX, { damping: 35, stiffness: 800 })
+  const springY = useSpring(mouseY, { damping: 35, stiffness: 800 })
   
   // Parallax move direction (opposite to mouse for that floating 3D feel)
-  const bgX = useTransform(springX, [-1, 1], [40, -40])
-  const bgY = useTransform(springY, [-1, 1], [40, -40])
+  const bgX = useTransform(springX, [-1, 1], [60, -60])
+  const bgY = useTransform(springY, [-1, 1], [60, -60])
 
-  // 3D Tilt effect based on mouse
-  const rotateX = useTransform(springY, [-1, 1], [15, -15])
-  const rotateY = useTransform(springX, [-1, 1], [-15, 15])
+  // Stronger 3D Tilt effect based on mouse
+  const rotateX = useTransform(springY, [-1, 1], [25, -25])
+  const rotateY = useTransform(springX, [-1, 1], [-25, 25])
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!containerRef.current) return
@@ -55,7 +56,7 @@ export function AntigravityHero() {
     const thickness = Math.abs(Math.cos(i * 123)) * 2 + 1.5; // Between 1.5px and 3.5px
     
     // Z-depth for true 3D parallax
-    const zDepth = Math.sin(i * 876) * 300; // Between -300px and 300px
+    const zDepth = Math.sin(i * 876) * 400; // Deep 3D space
     
     // Calculate exact X and Y from center
     const x = Math.cos(angle) * radius;
@@ -67,29 +68,33 @@ export function AntigravityHero() {
     
     let colorHex = '#4285F4'; // Google Blue
     if (normalizedAngle < Math.PI * 0.3) {
-       // Bottom Right: Purple / Indigo / Blue
        colorHex = ['#4285F4', '#8b5cf6', '#6366f1'][i % 3];
     } else if (normalizedAngle < Math.PI * 0.7) {
-       // Bottom / Bottom Left: Pink / Red
        colorHex = ['#d946ef', '#ec4899', '#EA4335'][i % 3];
     } else if (normalizedAngle < Math.PI * 1.2) {
-       // Left: Google Red / Orange
        colorHex = ['#EA4335', '#f97316', '#ef4444'][i % 3];
     } else if (normalizedAngle < Math.PI * 1.6) {
-       // Top Left: Google Yellow / Orange
        colorHex = ['#FBBC05', '#f59e0b', '#f97316'][i % 3];
     } else {
-       // Top / Top Right: Google Green / Google Blue
        colorHex = ['#34A853', '#10b981', '#4285F4'][i % 3];
     }
 
-    // Angle in degrees to rotate the dash so it points outwards
     const rotationDeg = (angle * 180) / Math.PI;
+    const baseOpacity = Math.max(0.15, 1 - (radius / 1000));
 
     return (
-      <div 
+      <motion.div 
         key={i}
         className="absolute rounded-full"
+        animate={{ 
+          opacity: [baseOpacity, baseOpacity * 0.3, baseOpacity],
+        }}
+        transition={{ 
+          duration: Math.random() * 2 + 1, 
+          repeat: Infinity, 
+          ease: "easeInOut",
+          delay: Math.random() * 2 
+        }}
         style={{
           backgroundColor: colorHex,
           width: `${length}px`,
@@ -98,7 +103,6 @@ export function AntigravityHero() {
           top: `calc(50% + ${y}px)`,
           // Include translateZ for the 3D depth effect during mouse parallax
           transform: `translateZ(${zDepth}px) rotate(${rotationDeg}deg)`,
-          opacity: Math.max(0.15, 1 - (radius / 1000)), // Fade out at extreme edges
         }}
       />
     );
@@ -108,11 +112,22 @@ export function AntigravityHero() {
   const titleText = "Experience liftoff with the next-gen agent platform";
   const titleWords = titleText.split(" ");
 
+  // AI Glitch/Load state
+  const [typingState, setTypingState] = React.useState<"flash" | "hidden" | "typing">("flash");
+
+  React.useEffect(() => {
+    // Show full text for 150ms
+    const t1 = setTimeout(() => setTypingState("hidden"), 150);
+    // Start typing at 300ms
+    const t2 = setTimeout(() => setTypingState("typing"), 300);
+    return () => { clearTimeout(t1); clearTimeout(t2); }
+  }, []);
+
   return (
     <section 
       ref={containerRef} 
       onMouseMove={handleMouseMove}
-      className="relative w-full bg-white flex flex-col items-center pt-32 pb-48 overflow-hidden min-h-[150vh] [perspective:1200px]"
+      className="relative w-full bg-white flex flex-col items-center pt-32 pb-48 overflow-hidden min-h-[150vh] [perspective:800px]"
     >
       {/* Abstract Particle Background with 3D Mouse Parallax & Continuous Rotation */}
       <motion.div 
@@ -124,7 +139,7 @@ export function AntigravityHero() {
       >
         <motion.div
           animate={{ rotate: 360 }}
-          transition={{ duration: 120, repeat: Infinity, ease: "linear" }}
+          transition={{ duration: 90, repeat: Infinity, ease: "linear" }}
           className="relative w-full h-full flex items-center justify-center"
         >
           <motion.div 
@@ -152,29 +167,23 @@ export function AntigravityHero() {
           <span>TogetLink <span className="font-semibold">IdeaAI</span></span>
         </motion.div>
 
-        {/* Huge Title (Typewriter Effect) */}
+        {/* Huge Title (Flash -> Hide -> Typewriter Effect) */}
         <motion.h1 
-          initial="hidden"
-          animate="visible"
-          variants={{
-            hidden: { opacity: 0 },
-            visible: {
-              opacity: 1,
-              transition: {
-                staggerChildren: 0.04,
-                delayChildren: 0.3
-              }
-            }
-          }}
           className="text-6xl sm:text-7xl md:text-[5.5rem] font-medium tracking-tight text-[#171717] leading-[1.05] mb-12 max-w-4xl"
         >
           {titleWords.map((word, idx) => (
             <motion.span 
               key={idx} 
-              variants={{
-                hidden: { opacity: 0, y: 10 },
-                visible: { opacity: 1, y: 0, transition: { duration: 0.3, ease: "easeOut" } }
+              initial={{ opacity: 1 }} // Start fully visible for the flash
+              animate={{
+                opacity: typingState === "flash" ? 1 : (typingState === "hidden" ? 0 : 1),
+                y: typingState === "typing" ? 0 : (typingState === "hidden" ? 10 : 0)
               }}
+              transition={
+                typingState === "typing" 
+                  ? { duration: 0.2, ease: "easeOut", delay: idx * 0.05 } 
+                  : { duration: 0 }
+              }
               className="inline-block mr-[0.25em]"
             >
               {word}
