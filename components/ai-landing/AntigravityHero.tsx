@@ -24,17 +24,17 @@ export function AntigravityHero() {
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
 
-  // Snappy, fast physics for mouse parallax
-  const springX = useSpring(mouseX, { damping: 35, stiffness: 800 })
-  const springY = useSpring(mouseY, { damping: 35, stiffness: 800 })
+  // Ultra-snappy, lightning-fast physics for mouse parallax
+  const springX = useSpring(mouseX, { damping: 60, stiffness: 1200, mass: 0.5 })
+  const springY = useSpring(mouseY, { damping: 60, stiffness: 1200, mass: 0.5 })
   
-  // Parallax move direction (opposite to mouse for that floating 3D feel)
-  const bgX = useTransform(springX, [-1, 1], [60, -60])
-  const bgY = useTransform(springY, [-1, 1], [60, -60])
+  // Parallax move direction
+  const bgX = useTransform(springX, [-1, 1], [80, -80])
+  const bgY = useTransform(springY, [-1, 1], [80, -80])
 
-  // Stronger 3D Tilt effect based on mouse
-  const rotateX = useTransform(springY, [-1, 1], [25, -25])
-  const rotateY = useTransform(springX, [-1, 1], [-25, 25])
+  // Stronger 3D Tilt effect
+  const rotateX = useTransform(springY, [-1, 1], [30, -30])
+  const rotateY = useTransform(springX, [-1, 1], [-30, 30])
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!containerRef.current) return
@@ -46,21 +46,32 @@ export function AntigravityHero() {
     mouseY.set(y)
   }
 
-  // Deterministic radial particles (Phyllotaxis spiral / burst) with 3D Depth and Google Colors
-  const particles = Array.from({ length: 450 }).map((_, i) => {
-    const angle = i * 2.39996; // Golden angle in radians
-    const radius = Math.pow(i, 0.65) * 20; // Spread outward
+  // Multi-arm Spiral (Galaxy Formation) for highly controlled, row-based particles
+  const numParticles = 800;
+  const numArms = 24; // Number of spiral arms (creates the "sıra sıra" look)
+
+  const particles = Array.from({ length: numParticles }).map((_, i) => {
+    const armIndex = i % numArms;
+    const distanceFactor = Math.floor(i / numArms); 
     
-    // Pseudo-random length for dashes
-    const length = Math.abs(Math.sin(i * 345)) * 8 + 4; // Between 4px and 12px
-    const thickness = Math.abs(Math.cos(i * 123)) * 2 + 1.5; // Between 1.5px and 3.5px
+    // Calculate radius (distance from center)
+    const radius = Math.pow(distanceFactor, 1.05) * 14 + 60; // Leave center slightly empty, spread outward
     
-    // Z-depth for true 3D parallax
-    const zDepth = Math.sin(i * 876) * 400; // Deep 3D space
+    // Twist creates the spiral curve
+    const twist = distanceFactor * 0.12; 
+    const angle = (armIndex * (Math.PI * 2) / numArms) + twist;
     
     // Calculate exact X and Y from center
     const x = Math.cos(angle) * radius;
     const y = Math.sin(angle) * radius;
+
+    // Dimensions
+    const length = Math.abs(Math.sin(i * 345)) * 6 + 6; // 6px to 12px
+    const thickness = Math.abs(Math.cos(i * 123)) * 1.5 + 2; // 2px to 3.5px
+    
+    // Fast Z-depth
+    const zDepth = Math.sin(i * 876) * 500; // Deep 3D space
+
 
     // Determine exact colors based on quadrant/angle to match the Antigravity screenshot
     let normalizedAngle = angle % (Math.PI * 2);
