@@ -24,9 +24,9 @@ export function AntigravityHero() {
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
 
-  // Ultra-snappy, lightning-fast physics for mouse parallax
-  const springX = useSpring(mouseX, { damping: 60, stiffness: 1200, mass: 0.5 })
-  const springY = useSpring(mouseY, { damping: 60, stiffness: 1200, mass: 0.5 })
+  // Snappy, fast physics for mouse parallax
+  const springX = useSpring(mouseX, { damping: 50, stiffness: 1000, mass: 0.5 })
+  const springY = useSpring(mouseY, { damping: 50, stiffness: 1000, mass: 0.5 })
   
   // Parallax move direction
   const bgX = useTransform(springX, [-1, 1], [80, -80])
@@ -46,52 +46,62 @@ export function AntigravityHero() {
     mouseY.set(y)
   }
 
-  // Multi-arm Spiral (Galaxy Formation) for highly controlled, row-based particles
+  // Organic 3D Sphere / Vortex Distribution (No linear radial bursts, no empty center)
   const numParticles = 800;
-  const numArms = 24; // Number of spiral arms (creates the "sıra sıra" look)
-
   const particles = Array.from({ length: numParticles }).map((_, i) => {
-    const armIndex = i % numArms;
-    const distanceFactor = Math.floor(i / numArms); 
+    // Uniform random distribution on a 3D sphere
+    const u = Math.random();
+    const v = Math.random();
     
-    // Calculate radius (distance from center)
-    const radius = Math.pow(distanceFactor, 1.05) * 14 + 60; // Leave center slightly empty, spread outward
+    // Azimuthal angle (0 to 2PI)
+    const theta = u * 2.0 * Math.PI;
+    // Polar angle (-PI/2 to PI/2)
+    const phi = Math.acos(2.0 * v - 1.0);
     
-    // Twist creates the spiral curve
-    const twist = distanceFactor * 0.12; 
-    const angle = (armIndex * (Math.PI * 2) / numArms) + twist;
+    // Clustered heavily in the center, extending outwards organically
+    const radius = Math.pow(Math.random(), 1.5) * 1200; 
     
-    // Calculate exact X and Y from center
-    const x = Math.cos(angle) * radius;
-    const y = Math.sin(angle) * radius;
-
-    // Dimensions
-    const length = Math.abs(Math.sin(i * 345)) * 6 + 6; // 6px to 12px
-    const thickness = Math.abs(Math.cos(i * 123)) * 1.5 + 2; // 2px to 3.5px
+    // Convert spherical coordinates to Cartesian (3D)
+    const x = radius * Math.sin(phi) * Math.cos(theta);
+    const y = radius * Math.sin(phi) * Math.sin(theta);
+    const zDepth = radius * Math.cos(phi) * 1.5; // Enhanced Z depth for parallax
     
-    // Fast Z-depth
-    const zDepth = Math.sin(i * 876) * 500; // Deep 3D space
-
-
-    // Determine exact colors based on quadrant/angle to match the Antigravity screenshot
-    let normalizedAngle = angle % (Math.PI * 2);
-    if (normalizedAngle < 0) normalizedAngle += Math.PI * 2;
+    // Determine exact pure Google colors (No pastels) based on 2D angle
+    let angle2D = Math.atan2(y, x);
+    if (angle2D < 0) angle2D += Math.PI * 2;
     
-    let colorHex = '#4285F4'; // Google Blue
-    if (normalizedAngle < Math.PI * 0.3) {
-       colorHex = ['#4285F4', '#8b5cf6', '#6366f1'][i % 3];
-    } else if (normalizedAngle < Math.PI * 0.7) {
-       colorHex = ['#d946ef', '#ec4899', '#EA4335'][i % 3];
-    } else if (normalizedAngle < Math.PI * 1.2) {
-       colorHex = ['#EA4335', '#f97316', '#ef4444'][i % 3];
-    } else if (normalizedAngle < Math.PI * 1.6) {
-       colorHex = ['#FBBC05', '#f59e0b', '#f97316'][i % 3];
+    let colorHex = '#4285F4'; // Fallback
+    if (angle2D < Math.PI * 0.3) {
+       // Bottom Right: Deep Purple / Google Blue
+       colorHex = ['#4285F4', '#174EA6', '#9333EA'][i % 3];
+    } else if (angle2D < Math.PI * 0.8) {
+       // Bottom / Bottom Left: Pure Red / Bright Orange
+       colorHex = ['#EA4335', '#C5221F', '#F9AB00'][i % 3];
+    } else if (angle2D < Math.PI * 1.3) {
+       // Left: Google Red / Yellow
+       colorHex = ['#EA4335', '#FBBC05', '#E37400'][i % 3];
+    } else if (angle2D < Math.PI * 1.7) {
+       // Top Left: Google Yellow / Bright Orange
+       colorHex = ['#FBBC05', '#F9AB00', '#F29900'][i % 3];
     } else {
-       colorHex = ['#34A853', '#10b981', '#4285F4'][i % 3];
+       // Top / Top Right: Google Green / Google Blue
+       colorHex = ['#34A853', '#1E8E3E', '#4285F4'][i % 3];
     }
 
-    const rotationDeg = (angle * 180) / Math.PI;
-    const baseOpacity = Math.max(0.15, 1 - (radius / 1000));
+    // Depth of field blur (far elements blur out, very close elements blur slightly)
+    let blur = 0;
+    if (zDepth < -500) blur = 2;
+    else if (zDepth > 600) blur = 1.5;
+
+    // Dimensions (organic variation)
+    const length = Math.random() * 8 + 6; // 6px to 14px
+    const thickness = Math.random() * 2.5 + 2; // 2px to 4.5px
+    
+    // Particles point organically outwards with a slight random deviation
+    const baseRotation = (angle2D * 180) / Math.PI;
+    const randomizedRotation = baseRotation + (Math.random() * 30 - 15);
+
+    const baseOpacity = Math.max(0.4, 1 - (radius / 1500));
 
     return (
       <motion.div 
@@ -112,16 +122,16 @@ export function AntigravityHero() {
           height: `${thickness}px`,
           left: `calc(50% + ${x}px)`,
           top: `calc(50% + ${y}px)`,
-          // Include translateZ for the 3D depth effect during mouse parallax
-          transform: `translateZ(${zDepth}px) rotate(${rotationDeg}deg)`,
+          filter: blur > 0 ? `blur(${blur}px)` : 'none',
+          transform: `translateZ(${zDepth}px) rotate(${randomizedRotation}deg)`,
         }}
       />
     );
   });
 
-  // Text for typewriter animation
-  const titleText = "Experience liftoff with the next-gen agent platform";
-  const titleWords = titleText.split(" ");
+  // Text for typewriter animation (Strict line wrapping)
+  const titleLine1 = "Experience liftoff with the next-gen".split(" ");
+  const titleLine2 = "agent platform".split(" ");
 
   // AI Glitch/Load state
   const [typingState, setTypingState] = React.useState<"flash" | "hidden" | "typing">("flash");
@@ -133,6 +143,28 @@ export function AntigravityHero() {
     const t2 = setTimeout(() => setTypingState("typing"), 300);
     return () => { clearTimeout(t1); clearTimeout(t2); }
   }, []);
+
+  // Helper renderer for typewriter lines
+  const renderLine = (words: string[], startIndex: number) => {
+    return words.map((word, idx) => (
+      <motion.span 
+        key={idx} 
+        initial={{ opacity: 1 }} // Start fully visible for the flash
+        animate={{
+          opacity: typingState === "flash" ? 1 : (typingState === "hidden" ? 0 : 1),
+          y: typingState === "typing" ? 0 : (typingState === "hidden" ? 10 : 0)
+        }}
+        transition={
+          typingState === "typing" 
+            ? { duration: 0.2, ease: "easeOut", delay: (startIndex + idx) * 0.05 } 
+            : { duration: 0 }
+        }
+        className="inline-block mr-[0.25em]"
+      >
+        {word}
+      </motion.span>
+    ))
+  }
 
   return (
     <section 
@@ -158,7 +190,7 @@ export function AntigravityHero() {
             transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
             className="w-[1000px] h-[1000px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-50/50 via-white/0 to-white/0 rounded-full blur-3xl absolute"
           />
-          {/* Radial Particle Burst */}
+          {/* Organic 3D Particle Burst */}
           <div className="absolute w-full h-full">
             {particles}
           </div>
@@ -178,28 +210,16 @@ export function AntigravityHero() {
           <span>TogetLink <span className="font-semibold">IdeaAI</span></span>
         </motion.div>
 
-        {/* Huge Title (Flash -> Hide -> Typewriter Effect) */}
+        {/* Huge Title (Flash -> Hide -> Typewriter Effect with explicit breaks) */}
         <motion.h1 
-          className="text-6xl sm:text-7xl md:text-[5.5rem] font-medium tracking-tight text-[#171717] leading-[1.05] mb-12 max-w-4xl"
+          className="text-6xl sm:text-7xl md:text-[5.5rem] font-medium tracking-tight text-[#171717] leading-[1.05] mb-12 w-full flex flex-col items-center"
         >
-          {titleWords.map((word, idx) => (
-            <motion.span 
-              key={idx} 
-              initial={{ opacity: 1 }} // Start fully visible for the flash
-              animate={{
-                opacity: typingState === "flash" ? 1 : (typingState === "hidden" ? 0 : 1),
-                y: typingState === "typing" ? 0 : (typingState === "hidden" ? 10 : 0)
-              }}
-              transition={
-                typingState === "typing" 
-                  ? { duration: 0.2, ease: "easeOut", delay: idx * 0.05 } 
-                  : { duration: 0 }
-              }
-              className="inline-block mr-[0.25em]"
-            >
-              {word}
-            </motion.span>
-          ))}
+          <div className="flex flex-wrap justify-center max-w-[1200px]">
+            {renderLine(titleLine1, 0)}
+          </div>
+          <div className="flex flex-wrap justify-center mt-2 max-w-[1200px]">
+            {renderLine(titleLine2, titleLine1.length)}
+          </div>
         </motion.h1>
 
         {/* Action Buttons */}
