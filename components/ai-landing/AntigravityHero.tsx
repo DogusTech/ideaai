@@ -93,10 +93,21 @@ export function AntigravityHero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.2 }}
           style={{ x: contentX, y: contentY }}
-          className="flex items-center gap-2 mb-10 font-medium text-lg"
+          className="flex items-center gap-2 mb-10 text-[26px] tracking-tight text-gray-800"
         >
-          <Sparkles className="w-6 h-6" style={{ color: "var(--palette-blue-600)" }} />
-          <span>TogetLink <span className="font-semibold">IdeaAI</span></span>
+          {/* Antigravity 'A' Logo SVG */}
+          <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M16 4L4 28H10L16 16L22 28H28L16 4Z" fill="url(#paint1_linear)"/>
+            <defs>
+              <linearGradient id="paint1_linear" x1="16" y1="4" x2="16" y2="28" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#3279f9"/>
+                <stop offset="1" stopColor="#f84242"/>
+              </linearGradient>
+            </defs>
+          </svg>
+          <span className="font-[Google Sans]">
+            Google <span className="font-[Google Sans Flex] font-normal">Antigravity</span>
+          </span>
         </motion.div>
 
         {/* Huge Title */}
@@ -121,9 +132,9 @@ export function AntigravityHero() {
         >
           <a href="https://www.togetlink.com/ai" className="button button-primary gap-2">
             <Monitor className="w-5 h-5" strokeWidth={2.5} />
-            Download for Linux
+            Download for Windows
           </a>
-          <button className="button button-secondary">
+          <button className="button button-secondary text-gray-900 border-gray-200 shadow-sm bg-white hover:bg-gray-50 font-normal">
             Explore use cases
           </button>
         </motion.div>

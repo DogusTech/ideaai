@@ -1,33 +1,11 @@
-"use client"
-
 import React, { useState, useEffect } from "react"
-import Link from "next/link"
 import { motion, AnimatePresence } from "framer-motion"
-import { Bot, ChevronDown, Download } from "lucide-react"
-
-const GithubIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.2c3-.3 6-1.5 6-6.5a5.5 5.5 0 0 0-1.5-3.8 5.5 5.5 0 0 0-.1-3.8s-1.2-.4-3.9 1.4a13.3 13.3 0 0 0-7 0c-2.7-1.8-3.9-1.4-3.9-1.4a5.5 5.5 0 0 0-.1 3.8 5.5 5.5 0 0 0-1.5 3.8c0 5 3 6.2 6 6.5a4.8 4.8 0 0 0-1 3.2v4" />
-    <path d="M9 18c-4.5 1.5-5-2.5-7-3m14 6v-4.8c0-1.1-.4-2.1-1.2-3" />
-  </svg>
-)
-
+import { Menu } from "lucide-react"
 
 export function AntigravityHeader() {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isHidden, setIsHidden] = useState(false)
   const [lastScrollY, setLastScrollY] = useState(0)
-  const [activeDropdown, setActiveDropdown] = useState<string | null>(null)
   
   // Custom right-click logo state
   const [showContextMenu, setShowContextMenu] = useState(false)
@@ -47,7 +25,6 @@ export function AntigravityHeader() {
       // Hide header on scroll down, show on scroll up
       if (currentScrollY > lastScrollY && currentScrollY > 100) {
         setIsHidden(true)
-        setActiveDropdown(null) // close dropdown on scroll
       } else {
         setIsHidden(false)
       }
@@ -73,109 +50,40 @@ export function AntigravityHeader() {
     return () => window.removeEventListener("click", closeContextMenu)
   }, [])
 
-  const toggleDropdown = (name: string) => {
-    if (activeDropdown === name) {
-      setActiveDropdown(null)
-    } else {
-      setActiveDropdown(name)
-    }
-  }
-
   return (
     <>
       <header
         className={`header-container ${isScrolled ? "scrolled" : ""} ${
           isHidden ? "hidden" : ""
         }`}
+        style={{ background: isScrolled ? "rgba(255, 255, 255, 0.95)" : "transparent", borderBottom: isScrolled ? "1px solid var(--theme-surface-surface-container-highest)" : "none" }}
       >
         <div className="header-main-content">
-          {/* Logo */}
+          {/* Logo (Top Left, very subtle like in Antigravity) */}
           <div 
-            className="flex items-center gap-2 cursor-pointer relative"
+            className="flex items-center gap-1.5 cursor-pointer relative"
             onContextMenu={handleLogoContextMenu}
           >
-            <Bot className="w-7 h-7 text-blue-600" />
-            <span className="font-[Google Sans Flex] font-semibold text-[20px] tracking-tight">
-              IdeaAI
+            {/* Antigravity 'A' Logo SVG */}
+            <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M16 4L4 28H10L16 16L22 28H28L16 4Z" fill="url(#paint0_linear)"/>
+              <defs>
+                <linearGradient id="paint0_linear" x1="16" y1="4" x2="16" y2="28" gradientUnits="userSpaceOnUse">
+                  <stop stopColor="#3279f9"/>
+                  <stop offset="1" stopColor="#f84242"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <span className="font-[Google Sans] text-[20px] text-gray-800 tracking-tight flex items-center">
+              Google <span className="font-[Google Sans Flex] font-normal ml-1">Antigravity</span>
             </span>
           </div>
 
-          {/* Nav Links */}
-          <nav className="header-nav hidden lg:flex">
-            <div className="relative">
-              <button 
-                className="nav-button group"
-                onClick={() => toggleDropdown("products")}
-              >
-                Products
-                <span className={`dropdown-icon ${activeDropdown === "products" ? "rotate-180" : ""}`}>
-                  <ChevronDown className="w-4 h-4" />
-                </span>
-              </button>
-              
-              <AnimatePresence>
-                {activeDropdown === "products" && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    transition={{ duration: 0.2 }}
-                    className="absolute top-full left-0 mt-2 w-64 bg-white/90 backdrop-blur-xl border border-gray-100 rounded-2xl shadow-xl p-4 flex flex-col gap-2"
-                  >
-                    <a href="#" className="p-3 hover:bg-gray-50 rounded-xl transition-colors">
-                      <div className="font-medium text-gray-900">Agent Studio</div>
-                      <div className="text-sm text-gray-500">Build custom AI agents visually</div>
-                    </a>
-                    <a href="#" className="p-3 hover:bg-gray-50 rounded-xl transition-colors">
-                      <div className="font-medium text-gray-900">Code Assistant</div>
-                      <div className="text-sm text-gray-500">Pair programming in your IDE</div>
-                    </a>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            <a href="#" className="nav-button">Use Cases</a>
-            <a href="#" className="nav-button">Pricing</a>
-            <a href="#" className="nav-button">Blog</a>
-            
-            <div className="relative">
-              <button 
-                className="nav-button"
-                onClick={() => toggleDropdown("resources")}
-              >
-                Resources
-                <span className={`dropdown-icon ${activeDropdown === "resources" ? "rotate-180" : ""}`}>
-                  <ChevronDown className="w-4 h-4" />
-                </span>
-              </button>
-              <AnimatePresence>
-                {activeDropdown === "resources" && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    transition={{ duration: 0.2 }}
-                    className="absolute top-full left-0 mt-2 w-48 bg-white/90 backdrop-blur-xl border border-gray-100 rounded-2xl shadow-xl p-2 flex flex-col"
-                  >
-                    <a href="#" className="p-2 hover:bg-gray-50 rounded-lg text-sm font-medium">Documentation</a>
-                    <a href="#" className="p-2 hover:bg-gray-50 rounded-lg text-sm font-medium">API Reference</a>
-                    <a href="#" className="p-2 hover:bg-gray-50 rounded-lg text-sm font-medium">Community Forum</a>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </nav>
-
-          {/* Right Actions */}
-          <div className="flex items-center gap-4">
-            <a href="#" className="text-gray-600 hover:text-gray-900 hidden sm:block">
-              <GithubIcon />
-            </a>
-            <Link href="https://www.togetlink.com/ai" className="button button-primary gap-2">
-              <Download className="w-4 h-4" />
-              Download
-            </Link>
+          {/* Right Actions - Just the hamburger menu matching the screenshot */}
+          <div className="flex items-center">
+            <button className="w-10 h-10 rounded-full bg-[#121317] text-white flex items-center justify-center hover:bg-[#2f3034] transition-colors">
+              <Menu className="w-5 h-5" />
+            </button>
           </div>
         </div>
       </header>
@@ -192,14 +100,10 @@ export function AntigravityHeader() {
             style={{ top: contextMenuPos.y, left: contextMenuPos.x }}
           >
             <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
-              Copy Logo SVG
+              Copy Logo as SVG
             </button>
             <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
-              Download Brand Kit
-            </button>
-            <div className="border-t border-gray-100 my-1"></div>
-            <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">
-              About IdeaAI
+              Copied!
             </button>
           </motion.div>
         )}
