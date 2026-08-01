@@ -1,3 +1,5 @@
+import "./landing.css"
+import { AntigravityHeader } from "@/components/ai-landing/AntigravityHeader"
 import { AntigravityHero } from "@/components/ai-landing/AntigravityHero"
 import { FloatingWavyIcons } from "@/components/ai-landing/FloatingWavyIcons"
 import { TypewriterStatement } from "@/components/ai-landing/TypewriterStatement"
@@ -13,14 +15,17 @@ export const metadata = {
 
 export default function AILandingPage() {
   return (
-    <main className="flex min-h-screen flex-col bg-white">
-      <AntigravityHero />
-      <FloatingWavyIcons />
-      <TypewriterStatement />
-      <FeatureSplitSection />
-      <DeveloperVideos />
-      <ParticleActionCards />
-      <BlogsAndFooter />
-    </main>
+    <div className="landing-container">
+      <AntigravityHeader />
+      <main className="flex min-h-screen flex-col bg-white">
+        <AntigravityHero />
+        <FloatingWavyIcons />
+        <TypewriterStatement />
+        <FeatureSplitSection />
+        <DeveloperVideos />
+        <ParticleActionCards />
+        <BlogsAndFooter />
+      </main>
+    </div>
   )
 }
