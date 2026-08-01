@@ -24,17 +24,17 @@ export function AntigravityHero() {
   const mouseX = useMotionValue(0)
   const mouseY = useMotionValue(0)
 
-  // Snappy, fast physics for mouse parallax
+  // Ultra-snappy, lightning-fast physics for mouse parallax
   const springX = useSpring(mouseX, { damping: 50, stiffness: 1000, mass: 0.5 })
   const springY = useSpring(mouseY, { damping: 50, stiffness: 1000, mass: 0.5 })
   
   // Parallax move direction
-  const bgX = useTransform(springX, [-1, 1], [80, -80])
-  const bgY = useTransform(springY, [-1, 1], [80, -80])
+  const bgX = useTransform(springX, [-1, 1], [60, -60])
+  const bgY = useTransform(springY, [-1, 1], [60, -60])
 
   // Stronger 3D Tilt effect
-  const rotateX = useTransform(springY, [-1, 1], [30, -30])
-  const rotateY = useTransform(springX, [-1, 1], [-30, 30])
+  const rotateX = useTransform(springY, [-1, 1], [20, -20])
+  const rotateY = useTransform(springX, [-1, 1], [-20, 20])
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!containerRef.current) return
@@ -46,72 +46,56 @@ export function AntigravityHero() {
     mouseY.set(y)
   }
 
-  // Organic 3D Sphere / Vortex Distribution (No linear radial bursts, no empty center)
-  const numParticles = 800;
+  // Highly structured, subtle, small-particle Phyllotaxis spiral (Matching the screenshot exactly)
+  const numParticles = 900;
   const particles = Array.from({ length: numParticles }).map((_, i) => {
-    // Uniform random distribution on a 3D sphere
-    const u = Math.random();
-    const v = Math.random();
+    // Golden angle for perfect structured spiral
+    const angle = i * 2.39996; 
     
-    // Azimuthal angle (0 to 2PI)
-    const theta = u * 2.0 * Math.PI;
-    // Polar angle (-PI/2 to PI/2)
-    const phi = Math.acos(2.0 * v - 1.0);
+    // Spread them out cleanly
+    const radius = Math.pow(i, 0.6) * 22; 
     
-    // Clustered heavily in the center, extending outwards organically
-    const radius = Math.pow(Math.random(), 1.5) * 1200; 
+    // Calculate exact X and Y from center
+    const x = Math.cos(angle) * radius;
+    const y = Math.sin(angle) * radius;
+    const zDepth = Math.sin(i * 876) * 150; // Subtle Z-depth, not too chaotic
     
-    // Convert spherical coordinates to Cartesian (3D)
-    const x = radius * Math.sin(phi) * Math.cos(theta);
-    const y = radius * Math.sin(phi) * Math.sin(theta);
-    const zDepth = radius * Math.cos(phi) * 1.5; // Enhanced Z depth for parallax
-    
-    // Determine exact pure Google colors (No pastels) based on 2D angle
+    // Pure Google Colors as requested previously, mapped cleanly to quadrants
     let angle2D = Math.atan2(y, x);
     if (angle2D < 0) angle2D += Math.PI * 2;
     
-    let colorHex = '#4285F4'; // Fallback
+    let colorHex = '#4285F4'; 
     if (angle2D < Math.PI * 0.3) {
-       // Bottom Right: Deep Purple / Google Blue
-       colorHex = ['#4285F4', '#174EA6', '#9333EA'][i % 3];
+       colorHex = ['#4285F4', '#174EA6', '#9333EA'][i % 3]; // Blue/Purple
     } else if (angle2D < Math.PI * 0.8) {
-       // Bottom / Bottom Left: Pure Red / Bright Orange
-       colorHex = ['#EA4335', '#C5221F', '#F9AB00'][i % 3];
+       colorHex = ['#EA4335', '#C5221F', '#F9AB00'][i % 3]; // Red/Orange
     } else if (angle2D < Math.PI * 1.3) {
-       // Left: Google Red / Yellow
-       colorHex = ['#EA4335', '#FBBC05', '#E37400'][i % 3];
+       colorHex = ['#EA4335', '#FBBC05', '#E37400'][i % 3]; // Red/Yellow
     } else if (angle2D < Math.PI * 1.7) {
-       // Top Left: Google Yellow / Bright Orange
-       colorHex = ['#FBBC05', '#F9AB00', '#F29900'][i % 3];
+       colorHex = ['#FBBC05', '#F9AB00', '#F29900'][i % 3]; // Yellow/Orange
     } else {
-       // Top / Top Right: Google Green / Google Blue
-       colorHex = ['#34A853', '#1E8E3E', '#4285F4'][i % 3];
+       colorHex = ['#34A853', '#1E8E3E', '#4285F4'][i % 3]; // Green/Blue
     }
 
-    // Depth of field blur (far elements blur out, very close elements blur slightly)
-    let blur = 0;
-    if (zDepth < -500) blur = 2;
-    else if (zDepth > 600) blur = 1.5;
-
-    // Dimensions (organic variation)
-    const length = Math.random() * 8 + 6; // 6px to 14px
-    const thickness = Math.random() * 2.5 + 2; // 2px to 4.5px
+    // "Çok küçük çok sade ve çok hafif" -> Small, subtle dimensions
+    const length = (Math.abs(Math.sin(i * 345)) * 3) + 3; // 3px to 6px dashes
+    const thickness = (Math.abs(Math.cos(i * 123)) * 1) + 1.5; // 1.5px to 2.5px
     
-    // Particles point organically outwards with a slight random deviation
-    const baseRotation = (angle2D * 180) / Math.PI;
-    const randomizedRotation = baseRotation + (Math.random() * 30 - 15);
+    // Particles point strictly outwards in the spiral
+    const rotationDeg = (angle * 180) / Math.PI;
 
-    const baseOpacity = Math.max(0.4, 1 - (radius / 1500));
+    // Slight fade on the edges, very crisp in the middle
+    const baseOpacity = Math.max(0.2, 1 - (radius / 1200));
 
     return (
       <motion.div 
         key={i}
         className="absolute rounded-full"
         animate={{ 
-          opacity: [baseOpacity, baseOpacity * 0.3, baseOpacity],
+          opacity: [baseOpacity, baseOpacity * 0.4, baseOpacity],
         }}
         transition={{ 
-          duration: Math.random() * 2 + 1, 
+          duration: Math.random() * 2 + 1.5, 
           repeat: Infinity, 
           ease: "easeInOut",
           delay: Math.random() * 2 
@@ -122,14 +106,13 @@ export function AntigravityHero() {
           height: `${thickness}px`,
           left: `calc(50% + ${x}px)`,
           top: `calc(50% + ${y}px)`,
-          filter: blur > 0 ? `blur(${blur}px)` : 'none',
-          transform: `translateZ(${zDepth}px) rotate(${randomizedRotation}deg)`,
+          transform: `translateZ(${zDepth}px) rotate(${rotationDeg}deg)`,
         }}
       />
     );
   });
 
-  // Text for typewriter animation (Strict line wrapping)
+  // Text for typewriter animation (Strict line wrapping to match screenshot exactly)
   const titleLine1 = "Experience liftoff with the next-gen".split(" ");
   const titleLine2 = "agent platform".split(" ");
 
@@ -137,26 +120,23 @@ export function AntigravityHero() {
   const [typingState, setTypingState] = React.useState<"flash" | "hidden" | "typing">("flash");
 
   React.useEffect(() => {
-    // Show full text for 150ms
     const t1 = setTimeout(() => setTypingState("hidden"), 150);
-    // Start typing at 300ms
     const t2 = setTimeout(() => setTypingState("typing"), 300);
     return () => { clearTimeout(t1); clearTimeout(t2); }
   }, []);
 
-  // Helper renderer for typewriter lines
   const renderLine = (words: string[], startIndex: number) => {
     return words.map((word, idx) => (
       <motion.span 
         key={idx} 
-        initial={{ opacity: 1 }} // Start fully visible for the flash
+        initial={{ opacity: 1 }}
         animate={{
           opacity: typingState === "flash" ? 1 : (typingState === "hidden" ? 0 : 1),
           y: typingState === "typing" ? 0 : (typingState === "hidden" ? 10 : 0)
         }}
         transition={
           typingState === "typing" 
-            ? { duration: 0.2, ease: "easeOut", delay: (startIndex + idx) * 0.05 } 
+            ? { duration: 0.15, ease: "easeOut", delay: (startIndex + idx) * 0.04 } 
             : { duration: 0 }
         }
         className="inline-block mr-[0.25em]"
@@ -170,9 +150,9 @@ export function AntigravityHero() {
     <section 
       ref={containerRef} 
       onMouseMove={handleMouseMove}
-      className="relative w-full bg-white flex flex-col items-center pt-32 pb-48 overflow-hidden min-h-[150vh] [perspective:800px]"
+      className="relative w-full bg-white flex flex-col items-center pt-32 pb-48 overflow-hidden min-h-[140vh] [perspective:1000px]"
     >
-      {/* Abstract Particle Background with 3D Mouse Parallax & Continuous Rotation */}
+      {/* Abstract Particle Background */}
       <motion.div 
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
@@ -182,15 +162,15 @@ export function AntigravityHero() {
       >
         <motion.div
           animate={{ rotate: 360 }}
-          transition={{ duration: 90, repeat: Infinity, ease: "linear" }}
+          transition={{ duration: 140, repeat: Infinity, ease: "linear" }}
           className="relative w-full h-full flex items-center justify-center"
         >
           <motion.div 
-            animate={{ opacity: [0.3, 0.6, 0.3] }}
-            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-            className="w-[1000px] h-[1000px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-50/50 via-white/0 to-white/0 rounded-full blur-3xl absolute"
+            animate={{ opacity: [0.2, 0.4, 0.2] }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+            className="w-[800px] h-[800px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-50/40 via-white/0 to-white/0 rounded-full blur-3xl absolute"
           />
-          {/* Organic 3D Particle Burst */}
+          {/* Structured Particle Burst */}
           <div className="absolute w-full h-full">
             {particles}
           </div>
@@ -204,15 +184,15 @@ export function AntigravityHero() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.2 }}
-          className="flex items-center gap-2 mb-8 text-[#171717] font-medium text-lg"
+          className="flex items-center gap-2 mb-10 text-[#171717] font-medium text-lg"
         >
           <Sparkles className="w-6 h-6 text-blue-500" />
           <span>TogetLink <span className="font-semibold">IdeaAI</span></span>
         </motion.div>
 
-        {/* Huge Title (Flash -> Hide -> Typewriter Effect with explicit breaks) */}
+        {/* Huge Title */}
         <motion.h1 
-          className="text-6xl sm:text-7xl md:text-[5.5rem] font-medium tracking-tight text-[#171717] leading-[1.05] mb-12 w-full flex flex-col items-center"
+          className="text-[4rem] sm:text-7xl md:text-[5.5rem] font-medium tracking-tight text-[#171717] leading-[1.05] mb-14 w-full flex flex-col items-center"
         >
           <div className="flex flex-wrap justify-center max-w-[1200px]">
             {renderLine(titleLine1, 0)}
