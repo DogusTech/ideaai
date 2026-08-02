@@ -1,1 +1,1 @@
-export default LandingPage;
+export default App;
