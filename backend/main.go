@@ -1,10 +1,11 @@
-import ("firebase"
-"firebase/auth"
-"firebase/database"
-"firebase/firestore"
-"firebase/functions"
-"firebase/storage"
+package main
+
+import (
+    "context"
+    "fmt"
+    "log"
 )
 
 func main() {
+    fmt.Println("Hello, World!")
 }
