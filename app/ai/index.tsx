@@ -1,19 +1,17 @@
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
 
-export default function Header() {
-  const [count, setCount] = useState(0);
+import Head from 'next/head';
+import { useRouter } from 'next/router';
 
-  useEffect(() => {
-    document.title = `TogetLink | ${count}`;
-  }, [count]);
+export default function Dashboard() {
+  const router = useRouter();
 
   return (
     <div>
-      <h1>TogetLink</h1>
-      <p>You clicked {count} times</p>
-      <button onClick={() => setCount(count + 1)}>Click me</button>
-      <Link href="/ai"><a>Go to AI</a></Link>
+      <Head>
+        <title>TogetLink AI Dashboard</title>
+      </Head>
+      <h1>Welcome to TogetLink AI Dashboard</h1>
+      <button onClick={() => router.push('/')}>Go to Home</button>
     </div>
   );
-}
+};
