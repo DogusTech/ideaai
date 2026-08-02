@@ -3,11 +3,15 @@ import { NextApiRequest, NextApiResponse } from 'next/auth'
 
 const auth = getAuth();
 
-export default async function signup(req: NextApiRequest, res: NextApiResponse) {
-  try {
-    const user = await createUserWithEmailAndPassword(auth, req.body.username, req.body.password);
-    res.status(200).json({ message: 'Signup successful' });
-  } catch (error) {
-    res.status(401).json({ message: 'Invalid credentials' });
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method === 'POST') {
+    const { email, password } = req.body;
+    try {
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+      res.status(200).json({ message: 'User created successfully' });
+    } catch (error) {
+      res.status(401).json({ message: 'Invalid email or password' });
+    }
   }
 }
