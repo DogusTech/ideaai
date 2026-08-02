@@ -1,5 +1,1 @@
-import { getAuth } from 'firebase/auth';
-
-const auth = getAuth();
-
-export { auth };
+import { initializeApp } from 'firebase/app';
