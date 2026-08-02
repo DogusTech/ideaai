@@ -1,28 +1,14 @@
-import ("firebase/functions")
-"firebase-admin"
+package main
+
+import (
+    "context"
+    "fmt"
+    "net/http"
+)
 
 func main() {
-  // Initialize Firebase
-  firebase := admin.NewApp(context.Background(), "<path-to-firestore-credentials>")
-
-  // Create a new Firestore client
-  client, err := firebase.Firestore(context.Background())
-  if err != nil {
-    log.Fatal(err)
-  }
-
-  // Create a new collection
-  col, err := client.Collection("data").Doc("document").Get(context.Background())
-  if err != nil {
-    log.Fatal(err)
-  }
-
-  // Get the document data
-  data, err := col.Data(context.Background())
-  if err != nil {
-    log.Fatal(err)
-  }
-
-  // Print the document data
-  fmt.Println(data)
+    http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+        fmt.Fprint(w, "Welcome to TogetLink!")
+    })
+    http.ListenAndServe("localhost:8080", nil)
 }
