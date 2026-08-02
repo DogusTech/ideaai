@@ -1,1 +1,1 @@
-import { firebaseConfig } from './firebase';
+}
