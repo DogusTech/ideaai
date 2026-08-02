@@ -1,1 +1,1 @@
-import { AiOutlineGithub } from '@ant-design/icons';
+export default LandingPage;
