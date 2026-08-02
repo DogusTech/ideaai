@@ -1,6 +1,5 @@
-import ("firebase/functions"),
+import ("firebase/functions")
 "firebase-admin"
-)
 
 func main() {
   // Initialize Firebase
