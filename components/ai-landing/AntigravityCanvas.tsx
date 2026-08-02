@@ -106,19 +106,20 @@ function mixColor(c1: {r: number, g: number, b: number}, c2: {r: number, g: numb
 }
 
 // Exactly matching the shader colors from the light theme in Antigravity
-const c1 = hexToRgb("#2c64ed") // Blue
-const c2 = hexToRgb("#f84242") // Red
-const c3 = hexToRgb("#ffcf03") // Yellow
+// Adjusted slightly to be softer and more elegant
+const c1 = hexToRgb("#4285F4") // Google Blue
+const c2 = hexToRgb("#EA4335") // Google Red
+const c3 = hexToRgb("#FBBC05") // Google Yellow
+const c4 = hexToRgb("#34A853") // Google Green
 
 function getNoiseColor(progress: number) {
-  const h = 0.5
-  let finalColor
-  if (progress < h) {
-    finalColor = mixColor(c1, c2, progress / h)
+  if (progress < 0.33) {
+    return `rgb(${mixColor(c1, c2, progress / 0.33).r}, ${mixColor(c1, c2, progress / 0.33).g}, ${mixColor(c1, c2, progress / 0.33).b})`
+  } else if (progress < 0.66) {
+    return `rgb(${mixColor(c2, c3, (progress - 0.33) / 0.33).r}, ${mixColor(c2, c3, (progress - 0.33) / 0.33).g}, ${mixColor(c2, c3, (progress - 0.33) / 0.33).b})`
   } else {
-    finalColor = mixColor(c2, c3, (progress - h) / (1.0 - h))
+    return `rgb(${mixColor(c3, c4, (progress - 0.66) / 0.34).r}, ${mixColor(c3, c4, (progress - 0.66) / 0.34).g}, ${mixColor(c3, c4, (progress - 0.66) / 0.34).b})`
   }
-  return `rgb(${finalColor.r}, ${finalColor.g}, ${finalColor.b})`
 }
 
 function clamp(val: number, min: number, max: number) {
@@ -168,7 +169,7 @@ export function AntigravityCanvas({ className = "" }: AntigravityCanvasProps) {
     const particles: Particle[] = []
     
     // Fibonacci sphere for even 3D distribution
-    const gridSize = 400 // Reduced from 1200 for sparsity and performance, matching the screenshot
+    const gridSize = 800 // Increased for a more detailed but fainter particle field
     
     for (let i = 0; i < gridSize; i++) {
       const phi = Math.acos(1 - 2 * (i + 0.5) / gridSize);
@@ -235,7 +236,6 @@ export function AntigravityCanvas({ className = "" }: AntigravityCanvasProps) {
     const rotY = uTime * 0.15;
     const rotX = Math.sin(uTime * 0.1) * 0.15;
 
-    // Array to hold computed frame data for depth sorting
     const renderList = []
 
     for (let i = 0; i < particles.length; i++) {
@@ -285,7 +285,6 @@ export function AntigravityCanvas({ className = "" }: AntigravityCanvasProps) {
       const projY = finalY * perspective;
       
       // Calculate color based on 3D spatial position to get the Red/Blue sides
-      // Left side is red, right side is blue, top can be yellow
       const colorMix = smoothstep(-1.0, 1.0, currentX * 1.2 + currentY * 0.2);
       const pColor = getNoiseColor(colorMix);
       
@@ -296,8 +295,7 @@ export function AntigravityCanvas({ className = "" }: AntigravityCanvasProps) {
       const scaleDiff = sizePower - p.scale;
       p.scale += scaleDiff * 0.1;
       
-      // Make particles smaller to match the screenshot (multiplier reduced from 8.0 to 3.0)
-      const baseSize = Math.max(0.1, p.scale) * depthScale * perspective * 3.0;
+      const baseSize = Math.max(0.05, p.scale) * depthScale * perspective * 1.5;
 
       // Dash angle follows the flow field roughly
       const angle = Math.atan2(projY, projX) + (Math.PI / 2) + (noiseDisp * 2.0);
@@ -309,8 +307,8 @@ export function AntigravityCanvas({ className = "" }: AntigravityCanvasProps) {
         size: baseSize,
         angle: angle,
         color: pColor,
-        // Reduce alpha overall to make them fainter, multiplied by 0.5
-        alpha: smoothstep(-1.0, 1.0, finalZ) * 0.45 
+        // Full opacity
+        alpha: smoothstep(-1.0, 1.0, finalZ) * 0.85
       });
     }
 
@@ -320,13 +318,13 @@ export function AntigravityCanvas({ className = "" }: AntigravityCanvasProps) {
     // Draw
     for (let i = 0; i < renderList.length; i++) {
       const p = renderList[i];
-      if (p.size < 0.3 || p.alpha < 0.05) continue;
+      if (p.size < 0.05 || p.alpha < 0.01) continue;
       
       const drawX = cx + (p.x * scaleFactor);
       const drawY = cy + (p.y * scaleFactor);
       
-      const dashLength = p.size * 1.5;
-      const dashThickness = Math.max(1, p.size * 0.4);
+      const dashLength = p.size * 1.2;
+      const dashThickness = Math.max(0.3, p.size * 0.4);
       
       ctx.save();
       ctx.translate(drawX, drawY);

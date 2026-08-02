@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  reactStrictMode: false,
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -15,6 +16,10 @@ const nextConfig = {
         {
           source: '/api/:path*',
           destination: `${baseUrl}/api/:path*`,
+        },
+        {
+          source: '/landing',
+          destination: '/landing/index.html',
         },
       ]
     }

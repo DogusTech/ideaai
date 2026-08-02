@@ -66,26 +66,35 @@ export function AntigravityHeader() {
             className="flex items-center gap-1.5 cursor-pointer relative"
             onContextMenu={handleLogoContextMenu}
           >
-            {/* Antigravity 'A' Logo SVG */}
+            {/* TogetLink IdeaAI Logo SVG or Text */}
             <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M16 4L4 28H10L16 16L22 28H28L16 4Z" fill="url(#paint0_linear)"/>
               <defs>
                 <linearGradient id="paint0_linear" x1="16" y1="4" x2="16" y2="28" gradientUnits="userSpaceOnUse">
-                  <stop stopColor="#3279f9"/>
-                  <stop offset="1" stopColor="#f84242"/>
+                  <stop stopColor="#1a73e8"/>
+                  <stop offset="1" stopColor="#34a853"/>
                 </linearGradient>
               </defs>
             </svg>
-            <span className="font-[Google Sans] text-[20px] text-gray-800 tracking-tight flex items-center">
-              Google <span className="font-[Google Sans Flex] font-normal ml-1">Antigravity</span>
+            <span className="font-[Google Sans] text-[20px] text-gray-900 tracking-tight flex items-center">
+              TogetLink <span className="font-[Google Sans Flex] font-normal ml-1">IdeaAI</span>
             </span>
           </div>
 
-          {/* Right Actions - Just the hamburger menu matching the screenshot */}
-          <div className="flex items-center">
-            <button className="w-10 h-10 rounded-full bg-[#121317] text-white flex items-center justify-center hover:bg-[#2f3034] transition-colors">
-              <Menu className="w-5 h-5" />
-            </button>
+          {/* Navigation Links */}
+          <nav className="hidden md:flex items-center gap-2">
+            <a href="#" className="nav-button">Products <span className="dropdown-icon">expand_more</span></a>
+            <a href="#" className="nav-button">Use Cases <span className="dropdown-icon">expand_more</span></a>
+            <a href="#" className="nav-button">Pricing</a>
+            <a href="#" className="nav-button">Blog</a>
+            <a href="#" className="nav-button">Resources <span className="dropdown-icon">expand_more</span></a>
+          </nav>
+
+          {/* Right Actions - Download Button */}
+          <div className="flex items-center gap-4">
+            <a href="https://www.togetlink.com/ai" className="button button-primary" style={{ padding: "8px 24px" }}>
+              Download <span className="symbol ml-2" style={{ fontSize: "18px" }}>download</span>
+            </a>
           </div>
         </div>
       </header>

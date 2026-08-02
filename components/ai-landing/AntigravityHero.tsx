@@ -24,7 +24,10 @@ export function AntigravityHero() {
 
   const [typingState, setTypingState] = React.useState<"flash" | "hidden" | "typing">("flash");
 
+  const [mounted, setMounted] = React.useState(false)
+
   React.useEffect(() => {
+    setMounted(true)
     const t1 = setTimeout(() => setTypingState("hidden"), 150);
     const t2 = setTimeout(() => setTypingState("typing"), 300);
     return () => { clearTimeout(t1); clearTimeout(t2); }
@@ -32,22 +35,23 @@ export function AntigravityHero() {
 
   const renderLine = (words: string[], startIndex: number) => {
     return words.map((word, idx) => (
-      <motion.span 
-        key={idx} 
-        initial={{ opacity: 1 }}
-        animate={{
-          opacity: typingState === "flash" ? 1 : (typingState === "hidden" ? 0 : 1),
-          y: typingState === "typing" ? 0 : (typingState === "hidden" ? 10 : 0)
-        }}
-        transition={
-          typingState === "typing" 
-            ? { duration: 0.15, ease: "easeOut", delay: (startIndex + idx) * 0.04 } 
-            : { duration: 0 }
-        }
-        className="inline-block mr-[0.25em]"
-      >
-        {word}
-      </motion.span>
+      <React.Fragment key={idx}>
+        <motion.span 
+          initial={{ opacity: 1, y: 0 }}
+          animate={{
+            opacity: typingState === "flash" ? 1 : (typingState === "hidden" ? 0 : 1),
+            y: typingState === "typing" ? 0 : (typingState === "hidden" ? 10 : 0)
+          }}
+          transition={
+            typingState === "typing" 
+              ? { duration: 0.15, ease: "easeOut", delay: (startIndex + idx) * 0.04 } 
+              : { duration: 0 }
+          }
+          className="inline-block mr-[0.25em]"
+        >
+          {word}
+        </motion.span>
+      </React.Fragment>
     ))
   }
 
@@ -92,35 +96,32 @@ export function AntigravityHero() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.2 }}
-          style={{ x: contentX, y: contentY }}
+          style={mounted ? { x: contentX, y: contentY } : {}}
           className="flex items-center gap-2 mb-10 text-[26px] tracking-tight text-gray-800"
         >
-          {/* Antigravity 'A' Logo SVG */}
+          {/* TogetLink IdeaAI 'A' Logo SVG */}
           <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M16 4L4 28H10L16 16L22 28H28L16 4Z" fill="url(#paint1_linear)"/>
             <defs>
               <linearGradient id="paint1_linear" x1="16" y1="4" x2="16" y2="28" gradientUnits="userSpaceOnUse">
-                <stop stopColor="#3279f9"/>
-                <stop offset="1" stopColor="#f84242"/>
+                <stop stopColor="#1a73e8"/>
+                <stop offset="1" stopColor="#34a853"/>
               </linearGradient>
             </defs>
           </svg>
           <span className="font-[Google Sans]">
-            Google <span className="font-[Google Sans Flex] font-normal">Antigravity</span>
+            TogetLink <span className="font-[Google Sans Flex] font-normal">IdeaAI</span>
           </span>
         </motion.div>
 
         {/* Huge Title */}
         <motion.h1 
-          style={{ x: contentX, y: contentY }}
-          className="landing-main mb-14 w-full flex flex-col items-center"
+          style={mounted ? { x: contentX, y: contentY } : {}}
+          className="landing-main mb-14 text-center"
         >
-          <div className="flex flex-wrap justify-center w-full">
-            {renderLine(titleLine1, 0)}
-          </div>
-          <div className="flex flex-wrap justify-center mt-2 w-full">
-            {renderLine(titleLine2, titleLine1.length)}
-          </div>
+          Experience liftoff with the next-gen
+          <br />
+          agent platform
         </motion.h1>
 
         {/* Action Buttons */}

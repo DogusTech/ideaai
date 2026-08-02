@@ -1,13 +1,17 @@
 "use client"
 
-import React, { useRef } from "react"
-import { motion, useInView } from "framer-motion"
-import { Play, ChevronLeft, ChevronRight } from "lucide-react"
+import React, { useRef, useState } from "react"
+import { gsap } from "gsap"
+import { ScrollTrigger } from "gsap/ScrollTrigger"
+import { useGSAP } from "@gsap/react"
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger, useGSAP)
+}
 
 export function DeveloperVideos() {
   const containerRef = useRef<HTMLDivElement>(null)
-  const isInView = useInView(containerRef, { once: true, margin: "-100px" })
-
+  
   const videos = [
     {
       id: 1,
@@ -29,85 +33,176 @@ export function DeveloperVideos() {
     }
   ]
 
+  const [activeVid, setActiveVid] = useState(0)
+
+  useGSAP(() => {
+    if (!containerRef.current) return
+    const sections = containerRef.current.querySelectorAll("[data-youtube-video-section]")
+    
+    sections.forEach(n => {
+      const r = n.querySelector("[data-video-wrapper]") as HTMLElement
+      const a = n.querySelector("[data-cursor]") as HTMLElement
+      if (!r || !a) return
+
+      let s = false
+      let c = 0
+      let l = 0
+      let u = false
+
+      gsap.from(n, {
+        scrollTrigger: {
+          trigger: n,
+          start: "top bottom",
+          end: "top center",
+          scrub: 1
+        },
+        scale: 0.8,
+        opacity: 0.5,
+        ease: "power2.out"
+      })
+
+      gsap.set(a, {
+        xPercent: -50,
+        yPercent: -50,
+        scale: 0,
+        opacity: 0
+      })
+
+      const p = gsap.quickTo(a, "x", { duration: 0.35, ease: "power2.out" })
+      const m = gsap.quickTo(a, "y", { duration: 0.35, ease: "power2.out" })
+
+      const h = (e: number, t: number) => {
+        const rect = r.getBoundingClientRect()
+        return e >= rect.left && e <= rect.right && t >= rect.top && t <= rect.bottom
+      }
+
+      const g = (e: MouseEvent | {clientX: number, clientY: number}) => {
+        if (!u && !s) {
+          u = true
+          r.style.cursor = "none"
+          c = e.clientX
+          l = e.clientY
+          v(true)
+          gsap.to(a, {
+            scale: 1,
+            opacity: 1,
+            duration: 0.3,
+            ease: "back.out(1.7)"
+          })
+        }
+      }
+
+      const _ = () => {
+        if (u) {
+          u = false
+          r.style.cursor = ""
+          gsap.to(a, {
+            scale: 0,
+            opacity: 0,
+            duration: 0.2,
+            ease: "power2.in"
+          })
+        }
+      }
+
+      const v = (t = false) => {
+        if (s) return
+        const rect = r.getBoundingClientRect()
+        if (rect.bottom < 0 || rect.top > window.innerHeight) {
+          if (u) _()
+          return
+        }
+        if (!(c >= rect.left - 50 && c <= rect.right + 50 && l >= rect.top - 50 && l <= rect.bottom + 50) && u) {
+          _()
+          return
+        }
+        const i = rect.width > 0 ? r.offsetWidth / rect.width : 1
+        const o = rect.height > 0 ? r.offsetHeight / rect.height : 1
+        const d = (c - rect.left) * i
+        const f = (l - rect.top) * o
+
+        if (t) {
+          gsap.set(a, { x: d, y: f })
+        } else {
+          p(d)
+          m(f)
+        }
+      }
+
+      const y = (e: MouseEvent) => {
+        c = e.clientX
+        l = e.clientY
+        if (!s) {
+          if (!u && h(e.clientX, e.clientY)) {
+            g(e)
+          } else if (u) {
+            v()
+          }
+        }
+      }
+
+      r.addEventListener("mousemove", y)
+      r.addEventListener("mouseenter", g)
+      r.addEventListener("mouseleave", _)
+      window.addEventListener("scroll", () => {
+        if (u) v()
+      }, { passive: true })
+      window.addEventListener("mousemove", y, { passive: true })
+    })
+
+  }, { scope: containerRef })
+
   return (
-    <section className="w-full bg-white py-24 overflow-hidden" ref={containerRef}>
-      <div className="max-w-[1400px] mx-auto px-4 md:px-12 lg:px-24">
-        
-        <div className="flex flex-col lg:flex-row gap-12 lg:gap-24 mb-16">
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6 }}
-            className="text-4xl md:text-5xl font-medium text-[#171717] tracking-tight max-w-md"
-          >
-            Built for developers for the agent-first era
-          </motion.h2>
-          <motion.p 
-            initial={{ opacity: 0, y: 20 }}
-            animate={isInView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-lg text-[#525252] leading-relaxed max-w-lg lg:pt-4"
-          >
-            TogetLink IdeaAI is built for user trust, whether you're a professional developer working in a large enterprise codebase, a hobbyist vibe-coding in their spare time, or anyone in between.
-          </motion.p>
-        </div>
-
-        {/* Horizontal Carousel */}
-        <div className="relative w-full">
-          <div className="flex gap-6 overflow-x-auto pb-8 hide-scrollbar snap-x snap-mandatory">
-            {videos.map((vid, i) => (
-              <motion.div 
-                key={vid.id}
-                initial={{ opacity: 0, x: 50 }}
-                animate={isInView ? { opacity: 1, x: 0 } : {}}
-                transition={{ duration: 0.6, delay: 0.3 + i * 0.1 }}
-                className="min-w-[85vw] sm:min-w-[60vw] md:min-w-[500px] flex-shrink-0 snap-center group cursor-pointer"
-              >
-                {/* Video/Image Container */}
-                <div className="w-full aspect-[16/10] bg-[#f5f5f5] rounded-[32px] overflow-hidden relative mb-6">
-                  <img src={vid.img} alt={vid.role} className="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-500 group-hover:scale-105" />
-                  
-                  {/* Floating Title */}
-                  <div className="absolute top-6 left-6 text-white text-3xl font-medium drop-shadow-md">
-                    {vid.role.split(' ').map((word, wIdx) => (
-                      <div key={wIdx}>{word}</div>
-                    ))}
-                  </div>
-
-                  {/* Play Button */}
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center gap-2 bg-white/90 backdrop-blur-sm px-5 py-2.5 rounded-full text-[#171717] font-medium text-sm hover:scale-105 transition-transform">
-                    <Play className="w-4 h-4 fill-current" />
-                    Watch case
-                  </div>
-                </div>
-
-                {/* Description */}
-                <div className="flex flex-col sm:flex-row gap-4 sm:items-end justify-between px-2">
-                  <div>
-                    <h3 className="text-[#171717] font-medium mb-2">{vid.role}</h3>
-                    <p className="text-[#737373] text-sm max-w-sm">{vid.desc}</p>
-                  </div>
-                  <div className="flex items-center gap-1 text-[#171717] font-medium text-sm hover:underline shrink-0">
-                    View case <ChevronRight className="w-4 h-4" />
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+    <div ref={containerRef}>
+      <section data-youtube-video-section className="landing-use-case-section bg-white">
+        <div className="grid-container">
+          
+          <div className="landing-use-case-header">
+            <h2 className="heading-3">
+              Built for developers for the agent-first era
+            </h2>
+            <p className="body max-w-lg mt-4 text-[#525252]">
+              TogetLink IdeaAI is built for user trust, whether you're a professional developer working in a large enterprise codebase, a hobbyist vibe-coding in their spare time, or anyone in between.
+            </p>
           </div>
 
-          {/* Custom Scrollbar Styles */}
-          <style dangerouslySetInnerHTML={{__html: `
-            .hide-scrollbar::-webkit-scrollbar {
-              display: none;
-            }
-            .hide-scrollbar {
-              -ms-overflow-style: none;
-              scrollbar-width: none;
-            }
-          `}} />
-        </div>
+          <div className="grid-row">
+            <div className="grid-col col-md-8 col-sm-8 col-xs-4">
+              <div data-video-wrapper className="slide-image">
+                <div className="slide-image-wrapper">
+                  <img src={videos[activeVid].img} alt="Video Thumbnail" className="list-image" />
+                  <div className="slide-image-overlay">
+                     <h3 className="heading-2">{videos[activeVid].role.split(' ').map((w,i)=><span key={i} className="block">{w}</span>)}</h3>
+                  </div>
+                </div>
+                <div data-cursor className="video-control-button">
+                  <span className="symbol">play_arrow</span>
+                </div>
+              </div>
+            </div>
 
-      </div>
-    </section>
+            <div className="grid-col col-md-4 col-sm-4 col-xs-4">
+              <div className="slider-copy-wrapper">
+                <div className="slider-copy" style={{ opacity: 1, visibility: 'visible', transform: 'none' }}>
+                  <p className="body">{videos[activeVid].desc}</p>
+                  <a href="#" className="arrow-link mt-4 font-medium text-[#1a73e8]">View case</a>
+                </div>
+
+                <div className="carousel-nav">
+                  <button onClick={() => setActiveVid((v) => (v - 1 + videos.length) % videos.length)}>
+                    <span className="symbol">chevron_left</span>
+                  </button>
+                  <button onClick={() => setActiveVid((v) => (v + 1) % videos.length)}>
+                    <span className="symbol">chevron_right</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </section>
+    </div>
   )
 }

@@ -7,12 +7,14 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "start-daemon": "node scripts/daemon.js",
     "lint": "eslint ."
   },
   "dependencies": {
     "@ai-sdk/groq": "^4.0.15",
     "@ai-sdk/react": "^4.0.44",
     "@base-ui/react": "^1.5.0",
+    "@gsap/react": "^2.1.2",
     "@vercel/analytics": "1.6.1",
     "ai": "^7.0.41",
     "class-variance-authority": "^0.7.1",
@@ -20,6 +22,7 @@
     "date-fns": "^4.4.0",
     "firebase": "^12.16.0",
     "framer-motion": "^12.42.0",
+    "gsap": "^3.15.0",
     "lucide-react": "^1.16.0",
     "next": "16.2.6",
     "react": "^19",
