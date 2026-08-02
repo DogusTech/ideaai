@@ -1,5 +1,10 @@
-<!-- Add a hero section to the AI landing page -->
-<div className={styles.hero}>
-  <h1>AI Landing Page</h1>
-  <p>Welcome to the AI landing page</p>
-</div>
+import Header from '../components/header';
+
+export default function AiLandingPage() {
+  return (
+    <div>
+      <Header />
+      <h1>Welcome to TogetLink AI Landing Page!</h1>
+    </div>
+  );
+}
