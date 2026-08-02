@@ -1,9 +1,11 @@
-import { AiOutlineGithub } from "@ant-design/icons";
+import Link from 'next/link';
+import LandingPage from './LandingPage';
 
-export default function App() {
+function HomePage() {
   return (
     <div>
-      <AiOutlineGithub />
+      <h1>TogetLink AI Home Page</h1>
+      <Link href="/ai-landing-page"><a>TogetLink AI Landing Page</a></Link>
     </div>
   );
 }
