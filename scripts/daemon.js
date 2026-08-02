@@ -38,10 +38,16 @@ async function runAutonomousLoop() {
       
       if (!data.success) {
         console.error(`SYSTEM ERROR: ${data.error}`);
-        currentMessages.push({ 
-          role: 'user', 
-          content: `SYSTEM ERROR: ${data.error}. You made a syntax error or a bad API call. Please fix your formatting and try again.` 
-        });
+        if (data.error && (data.error.includes("413") || data.error.includes("Request too large"))) {
+          console.log("Context too large (413)! Wiping short-term memory to recover...");
+          // Keep only the Constitution
+          currentMessages = [currentMessages[0]];
+        } else {
+          currentMessages.push({ 
+            role: 'user', 
+            content: `SYSTEM ERROR: ${data.error}. You made a syntax error or a bad API call. Please fix your formatting and try again.` 
+          });
+        }
         console.log("Resting for 5 seconds before retry...");
         await new Promise(resolve => setTimeout(resolve, 5000));
         continue;
