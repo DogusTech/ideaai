@@ -1,17 +1,10 @@
-import { useState } from 'react';
-import { Header } from './components/header';
+import Header from './header';
 
-export const LandingPage = () => {
-  const [username, setUsername] = useState('');
-
-  const handleUsernameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setUsername(event.target.value);
-  };
-
+function AiLandingPage() {
   return (
     <div>
       <Header />
-      <input type="text" value={username} onChange={handleUsernameChange} />
+      {/* page content */}
     </div>
   );
-};
+}
