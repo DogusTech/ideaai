@@ -1,6 +1,7 @@
 const http = require('http');
 
-const API_BASE = "http://127.0.0.1:3000";
+const port = process.env.PORT || 3000;
+const API_BASE = `http://127.0.0.1:${port}`;
 
 // Simple fetch wrapper since Node 16 doesn't have native fetch without experimental flags,
 // but Node 18+ does. Assuming Railway uses Node 18+.
