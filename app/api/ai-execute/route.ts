@@ -71,7 +71,7 @@ export async function POST(request: Request) {
 
       try {
         // Set up Git credentials for the cloud environment
-        execSync('git config --global user.email "ai@togetlink.com"', { cwd: projectRoot });
+        execSync('git config --global user.email "dogusyilmaz25@istanbularel.edu.tr"', { cwd: projectRoot });
         execSync('git config --global user.name "IdeaAI"', { cwd: projectRoot });
         
         // Add all changes
