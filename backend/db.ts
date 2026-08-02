@@ -1,9 +1,14 @@
-import { FirebaseApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
-import initFirebase from './firebase';
+import firebase from 'firebase/app';
+import 'firebase/firestore';
 
-default function initFirestore() {
-	const app = initFirebase();
-	const db = getFirestore(app);
-	return db;
-}
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const db = firebase.firestore();
+
+export { db };
