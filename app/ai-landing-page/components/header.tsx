@@ -1,15 +1,17 @@
 import { useState } from 'react';
-import { AiOutlineMenu } from 'react-icons/ai';
+import Link from 'next/link';
 
-function Header() {
-  const [open, setOpen] = useState(false);
+export default function Header() {
+  const [active, setActive] = useState(false);
+
   return (
     <header>
       <nav>
-        <button onClick={() => setOpen(!open)}>
-          <AiOutlineMenu size={24} />
-        </button>
-        <ul>{/* menu items */}</ul>
+        <ul>
+          <li><Link href="/ai"><a>AI Dashboard</a></Link></li>
+          <li><Link href="/ai/login"><a>Login</a></Link></li>
+          <li><Link href="/ai/signup"><a>Signup</a></Link></li>
+        </ul>
       </nav>
     </header>
   );
