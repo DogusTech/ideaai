@@ -3,9 +3,9 @@ import React, { useState, FormEvent } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth"
-import { auth } from "@/lib/firebase/config"
-import { createSession } from "@/lib/auth/session"
-import { fetchApi } from "@/lib/api"
+import { auth } from "@/lib/firebase"
+import { createSession } from "@/lib/api/auth"
+import { fetchApi } from "@/lib/api/client"
 import '../BaseLayout.ByH15-Pm.css';
 import '../index.BYZqGVMs.css';
 

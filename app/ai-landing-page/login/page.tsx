@@ -3,8 +3,8 @@ import React, { useState, FormEvent } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { signInWithEmailAndPassword } from "firebase/auth"
-import { auth } from "@/lib/firebase/config"
-import { createSession } from "@/lib/auth/session"
+import { auth } from "@/lib/firebase"
+import { createSession } from "@/lib/api/auth"
 import '../BaseLayout.ByH15-Pm.css';
 import '../index.BYZqGVMs.css';
 
