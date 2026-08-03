@@ -389,31 +389,29 @@ export function IdeaAIInterface() {
                     <button 
                       type="button" 
                       onClick={() => setShowAddMenu(!showAddMenu)}
-                      className="p-1 rounded-full bg-white/50 text-[#737373] hover:text-[#171717] hover:bg-white transition-colors"
+                      className="p-1.5 rounded-full text-[#737373] hover:text-[#171717] hover:bg-white/60 transition-colors"
                     >
                       <Plus className="w-4 h-4" strokeWidth={2.5} />
                     </button>
 
                     {/* Popover Menu for + button */}
                     {showAddMenu && (
-                      <div className="absolute bottom-full left-0 mb-3 w-56 bg-white rounded-[14px] shadow-[0_4px_24px_rgba(0,0,0,0.12)] border border-[#e5e5e5] overflow-hidden flex flex-col z-50">
-                        <div className="py-1">
-                          <button onClick={() => folderInputRef.current?.click()} className="w-full flex items-center gap-2.5 px-3 py-2 text-[13px] text-[#171717] hover:bg-[#f5f5f5] text-left transition-colors">
-                            <LayoutGrid className="w-4 h-4 text-[#737373]" /> New Project
-                          </button>
-                          <button onClick={() => fileInputRef.current?.click()} className="w-full flex items-center gap-2.5 px-3 py-2 text-[13px] text-[#171717] hover:bg-[#f5f5f5] text-left transition-colors">
-                            <ImageIcon className="w-4 h-4 text-[#737373]" /> Media
-                          </button>
-                          <button onClick={() => setShowAddMenu(false)} className="w-full flex items-center gap-2.5 px-3 py-2 text-[13px] text-[#171717] hover:bg-[#f5f5f5] text-left transition-colors">
-                            <Globe className="w-4 h-4 text-[#737373]" /> Search Browser
-                          </button>
-                          <button onClick={() => setShowAddMenu(false)} className="w-full flex items-center gap-2.5 px-3 py-2 text-[13px] text-[#171717] hover:bg-[#f5f5f5] text-left transition-colors">
-                            <span className="font-serif italic text-[#737373] text-[15px] leading-none text-center">@</span> Mentions
-                          </button>
-                          <button onClick={() => setShowAddMenu(false)} className="w-full flex items-center gap-2.5 px-3 py-2 text-[13px] text-[#171717] hover:bg-[#f5f5f5] text-left transition-colors">
-                            <ChevronDown className="w-4 h-4 text-[#737373] -rotate-90" /> Actions
-                          </button>
-                        </div>
+                      <div className="absolute bottom-full left-[-4px] mb-2 w-[200px] bg-white rounded-[16px] shadow-[0_4px_24px_rgba(0,0,0,0.08)] border border-[#e5e5e5] overflow-hidden flex flex-col z-50 py-1.5">
+                        <button onClick={() => folderInputRef.current?.click()} className="w-full flex items-center gap-3 px-3 py-[7px] text-[14px] text-[#171717] hover:bg-[#f5f5f5] text-left transition-colors">
+                          <LayoutGrid className="w-[18px] h-[18px] text-[#737373]" strokeWidth={1.5} /> New Project
+                        </button>
+                        <button onClick={() => fileInputRef.current?.click()} className="w-full flex items-center gap-3 px-3 py-[7px] text-[14px] text-[#171717] hover:bg-[#f5f5f5] text-left transition-colors">
+                          <ImageIcon className="w-[18px] h-[18px] text-[#737373]" strokeWidth={1.5} /> Media
+                        </button>
+                        <button onClick={() => setShowAddMenu(false)} className="w-full flex items-center gap-3 px-3 py-[7px] text-[14px] text-[#171717] hover:bg-[#f5f5f5] text-left transition-colors">
+                          <Globe className="w-[18px] h-[18px] text-[#737373]" strokeWidth={1.5} /> Search Browser
+                        </button>
+                        <button onClick={() => setShowAddMenu(false)} className="w-full flex items-center gap-3 px-3 py-[7px] text-[14px] text-[#171717] hover:bg-[#f5f5f5] text-left transition-colors">
+                          <span className="text-[#737373] text-[17px] leading-none w-[18px] text-center font-normal">@</span> Mentions
+                        </button>
+                        <button onClick={() => setShowAddMenu(false)} className="w-full flex items-center gap-3 px-3 py-[7px] text-[14px] text-[#171717] hover:bg-[#f5f5f5] text-left transition-colors">
+                          <span className="text-[#737373] text-[17px] leading-none w-[18px] text-center font-normal">&gt;</span> Actions
+                        </button>
                       </div>
                     )}
                     
