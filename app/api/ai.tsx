@@ -1,7 +1,9 @@
-<!-- AI Landing Page -->
-import { NextApiRequest, NextApiResponse } from 'next'
+import axios from 'axios';
+import { NextApiRequest, NextApiResponse } from 'next';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // TOGETLINK AI LANDING PAGE
-  res.status(200).json({ message: 'Welcome to TogetLink AI Landing Page!' })
-}
+const ai = async (req: NextApiRequest, res: NextApiResponse) => {
+  // TO DO: Implement AI logic
+  res.status(200).json({ message: 'AI feature enabled' });
+};
+
+export default ai;
