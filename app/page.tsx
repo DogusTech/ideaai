@@ -1,17 +1,16 @@
-import { NextPage } from 'next';
-import Head from 'next/head';
+<!-- Import necessary components -->
+import { Button, Input } from '@/components/ui';
 
-const AIPage: NextPage = () => {
+<!-- Login Page -->
+export default function LoginPage() {
   return (
-    <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
-      <Head>
-        <title>TogetLink AI Landing Page</title>
-      </Head>
-      <h1 className="text-3xl font-bold leading-tight text-gray-900">
-        Welcome to TogetLink AI Landing Page
-      </h1>
+    <div className='flex justify-center items-center h-screen'>
+      <div className='bg-white/10 backdrop-blur p-10 rounded-md shadow-md'>
+        <h1 className='text-3xl font-bold mb-5'>Login</h1>
+        <Input placeholder='Email' />
+        <Input placeholder='Password' />
+        <Button>Submit</Button>
+      </div>
     </div>
   );
-};
-
-export default AIPage;
+}
