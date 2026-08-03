@@ -1,9 +1,1 @@
-import { AiRouter } from '@/components/ui/AiRouter';
-
-export default function Ai() {
-    return (
-        <div>
-            <AiRouter />
-        </div>
-    );
-}
+  res.status(200).json({ message: 'AI API route created' });
