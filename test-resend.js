@@ -17,8 +17,8 @@ const resend = new Resend(env.RESEND_API_KEY);
 
 async function test() {
   const result = await resend.emails.send({
-    from: 'onboarding@resend.dev',
-    to: 'info@togetlink.com',
+    from: 'security@mail.togetlink.com',
+    to: 'dogus8227@gmail.com',
     subject: 'Test Email',
     html: 'test'
   });

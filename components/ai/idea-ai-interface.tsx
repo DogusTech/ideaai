@@ -24,8 +24,16 @@ import {
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 
+import { onAuthStateChanged } from "firebase/auth"
+import { auth } from "@/lib/firebase"
+
 export function IdeaAIInterface() {
-  const { messages, input, setInput, append, isLoading, stop } = useChat()
+  const [selectedDept, setSelectedDept] = useState("Software")
+  const [userEmail, setUserEmail] = useState<string | null>(null)
+  
+  const { messages, input, setInput, append, isLoading, stop } = useChat({
+    body: { department: selectedDept }
+  })
   const [isFocused, setIsFocused] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -33,6 +41,18 @@ export function IdeaAIInterface() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
   }, [messages])
+
+  // Fetch current user
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user && user.email) {
+        setUserEmail(user.email)
+      } else {
+        setUserEmail(null)
+      }
+    })
+    return () => unsubscribe()
+  }, [])
 
   const submitMessage = () => {
     if ((input || "").trim()) {
@@ -61,7 +81,7 @@ export function IdeaAIInterface() {
               <div className="w-[24px] h-[24px] rounded-full bg-[#2563eb] flex items-center justify-center text-white mr-2.5 shadow-sm">
                 <Globe className="w-[14px] h-[14px] opacity-90" strokeWidth={2} />
               </div>
-              dogustech's projects
+              <span className="truncate max-w-[150px]">{userEmail ? userEmail.split('@')[0] : 'Workspace'}</span>'s projects
               <ChevronsUpDown className="w-4 h-4 text-[#a3a3a3] ml-1.5" strokeWidth={2} />
             </button>
             <button className="p-1.5 hover:bg-[#f0f0f0] rounded-md text-[#525252] transition-colors">
@@ -88,12 +108,45 @@ export function IdeaAIInterface() {
           <div className="flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar">
             {/* Main Navigation */}
             <div className="px-2 space-y-[2px]">
-              <NavItem icon={<Search className="w-[18px] h-[18px]" strokeWidth={2} />} label="Search" />
-              <NavItem icon={<Home className="w-[18px] h-[18px]" strokeWidth={2} />} label="Home" active />
-              <NavItem icon={<LayoutGrid className="w-[18px] h-[18px]" strokeWidth={2} />} label="Projects" />
-              <NavItem icon={<MessageSquare className="w-[18px] h-[18px]" strokeWidth={2} />} label="Chats" />
-              <NavItem icon={<PenTool className="w-[18px] h-[18px]" strokeWidth={2} />} label="Design Systems" />
-              <NavItem icon={<FileText className="w-[18px] h-[18px]" strokeWidth={2} />} label="Templates" />
+              <div className="px-2 pt-2 pb-1 text-[11px] font-semibold text-[#a3a3a3] uppercase tracking-wider">
+                Departments
+              </div>
+              <NavItem 
+                icon={<Search className="w-[18px] h-[18px]" strokeWidth={2} />} 
+                label="Software" 
+                active={selectedDept === "Software"} 
+                onClick={() => setSelectedDept("Software")} 
+              />
+              <NavItem 
+                icon={<Home className="w-[18px] h-[18px]" strokeWidth={2} />} 
+                label="Marketing" 
+                active={selectedDept === "Marketing"} 
+                onClick={() => setSelectedDept("Marketing")} 
+              />
+              <NavItem 
+                icon={<LayoutGrid className="w-[18px] h-[18px]" strokeWidth={2} />} 
+                label="Growth" 
+                active={selectedDept === "Growth"} 
+                onClick={() => setSelectedDept("Growth")} 
+              />
+              <NavItem 
+                icon={<MessageSquare className="w-[18px] h-[18px]" strokeWidth={2} />} 
+                label="Sales" 
+                active={selectedDept === "Sales"} 
+                onClick={() => setSelectedDept("Sales")} 
+              />
+              <NavItem 
+                icon={<PenTool className="w-[18px] h-[18px]" strokeWidth={2} />} 
+                label="Purchasing" 
+                active={selectedDept === "Purchasing"} 
+                onClick={() => setSelectedDept("Purchasing")} 
+              />
+              <NavItem 
+                icon={<FileText className="w-[18px] h-[18px]" strokeWidth={2} />} 
+                label="Business" 
+                active={selectedDept === "Business"} 
+                onClick={() => setSelectedDept("Business")} 
+              />
             </div>
 
             {/* Favorites */}
@@ -133,7 +186,7 @@ export function IdeaAIInterface() {
               <div className="w-[24px] h-[24px] rounded-full bg-[#e0e7ff] flex items-center justify-center border border-[#c7d2fe] overflow-hidden relative shadow-sm">
                 <div className="absolute bottom-0 w-3.5 h-2 bg-[#4f46e5] rounded-t-sm" />
               </div>
-              dogustech
+              <span className="truncate max-w-[120px]">{userEmail ? userEmail.split('@')[0] : 'User'}</span>
             </button>
             <div className="px-2.5 py-1 bg-white border border-[#e5e5e5] rounded-[6px] text-[13px] font-semibold text-[#171717] shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
               $49
@@ -356,9 +409,11 @@ export function IdeaAIInterface() {
   )
 }
 
-function NavItem({ icon, label, active = false }: { icon: React.ReactNode, label: string, active?: boolean }) {
+function NavItem({ icon, label, active = false, onClick }: { icon: React.ReactNode, label: string, active?: boolean, onClick?: () => void }) {
   return (
-    <button className={`w-full flex items-center gap-3 px-3 py-[7px] text-[14px] rounded-md transition-colors text-left group ${
+    <button 
+      onClick={onClick}
+      className={`w-full flex items-center gap-3 px-3 py-[7px] text-[14px] rounded-md transition-colors text-left group ${
       active ? "bg-[#f0f0f0] text-[#171717] font-medium" : "text-[#525252] hover:bg-[#f0f0f0]"
     }`}>
       <span className={active ? "text-[#171717]" : "text-[#737373] group-hover:text-[#525252] transition-colors"}>
