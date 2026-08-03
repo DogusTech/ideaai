@@ -29,10 +29,11 @@ import { auth } from "@/lib/firebase"
 
 export function IdeaAIInterface() {
   const [selectedDept, setSelectedDept] = useState("Software")
+  const [selectedProject, setSelectedProject] = useState("Next.js Dosya Entegras...")
   const [userEmail, setUserEmail] = useState<string | null>(null)
   
   const { messages, input, setInput, append, isLoading, stop } = useChat({
-    body: { department: selectedDept }
+    body: { department: selectedDept, project: selectedProject }
   })
   const [isFocused, setIsFocused] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -149,6 +150,74 @@ export function IdeaAIInterface() {
               />
             </div>
 
+            {/* Projects Section */}
+            <div className="mt-6">
+              <div className="px-4 text-[13px] font-medium text-[#737373] mb-1.5 flex items-center justify-between">
+                Projects
+                <div className="flex items-center gap-1">
+                  <button className="text-[#a3a3a3] hover:text-[#525252]"><LayoutGrid className="w-3.5 h-3.5" /></button>
+                  <button className="text-[#a3a3a3] hover:text-[#525252]"><Plus className="w-4 h-4" /></button>
+                </div>
+              </div>
+              <div className="px-2 space-y-[2px]">
+                
+                {/* Folder 1 */}
+                <div className="px-2 py-[7px] text-[13px] font-medium text-[#525252] flex items-center gap-2">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#a3a3a3]"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"></path></svg>
+                  c:\Users\dogus\D...
+                </div>
+                <div className="pl-6 pr-2 space-y-[2px]">
+                  <ProjectItem 
+                    label="Next.js Dosya Entegras..." 
+                    active={selectedProject === "Next.js Dosya Entegras..."} 
+                    onClick={() => setSelectedProject("Next.js Dosya Entegras...")} 
+                    time="20h" 
+                  />
+                  <ProjectItem 
+                    label="Particle Animasyon Fizi..." 
+                    active={selectedProject === "Particle Animasyon Fizi..."} 
+                    onClick={() => setSelectedProject("Particle Animasyon Fizi...")} 
+                    time="20h" 
+                  />
+                  <ProjectItem 
+                    label="### Architecture And B..." 
+                    active={selectedProject === "### Architecture And B..."} 
+                    onClick={() => setSelectedProject("### Architecture And B...")} 
+                    time="2d" 
+                  />
+                </div>
+
+                {/* Folder 2 */}
+                <div className="px-2 py-[7px] text-[13px] font-medium text-[#525252] flex items-center gap-2 mt-2">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#a3a3a3]"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"></path></svg>
+                  MyGame
+                </div>
+                <div className="pl-6 pr-2 space-y-[2px]">
+                  <ProjectItem 
+                    label="Unreal Engine Oyun Ge..." 
+                    active={selectedProject === "Unreal Engine Oyun Ge..."} 
+                    onClick={() => setSelectedProject("Unreal Engine Oyun Ge...")} 
+                    time="21h" 
+                  />
+                </div>
+                
+                {/* Folder 3 */}
+                <div className="px-2 py-[7px] text-[13px] font-medium text-[#525252] flex items-center gap-2 mt-2">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#a3a3a3]"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"></path></svg>
+                  unity-gate.com
+                </div>
+                <div className="pl-6 pr-2 space-y-[2px]">
+                  <ProjectItem 
+                    label="Ön Muhasebe Yazılım T..." 
+                    active={selectedProject === "Ön Muhasebe Yazılım T..."} 
+                    onClick={() => setSelectedProject("Ön Muhasebe Yazılım T...")} 
+                    time="24h" 
+                  />
+                </div>
+
+              </div>
+            </div>
+
             {/* Favorites */}
             <div className="mt-8">
               <div className="px-4 text-[13px] font-medium text-[#737373] mb-1.5 flex items-center justify-between">
@@ -245,11 +314,10 @@ export function IdeaAIInterface() {
           </div>
         </div>
 
-        {/* INPUT BOX */}
         <div className={`absolute left-0 right-0 px-4 pb-8 transition-all duration-500 ease-in-out flex justify-center ${
           messages.length === 0 ? "top-[42%] -translate-y-1/2" : "bottom-0 bg-gradient-to-t from-[#fafafa] via-[#fafafa]/95 to-transparent pt-12"
         }`}>
-          <div className="w-full max-w-[672px]">
+          <div className="w-full max-w-[800px]">
             
             {/* Hero Heading attached directly to the top of the input box */}
             {messages.length === 0 && (
@@ -258,26 +326,22 @@ export function IdeaAIInterface() {
               </h1>
             )}
 
+            {/* Folder Selection Context above the input */}
+            <div className="flex items-center gap-2 mb-2 ml-2 text-[#737373] text-[13px]">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"></path></svg>
+              <span>{selectedProject.includes("unity") ? "unity-gate.com" : selectedProject.includes("MyGame") || selectedProject.includes("Oyun") ? "MyGame" : "c:\\Users\\dogus\\Downloads\\togetlinkk"}</span>
+              <ChevronDown className="w-3.5 h-3.5" />
+            </div>
+
             <div 
-              className={`w-full bg-white rounded-2xl border transition-all duration-300 shadow-[0_2px_8px_rgba(0,0,0,0.04)] ${
-                isFocused ? "border-[#a3a3a3] shadow-[0_4px_16px_rgba(0,0,0,0.08)]" : "border-[#d4d4d4] hover:border-[#a3a3a3]"
+              className={`w-full bg-[#f4f4f4] rounded-[24px] border-none transition-all duration-300 flex flex-col overflow-hidden shadow-[0_2px_10px_rgba(0,0,0,0.04)] ${
+                isFocused ? "shadow-[0_4px_20px_rgba(0,0,0,0.08)] ring-1 ring-[#d4d4d4]" : ""
               }`}
             >
-              <div className="p-2 flex flex-col">
-                
-                {/* File Attachment Tag (Static for visual copy) */}
-                {messages.length === 0 && (
-                  <div className="flex items-center gap-1.5 px-2 py-[3px] bg-[#f9fafb] border border-[#e5e5e5] rounded-[6px] text-[12px] font-medium text-[#525252] w-max mb-1 ml-1 mt-0.5 shadow-sm">
-                    <div className="w-[16px] h-[16px] bg-white border border-[#e5e5e5] rounded-[4px] flex items-center justify-center">
-                       <ImageIcon className="w-[10px] h-[10px] text-[#737373]" strokeWidth={2} />
-                    </div>
-                    image.png
-                    <button className="text-[#a3a3a3] hover:text-[#525252] ml-0.5"><Plus className="w-3 h-3 rotate-45" strokeWidth={2.5} /></button>
-                  </div>
-                )}
+              <div className="p-3 flex flex-col relative bg-[#f4f4f4]">
                 
                 {/* Textarea */}
-                <div className="px-2 pt-1 pb-1">
+                <div className="px-1 pt-1 pb-2">
                   <textarea
                     value={input || ""}
                     onChange={(e) => setInput(e.target.value)}
@@ -285,74 +349,66 @@ export function IdeaAIInterface() {
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
                     placeholder="Ask anything, @ to mention, / for actions"
-                    className="w-full bg-transparent border-none outline-none resize-none min-h-[22px] max-h-[200px] text-[#171717] placeholder:text-[#a3a3a3] text-[14px] leading-relaxed font-sans"
+                    className="w-full bg-transparent border-none outline-none resize-none min-h-[44px] max-h-[300px] text-[#171717] placeholder:text-[#a3a3a3] text-[15px] leading-relaxed font-sans"
                     rows={1}
                   />
                 </div>
                 
-                <div className="flex items-center justify-between mt-1 ml-1 mr-1 pb-0.5">
-                  
+                <div className="flex items-center justify-between ml-1 pb-1">
                   {/* Left Actions */}
-                  <div className="flex items-center">
-                    <button type="button" className="p-1 rounded-md text-[#a3a3a3] hover:text-[#525252] transition-colors">
-                      <Plus className="w-4 h-4" strokeWidth={2} />
+                  <div className="flex items-center gap-1.5">
+                    <button type="button" className="p-1 rounded-full bg-white/50 text-[#737373] hover:text-[#171717] hover:bg-white transition-colors">
+                      <Plus className="w-4 h-4" strokeWidth={2.5} />
                     </button>
                     
-                    <button type="button" className="flex items-center gap-1 px-1.5 py-1 ml-0.5 rounded-md hover:bg-[#f5f5f5] text-[13px] font-medium text-[#525252] transition-colors">
-                      <span className="font-serif italic text-[#a3a3a3] text-[14px] font-medium">@</span> v0 Pro
-                      <ChevronDown className="w-3.5 h-3.5 ml-0.5 text-[#a3a3a3]" strokeWidth={2} />
+                    <button type="button" className="flex items-center gap-1.5 px-2.5 py-1 rounded-full hover:bg-white text-[13px] font-medium text-[#525252] transition-colors">
+                      Idea 1.0 Fast
+                      <ChevronDown className="w-3.5 h-3.5 text-[#a3a3a3]" strokeWidth={2.5} />
                     </button>
-
-                    {messages.length === 0 && (
-                      <>
-                        {/* Vertical divider */}
-                        <div className="w-[1px] h-[14px] bg-[#e5e5e5] mx-1.5"></div>
-
-                        <div className="flex items-center gap-1.5 px-1.5 py-[3px] bg-[#eff6ff] text-[#1d4ed8] rounded-[6px] text-[12px] font-medium cursor-pointer hover:bg-blue-100/50 transition-colors">
-                          <div className="w-[14px] h-[14px] rounded-full bg-[#3b82f6] flex items-center justify-center text-white">
-                            <span className="text-[9px] font-bold">M</span>
-                          </div>
-                          material-3
-                          <button className="text-blue-400 hover:text-blue-600 ml-0.5"><Plus className="w-3 h-3 rotate-45" strokeWidth={2.5} /></button>
-                        </div>
-                      </>
-                    )}
                   </div>
 
                   {/* Right Actions */}
-                  <div className="flex items-center gap-2.5">
-                    <button type="button" className="flex items-center gap-1 text-[13px] font-medium text-[#525252] hover:text-[#171717] transition-colors">
-                      Project
-                      <ChevronDown className="w-3.5 h-3.5 text-[#a3a3a3]" strokeWidth={2} />
+                  <div className="flex items-center gap-2">
+                    <button type="button" className="p-1.5 text-[#a3a3a3] hover:text-[#525252] transition-colors">
+                       <Mic className="w-5 h-5" strokeWidth={2} />
                     </button>
                     
                     {isLoading ? (
                       <button 
                         type="button"
                         onClick={stop}
-                        className="flex items-center justify-center w-[28px] h-[28px] rounded-[8px] transition-all bg-red-100 text-red-600 hover:bg-red-200"
+                        className="flex items-center justify-center w-[32px] h-[32px] rounded-full transition-all bg-red-100 text-red-600 hover:bg-red-200 mr-1"
                       >
-                        <StopCircle className="w-[16px] h-[16px]" strokeWidth={2} />
+                        <StopCircle className="w-[18px] h-[18px]" strokeWidth={2} />
                       </button>
                     ) : (
                       <button 
                         type="button"
                         onClick={submitMessage}
-                        className={`flex items-center justify-center w-[28px] h-[28px] rounded-[8px] transition-all shadow-sm ${
-                          messages.length === 0 || (input || "").trim() 
+                        className={`flex items-center justify-center w-[32px] h-[32px] rounded-full transition-all shadow-sm mr-1 ${
+                          (input || "").trim() 
                             ? "bg-[#171717] text-white hover:bg-[#262626]" 
-                            : "bg-[#f5f5f5] text-[#a3a3a3] cursor-not-allowed border border-[#e5e5e5]"
+                            : "bg-[#e5e5e5] text-[#a3a3a3] cursor-not-allowed"
                         }`}
                       >
-                        {messages.length === 0 || (input || "").trim() ? (
-                           <ArrowUp className="w-[16px] h-[16px]" strokeWidth={2.5} />
-                        ) : (
-                           <Mic className="w-[16px] h-[16px]" strokeWidth={2.5} />
-                        )}
+                         <ArrowUp className="w-[18px] h-[18px]" strokeWidth={2.5} />
                       </button>
                     )}
                   </div>
                 </div>
+              </div>
+              
+              {/* Footer row inside the text card */}
+              <div className="w-full bg-[#ebebeb] px-4 py-2 flex items-center justify-between text-[#737373] text-[12px] font-medium">
+                <button className="flex items-center gap-1.5 hover:text-[#171717] transition-colors">
+                   <LayoutGrid className="w-3.5 h-3.5" />
+                   Local
+                   <ChevronDown className="w-3.5 h-3.5" />
+                </button>
+                <button className="flex items-center gap-1.5 hover:text-[#171717] transition-colors">
+                   Main Agent
+                   <ChevronDown className="w-3.5 h-3.5" />
+                </button>
               </div>
             </div>
           </div>
@@ -443,3 +499,17 @@ function ChatNavItem({ label, isBranch = false }: { label: string, isBranch?: bo
     </button>
   )
 }
+
+function ProjectItem({ label, time, active = false, onClick }: { label: string, time: string, active?: boolean, onClick?: () => void }) {
+  return (
+    <button 
+      onClick={onClick}
+      className={`w-full flex items-center justify-between px-2 py-[5px] text-[13px] rounded-md transition-colors text-left group ${
+      active ? "bg-[#e5e5e5] text-[#171717] font-medium" : "text-[#525252] hover:bg-[#f0f0f0]"
+    }`}>
+      <span className="truncate flex-1 pr-2">{label}</span>
+      <span className="text-[11px] text-[#a3a3a3]">{time}</span>
+    </button>
+  )
+}
+
