@@ -1,14 +1,23 @@
 package main
 
 import (
-    "context"
-    "fmt"
-    "net/http"
+  "context"
+  "firebase/auth"
+  "firebase/firestore"
 )
 
 func main() {
-    http.HandleFunc("/ai", func(w http.ResponseWriter, r *http.Request) {
-        fmt.Fprint(w, "Ai Landing Page")
-    })
-    http.ListenAndServe("localhost:8080", nil)
-}
+  // Initialize Firebase
+  auth, err := auth.Initialize("<FIREBASE_API_KEY>")
+  if err != nil {
+    panic(err)
+  }
+
+  // Create a Firestore client
+  firestore, err := firestore.NewClient(auth)
+  if err != nil {
+    panic(err)
+  }
+
+  // Use the Firestore client
+  // ...}
