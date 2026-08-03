@@ -32,8 +32,8 @@ export async function POST(req: Request) {
 
     // Send email via Resend
     if (process.env.RESEND_API_KEY && !process.env.RESEND_API_KEY.includes('re_mock_key')) {
-      await resend.emails.send({
-        from: 'TogetLink <onboarding@resend.dev>', // Should be replaced with a verified domain in production
+      const resendResult = await resend.emails.send({
+        from: 'TogetLink Security <security@auth.togetlink.com>', 
         to: email,
         subject: 'Your TogetLink Verification Code',
         html: `
@@ -47,6 +47,12 @@ export async function POST(req: Request) {
           </div>
         `
       });
+      
+      if (resendResult.error) {
+        console.error('Resend Error:', resendResult.error);
+        return NextResponse.json({ error: resendResult.error.message || 'Email sending failed' }, { status: 400 });
+      }
+
       console.log(`[OTP] Sent email to ${email}`);
     } else {
       console.warn(`[Mock Mode] MOCK EMAIL SENT. Code for ${email} is: ${code}`);
