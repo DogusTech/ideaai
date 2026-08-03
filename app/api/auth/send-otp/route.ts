@@ -20,8 +20,10 @@ export async function POST(req: Request) {
     // Create a stateless JWT containing the code
     const token = jwt.sign({ email: email.toLowerCase(), code }, JWT_SECRET, { expiresIn: '10m' });
 
+    const response = NextResponse.json({ success: true, message: 'OTP sent successfully' });
+
     // Set it as an HTTP-only cookie
-    cookies().set('otp_token', token, {
+    response.cookies.set('otp_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
@@ -50,7 +52,7 @@ export async function POST(req: Request) {
       console.warn(`[Mock Mode] MOCK EMAIL SENT. Code for ${email} is: ${code}`);
     }
 
-    return NextResponse.json({ success: true, message: 'OTP sent successfully' });
+    return response;
   } catch (error: any) {
     console.error('Error sending OTP:', error);
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });

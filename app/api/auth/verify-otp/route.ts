@@ -37,9 +37,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid verification code.' }, { status: 400 });
     }
 
-    // Success! Clear the cookie
-    cookies().delete('otp_token');
-
     // Check if user exists in Firebase Auth, if not create them
     let user;
     try {
@@ -55,10 +52,14 @@ export async function POST(req: Request) {
       }
     }
 
-    // Create custom token
+    // Success! Prepare the response
     const customToken = await adminAuth.createCustomToken(user.uid);
+    const response = NextResponse.json({ success: true, token: customToken });
 
-    return NextResponse.json({ success: true, token: customToken });
+    // Clear the cookie
+    response.cookies.delete('otp_token');
+
+    return response;
   } catch (error: any) {
     console.error('Error verifying OTP:', error);
     return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
