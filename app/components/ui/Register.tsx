@@ -1,14 +1,11 @@
-import { Firebase } from '../firebase';
+// Import necessary components
+import Link from 'next/link'
 
+// Define the Register component
 export default function Register() {
-  return (
-    <div className="flex justify-center items-center h-screen bg-white/10 backdrop-blur">
-      <form className="bg-white p-10 rounded-lg shadow-md">
-        <h2 className="text-3xl font-bold mb-4">Register</h2>
-        <input type="email" placeholder="Email" className="block w-full p-2 mb-4" />
-        <input type="password" placeholder="Password" className="block w-full p-2 mb-4" />
-        <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Register</button>
-      </form>
-    </div>
-  );
+    return (
+        <div className='flex justify-center items-center h-screen'>
+            <Link href='/register'><a className='text-blue-500 hover:text-blue-700'>Register</a></Link>
+        </div>
+    )
 }
