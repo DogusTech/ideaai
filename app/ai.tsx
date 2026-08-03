@@ -1,3 +1,5 @@
 import { AppRouter } from '@vercel/next-app';
 
-export default AppRouter;
+export default function App() {
+  return <AppRouter />;
+}
