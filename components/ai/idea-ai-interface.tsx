@@ -81,23 +81,24 @@ export function IdeaAIInterface() {
     }
   }
 
-  const handleFolderSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      const filesArray = Array.from(e.target.files)
-      // Extract root folder name
-      const pathParts = filesArray[0].webkitRelativePath.split('/')
-      const folderName = pathParts[0] || "New Project"
+  const handleFolderSelect = async () => {
+    try {
+      // Use File System Access API to avoid "Upload X files" browser prompt
+      const directoryHandle = await (window as any).showDirectoryPicker({ mode: 'read' })
+      const folderName = directoryHandle.name
       
       const newProject: Project = {
         id: Date.now().toString(),
         name: folderName,
-        files: filesArray.map(f => f.name),
+        files: [], // Skip counting to ensure instant loading
         time: "Just now"
       }
       
       setProjects(prev => [...prev, newProject])
       setSelectedProject(folderName)
       setShowAddMenu(false)
+    } catch (err) {
+      console.log('Folder selection cancelled or failed', err)
     }
   }
 
@@ -112,15 +113,7 @@ export function IdeaAIInterface() {
   return (
     <div className="flex h-screen w-full font-sans overflow-hidden bg-[#fafafa] text-[#171717]">
       {/* Hidden file inputs for system dialogs */}
-      <input 
-        type="file" 
-        ref={folderInputRef} 
-        onChange={handleFolderSelect} 
-        style={{ display: 'none' }} 
-        /* @ts-expect-error webkitdirectory is standard in most browsers but not typed in React */
-        webkitdirectory="true" 
-        directory="true" 
-      />
+      {/* Note: Folder input removed in favor of window.showDirectoryPicker */}
       <input 
         type="file" 
         ref={fileInputRef} 
@@ -175,65 +168,70 @@ export function IdeaAIInterface() {
                 label="Software" 
                 active={selectedDept === "Software"} 
                 onClick={() => setSelectedDept("Software")} 
+                onAddClick={(e) => { e.stopPropagation(); handleFolderSelect() }}
               />
               <NavItem 
                 icon={<Home className="w-[18px] h-[18px]" strokeWidth={2} />} 
                 label="Marketing" 
                 active={selectedDept === "Marketing"} 
                 onClick={() => setSelectedDept("Marketing")} 
+                onAddClick={(e) => { e.stopPropagation(); handleFolderSelect() }}
               />
               <NavItem 
                 icon={<LayoutGrid className="w-[18px] h-[18px]" strokeWidth={2} />} 
                 label="Growth" 
                 active={selectedDept === "Growth"} 
                 onClick={() => setSelectedDept("Growth")} 
+                onAddClick={(e) => { e.stopPropagation(); handleFolderSelect() }}
               />
               <NavItem 
                 icon={<MessageSquare className="w-[18px] h-[18px]" strokeWidth={2} />} 
                 label="Sales" 
                 active={selectedDept === "Sales"} 
                 onClick={() => setSelectedDept("Sales")} 
+                onAddClick={(e) => { e.stopPropagation(); handleFolderSelect() }}
               />
               <NavItem 
                 icon={<PenTool className="w-[18px] h-[18px]" strokeWidth={2} />} 
                 label="Purchasing" 
                 active={selectedDept === "Purchasing"} 
                 onClick={() => setSelectedDept("Purchasing")} 
+                onAddClick={(e) => { e.stopPropagation(); handleFolderSelect() }}
               />
               <NavItem 
                 icon={<FileText className="w-[18px] h-[18px]" strokeWidth={2} />} 
                 label="Business" 
                 active={selectedDept === "Business"} 
                 onClick={() => setSelectedDept("Business")} 
+                onAddClick={(e) => { e.stopPropagation(); handleFolderSelect() }}
               />
             </div>
 
             {/* Projects Section */}
             <div className="mt-6">
-              <div className="px-4 text-[13px] font-medium text-[#737373] mb-1.5 flex items-center justify-between">
-                Projects
+              <div className="px-4 text-[11px] font-semibold text-[#a3a3a3] uppercase tracking-wider mb-1.5 flex items-center justify-between">
+                Projects - {selectedDept}
                 <div className="flex items-center gap-1">
                   <button className="text-[#a3a3a3] hover:text-[#525252]"><LayoutGrid className="w-3.5 h-3.5" /></button>
-                  <button onClick={() => folderInputRef.current?.click()} className="text-[#a3a3a3] hover:text-[#525252] transition-colors"><Plus className="w-4 h-4" /></button>
+                  <button onClick={handleFolderSelect} className="text-[#a3a3a3] hover:text-[#525252] transition-colors"><Plus className="w-4 h-4" /></button>
                 </div>
               </div>
               <div className="px-2 space-y-[2px]">
                 
                 {projects.map(proj => (
-                  <div key={proj.id}>
-                    <div className="px-2 py-[7px] text-[13px] font-medium text-[#525252] flex items-center gap-2 mt-1">
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#a3a3a3]"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"></path></svg>
+                  <button 
+                    key={proj.id}
+                    onClick={() => setSelectedProject(proj.name)}
+                    className={`w-full flex items-center justify-between px-2 py-[7px] text-[13px] font-medium rounded-md transition-colors text-left group mt-1 ${
+                      selectedProject === proj.name ? "bg-[#e5e5e5] text-[#171717]" : "text-[#525252] hover:bg-[#f0f0f0]"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={selectedProject === proj.name ? "text-[#171717]" : "text-[#a3a3a3]"}><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"></path></svg>
                       {proj.name}
                     </div>
-                    <div className="pl-6 pr-2 space-y-[2px]">
-                      <ProjectItem 
-                        label={`${proj.files.length} files`} 
-                        active={selectedProject === proj.name} 
-                        onClick={() => setSelectedProject(proj.name)} 
-                        time={proj.time} 
-                      />
-                    </div>
-                  </div>
+                    <span className="text-[11px] text-[#a3a3a3] font-normal opacity-0 group-hover:opacity-100 transition-opacity">{proj.time}</span>
+                  </button>
                 ))}
 
                 {projects.length === 0 && (
@@ -396,8 +394,8 @@ export function IdeaAIInterface() {
 
                     {/* Popover Menu for + button */}
                     {showAddMenu && (
-                      <div className="absolute bottom-full left-[-4px] mb-2 w-[200px] bg-white rounded-[16px] shadow-[0_4px_24px_rgba(0,0,0,0.08)] border border-[#e5e5e5] overflow-hidden flex flex-col z-50 py-1.5">
-                        <button onClick={() => folderInputRef.current?.click()} className="w-full flex items-center gap-3 px-3 py-[7px] text-[14px] text-[#171717] hover:bg-[#f5f5f5] text-left transition-colors">
+                      <div className="absolute top-[calc(100%+8px)] left-[-4px] mb-2 w-[200px] bg-white rounded-[16px] shadow-[0_4px_24px_rgba(0,0,0,0.08)] border border-[#e5e5e5] overflow-hidden flex flex-col z-50 py-1.5">
+                        <button onClick={handleFolderSelect} className="w-full flex items-center gap-3 px-3 py-[7px] text-[14px] text-[#171717] hover:bg-[#f5f5f5] text-left transition-colors">
                           <LayoutGrid className="w-[18px] h-[18px] text-[#737373]" strokeWidth={1.5} /> New Project
                         </button>
                         <button onClick={() => fileInputRef.current?.click()} className="w-full flex items-center gap-3 px-3 py-[7px] text-[14px] text-[#171717] hover:bg-[#f5f5f5] text-left transition-colors">
@@ -519,18 +517,23 @@ export function IdeaAIInterface() {
   )
 }
 
-function NavItem({ icon, label, active = false, onClick }: { icon: React.ReactNode, label: string, active?: boolean, onClick?: () => void }) {
+function NavItem({ icon, label, active = false, onClick, onAddClick }: { icon: React.ReactNode, label: string, active?: boolean, onClick?: () => void, onAddClick?: (e: React.MouseEvent) => void }) {
   return (
-    <button 
-      onClick={onClick}
-      className={`w-full flex items-center gap-3 px-3 py-[7px] text-[14px] rounded-md transition-colors text-left group ${
+    <div className={`w-full flex items-center justify-between px-3 py-[7px] text-[14px] rounded-md transition-colors group ${
       active ? "bg-[#f0f0f0] text-[#171717] font-medium" : "text-[#525252] hover:bg-[#f0f0f0]"
     }`}>
-      <span className={active ? "text-[#171717]" : "text-[#737373] group-hover:text-[#525252] transition-colors"}>
-        {icon}
-      </span>
-      {label}
-    </button>
+      <button onClick={onClick} className="flex flex-1 items-center gap-3 text-left">
+        <span className={active ? "text-[#171717]" : "text-[#737373] group-hover:text-[#525252] transition-colors"}>
+          {icon}
+        </span>
+        {label}
+      </button>
+      {active && onAddClick && (
+        <button onClick={onAddClick} className="p-0.5 rounded-sm text-[#737373] hover:text-[#171717] hover:bg-[#e5e5e5] transition-colors">
+          <Plus className="w-4 h-4" />
+        </button>
+      )}
+    </div>
   )
 }
 
