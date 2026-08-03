@@ -35,6 +35,39 @@ type Project = {
   time: string
 }
 
+const AGENDA_ITEMS: Record<string, { title: string, source: string }[]> = {
+  Software: [
+    { title: "React 19 RC is out: Compiler & Actions", source: "GitHub Trending" },
+    { title: "Vercel announces new AI SDK 3.0 features", source: "TechCrunch" },
+    { title: "Llama 3.1 8B fine-tuning hits mainstream", source: "HuggingFace" }
+  ],
+  Marketing: [
+    { title: "Google's new AI Overviews impact on SEO", source: "Search Engine Land" },
+    { title: "TikTok shifts algorithm to favor long-form", source: "Social Media Today" },
+    { title: "OpenAI releases new tools for copywriters", source: "Marketing Dive" }
+  ],
+  Growth: [
+    { title: "How PLG companies are retaining users in 2024", source: "Lenny's Newsletter" },
+    { title: "Stripe launches new billing API for SaaS", source: "Stripe Blog" },
+    { title: "Conversion rates drop across B2B sector", source: "Forrester" }
+  ],
+  Sales: [
+    { title: "Salesforce integrates deeper AI capabilities", source: "TechRadar" },
+    { title: "Cold email open rates hit all-time low", source: "HubSpot" },
+    { title: "B2B buyers prefer self-serve over sales calls", source: "Gartner" }
+  ],
+  Purchasing: [
+    { title: "Global supply chain recovers from Q1 dip", source: "Bloomberg" },
+    { title: "AI in procurement: Predictive ordering", source: "Supply Chain Dive" },
+    { title: "SaaS tooling bloat costs companies $3M/yr", source: "G2 Insights" }
+  ],
+  Business: [
+    { title: "Fed holds interest rates steady", source: "WSJ" },
+    { title: "Tech IPO window shows signs of opening", source: "CNBC" },
+    { title: "Remote work levels stabilize at 30%", source: "McKinsey" }
+  ]
+}
+
 export function IdeaAIInterface() {
   const [selectedDept, setSelectedDept] = useState("Software")
   const [projects, setProjects] = useState<Project[]>([])
@@ -376,9 +409,33 @@ export function IdeaAIInterface() {
             
             {/* Hero Heading attached directly to the top of the input box */}
             {messages.length === 0 && (
-              <h1 className="text-center text-[32px] font-semibold tracking-tight text-[#171717] mb-7 font-sans">
-                What do you want to create?
-              </h1>
+              <div className="flex flex-col items-center w-full mb-8">
+                <h1 className="text-center text-[32px] font-semibold tracking-tight text-[#171717] mb-6 font-sans">
+                  What do you want to create?
+                </h1>
+                
+                {/* Zero-State Bento Grid (Agenda) */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 w-full max-w-[700px]">
+                  {AGENDA_ITEMS[selectedDept]?.map((item, i) => (
+                    <button 
+                      key={i} 
+                      onClick={() => {
+                        setInput(`[Agenda: ${item.title}] How does this impact our strategy?`);
+                        textareaRef.current?.focus();
+                      }}
+                      className="flex flex-col gap-2 p-3.5 rounded-[16px] bg-white/60 backdrop-blur-md border border-[#e5e5e5] hover:bg-white hover:border-[#d4d4d4] hover:shadow-[0_4px_20px_rgba(0,0,0,0.04)] transition-all duration-300 text-left group"
+                    >
+                      <div className="flex items-center gap-1.5 text-[#a3a3a3] text-[11px] font-medium uppercase tracking-wider">
+                        <Globe className="w-3 h-3" strokeWidth={2.5} />
+                        <span>{item.source}</span>
+                      </div>
+                      <div className="text-[13px] font-medium text-[#171717] group-hover:text-[#4f46e5] transition-colors leading-snug">
+                        {item.title}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
             )}
 
             {/* Folder Selection Context above the input */}
