@@ -1,17 +1,48 @@
 import { useState } from 'react';
 import Link from 'next/link';
 
-function Header() {
-  const [count, setCount] = useState(0);
+export default function Header() {
+  const [username, setUsername] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   return (
-    <div>
-      <h1>Hello World!</h1>
-      <p>You clicked {count} times</p>
-      <button onClick={() => setCount(count + 1)}>Click me</button>
-      <Link href="/ai">Go to AI Dashboard</Link>
-    </div>
+    <header>
+      <nav>
+        <ul>
+          <li>
+            <Link href="/ai-landing-page">
+              <a>Home</a>
+            </Link>
+          </li>
+          <li>
+            <Link href="/ai-landing-page/about">
+              <a>About</a>
+            </Link>
+          </li>
+          <li>
+            <Link href="/ai-landing-page/contact">
+              <a>Contact</a>
+            </Link>
+          </li>
+          <li>
+            <Link href="/ai-landing-page/login">
+              <a>Login</a>
+            </Link>
+          </li>
+          <li>
+            <Link href="/ai-landing-page/signup">
+              <a>Signup</a>
+            </Link>
+          </li>
+          {isLoggedIn && (
+            <li>
+              <Link href="/ai-landing-page/dashboard">
+                <a>Dashboard</a>
+              </Link>
+            </li>
+          )}
+        </ul>
+      </nav>
+    </header>
   );
 }
-
-export default Header;
