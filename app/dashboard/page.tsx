@@ -1,4 +1,4 @@
-<!-- Dashboard component -->
+"use client";
 import { useState, useEffect } from 'react';
 
 function Dashboard() {
