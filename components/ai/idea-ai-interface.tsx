@@ -27,10 +27,22 @@ import remarkGfm from "remark-gfm"
 import { onAuthStateChanged } from "firebase/auth"
 import { auth } from "@/lib/firebase"
 
+type Project = {
+  id: string
+  name: string
+  files: string[]
+  time: string
+}
+
 export function IdeaAIInterface() {
   const [selectedDept, setSelectedDept] = useState("Software")
-  const [selectedProject, setSelectedProject] = useState("Next.js Dosya Entegras...")
+  const [projects, setProjects] = useState<Project[]>([])
+  const [selectedProject, setSelectedProject] = useState<string | null>(null)
   const [userEmail, setUserEmail] = useState<string | null>(null)
+  
+  const [showAddMenu, setShowAddMenu] = useState(false)
+  const folderInputRef = useRef<HTMLInputElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   
   const { messages, input, setInput, append, isLoading, stop } = useChat({
     body: { department: selectedDept, project: selectedProject }
@@ -69,8 +81,54 @@ export function IdeaAIInterface() {
     }
   }
 
+  const handleFolderSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const filesArray = Array.from(e.target.files)
+      // Extract root folder name
+      const pathParts = filesArray[0].webkitRelativePath.split('/')
+      const folderName = pathParts[0] || "New Project"
+      
+      const newProject: Project = {
+        id: Date.now().toString(),
+        name: folderName,
+        files: filesArray.map(f => f.name),
+        time: "Just now"
+      }
+      
+      setProjects(prev => [...prev, newProject])
+      setSelectedProject(folderName)
+      setShowAddMenu(false)
+    }
+  }
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Just a mock handler for media for now
+    if (e.target.files && e.target.files.length > 0) {
+      setShowAddMenu(false)
+      // Would process file here
+    }
+  }
+
   return (
     <div className="flex h-screen w-full font-sans overflow-hidden bg-[#fafafa] text-[#171717]">
+      {/* Hidden file inputs for system dialogs */}
+      <input 
+        type="file" 
+        ref={folderInputRef} 
+        onChange={handleFolderSelect} 
+        style={{ display: 'none' }} 
+        /* @ts-expect-error webkitdirectory is standard in most browsers but not typed in React */
+        webkitdirectory="true" 
+        directory="true" 
+      />
+      <input 
+        type="file" 
+        ref={fileInputRef} 
+        onChange={handleFileSelect} 
+        style={{ display: 'none' }} 
+        accept="image/*,application/pdf" 
+        multiple 
+      />
       
       {/* SIDEBAR */}
       <aside className="w-[280px] shrink-0 bg-[#fafafa] border-r border-[#e5e5e5] flex flex-col justify-between hidden md:flex">
@@ -156,64 +214,33 @@ export function IdeaAIInterface() {
                 Projects
                 <div className="flex items-center gap-1">
                   <button className="text-[#a3a3a3] hover:text-[#525252]"><LayoutGrid className="w-3.5 h-3.5" /></button>
-                  <button className="text-[#a3a3a3] hover:text-[#525252]"><Plus className="w-4 h-4" /></button>
+                  <button onClick={() => folderInputRef.current?.click()} className="text-[#a3a3a3] hover:text-[#525252] transition-colors"><Plus className="w-4 h-4" /></button>
                 </div>
               </div>
               <div className="px-2 space-y-[2px]">
                 
-                {/* Folder 1 */}
-                <div className="px-2 py-[7px] text-[13px] font-medium text-[#525252] flex items-center gap-2">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#a3a3a3]"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"></path></svg>
-                  c:\Users\dogus\D...
-                </div>
-                <div className="pl-6 pr-2 space-y-[2px]">
-                  <ProjectItem 
-                    label="Next.js Dosya Entegras..." 
-                    active={selectedProject === "Next.js Dosya Entegras..."} 
-                    onClick={() => setSelectedProject("Next.js Dosya Entegras...")} 
-                    time="20h" 
-                  />
-                  <ProjectItem 
-                    label="Particle Animasyon Fizi..." 
-                    active={selectedProject === "Particle Animasyon Fizi..."} 
-                    onClick={() => setSelectedProject("Particle Animasyon Fizi...")} 
-                    time="20h" 
-                  />
-                  <ProjectItem 
-                    label="### Architecture And B..." 
-                    active={selectedProject === "### Architecture And B..."} 
-                    onClick={() => setSelectedProject("### Architecture And B...")} 
-                    time="2d" 
-                  />
-                </div>
+                {projects.map(proj => (
+                  <div key={proj.id}>
+                    <div className="px-2 py-[7px] text-[13px] font-medium text-[#525252] flex items-center gap-2 mt-1">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#a3a3a3]"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"></path></svg>
+                      {proj.name}
+                    </div>
+                    <div className="pl-6 pr-2 space-y-[2px]">
+                      <ProjectItem 
+                        label={`${proj.files.length} files`} 
+                        active={selectedProject === proj.name} 
+                        onClick={() => setSelectedProject(proj.name)} 
+                        time={proj.time} 
+                      />
+                    </div>
+                  </div>
+                ))}
 
-                {/* Folder 2 */}
-                <div className="px-2 py-[7px] text-[13px] font-medium text-[#525252] flex items-center gap-2 mt-2">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#a3a3a3]"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"></path></svg>
-                  MyGame
-                </div>
-                <div className="pl-6 pr-2 space-y-[2px]">
-                  <ProjectItem 
-                    label="Unreal Engine Oyun Ge..." 
-                    active={selectedProject === "Unreal Engine Oyun Ge..."} 
-                    onClick={() => setSelectedProject("Unreal Engine Oyun Ge...")} 
-                    time="21h" 
-                  />
-                </div>
-                
-                {/* Folder 3 */}
-                <div className="px-2 py-[7px] text-[13px] font-medium text-[#525252] flex items-center gap-2 mt-2">
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#a3a3a3]"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"></path></svg>
-                  unity-gate.com
-                </div>
-                <div className="pl-6 pr-2 space-y-[2px]">
-                  <ProjectItem 
-                    label="Ön Muhasebe Yazılım T..." 
-                    active={selectedProject === "Ön Muhasebe Yazılım T..."} 
-                    onClick={() => setSelectedProject("Ön Muhasebe Yazılım T...")} 
-                    time="24h" 
-                  />
-                </div>
+                {projects.length === 0 && (
+                  <div className="px-3 py-2 mt-1 text-[12px] text-[#a3a3a3] italic">
+                    No projects yet.
+                  </div>
+                )}
 
               </div>
             </div>
@@ -327,11 +354,13 @@ export function IdeaAIInterface() {
             )}
 
             {/* Folder Selection Context above the input */}
-            <div className="flex items-center gap-2 mb-2 ml-2 text-[#737373] text-[13px]">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"></path></svg>
-              <span>{selectedProject.includes("unity") ? "unity-gate.com" : selectedProject.includes("MyGame") || selectedProject.includes("Oyun") ? "MyGame" : "c:\\Users\\dogus\\Downloads\\togetlinkk"}</span>
-              <ChevronDown className="w-3.5 h-3.5" />
-            </div>
+            {selectedProject && (
+              <div className="flex items-center gap-2 mb-2 ml-2 text-[#737373] text-[13px]">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 20h16a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.93a2 2 0 0 1-1.66-.9l-.82-1.2A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13c0 1.1.9 2 2 2Z"></path></svg>
+                <span>{selectedProject}</span>
+                <ChevronDown className="w-3.5 h-3.5" />
+              </div>
+            )}
 
             <div 
               className={`w-full bg-[#f4f4f4] rounded-[24px] border-none transition-all duration-300 flex flex-col overflow-hidden shadow-[0_2px_10px_rgba(0,0,0,0.04)] ${
@@ -356,10 +385,37 @@ export function IdeaAIInterface() {
                 
                 <div className="flex items-center justify-between ml-1 pb-1">
                   {/* Left Actions */}
-                  <div className="flex items-center gap-1.5">
-                    <button type="button" className="p-1 rounded-full bg-white/50 text-[#737373] hover:text-[#171717] hover:bg-white transition-colors">
+                  <div className="flex items-center gap-1.5 relative">
+                    <button 
+                      type="button" 
+                      onClick={() => setShowAddMenu(!showAddMenu)}
+                      className="p-1 rounded-full bg-white/50 text-[#737373] hover:text-[#171717] hover:bg-white transition-colors"
+                    >
                       <Plus className="w-4 h-4" strokeWidth={2.5} />
                     </button>
+
+                    {/* Popover Menu for + button */}
+                    {showAddMenu && (
+                      <div className="absolute bottom-full left-0 mb-3 w-56 bg-white rounded-[14px] shadow-[0_4px_24px_rgba(0,0,0,0.12)] border border-[#e5e5e5] overflow-hidden flex flex-col z-50">
+                        <div className="py-1">
+                          <button onClick={() => folderInputRef.current?.click()} className="w-full flex items-center gap-2.5 px-3 py-2 text-[13px] text-[#171717] hover:bg-[#f5f5f5] text-left transition-colors">
+                            <LayoutGrid className="w-4 h-4 text-[#737373]" /> New Project
+                          </button>
+                          <button onClick={() => fileInputRef.current?.click()} className="w-full flex items-center gap-2.5 px-3 py-2 text-[13px] text-[#171717] hover:bg-[#f5f5f5] text-left transition-colors">
+                            <ImageIcon className="w-4 h-4 text-[#737373]" /> Media
+                          </button>
+                          <button onClick={() => setShowAddMenu(false)} className="w-full flex items-center gap-2.5 px-3 py-2 text-[13px] text-[#171717] hover:bg-[#f5f5f5] text-left transition-colors">
+                            <Globe className="w-4 h-4 text-[#737373]" /> Search Browser
+                          </button>
+                          <button onClick={() => setShowAddMenu(false)} className="w-full flex items-center gap-2.5 px-3 py-2 text-[13px] text-[#171717] hover:bg-[#f5f5f5] text-left transition-colors">
+                            <span className="font-serif italic text-[#737373] text-[15px] leading-none text-center">@</span> Mentions
+                          </button>
+                          <button onClick={() => setShowAddMenu(false)} className="w-full flex items-center gap-2.5 px-3 py-2 text-[13px] text-[#171717] hover:bg-[#f5f5f5] text-left transition-colors">
+                            <ChevronDown className="w-4 h-4 text-[#737373] -rotate-90" /> Actions
+                          </button>
+                        </div>
+                      </div>
+                    )}
                     
                     <button type="button" className="flex items-center gap-1.5 px-2.5 py-1 rounded-full hover:bg-white text-[13px] font-medium text-[#525252] transition-colors">
                       Idea 1.0 Fast
