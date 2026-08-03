@@ -1,14 +1,16 @@
-package main
-
+// Import necessary packages
 import (
-    "context"
-    "fmt"
-    "net/http"
-)
+  "context"
+  "firebase"
+);
 
+// Define the AI landing page API route
+func AiLandingPageRoute(w http.ResponseWriter, r *http.Request) {
+  // Handle the request
+}
+
+// Export the API route
 func main() {
-    http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-        fmt.Fprint(w, "Welcome to TogetLink!")
-    })
-    http.ListenAndServe("localhost:8080", nil)
+  http.HandleFunc("/ai", AiLandingPageRoute)
+  log.Fatal(http.ListenAndServe("localhost:8080", nil))
 }

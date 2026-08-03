@@ -1,16 +1,11 @@
 <!-- Import necessary components -->
-import { Button, Input } from '@/components/ui';
+import { AiLandingPage } from '@/components/ui/AiLandingPage';
 
-<!-- Login Page -->
-export default function LoginPage() {
+<!-- Define the landing page -->
+const AiLandingPageComponent = () => {
   return (
-    <div className='flex justify-center items-center h-screen'>
-      <div className='bg-white/10 backdrop-blur p-10 rounded-md shadow-md'>
-        <h1 className='text-3xl font-bold mb-5'>Login</h1>
-        <Input placeholder='Email' />
-        <Input placeholder='Password' />
-        <Button>Submit</Button>
-      </div>
-    </div>
+    <AiLandingPage />
   );
-}
+};
+
+export default AiLandingPageComponent;
