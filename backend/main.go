@@ -3,25 +3,21 @@ package main
 import (
     "context"
     "fmt"
-    "log"
     "net/http"
-    "github.com/gorilla/mux"
-    "firebase.google.com/go/auth"
-    "firebase.google.com/go/db"
 )
 
 func main() {
-    r := mux.NewRouter()
-    r.HandleFunc("/api/auth", authHandler)
-    r.HandleFunc("/api/db", dbHandler)
+    http.HandleFunc("/login", loginHandler)
+    http.HandleFunc("/register", registerHandler)
 
-    log.Fatal(http.ListenAndServe("localhost:8080", r))
+    fmt.Println("Server listening on port 8080...")
+    http.ListenAndServe("localhost:8080", nil)
 }
 
-func authHandler(w http.ResponseWriter, r *http.Request) {
-    // authentication logic here
+func loginHandler(w http.ResponseWriter, r *http.Request) {
+    // TO DO: Implement login logic
 }
 
-func dbHandler(w http.ResponseWriter, r *http.Request) {
-    // database logic here
+func registerHandler(w http.ResponseWriter, r *http.Request) {
+    // TO DO: Implement register logic
 }
