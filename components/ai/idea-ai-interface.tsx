@@ -19,7 +19,8 @@ import {
   Image as ImageIcon,
   ArrowUp,
   StopCircle,
-  Globe
+  Globe,
+  Info
 } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
@@ -41,14 +42,37 @@ export function IdeaAIInterface() {
   const [userEmail, setUserEmail] = useState<string | null>(null)
   
   const [showAddMenu, setShowAddMenu] = useState(false)
+  const [showModelMenu, setShowModelMenu] = useState(false)
+  const [selectedModel, setSelectedModel] = useState("Idea 1.0 Fast")
+  
   const folderInputRef = useRef<HTMLInputElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const addMenuRef = useRef<HTMLDivElement>(null)
+  const addBtnRef = useRef<HTMLButtonElement>(null)
+  const modelMenuRef = useRef<HTMLDivElement>(null)
+  const modelBtnRef = useRef<HTMLButtonElement>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
   
   const { messages, input, setInput, append, isLoading, stop } = useChat({
-    body: { department: selectedDept, project: selectedProject }
+    body: { department: selectedDept, project: selectedProject, model: selectedModel }
   })
   const [isFocused, setIsFocused] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // Handle outside clicks to close popovers
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Node
+      if (showAddMenu && addMenuRef.current && !addMenuRef.current.contains(target) && !addBtnRef.current?.contains(target)) {
+        setShowAddMenu(false)
+      }
+      if (showModelMenu && modelMenuRef.current && !modelMenuRef.current.contains(target) && !modelBtnRef.current?.contains(target)) {
+        setShowModelMenu(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [showAddMenu, showModelMenu])
 
   // Auto scroll to bottom when new messages arrive
   useEffect(() => {
@@ -108,6 +132,12 @@ export function IdeaAIInterface() {
       setShowAddMenu(false)
       // Would process file here
     }
+  }
+
+  const insertAction = (char: string) => {
+    setInput(prev => prev + char)
+    setShowAddMenu(false)
+    textareaRef.current?.focus()
   }
 
   return (
@@ -370,6 +400,7 @@ export function IdeaAIInterface() {
                 {/* Textarea */}
                 <div className="px-1 pt-1 pb-2">
                   <textarea
+                    ref={textareaRef}
                     value={input || ""}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
@@ -385,6 +416,7 @@ export function IdeaAIInterface() {
                   {/* Left Actions */}
                   <div className="flex items-center gap-1.5 relative">
                     <button 
+                      ref={addBtnRef}
                       type="button" 
                       onClick={() => setShowAddMenu(!showAddMenu)}
                       className={`p-1.5 rounded-full transition-colors ${
@@ -396,7 +428,7 @@ export function IdeaAIInterface() {
 
                     {/* Popover Menu for + button */}
                     {showAddMenu && (
-                      <div className="absolute bottom-[calc(100%+12px)] left-[-4px] mb-1 w-[200px] bg-[#f4f4f4] rounded-[16px] shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-[#e5e5e5] flex flex-col z-50 py-2">
+                      <div ref={addMenuRef} className="absolute bottom-[calc(100%+12px)] left-[-4px] mb-1 w-[200px] bg-[#f4f4f4] rounded-[16px] shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-[#e5e5e5] flex flex-col z-50 py-2">
                         <div className="px-3 pb-2 pt-1 text-[13px] font-semibold text-[#737373]">
                           Add Context
                         </div>
@@ -406,10 +438,10 @@ export function IdeaAIInterface() {
                         <button onClick={() => fileInputRef.current?.click()} className="w-full flex items-center gap-3 px-3 py-[7px] text-[14px] text-[#525252] hover:bg-[#e5e5e5] text-left transition-colors">
                           <ImageIcon className="w-[18px] h-[18px] text-[#525252]" strokeWidth={1.5} /> Media
                         </button>
-                        <button onClick={() => setShowAddMenu(false)} className="w-full flex items-center gap-3 px-3 py-[7px] text-[14px] text-[#525252] hover:bg-[#e5e5e5] text-left transition-colors">
+                        <button onClick={() => insertAction('@')} className="w-full flex items-center gap-3 px-3 py-[7px] text-[14px] text-[#525252] hover:bg-[#e5e5e5] text-left transition-colors">
                           <span className="text-[#525252] text-[17px] leading-none w-[18px] text-center font-normal">@</span> Mentions
                         </button>
-                        <button onClick={() => setShowAddMenu(false)} className="w-full flex items-center gap-3 px-3 py-[7px] text-[14px] text-[#525252] hover:bg-[#e5e5e5] text-left transition-colors">
+                        <button onClick={() => insertAction('/')} className="w-full flex items-center gap-3 px-3 py-[7px] text-[14px] text-[#525252] hover:bg-[#e5e5e5] text-left transition-colors">
                           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-[#525252]"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg> Actions
                         </button>
                         <button onClick={() => setShowAddMenu(false)} className="w-full flex items-center gap-3 px-3 py-[7px] text-[14px] text-[#525252] hover:bg-[#e5e5e5] text-left transition-colors">
@@ -418,10 +450,35 @@ export function IdeaAIInterface() {
                       </div>
                     )}
                     
-                    <button type="button" className="flex items-center gap-1.5 px-2.5 py-1 rounded-full hover:bg-white text-[13px] font-medium text-[#525252] transition-colors">
-                      Idea 1.0 Fast
-                      <ChevronDown className="w-3.5 h-3.5 text-[#a3a3a3]" strokeWidth={2.5} />
-                    </button>
+                    <div className="relative">
+                      <button 
+                        ref={modelBtnRef}
+                        type="button" 
+                        onClick={() => setShowModelMenu(!showModelMenu)}
+                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-colors text-[13px] font-medium ${
+                          showModelMenu ? "bg-[#e5e5e5] text-[#171717]" : "hover:bg-white text-[#525252]"
+                        }`}
+                      >
+                        {selectedModel}
+                        <ChevronDown className="w-3.5 h-3.5 text-[#a3a3a3]" strokeWidth={2.5} />
+                      </button>
+
+                      {showModelMenu && (
+                        <div ref={modelMenuRef} className="absolute bottom-[calc(100%+12px)] left-0 mb-1 w-[240px] bg-[#f4f4f4] rounded-[16px] shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-[#e5e5e5] flex flex-col z-50 py-2">
+                          <div className="px-3 pb-2 pt-1 text-[13px] font-semibold text-[#737373]">
+                            Model
+                          </div>
+                          <button onClick={() => { setSelectedModel("Idea 1.0 Fast"); setShowModelMenu(false) }} className={`w-full flex items-center justify-between px-3 py-[7px] text-[14px] text-left transition-colors ${selectedModel === "Idea 1.0 Fast" ? "bg-[#e5e5e5] text-[#171717]" : "text-[#525252] hover:bg-[#e5e5e5]"}`}>
+                            <span>Idea 1.0 Fast</span>
+                            <span className="flex items-center gap-1 text-[11px] text-[#737373] bg-white px-1.5 py-[2px] rounded-full border border-[#e5e5e5] font-medium shadow-[0_1px_2px_rgba(0,0,0,0.02)]">Fast <Info className="w-3 h-3 text-[#a3a3a3]" /></span>
+                          </button>
+                          <button onClick={() => { setSelectedModel("Idea 1.0 Pro"); setShowModelMenu(false) }} className={`w-full flex items-center justify-between px-3 py-[7px] text-[14px] text-left transition-colors ${selectedModel === "Idea 1.0 Pro" ? "bg-[#e5e5e5] text-[#171717]" : "text-[#525252] hover:bg-[#e5e5e5]"}`}>
+                            <span>Idea 1.0 Pro</span>
+                            <span className="flex items-center gap-1 text-[11px] text-[#737373] bg-white px-1.5 py-[2px] rounded-full border border-[#e5e5e5] font-medium shadow-[0_1px_2px_rgba(0,0,0,0.02)]">Pro <Info className="w-3 h-3 text-[#a3a3a3]" /></span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   {/* Right Actions */}
