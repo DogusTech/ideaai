@@ -1,9 +1,12 @@
-import { AiOutlineDashboard } from "@ant-design/icons";
+import { AppRouter } from '@vercel/static-next-app';
+import type { NextPage } from 'next'
 
-export default function App() {
+const Home: NextPage = () => {
   return (
     <div>
-      <AiOutlineDashboard />
+      <h1>AI Dashboard</h1>
     </div>
   );
-}
+};
+
+export default Home;

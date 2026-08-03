@@ -1,13 +1,12 @@
-<img src="https://source.unsplash.com/800x600/?corporate,office,technology" />
-import Link from 'next/link';
+import { AppRouter } from '@vercel/static-next-app';
+import type { NextPage } from 'next'
 
-export default function AI() {
+const Home: NextPage = () => {
   return (
     <div>
       <h1>AI Dashboard</h1>
-      <Link href="/ai/dashboard">
-        <a>Go to Dashboard</a>
-      </Link>
     </div>
   );
 };
+
+export default Home;
