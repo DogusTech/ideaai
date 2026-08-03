@@ -1,15 +1,24 @@
 import type { ReactNode } from "react"
 import Link from "next/link"
-import { ShieldCheck, MapPin, Users } from "lucide-react"
+import { ShieldCheck, MapPin, Users, LucideIcon } from "lucide-react"
+
+export type TrustPoint = {
+  icon: LucideIcon | any
+  title: string
+  description: string
+}
 
 export type AuthShellProps = {
   title: string
   subtitle: string
   children: ReactNode
   footer: ReactNode
+  sideTitle?: string
+  sidePoints?: TrustPoint[]
+  sideLogoText?: ReactNode
 }
 
-const TRUST_POINTS = [
+const DEFAULT_TRUST_POINTS: TrustPoint[] = [
   {
     icon: MapPin,
     title: "Discover nearby hubs",
@@ -27,7 +36,15 @@ const TRUST_POINTS = [
   },
 ]
 
-export function AuthShell({ title, subtitle, children, footer }: AuthShellProps) {
+export function AuthShell({ 
+  title, 
+  subtitle, 
+  children, 
+  footer, 
+  sideTitle = "Build trusted professional connections in real-world places.",
+  sidePoints = DEFAULT_TRUST_POINTS,
+  sideLogoText = "TogetLink"
+}: AuthShellProps) {
   return (
     <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
       {/* Brand / trust panel */}
@@ -37,16 +54,16 @@ export function AuthShell({ title, subtitle, children, footer }: AuthShellProps)
             TL
           </span>
           <span className="text-xl font-bold tracking-tight text-foreground">
-            TogetLink
+            {sideLogoText}
           </span>
         </Link>
 
         <div>
           <h2 className="max-w-md text-balance text-3xl font-bold leading-tight tracking-tight text-foreground">
-            Build trusted professional connections in real-world places.
+            {sideTitle}
           </h2>
           <ul className="mt-10 flex flex-col gap-6">
-            {TRUST_POINTS.map((point) => (
+            {sidePoints.map((point) => (
               <li key={point.title} className="flex items-start gap-4">
                 <span className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-xl bg-background/70 text-brand-blue">
                   <point.icon className="size-5" aria-hidden="true" />
