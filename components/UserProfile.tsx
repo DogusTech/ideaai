@@ -1,4 +1,4 @@
-<!-- Add a new feature: user profile page -->
+"use client";
 import { useState, useEffect } from 'react';
 
 function UserProfile() {
