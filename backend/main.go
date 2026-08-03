@@ -1,11 +1,11 @@
 package main
 
 import (
-	"context"
-	"fmt"
-	"github.com/go-playground/validator/v10"
+    "context"
+    "firebase/auth"
+    "firebase/firestore"
 )
 
 func main() {
-	// Your Go code here
+    // Initialize Firebase
 }
