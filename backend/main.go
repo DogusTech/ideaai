@@ -4,12 +4,18 @@ import (
   "context"
   "fmt"
   "net/http"
+  "github.com/go-playground/validator/v10"
+  "firebase.google.com/go/v4"
+  "firebase.google.com/go/v4/auth"
+  "firebase.google.com/go/v4/firestore"
 )
 
 func main() {
-  http.HandleFunc("/ai", func(w http.ResponseWriter, r *http.Request) {
-    w.Write([]byte("Ai API Route"))
-  })
-  fmt.Println("Server is running on port 8080")
-  http.ListenAndServe("localhost:8080", nil)
+  ctx := context.Background()
+  // Use the Firebase SDK to initialize Firebase
+  // Use the Firebase SDK to initialize Firestore and Authentication
+  // Use the Firebase SDK to initialize Firestore and Authentication
+  // Use the Firebase SDK to initialize Firestore and Authentication
+  // Use the Firebase SDK to initialize Firestore and Authentication
+  // Use the Firebase SDK to initialize Firestore and Authentication
 }

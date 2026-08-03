@@ -1,9 +1,11 @@
-import axios from 'axios';
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextApiRequest, NextApiResponse } from 'next'; import firebase from 'firebase/app'; import 'firebase/auth'; import 'firebase/firestore';
 
 const login = async (req: NextApiRequest, res: NextApiResponse) => {
-  // TO DO: Implement login logic
-  res.status(200).json({ message: 'Login successful' });
+  const { email, password } = req.body;
+  const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+  const user = userCredential.user;
+  const token = await user.getIdToken(true);
+  res.json({ token });
 };
 
 export default login;
