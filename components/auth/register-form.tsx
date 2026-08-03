@@ -22,7 +22,7 @@ type Errors = {
 }
 type Status = "idle" | "submitting" | "success"
 
-export function RegisterForm() {
+export function RegisterForm({ defaultRedirect = "/dashboard" }: { defaultRedirect?: string }) {
   const router = useRouter()
   const [errors, setErrors] = useState<Errors>({})
   const [status, setStatus] = useState<Status>("idle")
@@ -88,7 +88,7 @@ export function RegisterForm() {
       // Redirect to dashboard (or returnUrl if available)
       setTimeout(() => {
         const params = new URLSearchParams(window.location.search)
-        const redirect = params.get("redirect") || "/dashboard"
+        const redirect = params.get("redirect") || defaultRedirect
         router.push(redirect)
       }, 1000)
     } catch (err: any) {
