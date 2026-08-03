@@ -1,16 +1,24 @@
-import { Link } from 'next/link';
-import { AiOutlineLogin } from 'react-icons/ai';
-import { AiOutlineUserAdd } from 'react-icons/ai';
+import { FC } from 'react';
+import { useSession } from 'next-auth/react';
 
-export const Header = () => {
+interface Props {}
+
+const Header: FC<Props> = () => {
+  const { data: session } = useSession();
   return (
-    <header className="bg-white/10 backdrop-blur p-4 flex justify-between items-center">
-      <Link href="/ai/login">
-        <a className="text-lg font-bold text-gray-800 hover:text-blue-500"><AiOutlineLogin /> Login</a>
-      </Link>
-      <Link href="/ai/register">
-        <a className="text-lg font-bold text-gray-800 hover:text-blue-500"><AiOutlineUserAdd /> Register</a>
-      </Link>
+    <header className="bg-white/10 backdrop-blur-sm p-4 flex justify-between items-center">
+      <h1 className="text-3xl font-bold text-gray-900">TogetLink</h1>
+      {session ? (
+        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          Dashboard
+        </button>
+      ) : (
+        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          Login/Register
+        </button>
+      )}
     </header>
   );
 };
+
+export default Header;

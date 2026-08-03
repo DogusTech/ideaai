@@ -33,7 +33,7 @@ export async function POST(req: Request) {
     // Send email via Resend
     if (process.env.RESEND_API_KEY && !process.env.RESEND_API_KEY.includes('re_mock_key')) {
       const resendResult = await resend.emails.send({
-        from: 'TogetLink Security <security@auth.togetlink.com>', 
+        from: 'TogetLink Security <security@mail.togetlink.com>', 
         to: email,
         subject: 'Your TogetLink Verification Code',
         html: `
