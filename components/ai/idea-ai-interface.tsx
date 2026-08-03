@@ -361,11 +361,11 @@ export function IdeaAIInterface() {
             )}
 
             <div 
-              className={`w-full bg-[#f4f4f4] rounded-[24px] border-none transition-all duration-300 flex flex-col overflow-hidden shadow-[0_2px_10px_rgba(0,0,0,0.04)] ${
+              className={`w-full bg-[#f4f4f4] rounded-[24px] border-none transition-all duration-300 flex flex-col shadow-[0_2px_10px_rgba(0,0,0,0.04)] ${
                 isFocused ? "shadow-[0_4px_20px_rgba(0,0,0,0.08)] ring-1 ring-[#d4d4d4]" : ""
               }`}
             >
-              <div className="p-3 flex flex-col relative bg-[#f4f4f4]">
+              <div className="p-3 flex flex-col relative bg-[#f4f4f4] rounded-t-[24px]">
                 
                 {/* Textarea */}
                 <div className="px-1 pt-1 pb-2">
@@ -387,28 +387,33 @@ export function IdeaAIInterface() {
                     <button 
                       type="button" 
                       onClick={() => setShowAddMenu(!showAddMenu)}
-                      className="p-1.5 rounded-full text-[#737373] hover:text-[#171717] hover:bg-white/60 transition-colors"
+                      className={`p-1.5 rounded-full transition-colors ${
+                        showAddMenu ? "bg-[#e5e5e5] text-[#171717]" : "text-[#737373] hover:text-[#171717] hover:bg-[#e5e5e5]"
+                      }`}
                     >
                       <Plus className="w-4 h-4" strokeWidth={2.5} />
                     </button>
 
                     {/* Popover Menu for + button */}
                     {showAddMenu && (
-                      <div className="absolute top-[calc(100%+8px)] left-[-4px] mb-2 w-[200px] bg-white rounded-[16px] shadow-[0_4px_24px_rgba(0,0,0,0.08)] border border-[#e5e5e5] overflow-hidden flex flex-col z-50 py-1.5">
-                        <button onClick={handleFolderSelect} className="w-full flex items-center gap-3 px-3 py-[7px] text-[14px] text-[#171717] hover:bg-[#f5f5f5] text-left transition-colors">
-                          <LayoutGrid className="w-[18px] h-[18px] text-[#737373]" strokeWidth={1.5} /> New Project
+                      <div className="absolute bottom-[calc(100%+12px)] left-[-4px] mb-1 w-[200px] bg-[#f4f4f4] rounded-[16px] shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-[#e5e5e5] flex flex-col z-50 py-2">
+                        <div className="px-3 pb-2 pt-1 text-[13px] font-semibold text-[#737373]">
+                          Add Context
+                        </div>
+                        <button onClick={handleFolderSelect} className="w-full flex items-center gap-3 px-3 py-[7px] text-[14px] text-[#525252] hover:bg-[#e5e5e5] text-left transition-colors">
+                          <LayoutGrid className="w-[18px] h-[18px] text-[#525252]" strokeWidth={1.5} /> New Project
                         </button>
-                        <button onClick={() => fileInputRef.current?.click()} className="w-full flex items-center gap-3 px-3 py-[7px] text-[14px] text-[#171717] hover:bg-[#f5f5f5] text-left transition-colors">
-                          <ImageIcon className="w-[18px] h-[18px] text-[#737373]" strokeWidth={1.5} /> Media
+                        <button onClick={() => fileInputRef.current?.click()} className="w-full flex items-center gap-3 px-3 py-[7px] text-[14px] text-[#525252] hover:bg-[#e5e5e5] text-left transition-colors">
+                          <ImageIcon className="w-[18px] h-[18px] text-[#525252]" strokeWidth={1.5} /> Media
                         </button>
-                        <button onClick={() => setShowAddMenu(false)} className="w-full flex items-center gap-3 px-3 py-[7px] text-[14px] text-[#171717] hover:bg-[#f5f5f5] text-left transition-colors">
-                          <Globe className="w-[18px] h-[18px] text-[#737373]" strokeWidth={1.5} /> Search Browser
+                        <button onClick={() => setShowAddMenu(false)} className="w-full flex items-center gap-3 px-3 py-[7px] text-[14px] text-[#525252] hover:bg-[#e5e5e5] text-left transition-colors">
+                          <span className="text-[#525252] text-[17px] leading-none w-[18px] text-center font-normal">@</span> Mentions
                         </button>
-                        <button onClick={() => setShowAddMenu(false)} className="w-full flex items-center gap-3 px-3 py-[7px] text-[14px] text-[#171717] hover:bg-[#f5f5f5] text-left transition-colors">
-                          <span className="text-[#737373] text-[17px] leading-none w-[18px] text-center font-normal">@</span> Mentions
+                        <button onClick={() => setShowAddMenu(false)} className="w-full flex items-center gap-3 px-3 py-[7px] text-[14px] text-[#525252] hover:bg-[#e5e5e5] text-left transition-colors">
+                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-[#525252]"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg> Actions
                         </button>
-                        <button onClick={() => setShowAddMenu(false)} className="w-full flex items-center gap-3 px-3 py-[7px] text-[14px] text-[#171717] hover:bg-[#f5f5f5] text-left transition-colors">
-                          <span className="text-[#737373] text-[17px] leading-none w-[18px] text-center font-normal">&gt;</span> Actions
+                        <button onClick={() => setShowAddMenu(false)} className="w-full flex items-center gap-3 px-3 py-[7px] text-[14px] text-[#525252] hover:bg-[#e5e5e5] text-left transition-colors">
+                          <Globe className="w-[18px] h-[18px] text-[#525252]" strokeWidth={1.5} /> Browser
                         </button>
                       </div>
                     )}
@@ -451,7 +456,7 @@ export function IdeaAIInterface() {
               </div>
               
               {/* Footer row inside the text card */}
-              <div className="w-full bg-[#ebebeb] px-4 py-2 flex items-center justify-between text-[#737373] text-[12px] font-medium">
+              <div className="w-full bg-[#ebebeb] px-4 py-2 flex items-center justify-between text-[#737373] text-[12px] font-medium rounded-b-[24px]">
                 <button className="flex items-center gap-1.5 hover:text-[#171717] transition-colors">
                    <LayoutGrid className="w-3.5 h-3.5" />
                    Local
