@@ -20,13 +20,17 @@ import {
   ArrowUp,
   StopCircle,
   Globe,
-  Info
+  Info,
+  Users,
+  Settings
 } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 
 import { onAuthStateChanged } from "firebase/auth"
 import { auth } from "@/lib/firebase"
+
+import { SettingsModal } from "./settings-modal"
 
 type Project = {
   id: string
@@ -35,38 +39,7 @@ type Project = {
   time: string
 }
 
-const AGENDA_ITEMS: Record<string, { title: string, source: string }[]> = {
-  Software: [
-    { title: "React 19 RC is out: Compiler & Actions", source: "GitHub Trending" },
-    { title: "Vercel announces new AI SDK 3.0 features", source: "TechCrunch" },
-    { title: "Llama 3.1 8B fine-tuning hits mainstream", source: "HuggingFace" }
-  ],
-  Marketing: [
-    { title: "Google's new AI Overviews impact on SEO", source: "Search Engine Land" },
-    { title: "TikTok shifts algorithm to favor long-form", source: "Social Media Today" },
-    { title: "OpenAI releases new tools for copywriters", source: "Marketing Dive" }
-  ],
-  Growth: [
-    { title: "How PLG companies are retaining users in 2024", source: "Lenny's Newsletter" },
-    { title: "Stripe launches new billing API for SaaS", source: "Stripe Blog" },
-    { title: "Conversion rates drop across B2B sector", source: "Forrester" }
-  ],
-  Sales: [
-    { title: "Salesforce integrates deeper AI capabilities", source: "TechRadar" },
-    { title: "Cold email open rates hit all-time low", source: "HubSpot" },
-    { title: "B2B buyers prefer self-serve over sales calls", source: "Gartner" }
-  ],
-  Purchasing: [
-    { title: "Global supply chain recovers from Q1 dip", source: "Bloomberg" },
-    { title: "AI in procurement: Predictive ordering", source: "Supply Chain Dive" },
-    { title: "SaaS tooling bloat costs companies $3M/yr", source: "G2 Insights" }
-  ],
-  Business: [
-    { title: "Fed holds interest rates steady", source: "WSJ" },
-    { title: "Tech IPO window shows signs of opening", source: "CNBC" },
-    { title: "Remote work levels stabilize at 30%", source: "McKinsey" }
-  ]
-}
+
 
 export function IdeaAIInterface() {
   const [selectedDept, setSelectedDept] = useState("Software")
@@ -77,6 +50,10 @@ export function IdeaAIInterface() {
   const [showAddMenu, setShowAddMenu] = useState(false)
   const [showModelMenu, setShowModelMenu] = useState(false)
   const [selectedModel, setSelectedModel] = useState("Idea 1.0 Fast")
+  const [showWorkspaceMenu, setShowWorkspaceMenu] = useState(false)
+  
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+  const [settingsTab, setSettingsTab] = useState("general")
   
   const folderInputRef = useRef<HTMLInputElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -101,6 +78,10 @@ export function IdeaAIInterface() {
       }
       if (showModelMenu && modelMenuRef.current && !modelMenuRef.current.contains(target) && !modelBtnRef.current?.contains(target)) {
         setShowModelMenu(false)
+      }
+      // Extremely simple check for workspace menu using class matching to keep it minimalist
+      if (showWorkspaceMenu && !(target as Element).closest('.workspace-dropdown-container')) {
+        setShowWorkspaceMenu(false)
       }
     }
     document.addEventListener("mousedown", handleClickOutside)
@@ -192,13 +173,26 @@ export function IdeaAIInterface() {
           
           {/* Workspace Header */}
           <div className="h-[56px] flex items-center justify-between px-3 shrink-0">
-            <button className="flex items-center hover:bg-[#f0f0f0] p-1.5 rounded-md transition-colors text-[14px] font-medium text-[#171717]">
-              <div className="w-[24px] h-[24px] rounded-full bg-[#2563eb] flex items-center justify-center text-white mr-2.5 shadow-sm">
-                <Globe className="w-[14px] h-[14px] opacity-90" strokeWidth={2} />
-              </div>
-              <span className="truncate max-w-[150px]">{userEmail ? userEmail.split('@')[0] : 'Workspace'}</span>'s projects
-              <ChevronsUpDown className="w-4 h-4 text-[#a3a3a3] ml-1.5" strokeWidth={2} />
-            </button>
+            <div className="relative workspace-dropdown-container">
+              <button 
+                onClick={() => setShowWorkspaceMenu(!showWorkspaceMenu)}
+                className="flex items-center hover:bg-[#f0f0f0] p-1.5 rounded-md transition-colors text-[14px] font-medium text-[#171717]"
+              >
+                <div className="w-[24px] h-[24px] rounded-full bg-[#2563eb] flex items-center justify-center text-white mr-2.5 shadow-sm">
+                  <Globe className="w-[14px] h-[14px] opacity-90" strokeWidth={2} />
+                </div>
+                <span className="truncate max-w-[120px]">{userEmail ? userEmail.split('@')[0] : 'Workspace'}</span>
+                <ChevronsUpDown className="w-4 h-4 text-[#a3a3a3] ml-1.5 shrink-0" strokeWidth={2} />
+              </button>
+              
+              {showWorkspaceMenu && (
+                <div className="absolute top-[100%] left-0 mt-1 w-[200px] bg-[#f4f4f4] rounded-[12px] shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-[#e5e5e5] flex flex-col z-50 py-2">
+                  <button onClick={() => setShowWorkspaceMenu(false)} className="w-full flex items-center gap-3 px-3 py-[7px] text-[13px] text-[#525252] hover:bg-[#e5e5e5] text-left transition-colors font-medium">
+                    <Plus className="w-4 h-4" /> Add Team
+                  </button>
+                </div>
+              )}
+            </div>
             <button className="p-1.5 hover:bg-[#f0f0f0] rounded-md text-[#525252] transition-colors">
               <Sidebar className="w-[18px] h-[18px]" strokeWidth={2} />
             </button>
@@ -321,11 +315,9 @@ export function IdeaAIInterface() {
                 <ChevronDown className="w-4 h-4 text-[#a3a3a3]" strokeWidth={2} />
               </div>
               <div className="px-2 space-y-[2px] pb-4">
-                <ChatNavItem label="Untitled chat" />
-                <ChatNavItem label="Untitled chat (3)" isBranch />
-                <ChatNavItem label="Untitled chat" />
+                <ChatNavItem label={userEmail ? `${userEmail.split('@')[0]}'s Idea Session` : "Untitled chat"} />
                 <ChatNavItem label="TogetLink Hub Discovery" isBranch />
-                <ChatNavItem label="Untitled chat (2)" isBranch />
+                <ChatNavItem label="UI Component Analysis" />
                 <button className="w-full flex items-center gap-3 px-3 py-[7px] text-[14px] text-[#525252] hover:bg-[#f0f0f0] rounded-md transition-colors text-left group mt-1">
                   <MoreHorizontal className="w-[18px] h-[18px] shrink-0 text-[#737373] group-hover:text-[#525252] transition-colors" strokeWidth={2} />
                   <span className="truncate">More</span>
@@ -339,14 +331,25 @@ export function IdeaAIInterface() {
         <div className="p-3 bg-[#fafafa]">
           {/* User Profile */}
           <div className="flex items-center justify-between mt-2">
-            <button className="flex items-center gap-2 hover:bg-[#f0f0f0] p-1.5 rounded-md transition-colors text-[14px] font-medium text-[#171717]">
-              <div className="w-[24px] h-[24px] rounded-full bg-[#e0e7ff] flex items-center justify-center border border-[#c7d2fe] overflow-hidden relative shadow-sm">
+            <button 
+              onClick={() => { setSettingsTab("account"); setIsSettingsOpen(true); }}
+              className="flex items-center gap-2 hover:bg-[#f0f0f0] p-1.5 rounded-md transition-colors text-[14px] font-medium text-[#171717]"
+            >
+              <div className="w-[24px] h-[24px] rounded-full bg-gradient-to-br from-[#4f46e5] to-[#818cf8] flex items-center justify-center border border-[#c7d2fe] overflow-hidden relative shadow-sm">
                 <div className="absolute bottom-0 w-3.5 h-2 bg-[#4f46e5] rounded-t-sm" />
               </div>
-              <span className="truncate max-w-[120px]">{userEmail ? userEmail.split('@')[0] : 'User'}</span>
+              <span className="truncate max-w-[100px]">{userEmail ? userEmail.split('@')[0] : 'User'}</span>
             </button>
-            <div className="px-2.5 py-1 bg-white border border-[#e5e5e5] rounded-[6px] text-[13px] font-semibold text-[#171717] shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
-              $49
+            <div className="flex items-center gap-2">
+              <div className="px-2.5 py-1 bg-white border border-[#e5e5e5] rounded-[6px] text-[13px] font-semibold text-[#171717] shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
+                $0
+              </div>
+              <button 
+                onClick={() => { setSettingsTab("general"); setIsSettingsOpen(true); }}
+                className="p-1.5 text-[#737373] hover:text-[#171717] hover:bg-[#e5e5e5] rounded-md transition-colors"
+              >
+                <Settings className="w-4 h-4" />
+              </button>
             </div>
           </div>
         </div>
@@ -409,33 +412,9 @@ export function IdeaAIInterface() {
             
             {/* Hero Heading attached directly to the top of the input box */}
             {messages.length === 0 && (
-              <div className="flex flex-col items-center w-full mb-8">
-                <h1 className="text-center text-[32px] font-semibold tracking-tight text-[#171717] mb-6 font-sans">
-                  What do you want to create?
-                </h1>
-                
-                {/* Zero-State Bento Grid (Agenda) */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 w-full max-w-[700px]">
-                  {AGENDA_ITEMS[selectedDept]?.map((item, i) => (
-                    <button 
-                      key={i} 
-                      onClick={() => {
-                        setInput(`[Agenda: ${item.title}] How does this impact our strategy?`);
-                        textareaRef.current?.focus();
-                      }}
-                      className="flex flex-col gap-2 p-3.5 rounded-[16px] bg-white/60 backdrop-blur-md border border-[#e5e5e5] hover:bg-white hover:border-[#d4d4d4] hover:shadow-[0_4px_20px_rgba(0,0,0,0.04)] transition-all duration-300 text-left group"
-                    >
-                      <div className="flex items-center gap-1.5 text-[#a3a3a3] text-[11px] font-medium uppercase tracking-wider">
-                        <Globe className="w-3 h-3" strokeWidth={2.5} />
-                        <span>{item.source}</span>
-                      </div>
-                      <div className="text-[13px] font-medium text-[#171717] group-hover:text-[#4f46e5] transition-colors leading-snug">
-                        {item.title}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
+              <h1 className="text-center text-[32px] font-semibold tracking-tight text-[#171717] mb-7 font-sans">
+                What do you want to create?
+              </h1>
             )}
 
             {/* Folder Selection Context above the input */}
@@ -632,6 +611,13 @@ export function IdeaAIInterface() {
           background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100' fill='rgb(82, 82, 82)'><polygon points='0,0 100,0 50,50'/></svg>");
         }
       `}} />
+
+      <SettingsModal 
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        initialTab={settingsTab}
+        userEmail={userEmail}
+      />
     </div>
   )
 }
