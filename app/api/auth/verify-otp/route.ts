@@ -16,7 +16,8 @@ export async function POST(req: Request) {
     const emailLower = email.toLowerCase();
     
     // Read the stateless cookie
-    const token = cookies().get('otp_token')?.value;
+    const cookieStore = await cookies();
+    const token = cookieStore.get('otp_token')?.value;
 
     if (!token) {
       return NextResponse.json({ error: 'OTP has expired or was not requested.' }, { status: 400 });
