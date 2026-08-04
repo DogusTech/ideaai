@@ -1,10 +1,10 @@
-import { Container } from '../ui/container';
+import { AiRouter } from 'next/router';
+import { AiPage } from '@/components/ui/AiPage';
 
-export default function AI() {
+export default function Ai() {
   return (
-    <Container>
-      <h1>AI</h1>
-      <p>This is the AI page.</p>
-    </Container>
+    <AiPage>
+      <h1>Ai Dashboard</h1>
+    </AiPage>
   );
 }
