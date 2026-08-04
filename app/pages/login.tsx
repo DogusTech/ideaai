@@ -1,13 +1,41 @@
-import { Header } from './header';
+import { useState } from 'react';
+import Link from 'next/link';
+import { Logo } from './ui/Logo';
 
-export const Login = () => {
-  return <div className="container mx-auto p-4">
-    <Header />
-    <form className="max-w-md mx-auto p-4 bg-white/10 backdrop-blur rounded shadow-md">
-      <h2 className="text-lg font-bold mb-4">Login</h2>
-      <input type="email" placeholder="Email" className="block w-full p-2 mb-4" />
-      <input type="password" placeholder="Password" className="block w-full p-2 mb-4" />
-      <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Login</button>
-    </form>
-  </div>;
+export default function Login() {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    console.log(username, password);
+  };
+
+  return (
+    <div className="max-w-md mx-auto p-8 bg-white/10 backdrop-blur shadow-md rounded-md">
+      <Logo />
+      <form onSubmit={handleSubmit}>
+        <input
+          type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          placeholder="Username"
+          className="block w-full p-2 mt-2 rounded-md bg-gray-100"
+        />
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password"
+          className="block w-full p-2 mt-2 rounded-md bg-gray-100"
+        />
+        <button
+          type="submit"
+          className="block w-full p-2 mt-2 rounded-md bg-blue-500 hover:bg-blue-700 text-white"
+        >
+          Login
+        </button>
+      </form>
+    </div>
+  );
 };
