@@ -1,16 +1,9 @@
-import { FC } from 'react';
-import CorporateBackground from '../../components/ui/CorporateBackground';
+import { NextApiRequest, NextApiResponse } from 'next';
+import { Firestore } from '@google-cloud/firestore';
 
-interface Props {
-  children: React.ReactNode;
+const db = new Firestore();
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // TO DO: Implement AI logic here
+  res.status(200).json({ message: 'AI API' });
 }
-
-const AiLandingPage: FC<Props> = ({ children }) => {
-  return (
-    <CorporateBackground>
-      {children}
-    </CorporateBackground>
-  );
-}
-
-export default AiLandingPage;

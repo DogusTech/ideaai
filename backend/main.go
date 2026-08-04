@@ -1,14 +1,15 @@
 package main
 
 import (
-    "context"
-    "fmt"
-    "net/http"
+  "context"
+  "fmt"
+  "log"
+  "net/http"
 )
 
 func main() {
-    http.HandleFunc("/ai", func(w http.ResponseWriter, r *http.Request) {
-        http.Redirect(w, r, "/ai", http.StatusFound)
-    })
-    http.ListenAndServe("localhost:8080", nil)
+  http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+    fmt.Fprint(w, "Hello, World!")
+  })
+  log.Fatal(http.ListenAndServe("localhost:8080", nil))
 }
