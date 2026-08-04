@@ -1,5 +1,8 @@
-import { redirect } from 'next/navigation';
+import { AppRouter } from 'next/app';
+import type { AppProps } from 'next/app';
 
-export default function Home() {
-  redirect('/ai');
+function MyApp({ Component, pageProps }: AppProps) {
+  return <Component {...pageProps} />;
 }
+
+export default MyApp;
