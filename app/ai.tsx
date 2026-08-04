@@ -1,5 +1,5 @@
-import { AppRouter } from '@vercel/next-app';
+import { redirect } from 'next/navigation';
 
-export default function App() {
-  return <AppRouter />;
+export default function Ai() {
+  redirect('/ai');
 }

@@ -1,1 +1,5 @@
-import { redirect } from 'next/navigation';\n\nexport default function Home() {\n  redirect('/ai');\n}
+import { redirect } from 'next/navigation';
+
+export default function Home() {
+  redirect('/ai');
+}
