@@ -1,8 +1,9 @@
-import { AiLandingPage } from '@/components/ui/AiLandingPage';
+import { AiRouter } from '../components/ui/AiRouter';
 
-// Define the AI Landing Page component
-export default function AiLandingPageComponent() {
+export default function AiRouter() {
   return (
-    <AiLandingPage />
+    <div className="flex flex-col items-center justify-center h-screen">
+      <AiRouter />
+    </div>
   );
 }

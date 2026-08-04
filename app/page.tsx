@@ -1,8 +1,11 @@
-import { AiLandingPage } from '@/components/ui/AiLandingPage';
+import { Ai } from '../components/ui/Ai';
+import { AiRouter } from '../components/ui/AiRouter';
 
-// Define the AI Landing Page component
-export default function AiLandingPageComponent() {
+export default function AiPage() {
   return (
-    <AiLandingPage />
+    <div className="container mx-auto p-4 pt-6 md:p-6 lg:px-8">
+      <AiRouter />
+      <Ai />
+    </div>
   );
 }
