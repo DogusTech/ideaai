@@ -1,15 +1,24 @@
 import { NextPage } from 'next';
-import Head from 'next/head';
+import Link from 'next/link';
+import { AiOutlineLogin } from 'react-icons/ai';
+import { AiOutlineUserAdd } from 'react-icons/ai';
 
-const AIPage: NextPage = () => {
+const LoginPage: NextPage = () => {
   return (
-    <div className="container mx-auto p-4 pt-6 md:p-6 lg:px-8 xl:px-12 2xl:px-16 max-w-screen-2xl">
-      <Head>
-        <title>TogetLink AI Landing Page</title>
-      </Head>
-      <h1 className="text-3xl font-bold leading-tight text-gray-900">
-        TogetLink AI Landing Page
-      </h1>
+    <div className="flex flex-col items-center justify-center h-screen bg-white/10 backdrop-blur-sm">
+      <h1 className="text-3xl font-bold mb-4">TogetLink AI Landing Page</h1>
+      <Link href="/ai/login">
+        <button className="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded">
+          <AiOutlineLogin /> Login
+        </button>
+      </Link>
+      <Link href="/ai/register">
+        <button className="bg-orange-500 hover:bg-orange-700 text-white font-bold py-2 px-4 rounded">
+          <AiOutlineUserAdd /> Register
+        </button>
+      </Link>
     </div>
   );
-}
+};
+
+export default LoginPage;
