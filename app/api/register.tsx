@@ -1,21 +1,24 @@
-import { NextApiRequest, NextApiResponse } from 'next'
-import { firebaseConfig } from '@/components/firebase'
-import { initializeApp } from 'firebase/app'
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth'
+import { Container } from '../ui/container';
 
-const app = initializeApp(firebaseConfig)
-const auth = getAuth(app)
-
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method === 'POST') {
-    const { email, password } = req.body
-    try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password)
-      res.status(200).json({ message: 'Logged in successfully' })
-    } catch (error) {
-      res.status(401).json({ message: 'Invalid credentials' })
-    }
-  } else {
-    res.status(405).json({ message: 'Method not allowed' })
-  }
+export default function Register() {
+  return (
+    <Container>
+      <h1>Register</h1>
+      <form>
+        <label>
+          Email:
+          <input type='email' name='email' required />
+        </label>
+        <label>
+          Password:
+          <input type='password' name='password' required />
+        </label>
+        <label>
+          Confirm Password:
+          <input type='password' name='confirmPassword' required />
+        </label>
+        <button type='submit'>Register</button>
+      </form>
+    </Container>
+  );
 }
