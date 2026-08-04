@@ -1,11 +1,14 @@
-import { Ai } from '../components/ui/Ai';
-import { AiRouter } from '../components/ui/AiRouter';
+import { NextPage } from 'next';
+import Head from 'next/head';
 
-export default function AiPage() {
+const AiLandingPage: NextPage = () => {
   return (
-    <div className="container mx-auto p-4 pt-6 md:p-6 lg:px-8">
-      <AiRouter />
-      <Ai />
+    <div className="max-w-md mx-auto p-8 bg-white/10 backdrop-blur-sm rounded-lg shadow-md">
+      <Head>
+        <title>TogetLink AI Landing Page</title>
+      </Head>
+      <h1 className="text-3xl font-bold text-gray-900">TogetLink AI</h1>
+      <p className="text-lg text-gray-600">Welcome to the TogetLink AI landing page!</p>
     </div>
   );
 }
