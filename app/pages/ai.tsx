@@ -1,16 +1,9 @@
-import { FC } from 'react';
-import CorporateBackground from './CorporateBackground';
+import CorporateImage from '@/components/ui/CorporateImage';
 
-interface Props {
-  children: React.ReactNode;
-}
-
-const AiLandingPage: FC<Props> = ({ children }) => {
+export default function AiLandingPage() {
   return (
-    <CorporateBackground>
-      {children}
-    </CorporateBackground>
+    <div className="flex flex-col items-center justify-center h-screen w-screen bg-white/10 backdrop-blur-sm">
+      <CorporateImage />
+    </div>
   );
 }
-
-export default AiLandingPage;
