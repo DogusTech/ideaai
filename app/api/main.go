@@ -1,0 +1,1 @@
+func main() {\n    http.HandleFunc("/api/ai", func(w http.ResponseWriter, r *http.Request) {\n        fmt.Fprint(w, "AI API")\n    })\n    http.ListenAndServe("localhost:8080", nil)\n}
