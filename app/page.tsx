@@ -1,11 +1,5 @@
-<!-- Import necessary components -->
-import { AiLandingPage } from '@/components/ui/AiLandingPage';
+import CorporateImage from '../ui/image';
 
-<!-- Define the landing page -->
-const AiLandingPageComponent = () => {
-  return (
-    <AiLandingPage />
-  );
-};
-
-export default AiLandingPageComponent;
+export default function AiLandingPage() {
+  return <CorporateImage />;
+}
