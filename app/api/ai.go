@@ -4,13 +4,11 @@ import (
     "context"
     "fmt"
     "net/http"
+    "firebase/auth"
+    "firebase/firestore"
 )
 
-func AiHandler(ctx context.Context, w http.ResponseWriter, r *http.Request) {
-    fmt.Fprint(w, "Hello from AI handler!")
-}
-
 func main() {
-    http.HandleFunc("/ai", AiHandler)
-    http.ListenAndServe("localhost:8080", nil)
+    // Initialize Firebase
+    // ... (rest of the code)
 }

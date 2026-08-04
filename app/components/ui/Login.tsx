@@ -1,25 +1,17 @@
-import { useState } from 'react';
-import { auth, signInWithEmailAndPassword, createUserWithEmailAndPassword } from './firebase';
+.import { FC } from 'react';
+import styles from './Login.module.css';
 
-export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      console.log('Logged in!');
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  return (
-    <form onSubmit={handleSubmit}>
-      <input type='email' value={email} onChange={(e) => setEmail(e.target.value)} placeholder='Email' />
-      <input type='password' value={password} onChange={(e) => setPassword(e.target.value)} placeholder='Password' />
-      <button type='submit'>Login</button>
-    </form>
-  );
+interface LoginProps {
+  title: string;
 }
+
+const Login: FC<LoginProps> = ({ title }) => {
+  return (
+    <div className={styles.container}>
+      <h1>{title}</h1>
+      <button>Login</button>
+    </div>
+  );
+};
+
+export default Login;

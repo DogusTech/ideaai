@@ -1,12 +1,14 @@
-// Import necessary packages
+package main
+
 import (
-  "context"
-  "fmt"
-  "net/http"
+    "context"
+    "fmt"
+    "net/http"
 )
 
-// Define the main function
 func main() {
-  http.HandleFunc("/ai", getAIResponse)
-  http.ListenAndServe("localhost:8080", nil)
+    http.HandleFunc("/ai", func(w http.ResponseWriter, r *http.Request) {
+        http.Redirect(w, r, "/ai", http.StatusFound)
+    })
+    http.ListenAndServe("localhost:8080", nil)
 }

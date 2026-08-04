@@ -1,9 +1,8 @@
-import { Ai } from './ui/Ai';
+import { AppRouter } from '@next/app';
+import type { AppType } from '../types';
 
-export default function AiPage() {
-  return (
-    <div>
-      <Ai />
-    </div>
-  );
-}
+const App = () => {
+  return <AppRouter Component={AppType} />;
+};
+
+export default App;
