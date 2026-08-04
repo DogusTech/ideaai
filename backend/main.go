@@ -7,8 +7,9 @@ import (
 )
 
 func main() {
-    http.HandleFunc("/ai", func(w http.ResponseWriter, r *http.Request) {
-        http.Redirect(w, r, "/ai", http.StatusFound)
+    http.HandleFunc("/api/ai", func(w http.ResponseWriter, r *http.Request) {
+        // TO DO: Implement AI API endpoint
     })
+    fmt.Println("Server listening on port 8080")
     http.ListenAndServe("localhost:8080", nil)
 }

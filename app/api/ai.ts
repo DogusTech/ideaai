@@ -1,7 +1,9 @@
-import CorporateImage from '@/components/ui/CorporateImage';
+import { NextApiRequest, NextApiResponse } from 'next';
+import { Firebase } from '../firebase';
 
-const AI = () => {
-  return <CorporateImage src="https://source.unsplash.com/800x600/?corporate,office,technology" />;
+const aiRoute = async (req: NextApiRequest, res: NextApiResponse) => {
+  // TO DO: Implement AI functionality
+  res.status(200).json({ message: 'AI Route' });
 };
 
-export default AI;
+export default aiRoute;
