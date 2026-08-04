@@ -1,33 +1,16 @@
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
-import { getFirestore, doc, getDoc } from 'firebase/firestore';
+import { FC } from 'react';
+import CorporateBackground from '../../components/ui/CorporateBackground';
 
-function Home() {
-  const [data, setData] = useState(null);
-  const router = useRouter();
+interface Props {
+  children: React.ReactNode;
+}
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const db = getFirestore();
-      const docRef = doc(db, "users", "123");
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        setData(docSnap.data());
-      } else {
-        console.log("No such document!");
-      }
-    };
-    fetchUserData();
-  }, []);
-
-  if (!data) return <div>Loading...</div>;
-
+const AiLandingPage: FC<Props> = ({ children }) => {
   return (
-    <div>
-      <h1>{data.name}</h1>
-      <p>{data.email}</p>
-    </div>
+    <CorporateBackground>
+      {children}
+    </CorporateBackground>
   );
 }
 
-export default Home;
+export default AiLandingPage;

@@ -1,9 +1,16 @@
-import CorporatePhoto from './CorporatePhoto';
+import { FC } from 'react';
+import CorporateBackground from './CorporateBackground';
 
-const AI: () => JSX.Element = () => {
-  return <div className="flex justify-center items-center h-screen bg-gray-100">
-    <CorporatePhoto className="w-96 h-96" />
-  </div>;
-};
+interface Props {
+  children: React.ReactNode;
+}
 
-export default AI;
+const AiLandingPage: FC<Props> = ({ children }) => {
+  return (
+    <CorporateBackground>
+      {children}
+    </CorporateBackground>
+  );
+}
+
+export default AiLandingPage;
