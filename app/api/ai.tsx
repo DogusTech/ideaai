@@ -1,1 +1,8 @@
-import { redirect } from 'next/navigation';\n\nexport default function Home() {\n  redirect('/ai');\n}
+import { AiLandingPage } from '@/components/ui/AiLandingPage';
+
+// Define the AI Landing Page component
+export default function AiLandingPageComponent() {
+  return (
+    <AiLandingPage />
+  );
+}

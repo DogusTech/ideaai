@@ -1,8 +1,8 @@
-import { AppRouter } from 'next/app';
-import type { AppProps } from 'next/app';
+import { AiLandingPage } from '@/components/ui/AiLandingPage';
 
-function MyApp({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />;
+// Define the AI Landing Page component
+export default function AiLandingPageComponent() {
+  return (
+    <AiLandingPage />
+  );
 }
-
-export default MyApp;
