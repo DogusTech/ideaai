@@ -1,9 +1,3 @@
-import CorporatePhoto from './CorporatePhoto';
+import { "@/components/ui/CorporatePhoto" } from '@/components/ui/CorporatePhoto';
 
-const Register: () => JSX.Element = () => {
-  return <div className="flex justify-center items-center h-screen bg-gray-100">
-    <CorporatePhoto className="w-96 h-96" />
-  </div>;
-};
-
-export default Register;
+export default function Register() { return <CorporatePhoto />; }

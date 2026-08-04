@@ -1,7 +1,3 @@
-// Import existing API routes
-import { NextApiRequest, NextApiResponse } from 'next'
+import { "@/components/ui/CorporatePhoto" } from '@/components/ui/CorporatePhoto';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // TO DO: Implement AI logic
-  res.status(200).json({ message: 'AI endpoint' })
-}
+export default function Ai() { return <CorporatePhoto />; }
