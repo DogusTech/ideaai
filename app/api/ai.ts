@@ -1,7 +1,19 @@
-// AI Landing Page API routes
-import { NextApiRequest, NextApiResponse } from 'next'
+import { GetServerSideProps } from 'next';
+import { AiOutlineDashboard } from "@ant-design/icons";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // TOGETLINK AI LANDING PAGE
-  res.status(200).json({ message: 'AI Landing Page' })
-}
+const AI = () => {
+  return (
+    <div>
+      <h1>AI Dashboard</h1>
+      <AiOutlineDashboard style={{ fontSize: 48 }} />
+    </div>
+  );
+};
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  return {
+    props: {}
+  };
+};
+
+export default AI;

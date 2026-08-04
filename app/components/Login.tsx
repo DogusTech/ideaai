@@ -1,16 +1,20 @@
 import { useState } from 'react';
-import type { NextPage } from 'next';
+import { AiOutlineLogin } from "@ant-design/icons";
 
-const Login: NextPage = () => {
-  const [email, setEmail] = useState('');
+const Login = () => {
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+
+  const handleLogin = () => {
+    console.log(username, password);
+  };
 
   return (
     <div>
       <h1>Login</h1>
-      <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email"/>
+      <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Username"/>
       <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password"/>
-      <button>Login</button>
+      <button onClick={handleLogin}>Login</button>
     </div>
   );
 };
