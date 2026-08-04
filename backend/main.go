@@ -7,8 +7,11 @@ import (
 )
 
 func main() {
-    http.HandleFunc("/ai", func(w http.ResponseWriter, r *http.Request) {
-        http.Redirect(w, r, "/ai", 302)
-    })
+    http.HandleFunc("/api/ai", aiHandler)
+    fmt.Println("Server is listening on port 8080")
     http.ListenAndServe("localhost:8080", nil)
+}
+
+func aiHandler(w http.ResponseWriter, r *http.Request) {
+    fmt.Fprint(w, "Hello from Golang backend API!")
 }

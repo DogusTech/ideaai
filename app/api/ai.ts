@@ -1,3 +1,5 @@
-import { "@/components/ui/CorporatePhoto" } from '@/components/ui/CorporatePhoto';
+import { NextApiRequest, NextApiResponse } from 'next';
 
-export default function Ai() { return <CorporatePhoto />; }
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  res.status(200).json({ message: 'Hello from Next.js API!' });
+}

@@ -1,3 +1,15 @@
-import { "@/components/ui/CorporatePhoto" } from '@/components/ui/CorporatePhoto';
+import { NextPage } from 'next';
+import Head from 'next/head';
 
-export default function Register() { return <CorporatePhoto />; }
+const Register: NextPage = () => {
+  return (
+    <div>
+      <Head>
+        <title>Register</title>
+      </Head>
+      <h1>Register</h1>
+    </div>
+  );
+};
+
+export default Register;
