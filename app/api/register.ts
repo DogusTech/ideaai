@@ -1,10 +1,15 @@
-import { NextApiRequest, NextApiResponse } from 'next'
-import { firebaseAdmin } from './firebase-admin'
+// Import Firebase Authentication
+import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const user = await firebaseAdmin.auth().createUser({
-    email: req.body.email,
-    password: req.body.password,
-  })
-  res.status(201).json({ message: `User created: ${user.uid}` })
-}
+// Define a reusable register function
+const register = async (email: string, password: string) => {
+  const auth = getAuth();
+  try {
+    await createUserWithEmailAndPassword(auth, email, password);
+    console.log('Registration successful!');
+  } catch (error) {
+    console.error('Registration failed:', error);
+  }
+};
+
+export default register;

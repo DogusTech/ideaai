@@ -1,9 +1,16 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import { Firebase } from '../firebase';
+// Import Firebase Firestore
+import { getFirestore, doc, setDoc } from 'firebase/firestore';
 
-const aiRoute = async (req: NextApiRequest, res: NextApiResponse) => {
-  // TO DO: Implement AI functionality
-  res.status(200).json({ message: 'AI Route' });
+// Define a reusable AI function
+const ai = async (input: string) => {
+  const db = getFirestore();
+  const docRef = doc(db, 'ai', 'input');
+  try {
+    await setDoc(docRef, { input });
+    console.log('AI input saved!');
+  } catch (error) {
+    console.error('AI input failed:', error);
+  }
 };
 
-export default aiRoute;
+export default ai;

@@ -1,9 +1,17 @@
-import { Button } from '@/components/ui/Button';
+// Import Framer Motion
+import { motion } from 'framer-motion';
 
-function Button({ onClick, children }: { onClick: () => void; children: React.ReactNode }) {
+// Define a reusable Button component
+const Button = () => {
   return (
-    <button onClick={onClick}>{children}</button>
+    <motion.button
+      initial={{ scale: 0.5 }}
+      whileHover={{ scale: 1 }}
+      className='bg-white/10 backdrop-blur hover:bg-white/20 transition duration-300'
+    >
+      Click me!
+    </motion.button>
   );
-}
+};
 
 export default Button;

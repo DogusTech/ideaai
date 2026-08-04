@@ -1,7 +1,15 @@
-import { NextApiRequest, NextApiResponse } from 'next'
-import { firebaseAdmin } from './firebase-admin'
+// Import Firebase Authentication
+import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const user = await firebaseAdmin.auth().getUser(req.body.userId)
-  res.status(200).json({ message: `Hello, ${user.displayName}!` })
-}
+// Define a reusable login function
+const login = async (email: string, password: string) => {
+  const auth = getAuth();
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    console.log('Login successful!');
+  } catch (error) {
+    console.error('Login failed:', error);
+  }
+};
+
+export default login;
