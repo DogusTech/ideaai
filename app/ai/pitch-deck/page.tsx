@@ -15,7 +15,6 @@ import {
   Zap,
   Globe,
   Mail,
-  Linkedin,
   ChevronDown
 } from "lucide-react"
 
@@ -204,8 +203,8 @@ export default function PitchDeck() {
                     <div className="h-4 w-3/4 bg-[#262626] rounded-md" />
                     <div className="h-4 w-1/2 bg-[#262626] rounded-md" />
                     <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[13px] font-mono">
-                      > Agent spawned: Architecting new database schema...
-                      <br />> Zero-state UI rendered.
+                      &gt; Agent spawned: Architecting new database schema...
+                      <br />&gt; Zero-state UI rendered.
                     </div>
                   </div>
                 </div>
@@ -341,7 +340,7 @@ export default function PitchDeck() {
                 rel="noreferrer"
                 className="flex items-center gap-2 px-8 py-4 bg-white border border-[#e5e5e5] text-[#171717] rounded-full font-medium hover:bg-[#f4f4f4] transition-colors w-full sm:w-auto justify-center"
               >
-                <Linkedin className="w-5 h-5" />
+                <ArrowRight className="w-5 h-5" />
                 Connect on LinkedIn
               </a>
             </div>

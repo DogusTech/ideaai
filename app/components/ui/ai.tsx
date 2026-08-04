@@ -1,16 +1,25 @@
-import { useState } from 'react';
-import { AiFillLogin } from 'react-icons/ai';
-import { FiLogIn } from 'react-icons/fi';
-import { IoLogoGithub } from 'react-icons/io';
-import { RiLoginCircleLine } from 'react-icons/ri';
-import { TbLogin } from 'react-icons/tb';
-import { VscLogin } from 'react-icons/vsc';
+import { FC } from 'react';
+import Link from 'next/link';
+import Header from '../ui/Header';
+import LoginRegister from '../ui/LoginRegister';
 
-export const AiButton = () => {
-  const [ai, setAi] = useState(false);
+interface Props {
+  children: React.ReactNode;
+}
+
+const Ai: FC<Props> = ({ children }) => {
   return (
-    <button onClick={() => setAi(true)}>
-      <AiFillLogin size={24} />
-    </button>
+    <div className="flex flex-col items-center space-y-4 p-4">
+      <Header>
+        <Link href="/ai">
+          <a className="text-lg font-bold text-gray-800 hover:text-gray-900">TogetLink AI</a>
+        </Link>
+      </Header>
+      <LoginRegister>
+        {children}
+      </LoginRegister>
+    </div>
   );
-};
+}
+
+export default Ai;
