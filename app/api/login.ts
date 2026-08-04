@@ -1,7 +1,7 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import { db } from '../firebase/config';
+import { NextApiRequest, NextApiResponse } from 'next'
+import { firebaseAdmin } from './firebase-admin'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // TO DO: Implement login logic
-  res.status(200).json({ message: 'Login successful' });
+  const user = await firebaseAdmin.auth().getUser(req.body.userId)
+  res.status(200).json({ message: `Hello, ${user.displayName}!` })
 }

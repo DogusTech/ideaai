@@ -1,7 +1,10 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import { db } from '../firebase/config';
+import { NextApiRequest, NextApiResponse } from 'next'
+import { firebaseAdmin } from './firebase-admin'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // TO DO: Implement register logic
-  res.status(200).json({ message: 'Register successful' });
+  const user = await firebaseAdmin.auth().createUser({
+    email: req.body.email,
+    password: req.body.password,
+  })
+  res.status(201).json({ message: `User created: ${user.uid}` })
 }

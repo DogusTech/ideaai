@@ -1,22 +1,44 @@
-import { useState } from 'react';
-import { AiOutlineLogin } from "@ant-design/icons";
+import { NextPage } from 'next'
+import { firebaseAdmin } from '../firebase-admin'
 
-const Login = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+const Login: NextPage = () => {
+  const [email, setEmail] = React.useState('')
+  const [password, setPassword] = React.useState('')
+  const [userId, setUserId] = React.useState('')
 
-  const handleLogin = () => {
-    console.log(username, password);
-  };
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const response = await fetch('/api/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ userId, email, password }),
+    })
+    const data = await response.json()
+    console.log(data)
+  }
 
   return (
-    <div>
-      <h1>Login</h1>
-      <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Username"/>
-      <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password"/>
-      <button onClick={handleLogin}>Login</button>
+    <div className="flex justify-center items-center h-screen bg-white/10 backdrop-blur-sm">
+      <h1 className="text-4xl font-bold text-gray-900">Login</h1>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email"
+        />
+        <input
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password"
+        />
+        <button type="submit">Login</button>
+      </form>
     </div>
-  );
-};
+  )
+}
 
-export default Login;
+export default Login
