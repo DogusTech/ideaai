@@ -1,5 +1,2 @@
-import CorporateImage from '../ui/image';
-
-export default function AiLandingPage() {
-  return <CorporateImage />;
-}
+import { GetServerSideProps } from 'next'
+import { Ai } from '../components/ui/Ai'
