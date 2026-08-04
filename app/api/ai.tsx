@@ -29,6 +29,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     } catch (error) {
       res.status(500).json({ message: 'Error updating password.' });
     }
+  } else if (req.method === 'DELETE') {
+    try {
+      await firebase.auth().currentUser.delete();
+      res.status(200).json({ message: 'User account deleted successfully.' });
+    } catch (error) {
+      res.status(500).json({ message: 'Error deleting user account.' });
+    }
   } else {
     res.status(405).json({ message: 'Method not allowed.' });
   }
