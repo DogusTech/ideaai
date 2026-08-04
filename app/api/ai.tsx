@@ -21,6 +21,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     } catch (error) {
       res.status(500).json({ message: 'Error checking user status.' });
     }
+  } else if (req.method === 'PUT') {
+    const { username, password } = req.body;
+    try {
+      await firebase.auth().currentUser.updatePassword(password);
+      res.status(200).json({ message: 'Password updated successfully.' });
+    } catch (error) {
+      res.status(500).json({ message: 'Error updating password.' });
+    }
   } else {
     res.status(405).json({ message: 'Method not allowed.' });
   }
