@@ -1,12 +1,12 @@
-package main
+// Import necessary packages
 import (
   "context"
   "fmt"
   "net/http"
 )
+
+// Define the main function
 func main() {
-  http.HandleFunc("/ai", func(w http.ResponseWriter, r *http.Request) {
-    fmt.Fprint(w, "Hello from Golang API!")
-  })
-  http.ListenAndServe("localhost:3000", nil)
+  http.HandleFunc("/ai", getAIResponse)
+  http.ListenAndServe("localhost:8080", nil)
 }
