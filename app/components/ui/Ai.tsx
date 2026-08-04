@@ -1,45 +1,11 @@
-import { Ai } from './Ai';
+import { GetServerSideProps } from 'next';
+import { getServerSession } from 'next-auth/next';
 
-const Ai = () => {
-  const [loginSuccess, setLoginSuccess] = useState(false);
-  const [loginFailure, setLoginFailure] = useState(false);
-  const [registerSuccess, setRegisterSuccess] = useState(false);
-  const [registerFailure, setRegisterFailure] = useState(false);
-
-  const login = async (username, password) => {
-    try {
-      await Ai.login(username, password);
-      setLoginSuccess(true);
-      setLoginFailure(false);
-    } catch (error) {
-      setLoginSuccess(false);
-      setLoginFailure(true);
-    }
-  };
-
-  const register = async (username, password) => {
-    try {
-      await Ai.register(username, password);
-      setRegisterSuccess(true);
-      setRegisterFailure(false);
-    } catch (error) {
-      setRegisterSuccess(false);
-      setRegisterFailure(true);
-    }
-  };
-
+export default function Ai() {
   return (
-    <div>
-      <h1>Login</h1>
-      <Login login={login} />
-      {loginFailure && <p>Login failed</p>}
-      {loginSuccess && <p>Login successful</p>}
-      <h1>Register</h1>
-      <Register register={register} />
-      {registerFailure && <p>Registration failed</p>}
-      {registerSuccess && <p>Registration successful</p>}
+    <div className="max-w-md mx-auto p-8 bg-white/10 backdrop-blur shadow-md rounded-lg">
+      <h2 className="text-3xl font-bold mb-4">AI</h2>
+      <p>This is the AI page.</p>
     </div>
   );
-};
-
-export default Ai;
+}
