@@ -267,13 +267,124 @@ export function SettingsModal({ isOpen, onClose, initialTab = "general", userEma
               </div>
             )}
             
-            {/* OTHER TABS (Placeholders for UI completeness) */}
-            {["appearance", "models", "customizations", "browser", "app"].includes(activeTab) && (
+            {/* APPEARANCE TAB */}
+            {activeTab === "appearance" && (
               <div className="max-w-[600px] animate-in fade-in duration-300">
-                <h2 className="text-[22px] font-semibold text-[#171717] mb-1 capitalize">{activeTab}</h2>
-                <p className="text-[14px] text-[#737373] mb-8">This section is currently under construction in the Elite Antigravity UI.</p>
-                <div className="p-10 border-2 border-dashed border-[#e5e5e5] rounded-xl flex items-center justify-center text-[#a3a3a3] text-[14px]">
-                  Future settings will appear here.
+                <h2 className="text-[22px] font-semibold text-[#171717] mb-1">Appearance</h2>
+                <p className="text-[14px] text-[#737373] mb-8">Customize the look and feel of the platform.</p>
+                
+                <h3 className="text-[14px] font-semibold text-[#171717] mb-3">Theme Preferences</h3>
+                <div className="flex gap-4 mb-8">
+                  <button className="flex-1 flex flex-col items-center gap-3 p-4 rounded-xl border-2 border-[#171717] bg-[#f4f4f4]">
+                    <div className="w-full h-24 rounded-lg bg-white border border-[#e5e5e5] shadow-sm flex flex-col p-2 gap-2">
+                       <div className="w-1/2 h-3 bg-[#f0f0f0] rounded-sm"></div>
+                       <div className="w-3/4 h-3 bg-[#f0f0f0] rounded-sm"></div>
+                    </div>
+                    <span className="text-[13px] font-medium text-[#171717]">Light Mode</span>
+                  </button>
+                  <button className="flex-1 flex flex-col items-center gap-3 p-4 rounded-xl border border-[#e5e5e5] hover:border-[#a3a3a3] transition-colors bg-[#f4f4f4] opacity-70 cursor-not-allowed">
+                    <div className="w-full h-24 rounded-lg bg-[#171717] border border-[#262626] shadow-sm flex flex-col p-2 gap-2">
+                       <div className="w-1/2 h-3 bg-[#262626] rounded-sm"></div>
+                       <div className="w-3/4 h-3 bg-[#262626] rounded-sm"></div>
+                    </div>
+                    <span className="text-[13px] font-medium text-[#737373]">Dark Mode (Soon)</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* MODELS TAB */}
+            {activeTab === "models" && (
+              <div className="max-w-[600px] animate-in fade-in duration-300">
+                <h2 className="text-[22px] font-semibold text-[#171717] mb-1">Models & AI</h2>
+                <p className="text-[14px] text-[#737373] mb-8">Configure your AI engine and API integrations.</p>
+                
+                <h3 className="text-[14px] font-semibold text-[#171717] mb-3">Active Model</h3>
+                <div className="space-y-3 mb-8">
+                  <label className="flex items-center justify-between p-4 bg-white border-2 border-[#171717] rounded-lg cursor-pointer shadow-sm">
+                    <div>
+                      <div className="text-[14px] font-medium text-[#171717]">Idea 1.0 Fast (Llama 3.1)</div>
+                      <div className="text-[12px] text-[#737373]">Optimized for low latency and high concurrency.</div>
+                    </div>
+                    <div className="w-5 h-5 rounded-full border-[5px] border-[#171717]"></div>
+                  </label>
+                  <label className="flex items-center justify-between p-4 bg-[#f4f4f4] border border-[#e5e5e5] rounded-lg cursor-pointer hover:border-[#a3a3a3] transition-colors">
+                    <div>
+                      <div className="text-[14px] font-medium text-[#525252]">Idea 1.0 Pro (Fine-Tuned)</div>
+                      <div className="text-[12px] text-[#737373]">Requires active Pro+ subscription. Deep reasoning capabilities.</div>
+                    </div>
+                    <div className="w-5 h-5 rounded-full border border-[#d4d4d4]"></div>
+                  </label>
+                </div>
+              </div>
+            )}
+
+            {/* CUSTOMIZATIONS TAB */}
+            {activeTab === "customizations" && (
+              <div className="max-w-[600px] animate-in fade-in duration-300">
+                <h2 className="text-[22px] font-semibold text-[#171717] mb-1">Customizations</h2>
+                <p className="text-[14px] text-[#737373] mb-8">Set system prompts and activate specialized skills.</p>
+                
+                <h3 className="text-[14px] font-semibold text-[#171717] mb-3">Global System Prompt</h3>
+                <textarea 
+                  className="w-full h-32 p-3 bg-[#f4f4f4] border border-[#e5e5e5] rounded-lg text-[13px] text-[#171717] focus:outline-none focus:border-[#171717] mb-8 resize-none"
+                  defaultValue="You are an elite Silicon Valley software engineer. Always answer with the most minimalist, high-end technical approach possible."
+                />
+
+                <h3 className="text-[14px] font-semibold text-[#171717] mb-3">Active Skills</h3>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between p-3 bg-white border border-[#e5e5e5] rounded-lg">
+                    <div className="text-[13px] font-medium text-[#171717]">Code Generation</div>
+                    <div className="w-10 h-6 bg-[#4f46e5] rounded-full relative cursor-pointer"><div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full"></div></div>
+                  </div>
+                  <div className="flex items-center justify-between p-3 bg-white border border-[#e5e5e5] rounded-lg">
+                    <div className="text-[13px] font-medium text-[#171717]">Web Research</div>
+                    <div className="w-10 h-6 bg-[#4f46e5] rounded-full relative cursor-pointer"><div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full"></div></div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* BROWSER TAB */}
+            {activeTab === "browser" && (
+              <div className="max-w-[600px] animate-in fade-in duration-300">
+                <h2 className="text-[22px] font-semibold text-[#171717] mb-1">Browser Tool</h2>
+                <p className="text-[14px] text-[#737373] mb-8">Manage how the AI interacts with the internet.</p>
+                
+                <div className="flex items-center justify-between p-4 bg-[#f4f4f4] rounded-lg border border-[#e5e5e5]">
+                  <div>
+                    <div className="text-[14px] text-[#171717] font-medium">Search Engine Preference</div>
+                    <div className="text-[13px] text-[#737373]">Which engine the agent uses to look up live facts.</div>
+                  </div>
+                  <button className="flex items-center gap-2 px-3 py-1.5 bg-[#ebebeb] hover:bg-[#e5e5e5] rounded-md text-[13px] text-[#525252] transition-colors">
+                    Google <ChevronDown className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* APP TAB */}
+            {activeTab === "app" && (
+              <div className="max-w-[600px] animate-in fade-in duration-300">
+                <h2 className="text-[22px] font-semibold text-[#171717] mb-1">App Settings</h2>
+                <p className="text-[14px] text-[#737373] mb-8">Manage notifications and language preferences.</p>
+                
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between p-4 bg-[#f4f4f4] rounded-lg border border-[#e5e5e5]">
+                    <div>
+                      <div className="text-[14px] text-[#171717] font-medium">Language</div>
+                    </div>
+                    <button className="flex items-center gap-2 px-3 py-1.5 bg-[#ebebeb] hover:bg-[#e5e5e5] rounded-md text-[13px] text-[#525252] transition-colors">
+                      English (US) <ChevronDown className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                  <div className="flex items-center justify-between p-4 bg-[#f4f4f4] rounded-lg border border-[#e5e5e5]">
+                    <div>
+                      <div className="text-[14px] text-[#171717] font-medium">Desktop Notifications</div>
+                      <div className="text-[13px] text-[#737373]">Receive an alert when an agent finishes a long task.</div>
+                    </div>
+                    <div className="w-10 h-6 bg-[#e5e5e5] rounded-full relative cursor-pointer"><div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow-sm"></div></div>
+                  </div>
                 </div>
               </div>
             )}

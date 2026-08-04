@@ -10,7 +10,10 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || "demo-app-id"
 };
 
+import { getFirestore } from "firebase/firestore";
+
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
-export { app, auth };
+export { app, auth, db };

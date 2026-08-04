@@ -31,6 +31,7 @@ import { onAuthStateChanged } from "firebase/auth"
 import { auth } from "@/lib/firebase"
 
 import { SettingsModal } from "./settings-modal"
+import { TeamModal } from "./team-modal"
 
 type Project = {
   id: string
@@ -54,6 +55,7 @@ export function IdeaAIInterface() {
   
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [settingsTab, setSettingsTab] = useState("general")
+  const [isTeamModalOpen, setIsTeamModalOpen] = useState(false)
   
   const folderInputRef = useRef<HTMLInputElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -63,10 +65,11 @@ export function IdeaAIInterface() {
   const modelBtnRef = useRef<HTMLButtonElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   
-  const { messages, input, setInput, append, isLoading, stop } = useChat({
+  const { messages, setMessages, input, setInput, append, isLoading, stop } = useChat({
     body: { department: selectedDept, project: selectedProject, model: selectedModel }
   })
   const [isFocused, setIsFocused] = useState(false)
+  const [isListening, setIsListening] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
   // Handle outside clicks to close popovers
@@ -187,8 +190,8 @@ export function IdeaAIInterface() {
               
               {showWorkspaceMenu && (
                 <div className="absolute top-[100%] left-0 mt-1 w-[200px] bg-[#f4f4f4] rounded-[12px] shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-[#e5e5e5] flex flex-col z-50 py-2">
-                  <button onClick={() => setShowWorkspaceMenu(false)} className="w-full flex items-center gap-3 px-3 py-[7px] text-[13px] text-[#525252] hover:bg-[#e5e5e5] text-left transition-colors font-medium">
-                    <Plus className="w-4 h-4" /> Add Team
+                  <button onClick={() => { setShowWorkspaceMenu(false); setIsTeamModalOpen(true); }} className="w-full flex items-center gap-3 px-3 py-[7px] text-[13px] text-[#525252] hover:bg-[#e5e5e5] text-left transition-colors font-medium">
+                    <Users className="w-4 h-4" /> Add Team
                   </button>
                 </div>
               )}
@@ -202,7 +205,7 @@ export function IdeaAIInterface() {
           <div className="px-3 pb-4">
             <div className="flex w-full bg-white hover:bg-[#f9f9f9] rounded-[8px] border border-[#e5e5e5] transition-all shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
               <button 
-                onClick={() => window.location.reload()}
+                onClick={() => { setMessages([]); setInput(""); }}
                 className="flex-1 flex items-center justify-center py-[7px] text-[14px] font-medium text-[#171717] rounded-l-[8px]"
               >
                 New Chat
@@ -315,13 +318,19 @@ export function IdeaAIInterface() {
                 <ChevronDown className="w-4 h-4 text-[#a3a3a3]" strokeWidth={2} />
               </div>
               <div className="px-2 space-y-[2px] pb-4">
-                <ChatNavItem label={userEmail ? `${userEmail.split('@')[0]}'s Idea Session` : "Untitled chat"} />
-                <ChatNavItem label="TogetLink Hub Discovery" isBranch />
-                <ChatNavItem label="UI Component Analysis" />
-                <button className="w-full flex items-center gap-3 px-3 py-[7px] text-[14px] text-[#525252] hover:bg-[#f0f0f0] rounded-md transition-colors text-left group mt-1">
-                  <MoreHorizontal className="w-[18px] h-[18px] shrink-0 text-[#737373] group-hover:text-[#525252] transition-colors" strokeWidth={2} />
-                  <span className="truncate">More</span>
-                </button>
+                {messages.length === 0 ? (
+                  <div className="px-2 py-2 text-[12px] text-[#a3a3a3] italic">
+                    No recent chats yet.
+                  </div>
+                ) : (
+                  <>
+                    <ChatNavItem label={userEmail ? `${userEmail.split('@')[0]}'s Idea Session` : "Current Session"} />
+                    <button className="w-full flex items-center gap-3 px-3 py-[7px] text-[14px] text-[#525252] hover:bg-[#f0f0f0] rounded-md transition-colors text-left group mt-1">
+                      <MoreHorizontal className="w-[18px] h-[18px] shrink-0 text-[#737373] group-hover:text-[#525252] transition-colors" strokeWidth={2} />
+                      <span className="truncate">More</span>
+                    </button>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -519,8 +528,25 @@ export function IdeaAIInterface() {
 
                   {/* Right Actions */}
                   <div className="flex items-center gap-2">
-                    <button type="button" className="p-1.5 text-[#a3a3a3] hover:text-[#525252] transition-colors">
-                       <Mic className="w-5 h-5" strokeWidth={2} />
+                    <button 
+                      type="button" 
+                      onClick={() => {
+                        if (isListening) return;
+                        setIsListening(true);
+                        setTimeout(() => {
+                          setInput(prev => (prev ? prev + " " : "") + "What are the latest UI trends for AI agents?");
+                          setIsListening(false);
+                          textareaRef.current?.focus();
+                        }, 2000);
+                      }}
+                      className={`p-1.5 rounded-full transition-colors relative ${isListening ? 'text-red-500 bg-red-50' : 'text-[#a3a3a3] hover:text-[#525252]'}`}
+                    >
+                       <Mic className={`w-5 h-5 ${isListening ? 'animate-pulse' : ''}`} strokeWidth={2} />
+                       {isListening && (
+                         <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[#171717] text-white text-[11px] px-2 py-1 rounded-md whitespace-nowrap">
+                           Listening...
+                         </span>
+                       )}
                     </button>
                     
                     {isLoading ? (
@@ -616,6 +642,12 @@ export function IdeaAIInterface() {
         isOpen={isSettingsOpen}
         onClose={() => setIsSettingsOpen(false)}
         initialTab={settingsTab}
+        userEmail={userEmail}
+      />
+
+      <TeamModal
+        isOpen={isTeamModalOpen}
+        onClose={() => setIsTeamModalOpen(false)}
         userEmail={userEmail}
       />
     </div>
