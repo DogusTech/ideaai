@@ -1,7 +1,7 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import { firebase } from '../firebase';
+import { AiLandingPage } from '@/components/ui/AiLandingPage';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // TO DO: Implement AI API
-  res.status(200).json({ message: 'AI API' });
+export default function AiLandingPageRoute() {
+    return (
+        <AiLandingPage />
+    );
 }
