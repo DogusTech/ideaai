@@ -1,10 +1,7 @@
-import { AiRouter } from 'next/router';
-import { AiPage } from '@/components/ui/AiPage';
+import { Ai } from '@/components/ui/Ai';
 
 export default function Ai() {
-  return (
-    <AiPage>
-      <h1>Ai Dashboard</h1>
-    </AiPage>
-  );
+  return <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+    <Ai />
+  </div>;
 }
