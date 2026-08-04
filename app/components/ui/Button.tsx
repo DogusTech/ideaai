@@ -1,4 +1,9 @@
-import React from 'react';
-import { AiFillEye } from 'react-icons/ai';
+import { Button } from '@/components/ui/Button';
 
-const Button = () => {
+function Button({ onClick, children }: { onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button onClick={onClick}>{children}</button>
+  );
+}
+
+export default Button;
