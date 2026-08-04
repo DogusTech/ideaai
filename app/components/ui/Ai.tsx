@@ -1,11 +1,15 @@
-import { GetServerSideProps } from 'next';
-import { getServerSession } from 'next-auth/next';
+import { Link } from 'next/link';
+import Login from './Login';
+import Register from './Register';
 
 export default function Ai() {
   return (
-    <div className="max-w-md mx-auto p-8 bg-white/10 backdrop-blur shadow-md rounded-lg">
-      <h2 className="text-3xl font-bold mb-4">AI</h2>
-      <p>This is the AI page.</p>
+    <div>
+      <h1>AI</h1>
+      <Link href='/ai/login'><a>Login</a></Link>
+      <Link href='/ai/register'><a>Register</a></Link>
+      <Login />
+      <Register />
     </div>
   );
 }
