@@ -1,7 +1,34 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { firebase } from '../firebase';
+import firebase from 'firebase/app';
+import 'firebase/auth';
+import 'firebase/firestore';
+
+const firebaseConfig = {
+  apiKey: 'AIzaSyBd3b7y4x5y6z7w9',
+  authDomain: 'togetlink-ai.firebaseapp.com',
+  projectId: 'togetlink-ai',
+  storageBucket: 'togetlink-ai.appspot.com',
+  messagingSenderId: '1234567890',
+  appId: '1:1234567890:web:1234567890',
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const auth = firebase.auth();
+const db = firebase.firestore();
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // TO DO: Implement Register API
-  res.status(200).json({ message: 'Register API' });
+  if (req.method === 'POST') {
+    try {
+      const { username, email, password } = req.body;
+      const user = await auth.createUserWithEmailAndPassword(email, password);
+      await db.collection('users').doc(user.uid).set({ username, email });
+      res.status(201).json({ message: 'User created successfully' });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: 'Internal Server Error' });
+    }
+  } else {
+    res.status(405).json({ message: 'Method Not Allowed' });
+  }
 }
