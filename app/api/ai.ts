@@ -1,5 +1,26 @@
-import { NextApiRequest, NextApiResponse } from 'next';
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from 'firebase/auth';
+import { Ai } from './ai';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  res.status(200).json({ message: 'Hello from Next.js API!' });
-}
+const auth = getAuth();
+
+const login = async (username, password) => {
+  try {
+    await signInWithEmailAndPassword(auth, username, password);
+    Ai.loginSuccess();
+  } catch (error) {
+    Ai.loginFailure();
+  }
+};
+
+const register = async (username, password) => {
+  try {
+    await createUserWithEmailAndPassword(auth, username, password);
+    Ai.registerSuccess();
+  } catch (error) {
+    Ai.registerFailure();
+  }
+};
+
+export { login, register };
+
+export default auth;

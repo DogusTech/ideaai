@@ -1,25 +1,45 @@
-import { FC } from 'react';
-import Link from 'next/link';
-import Header from '../ui/Header';
-import LoginRegister from '../ui/LoginRegister';
+import { Ai } from './Ai';
 
-interface Props {
-  children: React.ReactNode;
-}
+const Ai = () => {
+  const [loginSuccess, setLoginSuccess] = useState(false);
+  const [loginFailure, setLoginFailure] = useState(false);
+  const [registerSuccess, setRegisterSuccess] = useState(false);
+  const [registerFailure, setRegisterFailure] = useState(false);
 
-const Ai: FC<Props> = ({ children }) => {
+  const login = async (username, password) => {
+    try {
+      await Ai.login(username, password);
+      setLoginSuccess(true);
+      setLoginFailure(false);
+    } catch (error) {
+      setLoginSuccess(false);
+      setLoginFailure(true);
+    }
+  };
+
+  const register = async (username, password) => {
+    try {
+      await Ai.register(username, password);
+      setRegisterSuccess(true);
+      setRegisterFailure(false);
+    } catch (error) {
+      setRegisterSuccess(false);
+      setRegisterFailure(true);
+    }
+  };
+
   return (
-    <div className="flex flex-col items-center space-y-4 p-4">
-      <Header>
-        <Link href="/ai">
-          <a className="text-lg font-bold text-gray-800 hover:text-gray-900">TogetLink AI</a>
-        </Link>
-      </Header>
-      <LoginRegister>
-        {children}
-      </LoginRegister>
+    <div>
+      <h1>Login</h1>
+      <Login login={login} />
+      {loginFailure && <p>Login failed</p>}
+      {loginSuccess && <p>Login successful</p>}
+      <h1>Register</h1>
+      <Register register={register} />
+      {registerFailure && <p>Registration failed</p>}
+      {registerSuccess && <p>Registration successful</p>}
     </div>
   );
-}
+};
 
 export default Ai;
