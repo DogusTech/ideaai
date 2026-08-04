@@ -1,25 +1,33 @@
-import { GetServerSideProps } from 'next';
-import { GetStaticProps } from 'next';
-import Link from 'next/link';
-import { AiIcon } from '@/components/ui/AiIcon';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
+import { getFirestore, doc, getDoc } from 'firebase/firestore';
 
-export const getServerSideProps: GetServerSideProps = async () => {
-  return {
-    props: {},
-  };
-};
+function Home() {
+  const [data, setData] = useState(null);
+  const router = useRouter();
 
-export default function Ai() {
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const db = getFirestore();
+      const docRef = doc(db, "users", "123");
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        setData(docSnap.data());
+      } else {
+        console.log("No such document!");
+      }
+    };
+    fetchUserData();
+  }, []);
+
+  if (!data) return <div>Loading...</div>;
+
   return (
-    <div className="flex justify-center items-center h-screen bg-white/10 backdrop-blur-sm">
-      <AiIcon className="text-6xl text-blue-500" />
-      <h1 className="text-3xl font-bold text-gray-900">TogetLink AI</h1>
-      <Link href="/ai/login" className="text-blue-500 hover:text-blue-700">
-        <a>Login</a>
-      </Link>
-      <Link href="/ai/register" className="text-blue-500 hover:text-blue-700">
-        <a>Register</a>
-      </Link>
+    <div>
+      <h1>{data.name}</h1>
+      <p>{data.email}</p>
     </div>
   );
-};
+}
+
+export default Home;
