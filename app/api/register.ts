@@ -1,8 +1,14 @@
-// Import required libraries
-import { NextApiRequest, NextApiResponse } from 'next'
+import { NextApiRequest, NextApiResponse } from 'next';
+import { firebaseAdmin } from '../firebase-admin';
 
-// Define the register API route
-export default async function register(req: NextApiRequest, res: NextApiResponse) {
-    // TO DO: Implement register logic
-    res.status(200).json({ message: 'Registration successful' })
-}
+const register = async (req: NextApiRequest, res: NextApiResponse) => {
+  try {
+    const { email, password } = req.body;
+    const user = await firebaseAdmin.auth().createUser({ email, password });
+    res.status(201).json(user);
+  } catch (error) {
+    res.status(400).json({ message: 'Failed to create user' });
+  }
+};
+
+export default register;
