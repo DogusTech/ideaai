@@ -7,8 +7,10 @@ import (
 )
 
 func main() {
-    http.HandleFunc("/ai", func(w http.ResponseWriter, r *http.Request) {
-        fmt.Fprint(w, "AI Landing Page")
-    })
+    http.HandleFunc("/hello", hello)
     http.ListenAndServe("localhost:8080", nil)
+}
+
+func hello(w http.ResponseWriter, r *http.Request) {
+    fmt.Fprint(w, "Hello from Go!")
 }

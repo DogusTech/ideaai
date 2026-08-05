@@ -1,12 +1,13 @@
-import Link from 'next/link';
-import Image from 'next/image';
+import { FC } from 'react';
 
-export const Logo = () => {
+interface Props {}
+
+const Logo: FC<Props> = () => {
   return (
-    <Link href="/ai">
-      <a>
-        <Image src="https://source.unsplash.com/800x600/?corporate,office,technology" />
-      </a>
-    </Link>
+    <div className="flex items-center justify-center h-screen">
+      <img src="https://source.unsplash.com/800x600/?corporate,office,technology" />
+    </div>
   );
 };
+
+export default Logo;
