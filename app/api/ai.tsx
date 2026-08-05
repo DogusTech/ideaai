@@ -1,9 +1,5 @@
-// Import necessary components
-import { AiLandingPage } from '@/components/ui/AiLandingPage';
+import { AiLandingPage } from '../page';
 
-// Define the AI landing page component
-export default function AiLandingPageComponent() {
-  return (
-    <AiLandingPage />
-  );
+export const AiRouter = () => {
+  return <AiLandingPage />;
 };

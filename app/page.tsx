@@ -1,13 +1,8 @@
-<!-- Import UI components from @/components/ui -->
-import { Button, Input, Text } from '@/components/ui';
+import { CorporateImage } from '../ui/image';
 
-export default function Login() {
-  return (
-    <div>
-      <Text>Login Page</Text>
-      <Input placeholder='username' />
-      <Input placeholder='password' />
-      <Button>Login</Button>
-    </div>
-  );
-}
+export const AiLandingPage = () => {
+  return <div>
+    <CorporateImage />
+    <h1>Ai Landing Page</h1>
+  </div>;
+};
