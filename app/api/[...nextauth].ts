@@ -1,12 +1,13 @@
-import { GetServerSideProps } from 'next';
-import { Firestore } from 'firebase/firestore';
+<!-- Import necessary components and utilities -->
+import { AiLandingPage } from '@/components/ui/AiLandingPage';
+import { registerUser } from '@/lib/firebase/auth';
+import { db } from '@/lib/firebase/firestore';
+import { getServerSideProps } from 'next';
 
-const db = new Firestore();
-
-export default function getServerSideProps() {
-  return {
-    props: {
-      data: db.collection('users').get(),
-    },
-  };
+export default function Home() {
+  return (
+    <AiLandingPage registerUser={registerUser} db={db} />
+  );
 }
+
+export const getServerSideProps = getServerSideProps();
