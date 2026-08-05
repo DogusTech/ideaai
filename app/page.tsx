@@ -1,8 +1,1 @@
-import { CorporateImage } from '../components/ui/image';
-
-export const Login = () => {
-  return <div>
-    <CorporateImage />
-    <h1>Login</h1>
-  </div>;
-};
+<img src="https://source.unsplash.com/800x600/?corporate,office,technology" />
