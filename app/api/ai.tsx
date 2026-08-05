@@ -1,15 +1,9 @@
-import { Ai } from '@/components/ui/Ai';
+// Import necessary components
+import { AiLandingPage } from '@/components/ui/AiLandingPage';
 
-export default function AiPage() {
+// Define the AI landing page component
+export default function AiLandingPageComponent() {
   return (
-    <div>
-      <Ai />
-      <Link href="/login">
-        <a>Login</a>
-      </Link>
-      <Link href="/register">
-        <a>Register</a>
-      </Link>
-    </div>
+    <AiLandingPage />
   );
-}
+};

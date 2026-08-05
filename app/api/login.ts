@@ -1,7 +1,12 @@
-import { NextApiRequest, NextApiResponse } from 'next'
-import { firebaseConfig } from './firebase'
+import { auth } from 'firebase/auth';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // TODO: Implement authentication logic using Firebase Authentication
-  res.status(200).json({ message: 'Hello from Next.js API route!' })
-}
+const login = async (email: string, password: string) => {
+  try {
+    const userCredential = await auth.signInWithEmailAndPassword(email, password);
+    return userCredential.user;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export default login;

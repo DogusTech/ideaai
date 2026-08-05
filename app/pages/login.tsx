@@ -1,11 +1,11 @@
-import CorporateImage from '@/components/ui/CorporateImage';
+import CorporateBackground from '../ui/CorporateBackground';
 
-const Login: React.FC = () => {
+const LoginPage = () => {
   return (
-    <div className="container mx-auto p-4">
-      <CorporateImage src="https://source.unsplash.com/800x600/?corporate,office,technology" />
+    <div className="flex justify-center items-center h-screen w-screen">
+      <CorporateBackground />
     </div>
   );
 };
 
-export default Login;
+export default LoginPage;
