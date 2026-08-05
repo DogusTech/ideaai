@@ -1,16 +1,7 @@
-// Import Firebase Firestore
-import { getFirestore, doc, setDoc } from 'firebase/firestore';
+import { NextApiRequest, NextApiResponse } from 'next'
+import { firebaseConfig } from './firebase'
 
-// Define a reusable AI function
-const ai = async (input: string) => {
-  const db = getFirestore();
-  const docRef = doc(db, 'ai', 'input');
-  try {
-    await setDoc(docRef, { input });
-    console.log('AI input saved!');
-  } catch (error) {
-    console.error('AI input failed:', error);
-  }
-};
-
-export default ai;
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // TODO: Implement AI logic using Firebase Firestore
+  res.status(200).json({ message: 'Hello from Next.js API route!' })
+}

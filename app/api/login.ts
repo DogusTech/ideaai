@@ -1,15 +1,7 @@
-// Import Firebase Authentication
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { NextApiRequest, NextApiResponse } from 'next'
+import { firebaseConfig } from './firebase'
 
-// Define a reusable login function
-const login = async (email: string, password: string) => {
-  const auth = getAuth();
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-    console.log('Login successful!');
-  } catch (error) {
-    console.error('Login failed:', error);
-  }
-};
-
-export default login;
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // TODO: Implement authentication logic using Firebase Authentication
+  res.status(200).json({ message: 'Hello from Next.js API route!' })
+}

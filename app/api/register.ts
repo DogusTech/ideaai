@@ -1,15 +1,7 @@
-// Import Firebase Authentication
-import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
+import { NextApiRequest, NextApiResponse } from 'next'
+import { firebaseConfig } from './firebase'
 
-// Define a reusable register function
-const register = async (email: string, password: string) => {
-  const auth = getAuth();
-  try {
-    await createUserWithEmailAndPassword(auth, email, password);
-    console.log('Registration successful!');
-  } catch (error) {
-    console.error('Registration failed:', error);
-  }
-};
-
-export default register;
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // TODO: Implement registration logic using Firebase Authentication
+  res.status(200).json({ message: 'Hello from Next.js API route!' })
+}
