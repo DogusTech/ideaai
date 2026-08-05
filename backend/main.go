@@ -1,16 +1,21 @@
-// Import necessary packages
-import (
-    "context"
-    "firebase/auth"
-    "firebase/firestore"
-)
+import "github.com/go-playground/validator/v10"
+import "github.com/gorilla/mux"
+import "github.com/sirupsen/logrus"
 
-// Initialize Firebase
 func main() {
-    // Initialize Firestore
-    firestore := firestore.NewClient(ctx)
-    // Initialize Authentication
-    auth := auth.NewClient(ctx)
+    // Initialize logger
+    log := logrus.New()
+    log.SetLevel(logrus.DebugLevel)
 
-    // ... rest of the code ...
+    // Initialize router
+    router := mux.NewRouter()
+
+    // Initialize database
+    db := firestore.NewClient()
+
+    // Start server
+    log.Info("Server started on port 8080")
+    if err := http.ListenAndServe("8080", router); err != nil {
+        log.Fatal(err)
+    }
 }
