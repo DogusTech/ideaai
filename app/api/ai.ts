@@ -1,7 +1,10 @@
-import { NextApiRequest, NextApiResponse } from 'next'
-import { firebaseConfig } from './firebase'
+import { GetServerSideProps } from 'next';
+import { AiLandingPage } from '@/components/ui/AiLandingPage';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // TODO: Implement AI logic using Firebase Firestore
-  res.status(200).json({ message: 'Hello from Next.js API route!' })
-}
+export const getServerSideProps: GetServerSideProps = async () => {
+  return {
+    props: {},
+  };
+};
+
+export default AiLandingPage;

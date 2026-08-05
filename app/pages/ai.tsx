@@ -1,11 +1,7 @@
-import CorporateImage from '@/components/ui/CorporateImage';
+import { getServerSideProps } from '@/api/ai';
 
-const AI: React.FC = () => {
-  return (
-    <div className="container mx-auto p-4">
-      <CorporateImage src="https://source.unsplash.com/800x600/?corporate,office,technology" />
-    </div>
-  );
-};
+export const getServerSideProps = getServerSideProps;
 
-export default AI;
+export default function AiLandingPage() {
+  return <div>AI Landing Page</div>;
+}
