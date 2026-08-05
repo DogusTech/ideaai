@@ -1,20 +1,15 @@
-import { FC } from 'react';
-import Image from 'next/image';
+import { Image } from 'next/image';
 
-interface CorporateImageProps {
-  src: string;
-}
-
-const CorporateImage: FC<CorporateImageProps> = ({ src }) => {
+export default function CorporateImage() {
   return (
-    <Image
-      src={src}
-      width={800}
-      height={600}
-      className="mx-auto"
-      alt="Corporate Image"
-    />
+    <div className="w-full h-screen bg-white/10 backdrop-blur-sm p-4">
+      <Image
+        src="https://source.unsplash.com/800x600/?corporate,office,technology"
+        alt="Corporate Image"
+        width={800}
+        height={600}
+        className="object-cover w-full h-full"
+      />
+    </div>
   );
-};
-
-export default CorporateImage;
+}

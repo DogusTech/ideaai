@@ -1,13 +1,14 @@
-import "github.com/go-playground/validator/v10"
-import "github.com/google/uuid"
+package main
 
-// Firebase Admin instance
-var firebase *FirebaseAdmin
+import (
+    "context"
+    "fmt"
+    "net/http"
+)
 
 func main() {
-  // Initialize Firebase Admin
-  firebase = FirebaseAdmin{
-    // ...
-  }
-  // ...
+    http.HandleFunc("/api", func(w http.ResponseWriter, r *http.Request) {
+        fmt.Fprint(w, "TogetLink AI API")
+    })
+    http.ListenAndServe("localhost:8080", nil)
 }

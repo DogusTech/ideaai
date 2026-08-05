@@ -1,8 +1,5 @@
-import { corporateImage } from './image';
+import { NextApiRequest, NextApiResponse } from 'next'
 
-export const Ai = () => {
-  return <div>
-    <h1>Ai</h1>
-    <corporateImage />
-  </div>;
-};
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  return res.status(200).json({ message: 'Hello from Next.js API route!' })
+}
