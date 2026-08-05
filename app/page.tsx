@@ -1,12 +1,5 @@
-<!-- Import necessary components -->
-import { AiLandingPage } from '@/components/ui/AiLandingPage';
+<!-- Import necessary components and libraries -->
+import { AuthProvider } from '@next-auth/auth-provider';
+import { SessionProvider } from 'next-auth/react';
 
-<!-- Define the AiLandingPage component -->
-export default function AiLandingPage() {
-  return (
-    <div>
-      <h1>Ai Landing Page</h1>
-      <AiLandingPage />
-    </div>
-  );
-}
+// ... existing code ...
