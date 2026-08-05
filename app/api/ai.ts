@@ -1,30 +1,13 @@
-// Import necessary dependencies
-import (
-  "context"
-  "github.com/gin-gonic/gin"
-);
+import { AiRouter } from 'next/dist/client/router';
 
-// Define the AI API endpoint
-func AiEndpoint(c *gin.Context) {
-  // TO DO: Implement AI endpoint logic
-  c.JSON(200, gin.H{
-    "message": "AI endpoint implemented",
-  })
-}
-
-// Define the main function
-func main() {
-  // Create a new Gin instance
-  router := gin.Default()
-
-  // Define the AI API endpoint
-  router.GET("/ai", AiEndpoint)
-
-  // Start the Gin server
-  router.Run("localhost:8080")
-}
-
-// Call the main function
-func main()() {
-  main()
-}
+export const getAiRouter = async () => {
+  return {
+    ai: {
+      render: () => (
+        <div className="flex justify-center items-center h-screen bg-white/10 backdrop-blur-sm">
+          <h1>AI Dashboard</h1>
+        </div>
+      ),
+    },
+  };
+};

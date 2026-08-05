@@ -1,11 +1,9 @@
-import CorporateBackground from '../ui/CorporateBackground';
+import { Button } from '@/components/ui/Button';
 
-const LoginPage = () => {
+export const Login = () => {
   return (
-    <div className="flex justify-center items-center h-screen w-screen">
-      <CorporateBackground />
+    <div className="flex justify-center items-center h-screen bg-white/10 backdrop-blur-sm">
+      <Button>Log in</Button>
     </div>
   );
 };
-
-export default LoginPage;

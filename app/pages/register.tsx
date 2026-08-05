@@ -1,11 +1,9 @@
-import CorporateImage from '@/components/ui/CorporateImage';
+import { Button } from '@/components/ui/Button';
 
-const Register: React.FC = () => {
+export const Register = () => {
   return (
-    <div className="container mx-auto p-4">
-      <CorporateImage src="https://source.unsplash.com/800x600/?corporate,office,technology" />
+    <div className="flex justify-center items-center h-screen bg-white/10 backdrop-blur-sm">
+      <Button>Register</Button>
     </div>
   );
 };
-
-export default Register;

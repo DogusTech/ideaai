@@ -1,29 +1,15 @@
-// Import necessary dependencies
+package main
+
 import (
-  "github.com/gin-gonic/gin"
-);
+    "context"
+    "fmt"
+    "net/http"
+)
 
-// Define the AI API endpoint
-func AiEndpoint(c *gin.Context) {
-  // TO DO: Implement AI endpoint logic
-  c.JSON(200, gin.H{
-    "message": "AI endpoint implemented",
-  })
-}
-
-// Define the main function
 func main() {
-  // Create a new Gin instance
-  router := gin.Default()
-
-  // Define the AI API endpoint
-  router.GET("/ai", AiEndpoint)
-
-  // Start the Gin server
-  router.Run("localhost:8080")
-}
-
-// Call the main function
-func main()() {
-  main()
+    http.HandleFunc("/ai", func(w http.ResponseWriter, r *http.Request) {
+        http.Error(w, "AI endpoint not implemented yet.", http.StatusNotFound)
+    })
+    fmt.Println("Server listening on port 8080...")
+    http.ListenAndServe("localhost:8080", nil)
 }
