@@ -1,5 +1,5 @@
 import { FC } from 'react';
-import styles from './CorporateImage.module.scss';
+import Image from 'next/image';
 
 interface CorporateImageProps {
   src: string;
@@ -7,9 +7,13 @@ interface CorporateImageProps {
 
 const CorporateImage: FC<CorporateImageProps> = ({ src }) => {
   return (
-    <div className={styles.container}>
-      <img src={src} alt="Corporate Image" />
-    </div>
+    <Image
+      src={src}
+      width={800}
+      height={600}
+      className="mx-auto"
+      alt="Corporate Image"
+    />
   );
 };
 
