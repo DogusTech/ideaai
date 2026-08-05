@@ -7,9 +7,8 @@ import (
 )
 
 func main() {
-    http.HandleFunc("/api/ai", func(w http.ResponseWriter, r *http.Request) {
-        // TO DO: Implement AI API endpoint
+    http.HandleFunc("/api", func(w http.ResponseWriter, r *http.Request) {
+        fmt.Fprint(w, "Hello from TogetLink API!")
     })
-    fmt.Println("Server listening on port 8080")
     http.ListenAndServe("localhost:8080", nil)
 }
