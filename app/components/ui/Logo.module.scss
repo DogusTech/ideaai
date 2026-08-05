@@ -1,0 +1,8 @@
+.logo {
+  @apply bg-white/10 backdrop-blur-sm rounded-full p-4;
+  @apply flex justify-center items-center;
+}
+
+h1 {
+  @apply text-3xl font-bold text-gray-900;
+}

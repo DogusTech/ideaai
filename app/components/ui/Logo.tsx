@@ -1,15 +1,14 @@
 import { FC } from 'react';
-import styles from './Logo.module.css';
+import styles from './Logo.module.scss';
 
-interface LogoProps {
-  title: string;
+interface Props {
+  text: string;
 }
 
-const Logo: FC<LogoProps> = ({ title }) => {
+const Logo: FC<Props> = ({ text }) => {
   return (
-    <div className={styles.container}>
-      <img src="https://source.unsplash.com/800x600/?corporate,office,technology" />
-      <h1>{title}</h1>
+    <div className={styles.logo}>
+      <h1>{text}</h1>
     </div>
   );
 };

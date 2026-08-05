@@ -1,17 +1,11 @@
-// Import necessary packages
-import (
-  "context" "firebase/auth"
-);
+import { NextApiRequest, NextApiResponse } from 'next';
+import { Firestore } from '@firebase/firestore';
+import { getFirestore } from 'firebase/firestore';
 
-// Define the AI API route
-export default function AiApiRoute() {
-  // Use Firebase Authentication
-  const auth = getAuth();
-  // Use Firestore
-  const db = getFirestore();
-  // Handle API requests
-  return {
-    auth,
-    db,
-  };
+const db = getFirestore();
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const snapshot = await db.collection('users').get();
+  const users = snapshot.docs.map((doc) => doc.data());
+  res.json(users);
 }
