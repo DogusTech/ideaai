@@ -1,7 +1,5 @@
-import { AiLandingPage } from '@/components/AiLandingPage';
+import { AiLandingPage } from '@/components/ui/AiLandingPage';
 
-export default function AiRouter() {
-  return (
-    <AiLandingPage />
-  );
+export default function Ai() {
+  return <AiLandingPage />;
 }
