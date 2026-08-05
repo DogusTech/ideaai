@@ -1,13 +1,9 @@
-import { AiRouter } from 'next/dist/client/router';
+import { NextApiRequest, NextApiResponse } from 'next';
+import { FirebaseAdmin } from './firebase-admin';
 
-export const getAiRouter = async () => {
-  return {
-    ai: {
-      render: () => (
-        <div className="flex justify-center items-center h-screen bg-white/10 backdrop-blur-sm">
-          <h1>AI Dashboard</h1>
-        </div>
-      ),
-    },
-  };
-};
+const firebaseAdmin = new FirebaseAdmin();
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // TO DO: Implement AI endpoint
+  res.status(200).json({ message: 'AI endpoint not implemented' });
+}

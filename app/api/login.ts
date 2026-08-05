@@ -1,13 +1,14 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import { loginWithEmailAndPassword } from '@/lib/firebase/auth';
+import { FirebaseAdmin } from './firebase-admin';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { email, password } = req.body;
-  try {
-    const user = await loginWithEmailAndPassword(email, password);
-    res.status(200).json({ user });
-  } catch (error) {
-    console.error(error);
-    res.status(401).json({ message: 'Invalid email or password' });
+class Login {
+  private firebaseAdmin = new FirebaseAdmin();
+
+  async login(req: any, res: any) {
+    const auth = await this.firebaseAdmin.getAuth();
+    const userCredential = await auth.signInWithEmailAndPassword(req.body.email, req.body.password);
+    const user = userCredential.user;
+    res.status(200).json({ message: `User ${user.email} logged in successfully` });
   }
 }
+
+export { Login };
