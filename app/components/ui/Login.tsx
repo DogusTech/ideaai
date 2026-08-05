@@ -1,6 +1,16 @@
-// TO DO: Implement Login UI component
-import { FC } from 'react';
+// TogetLink UI Components
+import { useState } from 'react'
 
-export const Login: FC = () => {
-    return <div>Login</div);
-};
+const Login = () => {
+    const [username, setUsername] = useState('')
+    const [password, setPassword] = useState('')
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        // TO DO: Implement login logic
+    }
+
+    return (
+        <form onSubmit={handleSubmit}>...</form>
+    )
+}

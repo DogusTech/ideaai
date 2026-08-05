@@ -1,11 +1,7 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import { Firestore } from '@firebase/firestore';
-import { getFirestore } from 'firebase/firestore';
-
-const db = getFirestore();
+// TO DO: Implement AI-powered features
+import { NextApiRequest, NextApiResponse } from 'next'
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const snapshot = await db.collection('users').get();
-  const users = snapshot.docs.map((doc) => doc.data());
-  res.json(users);
+    // TO DO: Implement AI-powered features
+    res.status(200).json({ message: 'AI-powered features coming soon!' })
 }

@@ -1,6 +1,17 @@
-// TO DO: Implement Register UI component
-import { FC } from 'react';
+// TogetLink UI Components
+import { useState } from 'react'
 
-export const Register: FC = () => {
-    return <div>Register</div);
-};
+const Register = () => {
+    const [username, setUsername] = useState('')
+    const [password, setPassword] = useState('')
+    const [confirmPassword, setConfirmPassword] = useState('')
+
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        // TO DO: Implement register logic
+    }
+
+    return (
+        <form onSubmit={handleSubmit}>...</form>
+    )
+}
