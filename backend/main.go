@@ -8,7 +8,8 @@ import (
 
 func main() {
     http.HandleFunc("/ai", func(w http.ResponseWriter, r *http.Request) {
-        http.Redirect(w, r, "https://www.togetlink.com/ai", 301)
+        // TO DO: Implement AI Router
     })
-    http.ListenAndServe("localhost:8080", nil)
+    fmt.Println("Server started on port 3000")
+    http.ListenAndServe("3000", nil)
 }
