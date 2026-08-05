@@ -1,5 +1,8 @@
-<!-- Import necessary components and libraries -->
-import { AuthProvider } from '@next-auth/auth-provider';
-import { SessionProvider } from 'next-auth/react';
+import { CorporateImage } from '../components/ui/image';
 
-// ... existing code ...
+export const Login = () => {
+  return <div>
+    <CorporateImage />
+    <h1>Login</h1>
+  </div>;
+};

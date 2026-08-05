@@ -1,17 +1,12 @@
-// TOGETLINK BACKEND MAIN FILE
-package main
+import { Firestore } from 'firebase/firestore';
+import { initializeApp } from 'firebase/app';
 
-import (
-    "context"
-    "fmt"
-    "net/http"
-)
+const app = initializeApp({
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+});
 
-func main() {
-    http.HandleFunc("/api/dashboard", dashboard)
-    http.ListenAndServe("localhost:8080", nil)
-}
+const db = getFirestore(app);
 
-func dashboard(w http.ResponseWriter, r *http.Request) {
-    fmt.Fprint(w, "Dashboard")
-}
+export { db };
