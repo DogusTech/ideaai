@@ -1,0 +1,10 @@
+.container {
+  @apply bg-white/10 backdrop-blur;
+  @apply flex justify-center items-center;
+  @apply h-screen w-screen;
+}
+
+img {
+  @apply rounded-lg shadow-lg;
+  @apply h-96 w-96;
+}
