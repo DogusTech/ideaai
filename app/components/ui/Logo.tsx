@@ -1,16 +1,12 @@
-import { FC } from 'react';
-import styles from './Logo.module.scss';
+import Link from 'next/link';
+import Image from 'next/image';
 
-interface Props {
-  text: string;
-}
-
-const Logo: FC<Props> = ({ text }) => {
+export const Logo = () => {
   return (
-    <div className={styles.logo}>
-      <h1>{text}</h1>
-    </div>
+    <Link href="/ai">
+      <a>
+        <Image src="https://source.unsplash.com/800x600/?corporate,office,technology" />
+      </a>
+    </Link>
   );
 };
-
-export default Logo;
