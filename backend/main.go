@@ -8,8 +8,7 @@ import (
 
 func main() {
     http.HandleFunc("/ai", func(w http.ResponseWriter, r *http.Request) {
-        http.Error(w, "AI endpoint not implemented yet.", http.StatusNotFound)
+        http.Redirect(w, r, "/ai", http.StatusFound)
     })
-    fmt.Println("Server listening on port 8080...")
     http.ListenAndServe("localhost:8080", nil)
 }
