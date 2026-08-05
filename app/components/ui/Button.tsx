@@ -1,12 +1,15 @@
-// TOGETLINK BUTTON COMPONENT
-import { ButtonHTMLAttributes } from 'react'
+// Import necessary libraries
+import { FC } from 'react'
 
-interface Props extends ButtonHTMLAttributes<HTMLButtonElement> {
+// Define Button component
+interface Props {
     children: React.ReactNode
 }
 
-const Button = ({ children, ...props }: Props) => {
-    return <button {...props}>{children}</button>
+const Button: FC<Props> = ({ children }) => {
+    return (
+        <button className="bg-white/10 backdrop-blur hover:bg-white/20 transition duration-300 rounded-md p-2 text-white">{children}</button>
+    )
 }
 
 export default Button

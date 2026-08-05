@@ -1,12 +1,15 @@
-// TOGETLINK INPUT COMPONENT
-import { InputHTMLAttributes } from 'react'
+// Import necessary libraries
+import { FC } from 'react'
 
-interface Props extends InputHTMLAttributes<HTMLInputElement> {
+// Define Input component
+interface Props {
     children: React.ReactNode
 }
 
-const Input = ({ children, ...props }: Props) => {
-    return <input {...props}>{children}</input>
+const Input: FC<Props> = ({ children }) => {
+    return (
+        <input className="bg-white/10 backdrop-blur hover:bg-white/20 transition duration-300 rounded-md p-2 text-white">{children}</input>
+    )
 }
 
 export default Input
