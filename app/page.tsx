@@ -1,5 +1,10 @@
-import AiLandingPage from '@/ai';
+import { NextPage } from 'next';
+import { AiLandingPage } from '@/components/ui/AiLandingPage';
 
-export default function App({ Component, pageProps }: AppProps) {
-  return <AiLandingPage />;
-}
+const AiLandingPageComponent: NextPage = () => {
+  return (
+    <AiLandingPage />
+  );
+};
+
+export default AiLandingPageComponent;

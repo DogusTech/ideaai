@@ -1,5 +1,9 @@
-import { NextApiRequest, NextApiResponse } from 'next'
+import { NextApiRequest, NextApiResponse } from 'next';
+import { firebaseAdmin } from '@/firebase-admin';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  return res.status(200).json({ message: 'Hello from Next.js API route!' })
-}
+const ai = async (req: NextApiRequest, res: NextApiResponse) => {
+  // Implement AI logic here
+  res.status(200).json({ message: 'AI response' });
+};
+
+export default ai;
