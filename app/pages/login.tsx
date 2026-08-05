@@ -1,17 +1,39 @@
-import CorporateBackground from './CorporateBackground';
+import { FC } from 'react';
+import { motion } from 'framer-motion';
 
-const LoginPage = () => {
+interface Props {}
+
+const Login: FC<Props> = () => {
   return (
-    <div className="max-w-md mx-auto p-8 bg-white rounded-lg shadow-md">
-      <CorporateBackground />
-      <h1 className="text-3xl font-bold mb-4">Login</h1>
-      <form>
-        <input type="text" placeholder="Username" className="block w-full p-2 mb-4" />
-        <input type="password" placeholder="Password" className="block w-full p-2 mb-4" />
-        <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Login</button>
-      </form>
+    <div className='flex justify-center items-center h-screen bg-white/10 backdrop-blur-sm'>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+        className='flex flex-col items-center justify-center p-10 bg-white rounded-lg shadow-lg'
+      >
+        <h1 className='text-3xl font-bold text-gray-900'>Login</h1>
+        <form className='mt-6 space-y-4'>
+          <input
+            type='email'
+            placeholder='Email'
+            className='block w-full p-2 pl-10 text-sm text-gray-700 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-600'
+          />
+          <input
+            type='password'
+            placeholder='Password'
+            className='block w-full p-2 pl-10 text-sm text-gray-700 placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-600'
+          />
+          <button
+            type='submit'
+            className='w-full p-2 pl-10 text-sm text-white bg-blue-600 hover:bg-blue-700 rounded-lg'
+          >
+            Login
+          </button>
+        </form>
+      </motion.div>
     </div>
   );
 };
 
-export default LoginPage;
+export default Login;
