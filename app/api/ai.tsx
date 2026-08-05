@@ -1,18 +1,7 @@
-import { FC } from 'react';
-import Link from 'next/link';
-import Hero from '../ui/hero';
+import { AiLandingPage } from '@/components/AiLandingPage';
 
-interface Props {
-  title: string;
-  description: string;
-}
-
-const AiPage: FC<Props> = ({ title, description }) => {
+export default function AiRouter() {
   return (
-    <div className="container mx-auto p-4 pt-6">
-      <Hero title={title} description={description} />
-    </div>
+    <AiLandingPage />
   );
-};
-
-export default AiPage;
+}

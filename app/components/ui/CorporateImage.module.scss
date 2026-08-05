@@ -1,0 +1,14 @@
+.CorporateImage {
+  @apply bg-white/10 backdrop-blur;
+  @apply rounded-md;
+  @apply p-4;
+  @apply flex;
+  @apply items-center;
+  @apply justify-center;
+}
+
+.CorporateImage img {
+  @apply w-full;
+  @apply h-full;
+  @apply object-cover;
+}
