@@ -1,29 +1,16 @@
-package main
-
+// Import necessary dependencies for Golang backend
 import (
-    "context"
-    "fmt"
-    "net/http"
-    "firebase.google.com/go/auth"
-    "firebase.google.com/go/db"
+  "context"
+  "fmt"
+  "net/http"
 )
 
-func LoginHandler(w http.ResponseWriter, r *http.Request) {
-    // Login logic here
+// Define the Login API route
+func Login(w http.ResponseWriter, r *http.Request) {
+  // Implement login logic here
 }
 
-func RegisterHandler(w http.ResponseWriter, r *http.Request) {
-    // Register logic here
-}
-
-func AIHandler(w http.ResponseWriter, r *http.Request) {
-    // AI logic here
-}
-
-func main() {
-    http.HandleFunc("/login", LoginHandler)
-    http.HandleFunc("/register", RegisterHandler)
-    http.HandleFunc("/ai", AIHandler)
-    fmt.Println("Server started on port 8080")
-    http.ListenAndServe("8080", nil)
+// Define the Register API route
+func Register(w http.ResponseWriter, r *http.Request) {
+  // Implement register logic here
 }
