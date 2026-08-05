@@ -1,23 +1,9 @@
-import { GetServerSideProps } from 'next';
-import Link from 'next/link';
-import { Ai } from '@/components/ui/Ai';
+import { NextApiRequest, NextApiResponse } from 'next';
+import { firebase } from '../firebase';
 
-export const getServerSideProps: GetServerSideProps = async () => {
-  return {
-    props: {},
-  };
+const ai = async (req: NextApiRequest, res: NextApiResponse) => {
+  // TODO: Implement AI logic
+  res.status(200).json({ message: 'AI dashboard' });
 };
 
-export default function AiPage() {
-  return (
-    <div>
-      <Ai />
-      <Link href="/login">
-        <a>Login</a>
-      </Link>
-      <Link href="/register">
-        <a>Register</a>
-      </Link>
-    </div>
-  );
-}
+export default ai;

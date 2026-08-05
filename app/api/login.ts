@@ -1,11 +1,13 @@
-import { auth } from 'firebase/auth';
+import { NextApiRequest, NextApiResponse } from 'next';
+import { firebase } from '../firebase';
 
-const login = async (email: string, password: string) => {
+const login = async (req: NextApiRequest, res: NextApiResponse) => {
+  const { email, password } = req.body;
   try {
-    const userCredential = await auth.signInWithEmailAndPassword(email, password);
-    return userCredential.user;
+    const user = await firebase.auth().signInWithEmailAndPassword(email, password);
+    res.status(200).json({ message: 'Logged in successfully' });
   } catch (error) {
-    throw error;
+    res.status(401).json({ message: 'Invalid email or password' });
   }
 };
 

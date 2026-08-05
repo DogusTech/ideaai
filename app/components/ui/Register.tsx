@@ -1,25 +1,31 @@
-import { useState } from 'react';
-import { auth, createUserWithEmailAndPassword } from './firebase';
+import { FC } from 'react';
+import { AiOutlineLogin } from 'react-icons/ai';
+import { AiOutlineRegister } from 'react-icons/ai';
+import { AiOutlineDashboard } from 'react-icons/ai';
 
-export default function Register() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+interface Props {}
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    try {
-      await createUserWithEmailAndPassword(auth, email, password);
-      console.log('Registered!');
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
+const Register: FC<Props> = () => {
   return (
-    <form onSubmit={handleSubmit}>
-      <input type='email' value={email} onChange={(e) => setEmail(e.target.value)} placeholder='Email' />
-      <input type='password' value={password} onChange={(e) => setPassword(e.target.value)} placeholder='Password' />
-      <button type='submit'>Register</button>
-    </form>
+    <div className="max-w-md mx-auto p-8 bg-white/10 backdrop-blur-sm rounded-lg shadow-md">
+      <h2 className="text-lg text-gray-600 font-bold mb-4">Register</h2>
+      <form className="space-y-4">
+        <div className="flex items-center space-x-4">
+          <label className="text-lg text-gray-600" htmlFor="name">Name</label>
+          <input type="text" id="name" className="py-2 px-4 rounded-lg bg-gray-100 text-lg text-gray-600" placeholder="John Doe" />
+        </div>
+        <div className="flex items-center space-x-4">
+          <label className="text-lg text-gray-600" htmlFor="email">Email</label>
+          <input type="email" id="email" className="py-2 px-4 rounded-lg bg-gray-100 text-lg text-gray-600" placeholder="john.doe@example.com" />
+        </div>
+        <div className="flex items-center space-x-4">
+          <label className="text-lg text-gray-600" htmlFor="password">Password</label>
+          <input type="password" id="password" className="py-2 px-4 rounded-lg bg-gray-100 text-lg text-gray-600" placeholder="********" />
+        </div>
+        <button className="py-2 px-4 rounded-lg bg-blue-500 text-lg text-white hover:bg-blue-700" type="submit">Register</button>
+      </form>
+    </div>
   );
-}
+};
+
+export default Register;
