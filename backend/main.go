@@ -1,15 +1,16 @@
-package main
-
+// Import necessary packages
 import (
     "context"
-    "fmt"
-    "net/http"
+    "firebase/auth"
+    "firebase/firestore"
 )
 
+// Initialize Firebase
 func main() {
-    http.HandleFunc("/ai", func(w http.ResponseWriter, r *http.Request) {
-        // TO DO: Implement AI Router
-    })
-    fmt.Println("Server started on port 3000")
-    http.ListenAndServe("3000", nil)
+    // Initialize Firestore
+    firestore := firestore.NewClient(ctx)
+    // Initialize Authentication
+    auth := auth.NewClient(ctx)
+
+    // ... rest of the code ...
 }
