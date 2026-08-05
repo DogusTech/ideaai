@@ -1,14 +1,12 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { firebase } from '../firebase';
+import { firebase } from '@/lib/firebase';
 
-const login = async (req: NextApiRequest, res: NextApiResponse) => {
-  const { email, password } = req.body;
+export default async function login(req: NextApiRequest, res: NextApiResponse) {
   try {
-    const user = await firebase.auth().signInWithEmailAndPassword(email, password);
-    res.status(200).json({ message: 'Logged in successfully' });
+    const { username, password } = req.body;
+    const user = await firebase.auth().signInWithEmailAndPassword(username, password);
+    res.status(200).json({ user });
   } catch (error) {
-    res.status(401).json({ message: 'Invalid email or password' });
+    res.status(401).json({ error: 'Invalid credentials' });
   }
-};
-
-export default login;
+}

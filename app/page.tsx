@@ -1,9 +1,13 @@
-<!-- Import necessary components -->
-import { Ai } from '@/components/ui/Ai';
+<!-- Import UI components from @/components/ui -->
+import { Button, Input, Text } from '@/components/ui';
 
-<!-- Define the AI landing page -->
-export default function AiLandingPage() {
+export default function Login() {
   return (
-    <Ai />
+    <div>
+      <Text>Login Page</Text>
+      <Input placeholder='username' />
+      <Input placeholder='password' />
+      <Button>Login</Button>
+    </div>
   );
 }

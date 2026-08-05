@@ -1,15 +1,12 @@
 import { NextApiRequest, NextApiResponse } from 'next';
-import { firebase } from '../firebase';
+import { firebase } from '@/lib/firebase';
 
-const register = async (req: NextApiRequest, res: NextApiResponse) => {
-  const { name, email, password } = req.body;
+export default async function register(req: NextApiRequest, res: NextApiResponse) {
   try {
-    const user = await firebase.auth().createUserWithEmailAndPassword(email, password);
-    await user.updateProfile({ displayName: name });
-    res.status(201).json({ message: 'Registered successfully' });
+    const { username, password } = req.body;
+    const user = await firebase.auth().createUserWithEmailAndPassword(username, password);
+    res.status(201).json({ user });
   } catch (error) {
-    res.status(400).json({ message: 'Invalid email or password' });
+    res.status(400).json({ error: 'Invalid request' });
   }
-};
-
-export default register;
+}
