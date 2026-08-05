@@ -1,1 +1,3 @@
-import { AiComponent } from '@/components/ai';
+import { AiLandingPage } from '@/components/ui/AiLandingPage';
+
+export default AiLandingPage;
