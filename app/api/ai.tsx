@@ -1,14 +1,15 @@
-import { useState } from 'react';
-import { Layout } from './ui/Layout';
+import { Ai } from '@/components/ui/Ai';
 
-export default function Dashboard() {
-  const [count, setCount] = useState(0);
-
+export default function AiPage() {
   return (
-    <Layout>
-      <h1>Dashboard</h1>
-      <p>You clicked {count} times</p>
-      <button onClick={() => setCount(count + 1)}>Click me</button>
-    </Layout>
+    <div>
+      <Ai />
+      <Link href="/login">
+        <a>Login</a>
+      </Link>
+      <Link href="/register">
+        <a>Register</a>
+      </Link>
+    </div>
   );
 }
