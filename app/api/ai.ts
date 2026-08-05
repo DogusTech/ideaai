@@ -1,12 +1,12 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import { firebase } from '@/lib/firebase';
+import { GetServerSideProps } from 'next/dist/next-server/server/api-utils';
+import { AiRouter } from '../components/ui/AiRouter';
 
-export default async function ai(req: NextApiRequest, res: NextApiResponse) {
-  try {
-    const { query } = req;
-    const result = await firebase.firestore().collection('ai').get();
-    res.status(200).json({ result });
-  } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
+export default function Ai() {
+  return <AiRouter />;
+}
+
+export const getServerSideProps: GetServerSideProps = async () => {
+  return {
+    props: {},
+  };
 }

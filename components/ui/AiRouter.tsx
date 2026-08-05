@@ -1,17 +1,20 @@
-import { useState } from 'react';
 import Link from 'next/link';
+import { AiRouter } from '../components/ui/AiRouter';
 
-export default function AiRouter() {
-    const [login, setLogin] = useState(false);
-    const [register, setRegister] = useState(false);
+const AiRouter = () => {
+  return (
+    <div className="flex flex-col items-center justify-center h-screen">
+      <Link href="/login">
+        <a className="text-blue-500 hover:text-blue-700">Login</a>
+      </Link>
+      <Link href="/register">
+        <a className="text-blue-500 hover:text-blue-700">Register</a>
+      </Link>
+      <Link href="/ai">
+        <a className="text-blue-500 hover:text-blue-700">AI Dashboard</a>
+      </Link>
+    </div>
+  );
+};
 
-    return (
-        <div>
-            <h1>Ai Router</h1>
-            <button onClick={() => setLogin(true)}>Login</button>
-            <button onClick={() => setRegister(true)}>Register</button>
-            {login && <Login />} // login state true, render Login component
-            {register && <Register />} // register state true, render Register component
-        </div>
-    );
-}
+export default AiRouter;
