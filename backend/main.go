@@ -1,12 +1,14 @@
-import { Firestore } from 'firebase/firestore';
-import { initializeApp } from 'firebase/app';
+package main
 
-const app = initializeApp({
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  projectId: "YOUR_PROJECT_ID",
-});
+import (
+    "context"
+    "fmt"
+    "net/http"
+)
 
-const db = getFirestore(app);
-
-export { db };
+func main() {
+    http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+        fmt.Fprint(w, "Hello, World!")
+    })
+    http.ListenAndServe("localhost:8080", nil)
+}

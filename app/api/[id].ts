@@ -1,5 +1,15 @@
-import { NextApiRequest, NextApiResponse } from 'next';
+import { GetServerSideProps } from 'next/dist/next-server/lib/utils';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  res.status(200).json({ message: 'Hello from Next.js API route!' });
+export const getServerSideProps: GetServerSideProps = async () => {
+  return {
+    props: {},
+  };
+};
+
+export default function Home() {
+  return (
+    <div>
+      <h1>Hello World</h1>
+    </div>
+  );
 }
