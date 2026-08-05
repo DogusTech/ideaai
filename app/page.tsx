@@ -1,11 +1,12 @@
-import CorporateImage from '../ui/CorporateImage';
+<!-- Import necessary components -->
+import { AiLandingPage } from '@/components/ui/AiLandingPage';
 
-const HomePage: NextPage = () => {
+<!-- Define the AiLandingPage component -->
+export default function AiLandingPage() {
   return (
-    <div className="flex justify-center items-center h-screen bg-white/10 backdrop-blur-sm">
-      <CorporateImage src="https://source.unsplash.com/800x600/?corporate,office,technology" />
+    <div>
+      <h1>Ai Landing Page</h1>
+      <AiLandingPage />
     </div>
   );
-};
-
-export default HomePage;
+}

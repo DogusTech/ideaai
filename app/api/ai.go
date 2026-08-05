@@ -1,14 +1,15 @@
-package main
-
+// Import necessary packages
 import (
-    "context"
-    "fmt"
-    "net/http"
-    "firebase/auth"
-    "firebase/firestore"
-)
+  "context"
+);
 
-func main() {
-    // Initialize Firebase
-    // ... (rest of the code)
+// Define the AiLandingPage function
+func AiLandingPage() {
+  // Return a JSON response
+  return &context.JSON{
+    "message": "Ai Landing Page",
+  }
 }
+
+// Export the AiLandingPage function
+export "AiLandingPage" AiLandingPage

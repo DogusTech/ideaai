@@ -1,9 +1,10 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import { FirebaseAdmin } from './firebase-admin';
+import { AiLandingPage } from '@/components/ui/AiLandingPage';
 
-const firebaseAdmin = new FirebaseAdmin();
-
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // TO DO: Implement AI endpoint
-  res.status(200).json({ message: 'AI endpoint not implemented' });
+export default function AiLandingPage() {
+  return (
+    <div>
+      <h1>Ai Landing Page</h1>
+      <AiLandingPage />
+    </div>
+  );
 }
