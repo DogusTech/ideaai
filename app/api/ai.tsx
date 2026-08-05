@@ -1,6 +1,8 @@
-import { auth } from './auth';
-import { Firestore } from './firestore';
+import { corporateImage } from './image';
 
-export const AiRouter = () => {
-  // Your Next.js API route code here...
+export const Ai = () => {
+  return <div>
+    <h1>Ai</h1>
+    <corporateImage />
+  </div>;
 };
