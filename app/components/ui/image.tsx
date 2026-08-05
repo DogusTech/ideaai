@@ -1,5 +1,20 @@
-import { Image } from './image';
+import { FC } from 'react';
+import Image from 'next/image';
 
-export const CorporateImage = () => {
-  return <Image src="https://source.unsplash.com/800x600/?corporate,office,technology" />;
+interface Props {
+  src: string;
+  alt: string;
+}
+
+const ImageComponent: FC<Props> = ({ src, alt }) => {
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      width={800}
+      height={600}
+    />
+  );
 };
+
+export default ImageComponent;

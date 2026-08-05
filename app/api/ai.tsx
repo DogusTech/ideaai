@@ -1,5 +1,14 @@
-import { AiLandingPage } from '../page';
+import { FC } from 'react';
+import { Button } from '@chakra-ui/react';
 
-export const AiRouter = () => {
-  return <AiLandingPage />;
+interface Props {
+  children: React.ReactNode;
+}
+
+const ButtonComponent: FC<Props> = ({ children }) => {
+  return (
+    <Button>{children}</Button>
+  );
 };
+
+export default ButtonComponent;
