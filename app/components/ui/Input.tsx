@@ -1,4 +1,12 @@
-import React from 'react';
-import { AiFillEye } from 'react-icons/ai';
+// TOGETLINK INPUT COMPONENT
+import { InputHTMLAttributes } from 'react'
 
-const Input = () => {
+interface Props extends InputHTMLAttributes<HTMLInputElement> {
+    children: React.ReactNode
+}
+
+const Input = ({ children, ...props }: Props) => {
+    return <input {...props}>{children}</input>
+}
+
+export default Input
