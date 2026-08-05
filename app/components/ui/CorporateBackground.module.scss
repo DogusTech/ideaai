@@ -1,0 +1,15 @@
+.container {
+  @apply bg-white/10 backdrop-blur;
+  @apply flex justify-center items-center;
+  @apply h-screen w-screen;
+}
+
+.container::before {
+  @apply absolute top-0 left-0 w-full h-full;
+  @apply bg-white/10 backdrop-blur;
+}
+
+.container::after {
+  @apply absolute top-0 left-0 w-full h-full;
+  @apply bg-white/10 backdrop-blur;
+}

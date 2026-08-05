@@ -1,9 +1,14 @@
-import React from 'react';
+import { FC } from 'react';
+import styles from './CorporateBackground.module.scss';
 
-const CorporateBackground = () => {
+interface Props {
+  children: React.ReactNode;
+}
+
+const CorporateBackground: FC<Props> = ({ children }) => {
   return (
-    <div className="bg-white/10 backdrop-blur-sm h-screen w-screen flex justify-center items-center">
-      <img src="https://source.unsplash.com/800x600/?corporate,office,technology" />
+    <div className={styles.container}>
+      {children}
     </div>
   );
 };
