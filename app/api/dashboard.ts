@@ -1,7 +1,6 @@
-// TOGETLINK DASHBOARD API ROUTE
+// Import required components
 import { NextApiRequest, NextApiResponse } from 'next'
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    // TOGETLINK DASHBOARD LOGIC WILL GO HERE
-    res.status(200).json({ message: 'Dashboard' })
+export default async function dashboard(req: NextApiRequest, res: NextApiResponse) {
+  res.status(200).json({ message: 'AI Dashboard' })
 }

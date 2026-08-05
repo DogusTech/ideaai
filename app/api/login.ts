@@ -1,8 +1,13 @@
-// Import necessary libraries
+// Import required components
 import { NextApiRequest, NextApiResponse } from 'next'
+import { auth } from 'firebase-admin'
 
-// Define API endpoint
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    // Handle request and return response
-    res.status(200).json({ message: 'Hello from Login!' })
+export default async function login(req: NextApiRequest, res: NextApiResponse) {
+  try {
+    const { username, password } = req.body
+    const user = await auth.signInWithEmailAndPassword(username, password)
+    res.status(200).json({ message: 'Logged in successfully' })
+  } catch (error) {
+    res.status(401).json({ message: 'Invalid credentials' })
+  }
 }
