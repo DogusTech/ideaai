@@ -1,10 +1,4 @@
-import { getFirestore, collection, getDocs } from 'firebase/firestore';
-import { Firebase } from './firebase';
-
-const db = getFirestore(Firebase);
-
-export async function getHello() {
-  const helloCollection = collection(db, 'hello');
-  const helloDocs = await getDocs(helloCollection);
-  return helloDocs;
+import { NextApiRequest, NextApiResponse } from 'next';
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+    res.status(200).json({ message: 'Hello from Next.js API route!' });
 }
