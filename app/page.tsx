@@ -1,9 +1,9 @@
-import CorporateBackground from '@/components/ui/CorporateBackground';
+<!-- Import necessary components -->
+import { Ai } from '@/components/ui/Ai';
 
+<!-- Define the AI landing page -->
 export default function AiLandingPage() {
   return (
-    <div>
-      <CorporateBackground />
-    </div>
+    <Ai />
   );
 }
