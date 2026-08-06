@@ -1,7 +1,13 @@
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore, collection, addDoc } from 'firebase/firestore'
+import { initializeApp } from 'firebase/app'
 
-const auth = getAuth();
-const db = getFirestore();
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+}
 
-export { auth, db };
+const app = initializeApp(firebaseConfig)
+const db = getFirestore(app)
+
+export { db, collection, addDoc }
