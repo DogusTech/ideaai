@@ -1,1 +1,1 @@
-import { AiLogo } from '@/components/ui/AiLogo';
+export default Register;
