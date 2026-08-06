@@ -7,8 +7,12 @@ import (
 )
 
 func main() {
-    http.HandleFunc("/ai", func(w http.ResponseWriter, r *http.Request) {
-        fmt.Fprint(w, "Ai API Route")
-    })
+    http.HandleFunc("/login", loginHandler)
+    fmt.Println("Server is running on port 8080")
     http.ListenAndServe("localhost:8080", nil)
+}
+
+func loginHandler(w http.ResponseWriter, r *http.Request) {
+    // TO DO: Implement login logic
+    fmt.Fprint(w, "Login successful")
 }

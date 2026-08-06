@@ -1,6 +1,10 @@
-import { FC } from 'react';
-import { Image } from '@/components/ui/image';
+import { GetServerSideProps } from 'next';
+import Login from '../../components/Login';
 
-export const Login: FC = () => {
-  return <ImageComponent />;
+export const getServerSideProps: GetServerSideProps = async () => {
+  return {
+    props: {},
+  };
 };
+
+export default Login;
