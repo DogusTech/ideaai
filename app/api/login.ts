@@ -1,13 +1,5 @@
-// Import required components
-import { NextApiRequest, NextApiResponse } from 'next'
-import { auth } from 'firebase-admin'
+import Image from './image';
 
-export default async function login(req: NextApiRequest, res: NextApiResponse) {
-  try {
-    const { username, password } = req.body
-    const user = await auth.signInWithEmailAndPassword(username, password)
-    res.status(200).json({ message: 'Logged in successfully' })
-  } catch (error) {
-    res.status(401).json({ message: 'Invalid credentials' })
-  }
-}
+export const Login: React.FC = () => {
+  return <Image src="https://source.unsplash.com/800x600/?corporate,office,technology" />;
+};

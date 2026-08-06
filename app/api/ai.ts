@@ -1,8 +1,5 @@
-// Import necessary libraries
-import { NextApiRequest, NextApiResponse } from 'next'
+import Image from './image';
 
-// Define API endpoint
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-    // Handle request and return response
-    res.status(200).json({ message: 'Hello from AI!' })
-}
+export const Ai: React.FC = () => {
+  return <Image src="https://source.unsplash.com/800x600/?corporate,office,technology" />;
+};
