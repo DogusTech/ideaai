@@ -1,23 +1,11 @@
-import { useState } from 'react';
-import Link from 'next/link';
+<!-- Import necessary components -->
+import { AiLandingPage } from '@/components/ui/AiLandingPage';
 
-function Register() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    console.log(email, password);
-  };
-
+<!-- Define the AiLandingPage component -->
+export default function AiLandingPage() {
   return (
-    <div>
-      <h1>Register</h1>
-      <form onSubmit={handleSubmit}>
-        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email"/>
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password"/>
-        <button type="submit">Register</button>
-      </form>
+    <div className="container mx-auto p-4 pt-6 md:p-6 lg:px-8 xl:px-12 2xl:px-16 max-w-7xl">
+      <AiLandingPage />
     </div>
   );
 }

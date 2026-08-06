@@ -1,6 +1,10 @@
-import { NextApiRequest, NextApiResponse } from 'next'
+import { Ai } from '@/components/ui/Ai';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // TO DO: Implement AI functionality
-  res.status(200).json({ message: 'Hello AI!' })
-}
+export const Ai = () => {
+  return (
+    <div className="bg-white/10 backdrop-blur-md p-4 rounded-md shadow-md">
+      <h1 className="text-3xl font-bold mb-4">Ai</h1>
+      <Ai />
+    </div>
+  );
+};
