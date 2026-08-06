@@ -1,9 +1,8 @@
-import { NextApiRequest, NextApiResponse } from 'next'
-import { Firestore } from '@google-cloud/firestore'
+import { NextApiRequest, NextApiResponse } from 'next';
+import { Firebase } from '../firebase';
 
-const db = new Firestore()
+const ai = async (req: NextApiRequest, res: NextApiResponse) => {
+  res.status(200).json({ message: 'AI is working...' });
+};
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // TO DO: Implement AI logic here
-  res.status(200).json({ message: 'AI API route' })
-}
+export default ai;

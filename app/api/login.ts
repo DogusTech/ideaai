@@ -1,5 +1,10 @@
-import Image from './image';
+import { NextApiRequest, NextApiResponse } from 'next';
+import { Firebase } from '../firebase';
 
-export const Login: React.FC = () => {
-  return <Image src="https://source.unsplash.com/800x600/?corporate,office,technology" />;
+const login = async (req: NextApiRequest, res: NextApiResponse) => {
+  const { email, password } = req.body;
+  const user = await Firebase.auth().signInWithEmailAndPassword(email, password);
+  res.status(200).json({ user });
 };
+
+export default login;
