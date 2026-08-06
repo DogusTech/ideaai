@@ -1,11 +1,6 @@
 import { FC } from 'react';
+import { Image } from '@/components/ui/image';
 
-interface Props {
-  src: string;
-}
-
-const Image: FC<Props> = ({ src }) => {
-  return <img src={src} />;
+export const ImageComponent: FC = () => {
+  return <Image src="https://source.unsplash.com/800x600/?corporate,office,technology" />;
 };
-
-export default Image;
