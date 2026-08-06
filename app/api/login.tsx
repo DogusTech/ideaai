@@ -1,14 +1,25 @@
-<!-- Import necessary components -->
-import { Button, Input } from '@/components/ui';
+import { NextApiRequest, NextApiResponse } from 'next/api-handler';
+import { firebaseAdmin } from '../firebase-admin';
+import { firestore } from '../firebase-admin';
+import { Ai } from '../components/Ai';
 
-<!-- Login Page -->
-export default function LoginPage() {
-  return (
-    <div>
-      <h1>Login Page</h1>
-      <Input type='text' placeholder='Username' />
-      <Input type='password' placeholder='Password' />
-      <Button>Submit</Button>
-    </div>
-  );
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
+  try {
+    const user = await firebaseAdmin.auth().getUser(req.body.uid);
+    const userDoc = await firestore.collection('users').doc(user.uid).get();
+    const userRef = userDoc.ref;
+    const userDocData = userDoc.data();
+
+    res.status(200).json({
+      user: userDocData,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      error: 'Internal Server Error',
+    });
+  }
 }
