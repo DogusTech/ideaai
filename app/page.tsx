@@ -1,11 +1,20 @@
-<!-- Import necessary components -->
+import Link from 'next/link';
 import { AiLandingPage } from '@/components/ui/AiLandingPage';
 
-<!-- Define the AiLandingPage component -->
-export default function AiLandingPage() {
-  return (
-    <div className="container mx-auto p-4 pt-6 md:p-6 lg:px-8 xl:px-12 2xl:px-16 max-w-7xl">
-      <AiLandingPage />
-    </div>
-  );
+export default function Ai() {
+    return (
+        <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+            <AiLandingPage />
+            <Link href="/login">
+                <a className="text-blue-600 hover:text-blue-800">
+                    Login
+                </a>
+            </Link>
+            <Link href="/register">
+                <a className="text-blue-600 hover:text-blue-800">
+                    Register
+                </a>
+            </Link>
+        </div>
+    );
 }

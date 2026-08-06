@@ -1,1 +1,14 @@
-func main() {\n    http.HandleFunc("/api/ai", func(w http.ResponseWriter, r *http.Request) {\n        fmt.Fprint(w, "AI API")\n    })\n    http.ListenAndServe("localhost:8080", nil)\n}
+package main
+
+import (
+    "context"
+    "fmt"
+    "net/http"
+)
+
+func main() {
+    http.HandleFunc("/ai", func(w http.ResponseWriter, r *http.Request) {
+        fmt.Fprint(w, "Hello, World!")
+    })
+    http.ListenAndServe("localhost:8080", nil)
+}
