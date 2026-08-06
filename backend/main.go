@@ -7,8 +7,8 @@ import (
 )
 
 func main() {
-    http.HandleFunc("/api", func(w http.ResponseWriter, r *http.Request) {
-        fmt.Fprint(w, "TogetLink AI API")
+    http.HandleFunc("/ai", func(w http.ResponseWriter, r *http.Request) {
+        fmt.Fprint(w, "Ai API Route")
     })
     http.ListenAndServe("localhost:8080", nil)
 }
