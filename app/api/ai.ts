@@ -1,5 +1,6 @@
-import Image from './image';
+import { NextApiRequest, NextApiResponse } from 'next'
 
-export const Ai: React.FC = () => {
-  return <Image src="https://source.unsplash.com/800x600/?corporate,office,technology" />;
-};
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // TO DO: Implement AI functionality
+  res.status(200).json({ message: 'Hello AI!' })
+}
