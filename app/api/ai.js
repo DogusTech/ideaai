@@ -1,3 +1,6 @@
-import { AiLandingPage } from '@/components/ui/AiLandingPage';
+import { getServerSideProps } from 'next';
+import AiPage from '@/page';
 
-export default AiLandingPage;
+export const getServerSideProps = getServerSideProps;
+
+export default AiPage;

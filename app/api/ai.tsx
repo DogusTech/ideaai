@@ -1,9 +1,10 @@
-import { NextApiRequest, NextApiResponse } from 'next';
-import { db } from '@/lib/firebase';
+import { GetServerSideProps } from 'next';
+import { Ai } from '@/components/ui/Ai';
 
-const ai = async (req: NextApiRequest, res: NextApiResponse) => {
-  // TO DO: Implement AI logic
-  res.status(200).json({ message: 'AI response' });
+export const getServerSideProps: GetServerSideProps = async () => {
+  return {
+    props: {},
+  };
 };
 
-export default ai;
+export default Ai;
