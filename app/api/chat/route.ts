@@ -1,23 +1,20 @@
-import { groq } from '@ai-sdk/groq';
-import { streamText } from 'ai';
-
-// Allow streaming responses up to 30 seconds
-export const maxDuration = 30;
+import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
-  const { messages, department } = await req.json();
+  try {
+    const { messages, department } = await req.json();
 
-  const currentDept = department || "Software";
+    // TODO: Connect this to your custom Llama 3 model running on Colab.
+    // The model is currently training.
+    
+    // Placeholder response for now
+    return NextResponse.json({
+      role: 'assistant',
+      content: 'Hello! I am currently being trained on Llama 3 in Colab. Once my training is complete, I will be ready to help you as the ultimate autonomous AI.'
+    });
 
-  const result = await streamText({
-    model: groq('llama-3.3-70b-versatile'),
-    system: `You are a highly capable AI assistant named "IdeaAI", exclusively designed for developers and entrepreneurs.
-You are a core part of the TogetLink platform.
-Currently, you are acting as an expert in the ${currentDept} department.
-Your primary role is to provide expert-level, English-only responses tailored to the ${currentDept} domain.
-Your answers must be extremely clear, incorporate modern methodologies, and be highly professional. Actively use Markdown formatting to create tables and code blocks when appropriate. DO NOT use Turkish or any other language; respond strictly in English.`,
-    messages,
-  });
-
-  return result.toDataStreamResponse();
+  } catch (error) {
+    console.error("Chat API Error:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
 }
