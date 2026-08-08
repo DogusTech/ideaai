@@ -5,6 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+  --font-weight-bold: 600;
   --font-heading: var(--font-sans);
   --font-sans: 'Google Sans Flex', var(--font-geist-sans), 'Geist Fallback';
   --font-mono: 'Google Sans Code', var(--font-geist-mono), 'Geist Mono Fallback';
@@ -181,6 +182,9 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  b, strong {
+    font-weight: 600;
   }
   html {
     @apply font-sans;
@@ -401,8 +405,8 @@
 /* canadian-aboriginal */
 @font-face {
   font-family: 'Google Sans Flex';
-  font-style: oblique 0deg 10deg;
-  font-weight: 400 500;
+  font-style: normal;
+  font-weight: 100 900;
   font-stretch: 25% 150%;
   font-display: swap;
   src: url(https://fonts.gstatic.com/s/googlesansflex/v22/t5tQIQcYNIWbFgDgAAzZ34auoVyXkJCOvp3SFWJbN5hF8Ju1x5tGKwN2l9sIKwhINJwGqXtYAZzz0vzhDamtsQbx.woff2) format('woff2');
@@ -411,8 +415,8 @@
 /* cherokee */
 @font-face {
   font-family: 'Google Sans Flex';
-  font-style: oblique 0deg 10deg;
-  font-weight: 400 500;
+  font-style: normal;
+  font-weight: 100 900;
   font-stretch: 25% 150%;
   font-display: swap;
   src: url(https://fonts.gstatic.com/s/googlesansflex/v22/t5tQIQcYNIWbFgDgAAzZ34auoVyXkJCOvp3SFWJbN5hF8Ju1x5tGKwN2l9sIKwhINJwGqXtYAZzz0vzhDZWtsQbx.woff2) format('woff2');
@@ -421,8 +425,8 @@
 /* math */
 @font-face {
   font-family: 'Google Sans Flex';
-  font-style: oblique 0deg 10deg;
-  font-weight: 400 500;
+  font-style: normal;
+  font-weight: 100 900;
   font-stretch: 25% 150%;
   font-display: swap;
   src: url(https://fonts.gstatic.com/s/googlesansflex/v22/t5tQIQcYNIWbFgDgAAzZ34auoVyXkJCOvp3SFWJbN5hF8Ju1x5tGKwN2l9sIKwhINJwGqXtYAZzz0vzhDfqtsQbx.woff2) format('woff2');
@@ -431,8 +435,8 @@
 /* nushu */
 @font-face {
   font-family: 'Google Sans Flex';
-  font-style: oblique 0deg 10deg;
-  font-weight: 400 500;
+  font-style: normal;
+  font-weight: 100 900;
   font-stretch: 25% 150%;
   font-display: swap;
   src: url(https://fonts.gstatic.com/s/googlesansflex/v22/t5tQIQcYNIWbFgDgAAzZ34auoVyXkJCOvp3SFWJbN5hF8Ju1x5tGKwN2l9sIKwhINJwGqXtYAZzz0vzhDfmtsQbx.woff2) format('woff2');
@@ -441,8 +445,8 @@
 /* symbols */
 @font-face {
   font-family: 'Google Sans Flex';
-  font-style: oblique 0deg 10deg;
-  font-weight: 400 500;
+  font-style: normal;
+  font-weight: 100 900;
   font-stretch: 25% 150%;
   font-display: swap;
   src: url(https://fonts.gstatic.com/s/googlesansflex/v22/t5tQIQcYNIWbFgDgAAzZ34auoVyXkJCOvp3SFWJbN5hF8Ju1x5tGKwN2l9sIKwhINJwGqXtYAZzz0vzhDeitsQbx.woff2) format('woff2');
@@ -451,8 +455,8 @@
 /* syriac */
 @font-face {
   font-family: 'Google Sans Flex';
-  font-style: oblique 0deg 10deg;
-  font-weight: 400 500;
+  font-style: normal;
+  font-weight: 100 900;
   font-stretch: 25% 150%;
   font-display: swap;
   src: url(https://fonts.gstatic.com/s/googlesansflex/v22/t5tQIQcYNIWbFgDgAAzZ34auoVyXkJCOvp3SFWJbN5hF8Ju1x5tGKwN2l9sIKwhINJwGqXtYAZzz0vzhDfWtsQbx.woff2) format('woff2');
@@ -461,8 +465,8 @@
 /* tifinagh */
 @font-face {
   font-family: 'Google Sans Flex';
-  font-style: oblique 0deg 10deg;
-  font-weight: 400 500;
+  font-style: normal;
+  font-weight: 100 900;
   font-stretch: 25% 150%;
   font-display: swap;
   src: url(https://fonts.gstatic.com/s/googlesansflex/v22/t5tQIQcYNIWbFgDgAAzZ34auoVyXkJCOvp3SFWJbN5hF8Ju1x5tGKwN2l9sIKwhINJwGqXtYAZzz0vzhDaatsQbx.woff2) format('woff2');
@@ -471,8 +475,8 @@
 /* vietnamese */
 @font-face {
   font-family: 'Google Sans Flex';
-  font-style: oblique 0deg 10deg;
-  font-weight: 400 500;
+  font-style: normal;
+  font-weight: 100 900;
   font-stretch: 25% 150%;
   font-display: swap;
   src: url(https://fonts.gstatic.com/s/googlesansflex/v22/t5tQIQcYNIWbFgDgAAzZ34auoVyXkJCOvp3SFWJbN5hF8Ju1x5tGKwN2l9sIKwhINJwGqXtYAZzz0vzhDYmtsQbx.woff2) format('woff2');
@@ -481,8 +485,8 @@
 /* latin-ext */
 @font-face {
   font-family: 'Google Sans Flex';
-  font-style: oblique 0deg 10deg;
-  font-weight: 400 500;
+  font-style: normal;
+  font-weight: 100 900;
   font-stretch: 25% 150%;
   font-display: swap;
   src: url(https://fonts.gstatic.com/s/googlesansflex/v22/t5tQIQcYNIWbFgDgAAzZ34auoVyXkJCOvp3SFWJbN5hF8Ju1x5tGKwN2l9sIKwhINJwGqXtYAZzz0vzhDYitsQbx.woff2) format('woff2');
@@ -491,8 +495,8 @@
 /* latin */
 @font-face {
   font-family: 'Google Sans Flex';
-  font-style: oblique 0deg 10deg;
-  font-weight: 400 500;
+  font-style: normal;
+  font-weight: 100 900;
   font-stretch: 25% 150%;
   font-display: swap;
   src: url(https://fonts.gstatic.com/s/googlesansflex/v22/t5tQIQcYNIWbFgDgAAzZ34auoVyXkJCOvp3SFWJbN5hF8Ju1x5tGKwN2l9sIKwhINJwGqXtYAZzz0vzhDYatsQ.woff2) format('woff2');
