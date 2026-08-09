@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react"
 import { onAuthStateChanged, type User } from "firebase/auth"
-import { auth } from "@/lib/firebase"
+import { auth } from "@/firebase/config"
 
 type AuthContextType = {
   user: User | null
@@ -33,3 +33,4 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   return useContext(AuthContext)
 }
+
