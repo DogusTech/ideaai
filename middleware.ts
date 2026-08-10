@@ -6,7 +6,7 @@ export function middleware(request: NextRequest) {
   const hostname = request.headers.get('host') || ''
   
   const isAiSubdomain = hostname === 'ai.togetlink.com' || hostname.startsWith('ai.localhost')
-  const isAiPath = url.pathname.startsWith('/ai')
+  const isAiPath = url.pathname === '/ai' || url.pathname.startsWith('/ai/')
   
   // Exclude public files and API routes from our checks/rewrites
   if (!url.pathname.includes('.') && !url.pathname.startsWith('/api')) {
