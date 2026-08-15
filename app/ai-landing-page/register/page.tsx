@@ -31,11 +31,14 @@ export default function AuthPage() {
       const res = await fetch("/api/auth/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ email, type: 'register' })
       });
       const data = await res.json();
       
       if (!res.ok) {
+        if (data.error === 'USER_EXISTS') {
+          throw new Error("Bu e-posta adresi zaten kayıtlı. Lütfen giriş yapın.");
+        }
         throw new Error(data.error || "Failed to send code.");
       }
 

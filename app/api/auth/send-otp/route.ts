@@ -2,16 +2,37 @@ import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
+import { adminAuth } from '@/lib/firebase-admin';
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_mock_key');
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-for-otp';
 
 export async function POST(req: Request) {
   try {
-    const { email } = await req.json();
+    const { email, type } = await req.json();
 
     if (!email || !email.includes('@')) {
       return NextResponse.json({ error: 'Invalid email address' }, { status: 400 });
+    }
+
+    if (type === 'login' || type === 'register') {
+      try {
+        await adminAuth.getUserByEmail(email);
+        // User exists
+        if (type === 'register') {
+          return NextResponse.json({ error: 'USER_EXISTS' }, { status: 400 });
+        }
+      } catch (error: any) {
+        // User does not exist
+        if (error.code === 'auth/user-not-found') {
+          if (type === 'login') {
+            return NextResponse.json({ error: 'USER_NOT_FOUND' }, { status: 400 });
+          }
+        } else {
+          console.error('Firebase Auth Error:', error);
+          return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+        }
+      }
     }
 
     // Generate 6-digit OTP

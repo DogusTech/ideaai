@@ -31,11 +31,14 @@ export default function AuthPage() {
       const res = await fetch("/api/auth/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email })
+        body: JSON.stringify({ email, type: 'login' })
       });
       const data = await res.json();
       
       if (!res.ok) {
+        if (data.error === 'USER_NOT_FOUND') {
+          throw new Error("Bu e-posta adresi sistemimizde bulunamadı. Lütfen kayıt olun.");
+        }
         throw new Error(data.error || "Failed to send code.");
       }
 

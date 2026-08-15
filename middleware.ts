@@ -16,7 +16,7 @@ export function middleware(request: NextRequest) {
       
       if (!session) {
         // Not authenticated, redirect to login
-        return NextResponse.redirect(new URL('/login', request.url))
+        return NextResponse.redirect(new URL('/ai-landing-page/login', request.url))
       }
     }
 
