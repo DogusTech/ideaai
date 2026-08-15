@@ -314,7 +314,7 @@ export default function AuthPage() {
                   fontSize: "14px",
                   marginBottom: "32px",
                 }}>
-                  If you're new to TogetLink, we sent a code to<br />
+                  We sent a temporary login code to<br />
                   <strong>{email}</strong>.
                 </p>
 
@@ -391,7 +391,7 @@ export default function AuthPage() {
           color: "#666666",
           fontSize: "12px"
         }}>
-          By proceeding, you agree to creating a TogetLink account subject to our <Link href="/legal/terms" style={{ color: "#000", textDecoration: "none" }}>Terms of Service</Link> and <Link href="/legal/privacy-policy" style={{ color: "#000", textDecoration: "none" }}>Privacy Policy</Link>.
+          By proceeding, you agree to our <Link href="/legal/terms" style={{ color: "#000", textDecoration: "none" }}>Terms of Service</Link> and <Link href="/legal/privacy-policy" style={{ color: "#000", textDecoration: "none" }}>Privacy Policy</Link>.
         </div>
       </div>
     </>
