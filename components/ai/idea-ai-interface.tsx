@@ -26,6 +26,7 @@ import {
 } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import { AntigravityMarkdown } from "./antigravity-markdown"
 
 import { onAuthStateChanged } from "firebase/auth"
 import { auth } from "@/lib/firebase"
@@ -399,11 +400,15 @@ export function IdeaAIInterface() {
                     <div className="font-semibold text-[15px] text-[#171717]">
                       {message.role === "user" ? "You" : "IdeaAI"}
                     </div>
-                    <div className="prose prose-sm max-w-none text-[#404040] prose-p:leading-relaxed prose-pre:bg-[#f5f5f5] prose-pre:border prose-pre:border-[#e5e5e5] prose-pre:text-[#171717] prose-code:text-[#171717] prose-code:bg-[#f5f5f5] prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                        {message.content}
-                      </ReactMarkdown>
-                    </div>
+                    {message.role === "user" ? (
+                      <div className="prose prose-sm max-w-none text-[#404040] prose-p:leading-relaxed">
+                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                          {message.content}
+                        </ReactMarkdown>
+                      </div>
+                    ) : (
+                      <AntigravityMarkdown content={message.content} />
+                    )}
                   </div>
                 </motion.div>
               ))
