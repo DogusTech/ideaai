@@ -185,7 +185,7 @@ export default function AuthPage() {
               letterSpacing: "-0.5px",
               marginBottom: "12px",
             }}>
-              Sign up for TogetLink
+              Sign in to TogetLink
             </h1>
             
             {status !== "code_sent" && status !== "verifying" ? (
@@ -303,7 +303,7 @@ export default function AuthPage() {
 
                 <div style={{ marginTop: "32px" }}>
                   <p style={{ fontSize: "14px", color: "#666" }}>
-                    Already have an account? <Link href="/ai-landing-page/login" style={{ color: "#0066cc", textDecoration: "none" }}>Sign In</Link>
+                    Don't have an account? <Link href="/ai-landing-page/register" style={{ color: "#0066cc", textDecoration: "none" }}>Sign Up</Link>
                   </p>
                 </div>
               </>
@@ -375,7 +375,7 @@ export default function AuthPage() {
 
                 <div>
                   <p style={{ fontSize: "14px", color: "#666" }}>
-                    Already have an account? <Link href="/ai-landing-page/login" style={{ color: "#0066cc", textDecoration: "none" }}>Sign In</Link>
+                    Don't have an account? <Link href="/ai-landing-page/register" style={{ color: "#0066cc", textDecoration: "none" }}>Sign Up</Link>
                   </p>
                 </div>
               </>
