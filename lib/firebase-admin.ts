@@ -12,7 +12,12 @@ export const createFirebaseAdminApp = () => {
   if (getApps().length === 0) {
     if (!serviceAccount.projectId || !serviceAccount.privateKey || !serviceAccount.clientEmail) {
       console.warn("Firebase Admin SDK credentials not found! Ensure they are set in .env");
-      return initializeApp();
+      try {
+        return initializeApp();
+      } catch (e) {
+        console.error("Fallback initialization also failed.", e);
+        return null;
+      }
     }
     try {
       return initializeApp({
@@ -25,12 +30,34 @@ export const createFirebaseAdminApp = () => {
       });
     } catch (error) {
       console.error("Firebase Admin Initialization Error:", error);
-      return initializeApp(); // Fallback
+      try {
+        return initializeApp(); // Fallback
+      } catch (e) {
+        console.error("Fallback initialization also failed.", e);
+        return null;
+      }
     }
   }
   return getApps()[0];
 };
 
 const app = createFirebaseAdminApp();
-export const adminAuth = getAuth(app);
-export const adminDb = getFirestore(app);
+// Using lazy initialization for auth and db so we don't crash the module if app is null
+let authInstance: any = null;
+let dbInstance: any = null;
+
+export const adminAuth = new Proxy({}, {
+  get: (target, prop) => {
+    if (!authInstance && app) authInstance = getAuth(app);
+    if (!authInstance) throw new Error("Firebase Admin Auth not initialized.");
+    return (authInstance as any)[prop];
+  }
+}) as ReturnType<typeof getAuth>;
+
+export const adminDb = new Proxy({}, {
+  get: (target, prop) => {
+    if (!dbInstance && app) dbInstance = getFirestore(app);
+    if (!dbInstance) throw new Error("Firebase Admin Db not initialized.");
+    return (dbInstance as any)[prop];
+  }
+}) as ReturnType<typeof getFirestore>;
