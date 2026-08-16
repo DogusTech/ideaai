@@ -12,12 +12,21 @@ export const createFirebaseAdminApp = () => {
   if (getApps().length === 0) {
     if (!serviceAccount.projectId || !serviceAccount.privateKey || !serviceAccount.clientEmail) {
       console.warn("Firebase Admin SDK credentials not found! Ensure they are set in .env");
-      // Fallback to application default credentials if in Google Cloud environment
       return initializeApp();
     }
-    return initializeApp({
-      credential: cert(serviceAccount),
-    });
+    try {
+      return initializeApp({
+        credential: cert({
+          projectId: serviceAccount.projectId,
+          clientEmail: serviceAccount.clientEmail,
+          // Handle cases where the private key might be wrapped in quotes
+          privateKey: serviceAccount.privateKey.replace(/^"|"$/g, '').replace(/\\n/g, '\n'),
+        }),
+      });
+    } catch (error) {
+      console.error("Firebase Admin Initialization Error:", error);
+      return initializeApp(); // Fallback
+    }
   }
   return getApps()[0];
 };
