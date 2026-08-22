@@ -6,6 +6,7 @@ export function middleware(request: NextRequest) {
   const hostname = request.headers.get('host') || ''
   
   const isAiSubdomain = hostname === 'ai.togetlink.com' || hostname.startsWith('ai.localhost')
+  const isAdsSubdomain = hostname === 'ads.togetlink.com' || hostname.startsWith('ads.localhost')
   const isAiPath = url.pathname === '/ai' || url.pathname.startsWith('/ai/')
   
   // Exclude public files and API routes from our checks/rewrites
@@ -20,10 +21,15 @@ export function middleware(request: NextRequest) {
       }
     }
 
-    // 2. Subdomain Rewrite
+    // 2. Subdomain Rewrites
     if (isAiSubdomain) {
       // Rewrite ai.togetlink.com/* to /ai/*
       return NextResponse.rewrite(new URL(`/ai${url.pathname === '/' ? '' : url.pathname}`, request.url))
+    }
+    
+    if (isAdsSubdomain) {
+      // Rewrite ads.togetlink.com/* to /ads/*
+      return NextResponse.rewrite(new URL(`/ads${url.pathname === '/' ? '' : url.pathname}`, request.url))
     }
   }
 
