@@ -66,7 +66,7 @@ export function IdeaAIInterface() {
   const modelBtnRef = useRef<HTMLButtonElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   
-  const { messages, setMessages, input, setInput, append, isLoading, stop } = useChat({
+  const { messages, setMessages, input, setInput, append, isLoading, stop, handleInputChange } = useChat({
     body: { department: selectedDept, project: selectedProject, model: selectedModel }
   })
   const [isFocused, setIsFocused] = useState(false)
@@ -452,7 +452,7 @@ export function IdeaAIInterface() {
                   <textarea
                     ref={textareaRef}
                     value={input || ""}
-                    onChange={(e) => setInput(e.target.value)}
+                    onChange={handleInputChange}
                     onKeyDown={handleKeyDown}
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
