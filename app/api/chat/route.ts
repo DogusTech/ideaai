@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 
+export const maxDuration = 60; // Allow up to 60 seconds for Modal cold starts
+
 export async function POST(req: Request) {
   try {
     const { messages } = await req.json();

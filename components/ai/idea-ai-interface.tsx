@@ -66,10 +66,12 @@ export function IdeaAIInterface() {
   const modelBtnRef = useRef<HTMLButtonElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   
+  const body = React.useMemo(() => ({ department: selectedDept, project: selectedProject, model: selectedModel }), [selectedDept, selectedProject, selectedModel])
+
   const { messages, setMessages, input, handleInputChange, handleSubmit, isLoading, stop } = useChat({
     id: "idea-ai-chat",
     api: "/api/chat",
-    body: { department: selectedDept, project: selectedProject, model: selectedModel }
+    body: body
   })
   
   const [isFocused, setIsFocused] = useState(false)
