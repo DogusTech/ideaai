@@ -1,0 +1,1 @@
+import { NextResponse } from "next/server"; import { Resend } from "resend"; import { SignJWT } from "jose"; import { cookies } from "next/headers"; import { getAdminAuth } from "@/lib/firebase-admin"; export async function GET() { return NextResponse.json({ ok: true, message: "Imports work!" }); }
