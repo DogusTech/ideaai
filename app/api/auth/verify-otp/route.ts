@@ -59,7 +59,7 @@ export async function POST(req: Request) {
     const response = NextResponse.json({ success: true, token: customToken });
 
     // Clear the cookie
-    response.cookies.delete('otp_token');
+    cookieStore.delete('otp_token');
 
     return response;
   } catch (error: any) {

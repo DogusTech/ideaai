@@ -42,15 +42,15 @@ export async function POST(req: Request) {
     // Create a stateless JWT containing the code
     const token = jwt.sign({ email: email.toLowerCase(), code }, JWT_SECRET, { expiresIn: '10m' });
 
-    const response = NextResponse.json({ success: true, message: 'OTP sent successfully' });
-
-    // Set it as an HTTP-only cookie
-    response.cookies.set('otp_token', token, {
+    const cookieStore = await cookies();
+    cookieStore.set('otp_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 10 * 60 // 10 minutes
     });
+
+    const response = NextResponse.json({ success: true, message: 'OTP sent successfully' });
 
     // Send email via Resend
     if (process.env.RESEND_API_KEY && !process.env.RESEND_API_KEY.includes('re_mock_key')) {
