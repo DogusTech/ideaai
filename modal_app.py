@@ -6,7 +6,7 @@ from pydantic import BaseModel
 web_app = FastAPI(title="IdeaAI Llama-3 API")
 
 # Modal için gerekli kütüphanelerin (vLLM ve HuggingFace) bulunduğu imajı tanımlıyoruz
-vllm_image = modal.Image.debian_slim(python_version="3.10").pip_install(
+vllm_image = modal.Image.from_registry("nvidia/cuda:12.4.1-devel-ubuntu22.04", add_python="3.11").pip_install(
     "vllm",
     "huggingface_hub",
     "hf-transfer" # Hızlı indirme için
@@ -20,7 +20,7 @@ class GenerateRequest(BaseModel):
     input: str
 
 # Model Sınıfı (GPU üzerinde çalışacak olan ağır kısım)
-@app.cls(gpu="A10G", image=vllm_image, scaledown_window=300)
+@app.cls(gpu="A10G", image=vllm_image, scaledown_window=300, timeout=600)
 class IdeaAIModel:
     @modal.enter()
     def load(self):
@@ -57,7 +57,7 @@ class IdeaAIModel:
         return outputs[0].outputs[0].text
 
 # Web API Uç Noktası (Next.js'nin istek atacağı hafif CPU kısmı)
-@app.function(image=vllm_image)
+@app.function(image=vllm_image, timeout=600)
 @modal.asgi_app()
 def fastapi_app():
     @web_app.post("/generate")
