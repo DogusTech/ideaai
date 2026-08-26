@@ -570,7 +570,7 @@ export function IdeaAIInterface() {
                         type="button"
                         onClick={submitMessage}
                         className={`flex items-center justify-center w-[32px] h-[32px] rounded-full transition-all shadow-sm mr-1 ${
-                          (input || "").trim() 
+                          (inputValue || "").trim() 
                             ? "bg-[#171717] text-white hover:bg-[#262626]" 
                             : "bg-[#e5e5e5] text-[#a3a3a3] cursor-not-allowed"
                         }`}
