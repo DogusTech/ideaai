@@ -90,18 +90,37 @@ export default function AuthPage() {
     if (!/^[0-9]*$/.test(value)) return;
 
     const newOtp = [...otp];
-    newOtp[index] = value.slice(-1); // Only take the last character
+    newOtp[index] = value.slice(-1);
     setOtp(newOtp);
 
-    // Auto-advance
     if (value && index < 5) {
       inputRefs.current[index + 1]?.focus();
     }
 
-    // Check if full
     const fullCode = newOtp.join("");
     if (fullCode.length === 6) {
       verifyCode(fullCode);
+    }
+  };
+
+  const handleOtpPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData("text").trim();
+    
+    if (!/^[0-9]{1,6}$/.test(pastedData)) return;
+
+    const newOtp = [...otp];
+    for (let i = 0; i < pastedData.length; i++) {
+      if (i < 6) newOtp[i] = pastedData[i];
+    }
+    setOtp(newOtp);
+
+    // Focus the next empty input, or the last one
+    const focusIndex = Math.min(pastedData.length, 5);
+    inputRefs.current[focusIndex]?.focus();
+
+    if (pastedData.length === 6) {
+      verifyCode(pastedData);
     }
   };
 
@@ -332,6 +351,7 @@ export default function AuthPage() {
                       value={digit}
                       onChange={(e) => handleOtpChange(index, e.target.value)}
                       onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                      onPaste={handleOtpPaste}
                       style={{
                         width: "44px",
                         height: "56px",
