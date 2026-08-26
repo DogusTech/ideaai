@@ -50,7 +50,11 @@ export const adminAuth = new Proxy({}, {
   get: (target, prop) => {
     if (!authInstance && app) authInstance = getAuth(app);
     if (!authInstance) throw new Error("Firebase Admin Auth not initialized.");
-    return (authInstance as any)[prop];
+    const value = (authInstance as any)[prop];
+    if (typeof value === 'function') {
+      return value.bind(authInstance);
+    }
+    return value;
   }
 }) as ReturnType<typeof getAuth>;
 
@@ -58,6 +62,10 @@ export const adminDb = new Proxy({}, {
   get: (target, prop) => {
     if (!dbInstance && app) dbInstance = getFirestore(app);
     if (!dbInstance) throw new Error("Firebase Admin Db not initialized.");
-    return (dbInstance as any)[prop];
+    const value = (dbInstance as any)[prop];
+    if (typeof value === 'function') {
+      return value.bind(dbInstance);
+    }
+    return value;
   }
 }) as ReturnType<typeof getFirestore>;
