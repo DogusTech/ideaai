@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { SignJWT } from 'jose';
 import { cookies } from 'next/headers';
-// import { getAdminAuth } from '@/lib/firebase-admin';
+import { getAdminAuth } from '@/lib/firebase-admin';
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_mock_key');
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-for-otp';
@@ -15,7 +15,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid email address' }, { status: 400 });
     }
 
-    /*
     if (type === 'login' || type === 'register') {
       try {
         const adminAuth = getAdminAuth();
@@ -36,7 +35,6 @@ export async function POST(req: Request) {
         }
       }
     }
-    */
 
     // Generate 6-digit OTP
     const code = Math.floor(100000 + Math.random() * 900000).toString();
