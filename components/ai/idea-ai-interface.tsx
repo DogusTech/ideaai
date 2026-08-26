@@ -68,7 +68,7 @@ export function IdeaAIInterface() {
   
   const body = React.useMemo(() => ({ department: selectedDept, project: selectedProject, model: selectedModel }), [selectedDept, selectedProject, selectedModel])
 
-  const { messages, setMessages, input, handleInputChange, handleSubmit, isLoading, stop } = useChat({
+  const { messages, setMessages, input, setInput, handleInputChange, handleSubmit, isLoading, stop } = useChat({
     id: "idea-ai-chat",
     api: "/api/chat",
     body: body
@@ -451,7 +451,7 @@ export function IdeaAIInterface() {
                   <textarea
                     ref={textareaRef}
                     value={input}
-                    onChange={handleInputChange}
+                    onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
