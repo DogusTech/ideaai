@@ -28,7 +28,7 @@ export default function AuthPage() {
     setError(null)
 
     try {
-      const res = await fetch("/api/auth/send-otp", {
+      const res = await fetch("/api/auth/send-code", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, type: 'register' })
@@ -57,7 +57,7 @@ export default function AuthPage() {
     setError(null)
 
     try {
-      const res = await fetch("/api/auth/verify-otp", {
+      const res = await fetch("/api/auth/verify-code", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, code: fullCode })
