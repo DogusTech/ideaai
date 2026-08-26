@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { adminAuth } from '@/lib/firebase-admin';
+import { getAdminAuth } from '@/lib/firebase-admin';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 
@@ -40,6 +40,7 @@ export async function POST(req: Request) {
 
     // Check if user exists in Firebase Auth, if not create them
     let user;
+    const adminAuth = getAdminAuth();
     try {
       user = await adminAuth.getUserByEmail(emailLower);
     } catch (error: any) {

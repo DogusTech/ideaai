@@ -42,30 +42,17 @@ export const createFirebaseAdminApp = () => {
 };
 
 const app = createFirebaseAdminApp();
-// Using lazy initialization for auth and db so we don't crash the module if app is null
-let authInstance: any = null;
-let dbInstance: any = null;
+let authInstance: ReturnType<typeof getAuth> | null = null;
+let dbInstance: ReturnType<typeof getFirestore> | null = null;
 
-export const adminAuth = new Proxy({}, {
-  get: (target, prop) => {
-    if (!authInstance && app) authInstance = getAuth(app);
-    if (!authInstance) throw new Error("Firebase Admin Auth not initialized.");
-    const value = (authInstance as any)[prop];
-    if (typeof value === 'function') {
-      return value.bind(authInstance);
-    }
-    return value;
-  }
-}) as ReturnType<typeof getAuth>;
+export const getAdminAuth = () => {
+  if (!authInstance && app) authInstance = getAuth(app);
+  if (!authInstance) throw new Error("Firebase Admin Auth not initialized.");
+  return authInstance;
+};
 
-export const adminDb = new Proxy({}, {
-  get: (target, prop) => {
-    if (!dbInstance && app) dbInstance = getFirestore(app);
-    if (!dbInstance) throw new Error("Firebase Admin Db not initialized.");
-    const value = (dbInstance as any)[prop];
-    if (typeof value === 'function') {
-      return value.bind(dbInstance);
-    }
-    return value;
-  }
-}) as ReturnType<typeof getFirestore>;
+export const getAdminDb = () => {
+  if (!dbInstance && app) dbInstance = getFirestore(app);
+  if (!dbInstance) throw new Error("Firebase Admin Db not initialized.");
+  return dbInstance;
+};

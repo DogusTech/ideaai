@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
-import { adminAuth } from '@/lib/firebase-admin';
+import { getAdminAuth } from '@/lib/firebase-admin';
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_mock_key');
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-for-otp';
@@ -17,6 +17,7 @@ export async function POST(req: Request) {
 
     if (type === 'login' || type === 'register') {
       try {
+        const adminAuth = getAdminAuth();
         await adminAuth.getUserByEmail(email);
         // User exists
         if (type === 'register') {
