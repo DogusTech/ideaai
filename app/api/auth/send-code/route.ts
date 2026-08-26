@@ -49,6 +49,9 @@ export async function POST(req: Request) {
     // Generate 6-digit OTP
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     
+    // Log the code for debugging purposes in Vercel logs
+    console.log(`[DEBUG] Generated OTP for ${email}: ${code}`);
+
     // Create a stateless JWT containing the code using jose
     const secret = new TextEncoder().encode(JWT_SECRET);
     const token = await new SignJWT({ email: email.toLowerCase(), code })
