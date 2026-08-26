@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
-import jwt from 'jsonwebtoken';
+import { SignJWT } from 'jose';
 import { cookies } from 'next/headers';
 import { getAdminAuth } from '@/lib/firebase-admin';
 
@@ -39,8 +39,12 @@ export async function POST(req: Request) {
     // Generate 6-digit OTP
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     
-    // Create a stateless JWT containing the code
-    const token = jwt.sign({ email: email.toLowerCase(), code }, JWT_SECRET, { expiresIn: '10m' });
+    // Create a stateless JWT containing the code using jose
+    const secret = new TextEncoder().encode(JWT_SECRET);
+    const token = await new SignJWT({ email: email.toLowerCase(), code })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setExpirationTime('10m')
+      .sign(secret);
 
     const cookieStore = await cookies();
     cookieStore.set('otp_token', token, {

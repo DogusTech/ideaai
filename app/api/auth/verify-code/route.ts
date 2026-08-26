@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getAdminAuth } from '@/lib/firebase-admin';
-import jwt from 'jsonwebtoken';
+import { jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-for-otp';
@@ -25,7 +25,9 @@ export async function POST(req: Request) {
 
     let decoded: any;
     try {
-      decoded = jwt.verify(token, JWT_SECRET);
+      const secret = new TextEncoder().encode(JWT_SECRET);
+      const { payload } = await jwtVerify(token, secret);
+      decoded = payload;
     } catch (err) {
       return NextResponse.json({ error: 'OTP has expired or is invalid.' }, { status: 400 });
     }
