@@ -66,9 +66,9 @@ export function IdeaAIInterface() {
   const modelBtnRef = useRef<HTMLButtonElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   
-  const [inputValue, setInputValue] = useState("")
-  
-  const { messages, setMessages, append, isLoading, stop } = useChat({
+  const { messages, setMessages, input, handleInputChange, handleSubmit, isLoading, stop } = useChat({
+    id: "idea-ai-chat",
+    api: "/api/chat",
     body: { department: selectedDept, project: selectedProject, model: selectedModel }
   })
   
@@ -112,17 +112,10 @@ export function IdeaAIInterface() {
     return () => unsubscribe()
   }, [])
 
-  const submitMessage = () => {
-    if (inputValue.trim()) {
-      append({ role: "user", content: inputValue })
-      setInputValue("") // Clear the input after sending
-    }
-  }
-
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault()
-      submitMessage()
+      e.currentTarget.form?.requestSubmit()
     }
   }
 
@@ -443,7 +436,8 @@ export function IdeaAIInterface() {
               </div>
             )}
 
-            <div 
+            <form 
+              onSubmit={handleSubmit}
               className={`w-full bg-[#f4f4f4] rounded-[24px] border-none transition-all duration-300 flex flex-col shadow-[0_2px_10px_rgba(0,0,0,0.04)] ${
                 isFocused ? "shadow-[0_4px_20px_rgba(0,0,0,0.08)] ring-1 ring-[#d4d4d4]" : ""
               }`}
@@ -454,8 +448,8 @@ export function IdeaAIInterface() {
                 <div className="px-1 pt-1 pb-2">
                   <textarea
                     ref={textareaRef}
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
+                    value={input}
+                    onChange={handleInputChange}
                     onKeyDown={handleKeyDown}
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
@@ -567,10 +561,10 @@ export function IdeaAIInterface() {
                       </button>
                     ) : (
                       <button 
-                        type="button"
-                        onClick={submitMessage}
+                        type="submit"
+                        disabled={!(input || "").trim()}
                         className={`flex items-center justify-center w-[32px] h-[32px] rounded-full transition-all shadow-sm mr-1 ${
-                          (inputValue || "").trim() 
+                          (input || "").trim() 
                             ? "bg-[#171717] text-white hover:bg-[#262626]" 
                             : "bg-[#e5e5e5] text-[#a3a3a3] cursor-not-allowed"
                         }`}
@@ -594,7 +588,7 @@ export function IdeaAIInterface() {
                    <ChevronDown className="w-3.5 h-3.5" />
                 </button>
               </div>
-            </div>
+            </form>
           </div>
         </div>
       </main>
