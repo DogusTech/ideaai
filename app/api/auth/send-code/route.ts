@@ -2,14 +2,23 @@ import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { SignJWT } from 'jose';
 import { cookies } from 'next/headers';
-import { getAdminAuth } from '@/lib/firebase-admin';
+
+export const runtime = 'nodejs';
 
 const resend = new Resend(process.env.RESEND_API_KEY || 're_mock_key');
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-for-otp';
 
 export async function POST(req: Request) {
   try {
-    const { email, type } = await req.json();
+    let email: string;
+    let type: string;
+    try {
+      const body = await req.json();
+      email = body.email;
+      type = body.type;
+    } catch (e) {
+      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+    }
 
     if (!email || !email.includes('@')) {
       return NextResponse.json({ error: 'Invalid email address' }, { status: 400 });
@@ -17,6 +26,7 @@ export async function POST(req: Request) {
 
     if (type === 'login' || type === 'register') {
       try {
+        const { getAdminAuth } = await import('@/lib/firebase-admin');
         const adminAuth = getAdminAuth();
         await adminAuth.getUserByEmail(email);
         // User exists

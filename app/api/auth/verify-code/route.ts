@@ -1,13 +1,22 @@
 import { NextResponse } from 'next/server';
-import { getAdminAuth } from '@/lib/firebase-admin';
 import { jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
+
+export const runtime = 'nodejs';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-for-otp';
 
 export async function POST(req: Request) {
   try {
-    const { email, code } = await req.json();
+    let email: string;
+    let code: string;
+    try {
+      const body = await req.json();
+      email = body.email;
+      code = body.code;
+    } catch (e) {
+      return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+    }
 
     if (!email || !code) {
       return NextResponse.json({ error: 'Email and code are required' }, { status: 400 });
@@ -42,6 +51,7 @@ export async function POST(req: Request) {
 
     // Check if user exists in Firebase Auth, if not create them
     let user;
+    const { getAdminAuth } = await import('@/lib/firebase-admin');
     const adminAuth = getAdminAuth();
     try {
       user = await adminAuth.getUserByEmail(emailLower);
