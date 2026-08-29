@@ -13,9 +13,10 @@ export function middleware(request: NextRequest) {
   if (!url.pathname.includes('.') && !url.pathname.startsWith('/api')) {
     // 1. Authentication Check for AI Route
     if (isAiSubdomain || isAiPath) {
+      const isPitchDeck = url.pathname === '/ai/pitch-deck'
       const session = request.cookies.get('session')?.value
       
-      if (!session) {
+      if (!session && !isPitchDeck) {
         // Not authenticated, redirect to login
         return NextResponse.redirect(new URL('/ai-landing-page/login', request.url))
       }
