@@ -5,27 +5,62 @@ export function middleware(request: NextRequest) {
   const url = request.nextUrl
   const hostname = request.headers.get('host') || ''
   
-  const isAiSubdomain = hostname === 'ai.togetlink.com' || hostname.startsWith('ai.localhost')
+  const isIdeaAiSubdomain = hostname === 'ideaai.togetlink.com' || hostname.startsWith('ideaai.localhost')
+  const isOldAiSubdomain = hostname === 'ai.togetlink.com' || hostname.startsWith('ai.localhost')
   const isAdsSubdomain = hostname === 'ads.togetlink.com' || hostname.startsWith('ads.localhost')
+  const isMainDomain = hostname === 'www.togetlink.com' || hostname === 'togetlink.com' || (hostname.startsWith('localhost') && !isIdeaAiSubdomain && !isOldAiSubdomain && !isAdsSubdomain)
+
   const isAiPath = url.pathname === '/ai' || url.pathname.startsWith('/ai/')
+  const isAiLandingPath = url.pathname === '/ai-landing-page' || url.pathname.startsWith('/ai-landing-page/')
   
   // Exclude public files and API routes from our checks/rewrites
   if (!url.pathname.includes('.') && !url.pathname.startsWith('/api')) {
-    // 1. Authentication Check for AI Route
-    if (isAiSubdomain || isAiPath) {
-      const isPitchDeck = url.pathname === '/ai/pitch-deck'
-      const session = request.cookies.get('session')?.value
-      
-      if (!session && !isPitchDeck) {
-        // Not authenticated, redirect to login
-        return NextResponse.redirect(new URL('/ai-landing-page/login', request.url))
+    
+    // 1. Redirect old subdomain
+    if (isOldAiSubdomain) {
+      // Only redirect in production/staging where scheme is https
+      const protocol = request.url.startsWith('https') ? 'https://' : 'http://'
+      return NextResponse.redirect(new URL(url.pathname, `${protocol}ideaai.togetlink.com`))
+    }
+
+    // 2. Redirect main domain /ai and /ai-landing-page to ideaai.togetlink.com
+    if (isMainDomain && !request.url.includes('localhost')) {
+      if (isAiPath) {
+        const newPath = url.pathname.replace('/ai', '/app')
+        return NextResponse.redirect(new URL(newPath, 'https://ideaai.togetlink.com'))
+      }
+      if (isAiLandingPath) {
+        const newPath = url.pathname.replace('/ai-landing-page', '') === '' ? '/' : url.pathname.replace('/ai-landing-page', '')
+        return NextResponse.redirect(new URL(newPath, 'https://ideaai.togetlink.com'))
       }
     }
 
-    // 2. Subdomain Rewrites
-    if (isAiSubdomain) {
-      // Rewrite ai.togetlink.com/* to /ai/*
-      return NextResponse.rewrite(new URL(`/ai${url.pathname === '/' ? '' : url.pathname}`, request.url))
+    // 3. Authentication Check for AI Route
+    const isAppRoute = (isIdeaAiSubdomain && (url.pathname === '/app' || url.pathname.startsWith('/app/'))) || isAiPath;
+    if (isAppRoute) {
+      const isPitchDeck = url.pathname === '/ai/pitch-deck' || url.pathname === '/app/pitch-deck'
+      const session = request.cookies.get('session')?.value
+      
+      if (!session && !isPitchDeck) {
+        if (isIdeaAiSubdomain) {
+          return NextResponse.redirect(new URL('/login', request.url))
+        } else {
+          return NextResponse.redirect(new URL('/ai-landing-page/login', request.url))
+        }
+      }
+    }
+
+    // 4. Subdomain Rewrites
+    if (isIdeaAiSubdomain) {
+      // Rewrite ideaai.togetlink.com/app/* to /ai/*
+      if (url.pathname === '/app' || url.pathname.startsWith('/app/')) {
+        const rewritePath = url.pathname.replace('/app', '/ai')
+        return NextResponse.rewrite(new URL(rewritePath, request.url))
+      }
+      
+      // Rewrite everything else (/, /login, /register) to /ai-landing-page/*
+      const landingRewrite = `/ai-landing-page${url.pathname === '/' ? '' : url.pathname}`
+      return NextResponse.rewrite(new URL(landingRewrite, request.url))
     }
     
     if (isAdsSubdomain) {
