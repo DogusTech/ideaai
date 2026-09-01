@@ -149,16 +149,10 @@ export default function IdeaAILanding() {
             transition={{ duration: 0.6, ease: "easeOut" }}
             className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-5 mb-10"
           >
-            {/* Dalga (Wave) logomuz, çok şık gradient ile */}
-            <svg viewBox="0 0 100 100" className="w-16 h-16 md:w-20 md:h-20 drop-shadow-xl" fill="none">
-              <path d="M20 80 Q 50 10, 80 80" stroke="url(#logoGrad)" strokeWidth="16" strokeLinecap="round" />
-              <defs>
-                <linearGradient id="logoGrad" x1="20" y1="80" x2="80" y2="20">
-                  <stop offset="0%" stopColor="#4f46e5" />
-                  <stop offset="50%" stopColor="#ec4899" />
-                  <stop offset="100%" stopColor="#3b82f6" />
-                </linearGradient>
-              </defs>
+            {/* Dalga (Wave) ve Merkez Çizgisi logomuz - Tek renk (OUTPUT STREAM metniyle aynı: #4f46e5) */}
+            <svg viewBox="0 0 100 100" className="w-16 h-16 md:w-20 md:h-20 drop-shadow-xl" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M 15 80 Q 50 10, 85 80" stroke="#4f46e5" strokeWidth="16" strokeLinecap="round" />
+              <path d="M 50 15 L 50 80" stroke="#4f46e5" strokeWidth="16" strokeLinecap="round" />
             </svg>
             <h1 className="text-5xl md:text-6xl lg:text-[72px] flex flex-wrap justify-center gap-3 md:gap-4 text-zinc-900 tracking-tight leading-none">
                <span style={{ fontVariationSettings: '"wght" 700' }}>TogetLink</span>
