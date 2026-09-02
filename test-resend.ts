@@ -1,0 +1,1 @@
+import { Resend } from "resend"; const resend = new Resend("re_mock_key"); async function test() { const res = await resend.emails.send({ from: "test@resend.dev", to: "test@test.com", subject: "test", html: "test" }); console.log(res); } test();
