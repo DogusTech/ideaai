@@ -52,13 +52,18 @@ export function middleware(request: NextRequest) {
 
     // 4. Subdomain Rewrites
     if (isIdeaAiSubdomain) {
-      // Rewrite ideaai.togetlink.com/app/* to /ai/*
+      // If user accesses /ai on the subdomain, redirect them to /app
+      if (url.pathname === '/ai' || url.pathname.startsWith('/ai/')) {
+        const newPath = url.pathname.replace('/ai', '/app')
+        return NextResponse.redirect(new URL(newPath, request.url))
+      }
+
+      // Allow /app to route to the app/app folder (AI Terminal/Dashboard)
       if (url.pathname === '/app' || url.pathname.startsWith('/app/')) {
-        const rewritePath = url.pathname.replace('/app', '/ai')
-        return NextResponse.rewrite(new URL(rewritePath, request.url))
+        return NextResponse.rewrite(new URL(url.pathname, request.url))
       }
       
-      // Rewrite everything else (/, /login, /register) to /ai-landing-page/*
+      // Rewrite everything else (/, /login, /register, etc.) to /ai-landing-page/*
       const landingRewrite = `/ai-landing-page${url.pathname === '/' ? '' : url.pathname}`
       return NextResponse.rewrite(new URL(landingRewrite, request.url))
     }

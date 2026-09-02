@@ -3,7 +3,7 @@ import Image from 'next/image';
 
 export default function Logo() {
   return (
-    <Link href="/ai">
+    <Link href="/app">
       <a>
         <Image src="https://source.unsplash.com/800x600/?corporate,office,technology" />
       </a>

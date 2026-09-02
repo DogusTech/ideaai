@@ -15,7 +15,7 @@ export default function NotFound() {
         </p>
         <div className="mt-10">
           <Link
-            href="/dashboard"
+            href="/app"
             className="inline-flex items-center justify-center rounded-full bg-brand-blue px-6 py-3 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-blue/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue focus-visible:ring-offset-2"
           >
             Return to Dashboard

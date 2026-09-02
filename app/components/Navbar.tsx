@@ -6,7 +6,7 @@ import Dashboard from './Dashboard'
 const Navbar = () => {
   return (
     <nav className="flex justify-between items-center h-12 bg-white/10 backdrop-blur-sm px-4">
-      <Link href="/ai" passHref>
+      <Link href="/app" passHref>
         <a className="text-2xl font-bold text-gray-900">TogetLink</a>
       </Link>
       <ul className="flex items-center space-x-4">

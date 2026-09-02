@@ -8,7 +8,7 @@ export default function Header() {
     <header>
       <nav>
         <ul>
-          <li><Link href="/ai"><a>AI Dashboard</a></Link></li>
+          <li><Link href="/app"><a>AI Dashboard</a></Link></li>
           <li><Link href="/ai/login"><a>Login</a></Link></li>
           <li><Link href="/ai/signup"><a>Signup</a></Link></li>
         </ul>
