@@ -131,12 +131,7 @@ export function IdeaAIInterface() {
     return () => unsubscribe()
   }, [])
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault()
-      e.currentTarget.form?.requestSubmit()
-    }
-  }
+
 
   const handleFolderSelect = async () => {
     try {
