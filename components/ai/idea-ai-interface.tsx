@@ -68,20 +68,31 @@ export function IdeaAIInterface() {
   
   const body = React.useMemo(() => ({ department: selectedDept, project: selectedProject, model: selectedModel }), [selectedDept, selectedProject, selectedModel])
 
-  const { messages, setMessages, input, setInput, handleInputChange, handleSubmit, isLoading, stop } = useChat({
+  const { messages, setMessages, sendMessage, isLoading, stop } = useChat({
     id: "idea-ai-chat",
     api: "/api/chat",
     body: body
   })
   
+  const [localInput, setLocalInput] = useState("")
   const [isFocused, setIsFocused] = useState(false)
   const [isListening, setIsListening] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
+  const handleCustomSubmit = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (!localInput.trim() || isLoading) return;
+    
+    // In @ai-sdk/react 4.x, the method is sendMessage, not append.
+    sendMessage({ id: Date.now().toString(), role: 'user', content: localInput });
+    setLocalInput("");
+    textareaRef.current?.focus();
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      e.currentTarget.form?.requestSubmit();
+      handleCustomSubmit();
     }
   }
 
@@ -153,7 +164,7 @@ export function IdeaAIInterface() {
   }
 
   const insertAction = (char: string) => {
-    setInput(prev => prev + char)
+    setLocalInput(prev => prev + char)
     setShowAddMenu(false)
     textareaRef.current?.focus()
   }
@@ -206,7 +217,7 @@ export function IdeaAIInterface() {
           <div className="px-3 pb-4">
             <div className="flex w-full bg-white hover:bg-[#f9f9f9] rounded-[8px] border border-[#e5e5e5] transition-all shadow-[0_1px_2px_rgba(0,0,0,0.02)]">
               <button 
-                onClick={() => { setMessages([]); setInput(""); }}
+                onClick={() => { setMessages([]); setLocalInput(""); }}
                 className="flex-1 flex items-center justify-center py-[7px] text-[14px] font-medium text-[#171717] rounded-l-[8px]"
               >
                 New Chat
@@ -441,7 +452,7 @@ export function IdeaAIInterface() {
             )}
 
             <form 
-              onSubmit={handleSubmit}
+              onSubmit={handleCustomSubmit}
               className={`w-full bg-[#f4f4f4] rounded-[24px] border-none transition-all duration-300 flex flex-col shadow-[0_2px_10px_rgba(0,0,0,0.04)] ${
                 isFocused ? "shadow-[0_4px_20px_rgba(0,0,0,0.08)] ring-1 ring-[#d4d4d4]" : ""
               }`}
@@ -453,8 +464,8 @@ export function IdeaAIInterface() {
                   <textarea
                     ref={textareaRef}
                     name="message"
-                    value={input}
-                    onChange={handleInputChange}
+                    value={localInput}
+                    onChange={(e) => setLocalInput(e.target.value)}
                     onKeyDown={handleKeyDown}
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
@@ -541,7 +552,7 @@ export function IdeaAIInterface() {
                         if (isListening) return;
                         setIsListening(true);
                         setTimeout(() => {
-                          setInput(prev => (prev ? prev + " " : "") + "What are the latest UI trends for AI agents?");
+                          setLocalInput(prev => (prev ? prev + " " : "") + "What are the latest UI trends for AI agents?");
                           setIsListening(false);
                           textareaRef.current?.focus();
                         }, 2000);
@@ -567,9 +578,9 @@ export function IdeaAIInterface() {
                     ) : (
                       <button 
                         type="submit"
-                        disabled={!(input || "").trim()}
+                        disabled={!localInput.trim()}
                         className={`flex items-center justify-center w-[32px] h-[32px] rounded-full transition-all shadow-sm mr-1 ${
-                          (input || "").trim() 
+                          localInput.trim() 
                             ? "bg-[#171717] text-white hover:bg-[#262626]" 
                             : "bg-[#e5e5e5] text-[#a3a3a3] cursor-not-allowed"
                         }`}
