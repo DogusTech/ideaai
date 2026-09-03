@@ -25,8 +25,8 @@ function createWindow() {
   });
 
   const startUrl = isDev
-    ? 'http://localhost:3000'
-    : `file://${path.join(__dirname, 'out/index.html')}`;
+    ? 'http://localhost:3000/register'
+    : `file://${path.join(__dirname, 'out/register.html')}`;
 
   mainWindow.loadURL(startUrl);
 

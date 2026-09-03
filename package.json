@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "eslint .",
     "dev:electron": "concurrently -k \"npm run dev\" \"wait-on http://localhost:3000 && electron .\"",
-    "build:electron": "npm run build && electron-builder"
+    "build:electron": "cross-env BUILD_TARGET=desktop npm run build && electron-builder"
   },
   "dependencies": {
     "@ai-sdk/react": "^4.0.44",
@@ -44,6 +44,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "concurrently": "^10.0.5",
+    "cross-env": "^10.1.0",
     "electron": "^44.1.1",
     "electron-builder": "^26.15.3",
     "postcss": "^8.5",
