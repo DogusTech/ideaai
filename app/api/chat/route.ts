@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import { createTextStreamResponse } from 'ai';
 
 export const maxDuration = 60; // Allow up to 60 seconds for Modal cold starts
 
@@ -45,19 +46,15 @@ export async function POST(req: Request) {
     const data = await response.json();
     
     // Simulate streaming for a better UI experience
-    const textEncoder = new TextEncoder();
-    const customStream = new ReadableStream({
+    const customStream = new ReadableStream<string>({
       start(controller) {
-        // Just send standard plain text instead of trying to manually format
-        // the strict x-vercel-ai-data-stream protocol which can silently fail.
         const text = data.response || "No response";
         const chunkSize = 20;
         let i = 0;
         
         const interval = setInterval(() => {
           if (i < text.length) {
-            const chunk = text.substring(i, i + chunkSize);
-            controller.enqueue(textEncoder.encode(chunk));
+            controller.enqueue(text.substring(i, i + chunkSize));
             i += chunkSize;
           } else {
             clearInterval(interval);
@@ -67,11 +64,7 @@ export async function POST(req: Request) {
       }
     });
 
-    return new Response(customStream, {
-      headers: {
-        'Content-Type': 'text/plain; charset=utf-8'
-      }
-    });
+    return createTextStreamResponse({ stream: customStream });
 
   } catch (error) {
     console.error('Chat API Error:', error);
