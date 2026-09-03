@@ -90,14 +90,11 @@ export function IdeaAIInterface() {
     abortControllerRef.current = new AbortController();
     
       try {
-        const lastMessageContent = message.content;
-        
-        const res = await fetch('https://dogustech--ideaai-llama3-endpoint-fastapi-app.modal.run/generate', {
+        const res = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ 
-            instruction: "You are an elite AI coding assistant.",
-            input: lastMessageContent
+            messages: newMessages
           }),
           signal: abortControllerRef.current.signal,
         });
