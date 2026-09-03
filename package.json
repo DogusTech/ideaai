@@ -60,7 +60,7 @@
   "main": "main.js",
   "build": {
     "appId": "com.aeternexus.ideaai",
-    "productName": "IdeaAI",
+    "productName": "TogetLink IdeaAI",
     "directories": {
       "output": "release"
     },
