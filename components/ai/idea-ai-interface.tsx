@@ -388,7 +388,8 @@ export function IdeaAIInterface() {
                 {/* Empty container for layout */}
               </div>
             ) : (
-              messages.map((message) => (
+              <>
+              {messages.map((message) => (
                 <motion.div 
                   key={message.id}
                   initial={{ opacity: 0, y: 5 }}
@@ -407,22 +408,62 @@ export function IdeaAIInterface() {
                     )}
                   </div>
                   
-                  <div className="flex-1 space-y-2 overflow-hidden">
+                  <div className="flex-1 space-y-1.5 overflow-hidden">
                     <div className="font-semibold text-[15px] text-[#171717]">
                       {message.role === "user" ? "You" : "IdeaAI"}
                     </div>
                     {message.role === "user" ? (
-                      <div className="prose prose-sm max-w-none text-[#404040] prose-p:leading-relaxed">
+                      <div className="bg-[#f9f9f9] border border-[#e5e5e5] rounded-[20px] rounded-tl-sm px-5 py-3.5 inline-block prose prose-sm max-w-none text-[#171717] prose-p:leading-relaxed shadow-sm mt-1">
                         <ReactMarkdown remarkPlugins={[remarkGfm]}>
                           {message.content}
                         </ReactMarkdown>
                       </div>
                     ) : (
-                      <AntigravityMarkdown content={message.content} />
+                      <div className="pt-1 w-full">
+                        <AntigravityMarkdown content={message.content} />
+                      </div>
                     )}
                   </div>
                 </motion.div>
-              ))
+              ))}
+
+              {/* Animated Loading Indicator for IdeaAI */}
+              {isLoading && messages.length > 0 && messages[messages.length - 1].role === 'user' && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex gap-4"
+                >
+                  <div className="shrink-0 mt-1">
+                    <div className="w-8 h-8 rounded-full bg-[#171717] flex items-center justify-center text-white">
+                      <Globe className="w-4 h-4" strokeWidth={1.5} />
+                    </div>
+                  </div>
+                  <div className="flex-1 space-y-2 overflow-hidden py-1">
+                    <div className="font-semibold text-[15px] text-[#171717]">
+                      IdeaAI
+                    </div>
+                    <div className="flex items-center space-x-1.5 pt-2 pl-1">
+                      <motion.div
+                        className="w-2.5 h-2.5 bg-[#a3a3a3] rounded-full"
+                        animate={{ y: [0, -6, 0], opacity: [0.5, 1, 0.5] }}
+                        transition={{ duration: 0.8, repeat: Infinity, delay: 0 }}
+                      />
+                      <motion.div
+                        className="w-2.5 h-2.5 bg-[#a3a3a3] rounded-full"
+                        animate={{ y: [0, -6, 0], opacity: [0.5, 1, 0.5] }}
+                        transition={{ duration: 0.8, repeat: Infinity, delay: 0.2 }}
+                      />
+                      <motion.div
+                        className="w-2.5 h-2.5 bg-[#a3a3a3] rounded-full"
+                        animate={{ y: [0, -6, 0], opacity: [0.5, 1, 0.5] }}
+                        transition={{ duration: 0.8, repeat: Infinity, delay: 0.4 }}
+                      />
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+              </>
             )}
             
             {/* Auto scroll anchor */}
