@@ -26,7 +26,7 @@ function createWindow() {
 
   const startUrl = isDev
     ? 'http://localhost:3000/register'
-    : `file://${path.join(__dirname, 'out/register.html')}`;
+    : 'https://togetlink.com/register';
 
   mainWindow.loadURL(startUrl);
 
