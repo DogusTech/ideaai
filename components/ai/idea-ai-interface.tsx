@@ -68,7 +68,7 @@ export function IdeaAIInterface() {
   
   const body = React.useMemo(() => ({ department: selectedDept, project: selectedProject, model: selectedModel }), [selectedDept, selectedProject, selectedModel])
 
-  const { messages, setMessages, sendMessage, isLoading, stop } = useChat({
+  const { messages, setMessages, sendMessage, status, stop, error } = useChat({
     id: "idea-ai-chat",
     api: "/api/chat",
     body: body
@@ -78,6 +78,8 @@ export function IdeaAIInterface() {
   const [isFocused, setIsFocused] = useState(false)
   const [isListening, setIsListening] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  
+  const isLoading = status === 'submitted' || status === 'streaming';
 
   const handleCustomSubmit = (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -426,6 +428,29 @@ export function IdeaAIInterface() {
                   </div>
                 </motion.div>
               ))}
+
+              {/* Error Message Display */}
+              {error && (
+                <motion.div 
+                  initial={{ opacity: 0, y: 5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex gap-4 mt-4"
+                >
+                  <div className="shrink-0 mt-1">
+                    <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-600">
+                      <Globe className="w-4 h-4" strokeWidth={1.5} />
+                    </div>
+                  </div>
+                  <div className="flex-1 space-y-1.5 overflow-hidden">
+                    <div className="font-semibold text-[15px] text-red-600">
+                      IdeaAI (System Error)
+                    </div>
+                    <div className="bg-red-50 border border-red-100 rounded-[20px] rounded-tl-sm px-5 py-3.5 inline-block text-sm text-red-700 mt-1">
+                      {error.message || "Bilinmeyen bir hata oluştu. Lütfen tekrar deneyin."}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
 
               {/* Animated Loading Indicator for IdeaAI */}
               {isLoading && messages.length > 0 && messages[messages.length - 1].role === 'user' && (

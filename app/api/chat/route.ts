@@ -33,23 +33,8 @@ export async function POST(req: Request) {
     } catch (fetchError: any) {
       clearTimeout(timeoutId);
       if (fetchError.name === 'AbortError') {
-        // Modal is likely cold-starting. Return a graceful stream.
-        const fallbackMessage = "Sunucu (Modal GPU) şu anda uykudan uyanıyor (Cold Start). Bu işlem yaklaşık 1-2 dakika sürebilir. Lütfen biraz bekleyip tekrar deneyin. 🚀";
-        
-        const textEncoder = new TextEncoder();
-        const customStream = new ReadableStream({
-          start(controller) {
-            controller.enqueue(textEncoder.encode(`0:${JSON.stringify(fallbackMessage)}\n`));
-            controller.close();
-          }
-        });
-
-        return new Response(customStream, {
-          headers: {
-            'Content-Type': 'text/plain; charset=utf-8',
-            'x-vercel-ai-data-stream': 'v1'
-          }
-        });
+        const fallbackMessage = "Sunucu (Modal GPU) şu anda uykudan uyanıyor (Cold Start). Lütfen 1-2 dakika bekleyip tekrar deneyin. 🚀";
+        return NextResponse.json({ error: fallbackMessage }, { status: 504 });
       }
       throw fetchError;
     }
