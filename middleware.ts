@@ -62,6 +62,11 @@ export function middleware(request: NextRequest) {
       if (url.pathname === '/app' || url.pathname.startsWith('/app/')) {
         return NextResponse.rewrite(new URL(url.pathname, request.url))
       }
+
+      // Allow /legal and /privacy-policy to route to the root app folder
+      if (url.pathname.startsWith('/legal') || url.pathname.startsWith('/privacy-policy')) {
+        return NextResponse.rewrite(new URL(url.pathname, request.url))
+      }
       
       // Rewrite everything else (/, /login, /register, etc.) to /ai-landing-page/*
       const landingRewrite = `/ai-landing-page${url.pathname === '/' ? '' : url.pathname}`
