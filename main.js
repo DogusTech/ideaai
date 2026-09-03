@@ -26,7 +26,7 @@ function createWindow() {
 
   const startUrl = isDev
     ? 'http://localhost:3000/register'
-    : 'https://togetlink.com/register';
+    : 'https://ideaai.togetlink.com/register';
 
   mainWindow.loadURL(startUrl);
 
