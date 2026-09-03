@@ -22,7 +22,10 @@ import {
   Info,
   Users,
   Settings,
-  ArrowRight
+  ArrowRight,
+  ChevronRight,
+  Code2,
+  Terminal
 } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
@@ -529,6 +532,53 @@ export function IdeaAIInterface() {
                   animate={{ opacity: 1, y: 0 }}
                   className="flex flex-col gap-1 w-full mt-2 pl-1"
                 >
+                  {/* Agent Steps Timeline */}
+                  <div className="flex flex-col gap-4 mb-4 mt-2">
+                    <div className="text-[13px] text-[#737373] flex items-center gap-1 cursor-pointer hover:text-[#171717] transition-colors w-fit">
+                      Ran 2 commands <ChevronRight className="w-3.5 h-3.5" />
+                    </div>
+                    
+                    <div className="text-[13px] flex items-center gap-1.5 font-sans">
+                      <span className="text-[#737373]">Edited</span>
+                      <div className="text-[#007add] bg-[#007add]/10 p-0.5 rounded flex items-center justify-center">
+                        <Code2 className="w-3.5 h-3.5" />
+                      </div>
+                      <span className="text-[#171717] font-medium tracking-tight">idea-ai-interface.tsx</span>
+                      <span className="text-green-600 font-medium ml-1">+49</span>
+                      <span className="text-red-500 font-medium">-67</span>
+                    </div>
+
+                    <div className="text-[13px] text-[#737373] flex items-center gap-1 cursor-pointer hover:text-[#171717] transition-colors w-fit">
+                      Thought for 6s <ChevronRight className="w-3.5 h-3.5" />
+                    </div>
+
+                    <div className="flex flex-col gap-2">
+                      <div className="text-[13px] text-[#737373] flex items-center gap-1.5 cursor-pointer hover:text-[#171717] transition-colors w-fit">
+                        Ran 3 commands <ChevronRight className="w-3.5 h-3.5" />
+                      </div>
+                      <div className="text-[13px] flex items-center gap-1.5 font-sans">
+                        <span className="text-[#737373]">Edited</span>
+                        <div className="text-[#007add] bg-[#007add]/10 p-0.5 rounded flex items-center justify-center">
+                          <Code2 className="w-3.5 h-3.5" />
+                        </div>
+                        <span className="text-[#171717] font-medium tracking-tight">idea-ai-interface.tsx</span>
+                        <span className="text-green-600 font-medium ml-1">+2</span>
+                        <span className="text-red-500 font-medium">-1</span>
+                      </div>
+                    </div>
+                    
+                    <div className="flex flex-col gap-2 mt-1">
+                      <div className="text-[13px] text-[#171717] flex items-center gap-1.5 font-medium">
+                        Run npm run build 
+                        <div className="w-3.5 h-3.5 ml-1.5 border-2 border-[#e5e5e5] border-t-[#171717] rounded-full animate-spin" />
+                      </div>
+                      <div className="bg-[#f9f9f9] border border-[#e5e5e5] rounded-[12px] p-3.5 font-mono text-[12px] text-[#525252] shadow-sm max-w-[85%]">
+                        ...\togetlinkk &gt; npm run build<br/><br/>
+                        Working..
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="flex items-center text-[#737373] text-[15px]">
                     Working
                     <div className="flex items-center space-x-[2px] ml-1 mt-1">
