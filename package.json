@@ -7,7 +7,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "dev:electron": "concurrently -k \"npm run dev\" \"wait-on http://localhost:3000 && electron .\"",
+    "build:electron": "npm run build && electron-builder"
   },
   "dependencies": {
     "@ai-sdk/react": "^4.0.44",
@@ -41,13 +43,39 @@
     "@types/node": "^24",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "concurrently": "^10.0.5",
+    "electron": "^44.1.1",
+    "electron-builder": "^26.15.3",
     "postcss": "^8.5",
     "tailwindcss": "^4.2.0",
-    "typescript": "5.7.3"
+    "typescript": "5.7.3",
+    "wait-on": "^9.1.0"
   },
   "pnpm": {
     "overrides": {
       "hono": "4.12.25"
+    }
+  },
+  "main": "main.js",
+  "build": {
+    "appId": "com.aeternexus.ideaai",
+    "productName": "IdeaAI",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "main.js",
+      "out/**/*"
+    ],
+    "win": {
+      "target": [
+        "msix",
+        "nsis"
+      ]
+    },
+    "msix": {
+      "identityName": "Aeternexus.IdeaAI",
+      "publisherDisplayName": "Aeternexus, Inc."
     }
   }
 }
