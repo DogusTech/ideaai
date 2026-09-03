@@ -74,7 +74,8 @@
       ]
     },
     "appx": {
-      "identityName": "Aeternexus.IdeaAI",
+      "identityName": "AeternexusInc.TogetLinkIdeaAI",
+      "publisher": "CN=F5D3FF75-C114-4FBC-8886-A9505F04D194",
       "publisherDisplayName": "Aeternexus, Inc."
     }
   },
