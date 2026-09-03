@@ -11,33 +11,33 @@ export default function Header() {
       <nav>
         <ul>
           <li>
-            <Link href="/ai-landing-page">
+            <Link href="/">
               <a>Home</a>
             </Link>
           </li>
           <li>
-            <Link href="/ai-landing-page/about">
+            <Link href="/about">
               <a>About</a>
             </Link>
           </li>
           <li>
-            <Link href="/ai-landing-page/contact">
+            <Link href="/contact">
               <a>Contact</a>
             </Link>
           </li>
           <li>
-            <Link href="/ai-landing-page/login">
+            <Link href="/login">
               <a>Login</a>
             </Link>
           </li>
           <li>
-            <Link href="/ai-landing-page/signup">
+            <Link href="/register">
               <a>Signup</a>
             </Link>
           </li>
           {isLoggedIn && (
             <li>
-              <Link href="/ai-landing-page/dashboard">
+              <Link href="/app">
                 <a>Dashboard</a>
               </Link>
             </li>

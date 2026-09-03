@@ -325,7 +325,7 @@ export default function AuthPage() {
 
                 <div style={{ marginTop: "32px" }}>
                   <p style={{ fontSize: "14px", color: "#666" }}>
-                    Don't have an account? <Link href="/ai-landing-page/register" style={{ color: "#0066cc", textDecoration: "none" }}>Sign Up</Link>
+                    Don't have an account? <Link href="/register" style={{ color: "#0066cc", textDecoration: "none" }}>Sign Up</Link>
                   </p>
                 </div>
               </>
@@ -398,7 +398,7 @@ export default function AuthPage() {
 
                 <div>
                   <p style={{ fontSize: "14px", color: "#666" }}>
-                    Don't have an account? <Link href="/ai-landing-page/register" style={{ color: "#0066cc", textDecoration: "none" }}>Sign Up</Link>
+                    Don't have an account? <Link href="/register" style={{ color: "#0066cc", textDecoration: "none" }}>Sign Up</Link>
                   </p>
                 </div>
               </>
@@ -414,7 +414,7 @@ export default function AuthPage() {
           color: "#666666",
           fontSize: "12px"
         }}>
-          By proceeding, you agree to our <Link href="/legal/terms" style={{ color: "#000", textDecoration: "none" }}>Terms of Service</Link> and <Link href="/legal/privacy-policy" style={{ color: "#000", textDecoration: "none" }}>Privacy Policy</Link>.
+          By proceeding, you agree to our <a href="/legal/terms" style={{ color: "#000", textDecoration: "none" }}>Terms of Service</a> and <a href="/legal/privacy-policy" style={{ color: "#000", textDecoration: "none" }}>Privacy Policy</a>.
         </div>
       </div>
     </>

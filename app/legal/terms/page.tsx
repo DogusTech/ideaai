@@ -152,7 +152,7 @@ export default function TermsPage() {
             <div style={{ color: "#666", fontSize: "14px", marginLeft: "16px" }}>Legal</div>
           </div>
           <div>
-            <Link href="/ai-landing-page/login" style={{ 
+            <Link href="/login" style={{ 
               backgroundColor: "#000", 
               color: "#fff", 
               padding: "8px 16px", 
