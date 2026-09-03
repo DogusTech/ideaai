@@ -48,26 +48,28 @@ export async function POST(req: Request) {
     const textEncoder = new TextEncoder();
     const customStream = new ReadableStream({
       start(controller) {
-        const lines = (data.response || "No response").split('\n');
+        // Just send standard plain text instead of trying to manually format
+        // the strict x-vercel-ai-data-stream protocol which can silently fail.
+        const text = data.response || "No response";
+        const chunkSize = 20;
         let i = 0;
         
         const interval = setInterval(() => {
-          if (i < lines.length) {
-            const chunk = lines[i] + (i < lines.length - 1 ? '\n' : '');
-            controller.enqueue(textEncoder.encode(`0:${JSON.stringify(chunk)}\n`));
-            i++;
+          if (i < text.length) {
+            const chunk = text.substring(i, i + chunkSize);
+            controller.enqueue(textEncoder.encode(chunk));
+            i += chunkSize;
           } else {
             clearInterval(interval);
             controller.close();
           }
-        }, 30); // 30ms per line to simulate streaming
+        }, 20); // 20ms per chunk
       }
     });
 
     return new Response(customStream, {
       headers: {
-        'Content-Type': 'text/plain; charset=utf-8',
-        'x-vercel-ai-data-stream': 'v1'
+        'Content-Type': 'text/plain; charset=utf-8'
       }
     });
 
