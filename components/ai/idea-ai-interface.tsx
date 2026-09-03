@@ -446,7 +446,14 @@ export function IdeaAIInterface() {
                       IdeaAI (System Error)
                     </div>
                     <div className="bg-red-50 border border-red-100 rounded-[20px] rounded-tl-sm px-5 py-3.5 inline-block text-sm text-red-700 mt-1">
-                      {error.message || "Bilinmeyen bir hata oluştu. Lütfen tekrar deneyin."}
+                      {(() => {
+                        try {
+                          const parsed = JSON.parse(error.message);
+                          return parsed.error || error.message;
+                        } catch {
+                          return error.message || "Bilinmeyen bir hata oluştu. Lütfen tekrar deneyin.";
+                        }
+                      })()}
                     </div>
                   </div>
                 </motion.div>

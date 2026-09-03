@@ -10,11 +10,10 @@ export async function POST(req: Request) {
     const lastMessage = messages[messages.length - 1];
     const userPrompt = lastMessage.content;
 
-    // Vercel Hobby limits API routes to 10 seconds. Modal cold start takes >60s.
-    // We add an 8-second timeout. If it times out, we return a faked stream
-    // explaining the situation instead of a hard 504 Vercel timeout.
+    // We add a 55-second timeout to allow Modal enough time to wake up,
+    // while still returning a friendly error just before Vercel's 60s maxDuration limit.
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    const timeoutId = setTimeout(() => controller.abort(), 55000);
 
     let response;
     try {
@@ -33,8 +32,8 @@ export async function POST(req: Request) {
     } catch (fetchError: any) {
       clearTimeout(timeoutId);
       if (fetchError.name === 'AbortError') {
-        const fallbackMessage = "Sunucu (Modal GPU) şu anda uykudan uyanıyor (Cold Start). Lütfen 1-2 dakika bekleyip tekrar deneyin. 🚀";
-        return NextResponse.json({ error: fallbackMessage }, { status: 504 });
+        const fallbackMessage = "Sunucu (Modal GPU) şu anda uykudan uyanıyor (Cold Start). Lütfen 1 dakika bekleyip tekrar deneyin. 🚀";
+        return new Response(fallbackMessage, { status: 504 });
       }
       throw fetchError;
     }
@@ -74,6 +73,6 @@ export async function POST(req: Request) {
 
   } catch (error) {
     console.error('Chat API Error:', error);
-    return NextResponse.json({ error: 'Failed to communicate with IdeaAI.' }, { status: 500 });
+    return new Response('IdeaAI ile iletişim kurulamadı. Sunucuya bağlanılamıyor.', { status: 500 });
   }
 }
