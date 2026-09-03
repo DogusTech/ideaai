@@ -21,7 +21,8 @@ import {
   Globe,
   Info,
   Users,
-  Settings
+  Settings,
+  ArrowRight
 } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
@@ -50,7 +51,7 @@ export function IdeaAIInterface() {
   
   const [showAddMenu, setShowAddMenu] = useState(false)
   const [showModelMenu, setShowModelMenu] = useState(false)
-  const [selectedModel, setSelectedModel] = useState("Idea 1.0 Fast")
+  const [selectedModel, setSelectedModel] = useState("Gemini 3.1 Pro High")
   const [showWorkspaceMenu, setShowWorkspaceMenu] = useState(false)
   
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
@@ -452,43 +453,49 @@ export function IdeaAIInterface() {
               </div>
             ) : (
               <>
-              {messages.map((message) => (
+              {messages.map((message) => {
+                const isUser = message.role === "user";
+                const date = new Date(parseInt(message.id));
+                const timeString = isNaN(date.getTime()) ? "18:41" : date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                return (
                 <motion.div 
                   key={message.id}
                   initial={{ opacity: 0, y: 5 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex gap-4"
+                  className="flex flex-col gap-1 w-full"
                 >
-                  <div className="shrink-0 mt-1">
-                    {message.role === "user" ? (
-                      <div className="w-8 h-8 rounded-full bg-[#f5f5f5] flex items-center justify-center text-xs font-medium text-[#525252] border border-[#e5e5e5]">
-                        DY
+                  <div className="flex-1 overflow-hidden">
+                    {isUser ? (
+                      <div className="flex justify-end">
+                        <div className="bg-[#f9f9f9] border border-[#e5e5e5] rounded-[24px] rounded-br-sm px-5 py-3.5 inline-block prose prose-sm max-w-[85%] text-[#171717] prose-p:leading-relaxed shadow-sm mt-1">
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            {message.content}
+                          </ReactMarkdown>
+                        </div>
                       </div>
                     ) : (
-                      <div className="w-8 h-8 rounded-full bg-[#171717] flex items-center justify-center text-white">
-                        <Globe className="w-4 h-4" strokeWidth={1.5} />
+                      <div className="w-full">
+                        {message.content === "" && (
+                          <div className="text-[13px] text-[#737373] mb-1 pl-1">Working...</div>
+                        )}
+                        <div className="pt-1 w-full">
+                          <AntigravityMarkdown content={message.content} />
+                        </div>
                       </div>
                     )}
                   </div>
-                  
-                  <div className="flex-1 space-y-1.5 overflow-hidden">
-                    <div className="font-semibold text-[15px] text-[#171717]">
-                      {message.role === "user" ? "You" : "IdeaAI"}
+                  {!isUser && message.content !== "" && (
+                    <div className="flex items-center space-x-3 text-[#a3a3a3] text-[13px] mt-2 mb-4 pl-1">
+                      <span>{timeString}</span>
+                      <button className="hover:text-[#737373] transition-colors"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
+                      <button className="hover:text-[#737373] transition-colors"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"></path></svg></button>
+                      <button className="hover:text-[#737373] transition-colors"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2h-2"></path></svg></button>
                     </div>
-                    {message.role === "user" ? (
-                      <div className="bg-[#f9f9f9] border border-[#e5e5e5] rounded-[20px] rounded-tl-sm px-5 py-3.5 inline-block prose prose-sm max-w-none text-[#171717] prose-p:leading-relaxed shadow-sm mt-1">
-                        <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                          {message.content}
-                        </ReactMarkdown>
-                      </div>
-                    ) : (
-                      <div className="pt-1 w-full">
-                        <AntigravityMarkdown content={message.content} />
-                      </div>
-                    )}
-                  </div>
+                  )}
                 </motion.div>
-              ))}
+                );
+              })}
 
               {/* Error Message Display */}
               {error && (
@@ -497,13 +504,8 @@ export function IdeaAIInterface() {
                   animate={{ opacity: 1, y: 0 }}
                   className="flex gap-4 mt-4"
                 >
-                  <div className="shrink-0 mt-1">
-                    <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center text-red-600">
-                      <Globe className="w-4 h-4" strokeWidth={1.5} />
-                    </div>
-                  </div>
                   <div className="flex-1 space-y-1.5 overflow-hidden">
-                    <div className="font-semibold text-[15px] text-red-600">
+                    <div className="font-semibold text-[15px] text-red-600 pl-1">
                       IdeaAI (System Error)
                     </div>
                     <div className="bg-red-50 border border-red-100 rounded-[20px] rounded-tl-sm px-5 py-3.5 inline-block text-sm text-red-700 mt-1">
@@ -525,33 +527,14 @@ export function IdeaAIInterface() {
                 <motion.div 
                   initial={{ opacity: 0, y: 5 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="flex gap-4"
+                  className="flex flex-col gap-1 w-full mt-2 pl-1"
                 >
-                  <div className="shrink-0 mt-1">
-                    <div className="w-8 h-8 rounded-full bg-[#171717] flex items-center justify-center text-white">
-                      <Globe className="w-4 h-4" strokeWidth={1.5} />
-                    </div>
-                  </div>
-                  <div className="flex-1 space-y-2 overflow-hidden py-1">
-                    <div className="font-semibold text-[15px] text-[#171717]">
-                      IdeaAI
-                    </div>
-                    <div className="flex items-center space-x-1.5 pt-2 pl-1">
-                      <motion.div
-                        className="w-2.5 h-2.5 bg-[#a3a3a3] rounded-full"
-                        animate={{ y: [0, -6, 0], opacity: [0.5, 1, 0.5] }}
-                        transition={{ duration: 0.8, repeat: Infinity, delay: 0 }}
-                      />
-                      <motion.div
-                        className="w-2.5 h-2.5 bg-[#a3a3a3] rounded-full"
-                        animate={{ y: [0, -6, 0], opacity: [0.5, 1, 0.5] }}
-                        transition={{ duration: 0.8, repeat: Infinity, delay: 0.2 }}
-                      />
-                      <motion.div
-                        className="w-2.5 h-2.5 bg-[#a3a3a3] rounded-full"
-                        animate={{ y: [0, -6, 0], opacity: [0.5, 1, 0.5] }}
-                        transition={{ duration: 0.8, repeat: Infinity, delay: 0.4 }}
-                      />
+                  <div className="flex items-center text-[#737373] text-[15px]">
+                    Working
+                    <div className="flex items-center space-x-[2px] ml-1 mt-1">
+                      <motion.div className="w-[3px] h-[3px] bg-[#737373] rounded-full" animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.2, repeat: Infinity, delay: 0 }} />
+                      <motion.div className="w-[3px] h-[3px] bg-[#737373] rounded-full" animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.2, repeat: Infinity, delay: 0.2 }} />
+                      <motion.div className="w-[3px] h-[3px] bg-[#737373] rounded-full" animate={{ opacity: [0.3, 1, 0.3] }} transition={{ duration: 1.2, repeat: Infinity, delay: 0.4 }} />
                     </div>
                   </div>
                 </motion.div>
@@ -665,13 +648,11 @@ export function IdeaAIInterface() {
                           <div className="px-3 pb-2 pt-1 text-[13px] font-semibold text-[#737373]">
                             Model
                           </div>
-                          <button onClick={() => { setSelectedModel("Idea 1.0 Fast"); setShowModelMenu(false) }} className={`w-full flex items-center justify-between px-3 py-[7px] text-[14px] text-left transition-colors ${selectedModel === "Idea 1.0 Fast" ? "bg-[#e5e5e5] text-[#171717]" : "text-[#525252] hover:bg-[#e5e5e5]"}`}>
-                            <span>Idea 1.0 Fast</span>
-                            <span className="flex items-center gap-1 text-[11px] text-[#737373] bg-white px-1.5 py-[2px] rounded-full border border-[#e5e5e5] font-medium shadow-[0_1px_2px_rgba(0,0,0,0.02)]">Fast <Info className="w-3 h-3 text-[#a3a3a3]" /></span>
+                          <button onClick={() => { setSelectedModel("Gemini 3.1 Pro High"); setShowModelMenu(false) }} className={`w-full flex items-center justify-between px-3 py-[7px] text-[14px] text-left transition-colors ${selectedModel === "Gemini 3.1 Pro High" ? "bg-[#e5e5e5] text-[#171717]" : "text-[#525252] hover:bg-[#e5e5e5]"}`}>
+                            <span>Gemini 3.1 Pro High</span>
                           </button>
-                          <button onClick={() => { setSelectedModel("Idea 1.0 Pro"); setShowModelMenu(false) }} className={`w-full flex items-center justify-between px-3 py-[7px] text-[14px] text-left transition-colors ${selectedModel === "Idea 1.0 Pro" ? "bg-[#e5e5e5] text-[#171717]" : "text-[#525252] hover:bg-[#e5e5e5]"}`}>
-                            <span>Idea 1.0 Pro</span>
-                            <span className="flex items-center gap-1 text-[11px] text-[#737373] bg-white px-1.5 py-[2px] rounded-full border border-[#e5e5e5] font-medium shadow-[0_1px_2px_rgba(0,0,0,0.02)]">Pro <Info className="w-3 h-3 text-[#a3a3a3]" /></span>
+                          <button onClick={() => { setSelectedModel("Gemini 3.1 Flash"); setShowModelMenu(false) }} className={`w-full flex items-center justify-between px-3 py-[7px] text-[14px] text-left transition-colors ${selectedModel === "Gemini 3.1 Flash" ? "bg-[#e5e5e5] text-[#171717]" : "text-[#525252] hover:bg-[#e5e5e5]"}`}>
+                            <span>Gemini 3.1 Flash</span>
                           </button>
                         </div>
                       )}
@@ -713,13 +694,13 @@ export function IdeaAIInterface() {
                       <button 
                         type="submit"
                         disabled={!localInput.trim()}
-                        className={`flex items-center justify-center w-[32px] h-[32px] rounded-full transition-all shadow-sm mr-1 ${
+                        className={`flex items-center justify-center w-[36px] h-[36px] rounded-full transition-all shadow-sm mr-1 ${
                           localInput.trim() 
-                            ? "bg-[#171717] text-white hover:bg-[#262626]" 
+                            ? "bg-[#1a73e8] text-white hover:bg-[#1557b0]" 
                             : "bg-[#e5e5e5] text-[#a3a3a3] cursor-not-allowed"
                         }`}
                       >
-                         <ArrowUp className="w-[18px] h-[18px]" strokeWidth={2.5} />
+                         <ArrowRight className="w-5 h-5" strokeWidth={2.5} />
                       </button>
                     )}
                   </div>
