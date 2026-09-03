@@ -45,26 +45,7 @@ export async function POST(req: Request) {
 
     const data = await response.json();
     
-    // Simulate streaming for a better UI experience
-    const customStream = new ReadableStream<string>({
-      start(controller) {
-        const text = data.response || "No response";
-        const chunkSize = 20;
-        let i = 0;
-        
-        const interval = setInterval(() => {
-          if (i < text.length) {
-            controller.enqueue(text.substring(i, i + chunkSize));
-            i += chunkSize;
-          } else {
-            clearInterval(interval);
-            controller.close();
-          }
-        }, 20); // 20ms per chunk
-      }
-    });
-
-    return createTextStreamResponse({ stream: customStream });
+    return NextResponse.json({ text: data.response || "No response" });
 
   } catch (error) {
     console.error('Chat API Error:', error);

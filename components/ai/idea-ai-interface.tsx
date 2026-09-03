@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect, useRef } from "react"
 import { motion } from "framer-motion"
-import { useChat } from "@ai-sdk/react"
 import { 
   Search, 
   Home, 
@@ -68,11 +67,73 @@ export function IdeaAIInterface() {
   
   const body = React.useMemo(() => ({ department: selectedDept, project: selectedProject, model: selectedModel }), [selectedDept, selectedProject, selectedModel])
 
-  const { messages, setMessages, sendMessage, status, stop, error } = useChat({
-    id: "idea-ai-chat",
-    api: "/api/chat",
-    body: body
-  })
+  const [messages, setMessages] = useState<any[]>([]);
+  const [status, setStatus] = useState<'ready' | 'submitted' | 'streaming' | 'error'>('ready');
+  const [error, setError] = useState<Error | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  const stop = () => {
+    abortControllerRef.current?.abort();
+    setStatus('ready');
+  };
+
+  const sendMessage = async (message: any) => {
+    const newMessages = [...messages, message];
+    setMessages(newMessages);
+    setStatus('submitted');
+    setError(null);
+    
+    abortControllerRef.current = new AbortController();
+    
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: newMessages, ...body }),
+        signal: abortControllerRef.current.signal,
+      });
+      
+      if (!res.ok) {
+        let errText = "Bilinmeyen hata oluştu.";
+        try { 
+          const j = await res.json(); 
+          errText = j.error || errText; 
+        } catch(e) { 
+          errText = await res.text(); 
+        }
+        throw new Error(errText);
+      }
+      
+      const resData = await res.json();
+      const fullText = resData.text;
+      const assistantId = Date.now().toString();
+      
+      setMessages([...newMessages, { id: assistantId, role: 'assistant', content: "" }]);
+      setStatus('streaming');
+      
+      let i = 0;
+      const chunkSize = 6;
+      
+      const interval = setInterval(() => {
+        if (i < fullText.length) {
+          const currentChunk = fullText.substring(0, i + chunkSize);
+          setMessages(prev => prev.map(m => m.id === assistantId ? { ...m, content: currentChunk } : m));
+          i += chunkSize;
+        } else {
+          clearInterval(interval);
+          setStatus('ready');
+        }
+      }, 15);
+      
+    } catch (err: any) {
+      if (err.name !== 'AbortError') {
+        setError(err);
+        setStatus('error');
+      } else {
+        setStatus('ready');
+      }
+    }
+  };
   
   const [localInput, setLocalInput] = useState("")
   const [isFocused, setIsFocused] = useState(false)
