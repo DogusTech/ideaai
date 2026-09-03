@@ -89,27 +89,36 @@ export function IdeaAIInterface() {
     
     abortControllerRef.current = new AbortController();
     
-    try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: newMessages, ...body }),
-        signal: abortControllerRef.current.signal,
-      });
-      
-      if (!res.ok) {
-        let errText = "Bilinmeyen hata oluştu.";
-        try { 
-          const j = await res.json(); 
-          errText = j.error || errText; 
-        } catch(e) { 
-          errText = await res.text(); 
+      try {
+        const lastMessageContent = message.content;
+        
+        const res = await fetch('https://dogustech--ideaai-llama3-endpoint-fastapi-app.modal.run/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            instruction: "You are an elite AI coding assistant.",
+            input: lastMessageContent
+          }),
+          signal: abortControllerRef.current.signal,
+        });
+        
+        if (!res.ok) {
+          let errText = "Bilinmeyen hata oluştu.";
+          if (res.status === 504) {
+            errText = "Sunucu (Modal GPU) şu anda uykudan uyanıyor (Cold Start). Lütfen 1 dakika bekleyip tekrar deneyin.";
+          } else {
+            try { 
+              const j = await res.json(); 
+              errText = j.error || errText; 
+            } catch(e) { 
+              errText = await res.text(); 
+            }
+          }
+          throw new Error(errText);
         }
-        throw new Error(errText);
-      }
-      
-      const resData = await res.json();
-      const fullText = resData.text;
+        
+        const resData = await res.json();
+        const fullText = resData.response || resData.text || "No response";
       const assistantId = Date.now().toString();
       
       setMessages([...newMessages, { id: assistantId, role: 'assistant', content: "" }]);
