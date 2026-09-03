@@ -250,14 +250,15 @@ export function IdeaAIInterface() {
       />
       
       {/* SIDEBAR */}
-      <aside className="w-[280px] shrink-0 bg-[#fafafa] border-r border-[#e5e5e5] flex flex-col justify-between hidden md:flex">
+      <aside className="w-[280px] shrink-0 bg-[#fafafa] border-r border-[#e5e5e5] flex flex-col justify-between hidden md:flex select-none">
         <div className="flex flex-col h-full overflow-hidden">
           
-          {/* Workspace Header */}
-          <div className="h-[56px] flex items-center justify-between px-3 shrink-0">
+          {/* Workspace Header (Draggable for frameless desktop) */}
+          <div className="h-[56px] flex items-center justify-between px-3 shrink-0" style={{ WebkitAppRegion: 'drag' } as any}>
             <div className="relative workspace-dropdown-container">
               <button 
                 onClick={() => setShowWorkspaceMenu(!showWorkspaceMenu)}
+                style={{ WebkitAppRegion: 'no-drag' } as any}
                 className="flex items-center hover:bg-[#f0f0f0] p-1.5 rounded-md transition-colors text-[14px] font-medium text-[#171717]"
               >
                 <div className="w-[24px] h-[24px] rounded-full bg-[#2563eb] flex items-center justify-center text-white mr-2.5 shadow-sm">
@@ -275,7 +276,7 @@ export function IdeaAIInterface() {
                 </div>
               )}
             </div>
-            <button className="p-1.5 hover:bg-[#f0f0f0] rounded-md text-[#525252] transition-colors">
+            <button className="p-1.5 hover:bg-[#f0f0f0] rounded-md text-[#525252] transition-colors" style={{ WebkitAppRegion: 'no-drag' } as any}>
               <Sidebar className="w-[18px] h-[18px]" strokeWidth={2} />
             </button>
           </div>
