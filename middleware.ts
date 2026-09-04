@@ -63,8 +63,8 @@ export function middleware(request: NextRequest) {
         return NextResponse.rewrite(new URL(url.pathname, request.url))
       }
 
-      // Allow /legal and /privacy-policy to route to the root app folder
-      if (url.pathname.startsWith('/legal') || url.pathname.startsWith('/privacy-policy')) {
+      // Allow /legal, /privacy-policy, and /redeem to route to the root app folder
+      if (url.pathname.startsWith('/legal') || url.pathname.startsWith('/privacy-policy') || url.pathname.startsWith('/redeem')) {
         return NextResponse.rewrite(new URL(url.pathname, request.url))
       }
       
