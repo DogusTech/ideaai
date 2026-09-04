@@ -89,15 +89,20 @@ export function IdeaAIInterface() {
     
     abortControllerRef.current = new AbortController();
     
-      try {
-        const res = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ 
-            messages: newMessages
-          }),
-          signal: abortControllerRef.current.signal,
-        });
+    try {
+      const storedApiKey = typeof window !== 'undefined' ? localStorage.getItem('ideaai_api_key') || '' : '';
+      
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-API-Key': storedApiKey
+        },
+        body: JSON.stringify({ 
+          messages: newMessages
+        }),
+        signal: abortControllerRef.current.signal,
+      });
         
         if (!res.ok) {
           let errText = "Bilinmeyen hata oluştu.";

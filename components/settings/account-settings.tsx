@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { Loader2, AlertCircle } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Loader2, AlertCircle, Key, Check } from "lucide-react"
 import { sendPasswordResetEmail, deleteUser } from "firebase/auth"
 import { auth } from "@/lib/firebase"
 import { logout } from "@/lib/api/auth"
@@ -12,6 +12,31 @@ export function AccountSettings() {
   const [resetStatus, setResetStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
   const [deleteStatus, setDeleteStatus] = useState<"idle" | "loading" | "error">("idle")
   const [errorMessage, setErrorMessage] = useState("")
+  
+  const [apiKey, setApiKey] = useState("")
+  const [saveKeyStatus, setSaveKeyStatus] = useState<"idle" | "saving" | "success">("idle")
+
+  useEffect(() => {
+    // Component yüklendiğinde var olan API key'i getir
+    const storedKey = localStorage.getItem("ideaai_api_key")
+    if (storedKey) {
+      setApiKey(storedKey)
+    }
+  }, [])
+
+  const handleSaveApiKey = () => {
+    setSaveKeyStatus("saving")
+    if (apiKey.trim() === "") {
+      localStorage.removeItem("ideaai_api_key")
+    } else {
+      localStorage.setItem("ideaai_api_key", apiKey.trim())
+    }
+    
+    setTimeout(() => {
+      setSaveKeyStatus("success")
+      setTimeout(() => setSaveKeyStatus("idle"), 2000)
+    }, 500)
+  }
 
   async function handlePasswordReset() {
     if (!auth.currentUser?.email) return
@@ -59,6 +84,44 @@ export function AccountSettings() {
           {errorMessage}
         </div>
       )}
+
+      {/* BYOK: API Key Section */}
+      <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+        <div className="flex items-center gap-2 mb-2">
+          <Key className="size-5 text-indigo-500" />
+          <h3 className="text-lg font-medium text-foreground">API Integrations (BYOK)</h3>
+        </div>
+        <p className="mb-4 text-sm text-muted-foreground leading-relaxed">
+          IdeaAI operates on a Bring Your Own Key (BYOK) model. Enter your OpenAI API key below to power the autonomous engine. Your key is stored securely and locally on your device.
+        </p>
+        
+        <div className="flex gap-3">
+          <div className="relative flex-1">
+            <input
+              type="password"
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+              placeholder="sk-proj-..."
+              className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
+            />
+          </div>
+          <button
+            onClick={handleSaveApiKey}
+            disabled={saveKeyStatus === "saving"}
+            className="inline-flex h-10 items-center justify-center rounded-md bg-zinc-900 px-6 text-sm font-medium text-white shadow-sm transition-colors hover:bg-zinc-800 disabled:opacity-70"
+          >
+            {saveKeyStatus === "saving" ? (
+              <Loader2 className="size-4 animate-spin" />
+            ) : saveKeyStatus === "success" ? (
+              <><Check className="size-4 mr-2" /> Saved</>
+            ) : (
+              "Save Key"
+            )}
+          </button>
+        </div>
+      </div>
+
+      <hr className="border-border" />
 
       {/* Password Reset */}
       <div>
