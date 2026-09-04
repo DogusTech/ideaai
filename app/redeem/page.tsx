@@ -1,20 +1,24 @@
 "use client";
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
 
 export default function RedeemPage() {
   const [code, setCode] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [message, setMessage] = useState('');
 
   const handleRedeem = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!code) return;
+    if (!code || !email || !password) return;
     
     setStatus('loading');
     
     try {
-      // API istei (u anlk mock olarak alyor, gerek DB balants eklenecek)
+      // 1. Kodu doðrula
       const res = await fetch('/api/redeem', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -23,13 +27,27 @@ export default function RedeemPage() {
       
       const data = await res.json();
       
-      if (res.ok) {
-        setStatus('success');
-        setMessage('Lifetime Pro activated successfully!');
-      } else {
+      if (!res.ok) {
         setStatus('error');
         setMessage(data.error || 'Invalid or expired code.');
+        return;
       }
+
+      // 2. Kod doðruysa Firebase'de hesabi olutur (Backend'de de yetkilendirilmeli idealde)
+      try {
+        await createUserWithEmailAndPassword(auth, email, password);
+        setStatus('success');
+        setMessage('Account created and Lifetime Pro activated successfully!');
+      } catch (firebaseErr: any) {
+        setStatus('error');
+        // Eðer mail zaten kayitliysa
+        if (firebaseErr.code === 'auth/email-already-in-use') {
+          setMessage('This email is already registered. Please log in first, or use a different email.');
+        } else {
+          setMessage(firebaseErr.message || 'Error creating account.');
+        }
+      }
+      
     } catch (err) {
       setStatus('error');
       setMessage('Something went wrong. Please try again.');
@@ -78,23 +96,53 @@ export default function RedeemPage() {
           </p>
 
           <form onSubmit={handleRedeem} className="space-y-6">
-            <div>
-              <label htmlFor="code" className="block text-sm font-medium text-zinc-700 mb-2">Redemption Code</label>
-              <input
-                id="code"
-                type="text"
-                value={code}
-                onChange={(e) => setCode(e.target.value.toUpperCase())}
-                placeholder="IDEAAI-XXXX-XXXX-XXXX"
-                className="w-full px-4 py-4 rounded-xl border border-zinc-200 bg-white shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all text-lg font-mono placeholder:font-sans placeholder:text-zinc-400 uppercase"
-                required
-                disabled={status === 'loading' || status === 'success'}
-              />
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-zinc-700 mb-1">Account Email</label>
+                <input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-white shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all text-base"
+                  required
+                  disabled={status === 'loading' || status === 'success'}
+                />
+              </div>
+              
+              <div>
+                <label htmlFor="password" className="block text-sm font-medium text-zinc-700 mb-1">Create Password</label>
+                <input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-white shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all text-base"
+                  required
+                  disabled={status === 'loading' || status === 'success'}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="code" className="block text-sm font-medium text-zinc-700 mb-1">AppSumo Redemption Code</label>
+                <input
+                  id="code"
+                  type="text"
+                  value={code}
+                  onChange={(e) => setCode(e.target.value.toUpperCase())}
+                  placeholder="IDEAAI-XXXX-XXXX-XXXX"
+                  className="w-full px-4 py-3 rounded-xl border border-zinc-200 bg-white shadow-sm focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 outline-none transition-all text-lg font-mono placeholder:font-sans placeholder:text-zinc-400 uppercase"
+                  required
+                  disabled={status === 'loading' || status === 'success'}
+                />
+              </div>
             </div>
 
             <button
               type="submit"
-              disabled={status === 'loading' || status === 'success' || !code}
+              disabled={status === 'loading' || status === 'success' || !code || !email || !password}
               className={`w-full py-4 rounded-xl text-white font-medium text-lg transition-all shadow-sm flex justify-center items-center gap-2 ${
                 status === 'success' ? 'bg-emerald-600' : 'bg-zinc-900 hover:bg-zinc-800 active:scale-[0.98]'
               } disabled:opacity-70 disabled:active:scale-100`}
