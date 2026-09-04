@@ -136,6 +136,8 @@ export default function RootLayout({
       className={`light bg-background ${geistSans.variable} ${geistMono.variable}`}
     >
       <head>
+        <meta name="impact-site-verification" content="77c85579-a9bf-40eb-b03c-b9bcf5b8426b" />
+        <meta name="impact-site-verification" value="77c85579-a9bf-40eb-b03c-b9bcf5b8426b" />
         <Script
           id="global-schema"
           type="application/ld+json"
