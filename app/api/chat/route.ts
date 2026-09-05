@@ -16,25 +16,24 @@ export async function POST(request: Request) {
 
     let cleanApiKey = apiKey.trim();
     
-    // Extract actual key if user accidentally pasted "Bearer sk-..." or "Key=AIza..."
-    const geminiMatch = cleanApiKey.match(/AIza[a-zA-Z0-9_-]+/);
+    // Extract actual key if user accidentally pasted "Bearer sk-..."
     const openaiMatch = cleanApiKey.match(/sk-[a-zA-Z0-9_-]+/);
-    
-    if (geminiMatch) cleanApiKey = geminiMatch[0];
-    else if (openaiMatch) cleanApiKey = openaiMatch[0];
+    if (openaiMatch) cleanApiKey = openaiMatch[0];
+    else {
+      // Remove any 'Bearer ' or 'Key=' prefixes just in case
+      cleanApiKey = cleanApiKey.replace(/^(Bearer\s+|Key=)/i, '').trim();
+    }
 
-    // OpenAI'ye veya Gemini'ye dogrudan istek at
-    if (cleanApiKey.startsWith('sk-') || cleanApiKey.startsWith('AIza')) {
-      const isGemini = cleanApiKey.startsWith('AIza');
+    const isGemini = !cleanApiKey.startsWith('sk-');
       
-      if (isGemini) {
-        // Native Gemini REST API
-        const geminiMessages = messages.map((m: any) => ({
-          role: m.role === 'user' ? 'user' : 'model',
-          parts: [{ text: m.content }]
-        }));
+    if (isGemini) {
+      // Native Gemini REST API
+      const geminiMessages = messages.map((m: any) => ({
+        role: m.role === 'user' ? 'user' : 'model',
+        parts: [{ text: m.content }]
+      }));
 
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${cleanApiKey}`, {
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${cleanApiKey}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -87,13 +86,6 @@ export async function POST(request: Request) {
         const assistantMessage = data.choices?.[0]?.message?.content || '';
         return NextResponse.json({ response: assistantMessage });
       }
-    }
-
-    // Fallback if key format is unknown
-    return NextResponse.json(
-      { error: 'Invalid API Key format. Key must start with "sk-" (OpenAI) or "AIza" (Gemini).' }, 
-      { status: 400 }
-    );
 
   } catch (error) {
     console.error('Chat API Error:', error);
