@@ -16,43 +16,68 @@ export async function POST(request: Request) {
 
     // OpenAI'ye veya Gemini'ye dogrudan istek at
     if (apiKey.startsWith('sk-') || apiKey.startsWith('AIza')) {
-      // Sadece role ve content gonderilmeli (id gibi frontend'e ozel verileri temizliyoruz)
-      const cleanMessages = messages.map((m: any) => ({
-        role: m.role,
-        content: m.content
-      }));
-
       const isGemini = apiKey.startsWith('AIza');
-      const endpoint = isGemini 
-        ? 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions' 
-        : 'https://api.openai.com/v1/chat/completions';
       
-      const modelName = isGemini ? 'gemini-1.5-flash' : 'gpt-4o';
+      if (isGemini) {
+        // Native Gemini REST API
+        const geminiMessages = messages.map((m: any) => ({
+          role: m.role === 'user' ? 'user' : 'model',
+          parts: [{ text: m.content }]
+        }));
 
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify({
-          model: modelName,
-          messages: [
-            { role: 'system', content: 'You are IdeaAI, an elite autonomous coding assistant. You help the user fix bugs, write code, and act as a senior developer.' },
-            ...cleanMessages
-          ],
-        }),
-      });
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            systemInstruction: {
+              parts: [{ text: 'You are IdeaAI, an elite autonomous coding assistant. You help the user fix bugs, write code, and act as a senior developer.' }]
+            },
+            contents: geminiMessages
+          }),
+        });
 
-      if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        return NextResponse.json({ error: errData.error?.message || (isGemini ? 'Gemini API Error' : 'OpenAI API Error') }, { status: res.status });
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          return NextResponse.json({ error: errData.error?.message || 'Gemini API Error' }, { status: res.status });
+        }
+
+        const data = await res.json();
+        const assistantMessage = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        return NextResponse.json({ response: assistantMessage });
+
+      } else {
+        // Standard OpenAI REST API
+        const cleanMessages = messages.map((m: any) => ({
+          role: m.role,
+          content: m.content
+        }));
+
+        const res = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            model: 'gpt-4o',
+            messages: [
+              { role: 'system', content: 'You are IdeaAI, an elite autonomous coding assistant. You help the user fix bugs, write code, and act as a senior developer.' },
+              ...cleanMessages
+            ],
+          }),
+        });
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          return NextResponse.json({ error: errData.error?.message || 'OpenAI API Error' }, { status: res.status });
+        }
+
+        const data = await res.json();
+        const assistantMessage = data.choices?.[0]?.message?.content || '';
+        return NextResponse.json({ response: assistantMessage });
       }
-
-      const data = await res.json();
-      const assistantMessage = data.choices[0]?.message?.content || '';
-      
-      return NextResponse.json({ response: assistantMessage });
     }
 
     // Fallback: Eger Anthropic vs gelirse diye eklenebilir veya Modal'a gonderilebilir
