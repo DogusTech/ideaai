@@ -3,7 +3,9 @@
 import React, { useState, useMemo } from "react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
-import { ChevronRight, ChevronDown, Edit3, PlusCircle, Trash2, FileTerminal } from "lucide-react"
+import { ChevronRight, ChevronDown, Edit3, PlusCircle, Trash2, FileTerminal, Copy, Check } from "lucide-react"
+import { PrismLight as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { oneLight } from 'react-syntax-highlighter/dist/cjs/styles/prism'
 
 type ChunkType = 'text' | 'think' | 'modify' | 'new' | 'delete'
 
@@ -159,6 +161,52 @@ function FileActionBadge({ type, filename }: { type: ChunkType, filename: string
   )
 }
 
+function CodeBlock({ node, inline, className, children, ...props }: any) {
+  const [copied, setCopied] = useState(false)
+  const match = /language-(\w+)/.exec(className || '')
+  const language = match ? match[1] : ''
+  
+  if (inline) {
+    return (
+      <code className="bg-[#f0f0f0] text-[#cf222e] px-1.5 py-0.5 rounded-md text-[13px] font-mono" {...props}>
+        {children}
+      </code>
+    )
+  }
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(String(children).replace(/\n$/, ''))
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  return (
+    <div className="my-4 rounded-xl border border-[#e5e5e5] bg-[#fbfbfb] overflow-hidden shadow-sm">
+      <div className="flex items-center justify-between px-4 py-2 border-b border-[#e5e5e5] bg-[#f4f4f4]">
+        <span className="text-[13px] font-medium text-[#737373] capitalize">{language || 'Code'}</span>
+        <button 
+          onClick={handleCopy}
+          className="flex items-center gap-1.5 text-[#737373] hover:text-[#171717] transition-colors"
+          title="Copy code"
+        >
+          {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+        </button>
+      </div>
+      <div className="p-4 overflow-x-auto text-[13px] font-mono leading-relaxed">
+        <SyntaxHighlighter
+          style={oneLight}
+          language={language}
+          PreTag="div"
+          customStyle={{ background: 'transparent', padding: 0, margin: 0 }}
+          {...props}
+        >
+          {String(children).replace(/\n$/, '')}
+        </SyntaxHighlighter>
+      </div>
+    </div>
+  )
+}
+
 export function AntigravityMarkdown({ content }: { content: string }) {
   const chunks = useMemo(() => parseAntigravityText(content), [content])
 
@@ -174,8 +222,13 @@ export function AntigravityMarkdown({ content }: { content: string }) {
         
         // It's just text
         return (
-          <div key={i} className="prose prose-sm max-w-none text-[#404040] prose-p:leading-relaxed prose-pre:bg-[#f5f5f5] prose-pre:border prose-pre:border-[#e5e5e5] prose-pre:text-[#171717] prose-code:text-[#171717] prose-code:bg-[#f5f5f5] prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded-md">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          <div key={i} className="prose prose-sm max-w-none text-[#171717] prose-p:leading-relaxed">
+            <ReactMarkdown 
+              remarkPlugins={[remarkGfm]}
+              components={{
+                code: CodeBlock
+              }}
+            >
               {chunk.content}
             </ReactMarkdown>
           </div>

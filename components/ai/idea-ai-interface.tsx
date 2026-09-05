@@ -48,7 +48,7 @@ type Project = {
 
 export function IdeaAIInterface() {
   const [selectedDept, setSelectedDept] = useState("Software")
-  const [projects, setProjects] = useState<Project[]>([])
+  const [projects, setProjects] = useState<Project[]>(typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('ideaai_projects') || '[]') : [])
   const [selectedProject, setSelectedProject] = useState<string | null>(null)
   const [userEmail, setUserEmail] = useState<string | null>(null)
   
@@ -71,10 +71,17 @@ export function IdeaAIInterface() {
   
   const body = React.useMemo(() => ({ department: selectedDept, project: selectedProject, model: selectedModel }), [selectedDept, selectedProject, selectedModel])
 
-  const [messages, setMessages] = useState<any[]>([]);
+  const [messages, setMessages] = useState<any[]>(typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('ideaai_current_chat') || '[]') : []);
   const [status, setStatus] = useState<'ready' | 'submitted' | 'streaming' | 'error'>('ready');
   const [error, setError] = useState<Error | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+    useEffect(() => {
+      if (typeof window !== 'undefined') localStorage.setItem('ideaai_projects', JSON.stringify(projects));
+    }, [projects]);
+    useEffect(() => {
+      if (typeof window !== 'undefined') localStorage.setItem('ideaai_current_chat', JSON.stringify(messages));
+    }, [messages]);
+
 
   const stop = () => {
     abortControllerRef.current?.abort();
@@ -854,4 +861,6 @@ function ProjectItem({ label, time, active = false, onClick }: { label: string, 
     </button>
   )
 }
+
+
 
