@@ -43,7 +43,13 @@ export async function POST(request: Request) {
           },
           body: JSON.stringify({
             systemInstruction: {
-              parts: [{ text: 'You are IdeaAI, an elite autonomous coding assistant. You help the user fix bugs, write code, and act as a senior developer.' }]
+              parts: [{ text: `You are IdeaAI, an elite autonomous coding agent. 
+Always structure your response exactly like this:
+1. Start with a <think>...</think> block explaining your plan.
+2. If you are modifying a file, output [MODIFY] filename.ext on its own line.
+3. If creating a new file, output [NEW] filename.ext on its own line.
+4. Then provide the markdown code block.
+Keep it concise and highly technical.` }]
             },
             contents: geminiMessages
           }),
