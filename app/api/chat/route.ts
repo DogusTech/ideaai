@@ -14,9 +14,18 @@ export async function POST(request: Request) {
       );
     }
 
+    let cleanApiKey = apiKey.trim();
+    
+    // Extract actual key if user accidentally pasted "Bearer sk-..." or "Key=AIza..."
+    const geminiMatch = cleanApiKey.match(/AIza[a-zA-Z0-9_-]+/);
+    const openaiMatch = cleanApiKey.match(/sk-[a-zA-Z0-9_-]+/);
+    
+    if (geminiMatch) cleanApiKey = geminiMatch[0];
+    else if (openaiMatch) cleanApiKey = openaiMatch[0];
+
     // OpenAI'ye veya Gemini'ye dogrudan istek at
-    if (apiKey.startsWith('sk-') || apiKey.startsWith('AIza')) {
-      const isGemini = apiKey.startsWith('AIza');
+    if (cleanApiKey.startsWith('sk-') || cleanApiKey.startsWith('AIza')) {
+      const isGemini = cleanApiKey.startsWith('AIza');
       
       if (isGemini) {
         // Native Gemini REST API
@@ -25,7 +34,7 @@ export async function POST(request: Request) {
           parts: [{ text: m.content }]
         }));
 
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${cleanApiKey}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -58,7 +67,7 @@ export async function POST(request: Request) {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${apiKey}`,
+            'Authorization': `Bearer ${cleanApiKey}`,
           },
           body: JSON.stringify({
             model: 'gpt-4o',
@@ -80,24 +89,11 @@ export async function POST(request: Request) {
       }
     }
 
-    // Fallback: Eger Anthropic vs gelirse diye eklenebilir veya Modal'a gonderilebilir
-    // Modal endpoint'ini acil durumlar iin tutuyoruz ama varsayilan OpenAI olacak.
-    const lastMessageContent = messages[messages.length - 1].content;
-    const res = await fetch('https://dogustech--ideaai-llama3-endpoint-fastapi-app.modal.run/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        instruction: 'You are an elite AI coding assistant.',
-        input: lastMessageContent
-      }),
-    });
-
-    if (!res.ok) {
-      return NextResponse.json({ error: 'Failed to fetch from AI' }, { status: res.status });
-    }
-
-    const data = await res.json();
-    return NextResponse.json(data);
+    // Fallback if key format is unknown
+    return NextResponse.json(
+      { error: 'Invalid API Key format. Key must start with "sk-" (OpenAI) or "AIza" (Gemini).' }, 
+      { status: 400 }
+    );
 
   } catch (error) {
     console.error('Chat API Error:', error);
