@@ -6,40 +6,47 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { messages } = body;
     
-    // BYOK (Bring Your Own Key) Kural: Kullanici API Key girmeden ilem yapamaz.
+    // BYOK (Bring Your Own Key) Kural: Kullanici API Key girmeden islem yapamaz.
     if (!apiKey || apiKey.trim() === '') {
       return NextResponse.json(
-        { error: 'API Key not found. Please enter your OpenAI API Key in Settings (BYOK Model).' }, 
+        { error: 'API Key not found. Please enter your OpenAI or Gemini API Key in Settings (BYOK Model).' }, 
         { status: 401 }
       );
     }
 
-    // OpenAI'ye doðrudan istek at (Eger baka provider istenecekse burasi gelitirilebilir)
-    if (apiKey.startsWith('sk-')) {
+    // OpenAI'ye veya Gemini'ye dogrudan istek at
+    if (apiKey.startsWith('sk-') || apiKey.startsWith('AIza')) {
       // Sadece role ve content gonderilmeli (id gibi frontend'e ozel verileri temizliyoruz)
       const cleanMessages = messages.map((m: any) => ({
         role: m.role,
         content: m.content
       }));
 
-      const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      const isGemini = apiKey.startsWith('AIza');
+      const endpoint = isGemini 
+        ? 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions' 
+        : 'https://api.openai.com/v1/chat/completions';
+      
+      const modelName = isGemini ? 'gemini-1.5-flash' : 'gpt-4o';
+
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${apiKey}`,
         },
         body: JSON.stringify({
-          model: 'gpt-4o', // Veya gpt-4-turbo / gpt-3.5-turbo (Kullanicinin tercihine bagli ayarlanabilir)
+          model: modelName,
           messages: [
-            { role: 'system', content: 'You are IdeaAI, an elite autonomous coding assistant.' },
+            { role: 'system', content: 'You are IdeaAI, an elite autonomous coding assistant. You help the user fix bugs, write code, and act as a senior developer.' },
             ...cleanMessages
           ],
         }),
       });
 
       if (!res.ok) {
-        const errData = await res.json();
-        return NextResponse.json({ error: errData.error?.message || 'OpenAI API Error' }, { status: res.status });
+        const errData = await res.json().catch(() => ({}));
+        return NextResponse.json({ error: errData.error?.message || (isGemini ? 'Gemini API Error' : 'OpenAI API Error') }, { status: res.status });
       }
 
       const data = await res.json();

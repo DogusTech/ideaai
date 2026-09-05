@@ -299,21 +299,32 @@ export function SettingsModal({ isOpen, onClose, initialTab = "general", userEma
                 <h2 className="text-[22px] font-semibold text-[#171717] mb-1">Models & AI</h2>
                 <p className="text-[14px] text-[#737373] mb-8">Configure your AI engine and API integrations.</p>
                 
+                <h3 className="text-[14px] font-semibold text-[#171717] mb-3">API Key (BYOK)</h3>
+                <div className="mb-8 p-4 bg-[#f4f4f4] rounded-lg border border-[#e5e5e5]">
+                  <p className="text-[13px] text-[#737373] mb-3">
+                    Enter your OpenAI or Gemini API Key to power the autonomous engine. It will be stored securely in your browser.
+                  </p>
+                  <input 
+                    type="password" 
+                    placeholder="sk-proj-... or AIza..." 
+                    className="w-full p-2.5 rounded-md border border-[#d4d4d4] text-[13px] focus:outline-none focus:border-[#171717] mb-2"
+                    defaultValue={typeof window !== 'undefined' ? localStorage.getItem('ideaai_api_key') || '' : ''}
+                    onChange={(e) => {
+                      if (typeof window !== 'undefined') {
+                        localStorage.setItem('ideaai_api_key', e.target.value.trim());
+                      }
+                    }}
+                  />
+                </div>
+
                 <h3 className="text-[14px] font-semibold text-[#171717] mb-3">Active Model</h3>
                 <div className="space-y-3 mb-8">
                   <label className="flex items-center justify-between p-4 bg-white border-2 border-[#171717] rounded-lg cursor-pointer shadow-sm">
                     <div>
-                      <div className="text-[14px] font-medium text-[#171717]">Idea 1.0 Fast (Llama 3.1)</div>
+                      <div className="text-[14px] font-medium text-[#171717]">Gemini 1.5 Flash (Auto-detected)</div>
                       <div className="text-[12px] text-[#737373]">Optimized for low latency and high concurrency.</div>
                     </div>
                     <div className="w-5 h-5 rounded-full border-[5px] border-[#171717]"></div>
-                  </label>
-                  <label className="flex items-center justify-between p-4 bg-[#f4f4f4] border border-[#e5e5e5] rounded-lg cursor-pointer hover:border-[#a3a3a3] transition-colors">
-                    <div>
-                      <div className="text-[14px] font-medium text-[#525252]">Idea 1.0 Pro (Fine-Tuned)</div>
-                      <div className="text-[12px] text-[#737373]">Requires active Pro+ subscription. Deep reasoning capabilities.</div>
-                    </div>
-                    <div className="w-5 h-5 rounded-full border border-[#d4d4d4]"></div>
                   </label>
                 </div>
               </div>

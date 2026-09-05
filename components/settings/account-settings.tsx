@@ -92,7 +92,7 @@ export function AccountSettings() {
           <h3 className="text-lg font-medium text-foreground">API Integrations (BYOK)</h3>
         </div>
         <p className="mb-4 text-sm text-muted-foreground leading-relaxed">
-          IdeaAI operates on a Bring Your Own Key (BYOK) model. Enter your OpenAI API key below to power the autonomous engine. Your key is stored securely and locally on your device.
+          IdeaAI operates on a Bring Your Own Key (BYOK) model. Enter your OpenAI or Google Gemini API key below to power the autonomous engine. Your key is stored securely and locally on your device.
         </p>
         
         <div className="flex gap-3">
@@ -101,7 +101,7 @@ export function AccountSettings() {
               type="password"
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
-              placeholder="sk-proj-..."
+              placeholder="sk-proj-... or AIza..."
               className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/30"
             />
           </div>
