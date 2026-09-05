@@ -33,7 +33,28 @@ export async function POST(request: Request) {
         parts: [{ text: m.content }]
       }));
 
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${cleanApiKey}`, {
+      let targetModel = 'gemini-1.5-flash';
+        
+      try {
+        // Dinamik olarak bu API Key'e tanimli modelleri cek
+        const modelsRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${cleanApiKey}`);
+        if (modelsRes.ok) {
+          const modelsData = await modelsRes.json();
+          const availableModels = modelsData.models || [];
+          const generateModels = availableModels.filter((m: any) => m.supportedGenerationMethods?.includes('generateContent'));
+          
+          if (generateModels.length > 0) {
+            const flashModel = generateModels.find((m: any) => m.name.includes('flash'));
+            const proModel = generateModels.find((m: any) => m.name.includes('pro'));
+            const bestModel = flashModel || proModel || generateModels[0];
+            targetModel = bestModel.name.replace('models/', '');
+          }
+        }
+      } catch (e) {
+        console.error("Model fetch error", e);
+      }
+
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${cleanApiKey}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
