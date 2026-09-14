@@ -189,6 +189,18 @@ export default function PitchDeck() {
                       <p className="text-[14px] text-[#a3a3a3] leading-relaxed">Powered by fine-tuned Llama 3.1 pipelines. Our agents autonomously research, write, and execute code within the workspace.</p>
                     </div>
                   </div>
+                  <div className="flex gap-4">
+                    <div className="shrink-0 w-10 h-10 rounded-full bg-purple-500/10 flex items-center justify-center border border-purple-500/30 relative">
+                      <div className="absolute inset-0 bg-purple-500/20 blur-md rounded-full"></div>
+                      <Zap className="w-5 h-5 text-purple-400 relative z-10" />
+                    </div>
+                    <div>
+                      <h4 className="text-[16px] font-semibold mb-2 text-purple-300">Overnight Autonomy (Night Mode)</h4>
+                      <p className="text-[14px] text-[#a3a3a3] leading-relaxed">
+                        Unlike Cursor which requires synchronous hand-holding, IdeaAI works <span className="text-white font-medium">asynchronously while you sleep</span>. Tell it to <i className="text-purple-200">"Optimize the backend API and rewrite tests overnight"</i>, and wake up to a massive refactor ready for your 1-click approval. True autonomous engineering.
+                      </p>
+                    </div>
+                  </div>
                 </div>
               </FadeIn>
               
