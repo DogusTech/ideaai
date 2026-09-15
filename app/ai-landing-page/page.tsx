@@ -384,9 +384,14 @@ export default function IdeaAILanding() {
           </div>
           
           <div className="border-t border-zinc-100 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-sm text-zinc-400">
-              © {new Date().getFullYear()} Aeternexus, Inc. (TogetLink). All rights reserved.
-            </p>
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <p className="text-sm text-zinc-400">
+                © {new Date().getFullYear()} Aeternexus, Inc. (TogetLink). All rights reserved.
+              </p>
+              <a href="https://althunt.io/compare/ideaai-vs-cursor" target="_blank" rel="noopener noreferrer">
+                <img src="https://althunt.io/badges/featured-light.svg" alt="Featured on AltHunt" width="130" height="28" />
+              </a>
+            </div>
             <p className="text-sm text-zinc-400">
               Made with <span className="text-red-500">♥</span> for developers.
             </p>
