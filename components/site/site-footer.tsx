@@ -122,10 +122,15 @@ export function SiteFooter() {
         <hr className="border-border/50" />
 
         {/* Bottom legal bar */}
-        <div className="flex flex-col items-start justify-between gap-3 py-5 sm:flex-row sm:items-center">
-          <p className="text-xs text-muted-foreground">
-            &copy; 2026 Aeternexus Inc. All rights reserved.
-          </p>
+        <div className="flex flex-col items-start justify-between gap-4 py-5 sm:flex-row sm:items-center">
+          <div className="flex items-center gap-4">
+            <p className="text-xs text-muted-foreground">
+              &copy; 2026 Aeternexus Inc. All rights reserved.
+            </p>
+            <a href="https://althunt.io/compare/ideaai-vs-cursor" target="_blank" rel="noopener noreferrer">
+              <img src="https://althunt.io/badges/featured-light.svg" alt="Featured on AltHunt" width="130" height="28" />
+            </a>
+          </div>
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
             <Link
               href="/privacy-policy"
