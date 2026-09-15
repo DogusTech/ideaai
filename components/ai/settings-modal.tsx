@@ -185,38 +185,9 @@ export function SettingsModal({ isOpen, onClose, initialTab = "general", userEma
             {activeTab === "account" && (
               <div className="max-w-[600px] animate-in fade-in duration-300">
                 <h2 className="text-[22px] font-semibold text-[#171717] mb-1">Account & Usage</h2>
-                <p className="text-[14px] text-[#737373] mb-8">Manage your profile, active plans, and model usage limits.</p>
+                <p className="text-[14px] text-[#737373] mb-8">Manage your profile, and account details.</p>
 
-                {/* Usage Bar (Prominent) */}
-                <div className="mb-10 p-5 bg-[#f4f4f4] rounded-xl border border-[#e5e5e5] relative overflow-hidden">
-                  <div className="flex justify-between items-end mb-3 relative z-10">
-                    <div>
-                      <h3 className="text-[15px] font-semibold text-[#171717]">Idea 1.0 Pro Usage</h3>
-                      <p className="text-[13px] text-[#737373]">Current billing cycle (resets in 12 days)</p>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-[24px] font-bold text-[#171717]">78</span>
-                      <span className="text-[14px] text-[#737373]"> / 100 queries</span>
-                    </div>
-                  </div>
-                  
-                  {/* Progress Bar */}
-                  <div className="w-full h-3 bg-[#e5e5e5] rounded-full overflow-hidden relative z-10">
-                    <motion.div 
-                      initial={{ width: 0 }}
-                      animate={{ width: "78%" }}
-                      transition={{ duration: 1, ease: "easeOut" }}
-                      className="h-full bg-gradient-to-r from-[#4f46e5] to-[#818cf8] rounded-full"
-                    />
-                  </div>
-                  
-                  <div className="mt-4 pt-4 border-t border-[#e5e5e5] flex items-center justify-between relative z-10">
-                    <span className="text-[13px] text-[#525252]">Need more power?</span>
-                    <button className="px-4 py-1.5 bg-[#171717] text-white text-[13px] font-medium rounded-md hover:bg-[#262626] transition-colors">
-                      Upgrade to Pro+
-                    </button>
-                  </div>
-                </div>
+                
 
                 <div className="space-y-8">
                   {/* Avatar Selection */}
@@ -406,3 +377,5 @@ export function SettingsModal({ isOpen, onClose, initialTab = "general", userEma
     </div>
   )
 }
+
+
