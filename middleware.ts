@@ -8,7 +8,8 @@ export function middleware(request: NextRequest) {
   const isIdeaAiSubdomain = hostname === 'ideaai.togetlink.com' || hostname.startsWith('ideaai.localhost')
   const isOldAiSubdomain = hostname === 'ai.togetlink.com' || hostname.startsWith('ai.localhost')
   const isAdsSubdomain = hostname === 'ads.togetlink.com' || hostname.startsWith('ads.localhost')
-  const isMainDomain = hostname === 'www.togetlink.com' || hostname === 'togetlink.com' || (hostname.startsWith('localhost') && !isIdeaAiSubdomain && !isOldAiSubdomain && !isAdsSubdomain)
+  const isOutrankSubdomain = hostname === 'outrank.togetlink.com' || hostname.startsWith('outrank.localhost')
+  const isMainDomain = hostname === 'www.togetlink.com' || hostname === 'togetlink.com' || (hostname.startsWith('localhost') && !isIdeaAiSubdomain && !isOldAiSubdomain && !isAdsSubdomain && !isOutrankSubdomain)
 
   const isAiPath = url.pathname === '/ai' || url.pathname.startsWith('/ai/')
   const isAiLandingPath = url.pathname === '/ai-landing-page' || url.pathname.startsWith('/ai-landing-page/')
@@ -76,6 +77,11 @@ export function middleware(request: NextRequest) {
     if (isAdsSubdomain) {
       // Rewrite ads.togetlink.com/* to /ads/*
       return NextResponse.rewrite(new URL(`/ads${url.pathname === '/' ? '' : url.pathname}`, request.url))
+    }
+
+    if (isOutrankSubdomain) {
+      // Rewrite outrank.togetlink.com/* to /outrank/*
+      return NextResponse.rewrite(new URL(`/outrank${url.pathname === '/' ? '' : url.pathname}`, request.url))
     }
   }
 
