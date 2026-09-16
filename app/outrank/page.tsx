@@ -36,7 +36,10 @@ export default function OutrankPage() {
         body: JSON.stringify({ url }),
       })
       
-      if (!response.ok) throw new Error('API Request Failed')
+      if (!response.ok) {
+        const errorText = await response.text().catch(() => '')
+        throw new Error(`API Request Failed: ${response.status} ${errorText}`)
+      }
       
       const reader = response.body?.getReader()
       const decoder = new TextDecoder()
@@ -52,9 +55,9 @@ export default function OutrankPage() {
           }
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error generating content:', error)
-      setCompletion('Bir hata oluştu veya sunucu zaman aşımına uğradı. Lütfen tekrar deneyin.')
+      setCompletion(`Bir hata oluştu: ${error?.message || 'Sunucu zaman aşımına uğradı'}. Lütfen tekrar deneyin.`)
     } finally {
       setIsLoading(false)
       if (timerRef.current) clearInterval(timerRef.current)
