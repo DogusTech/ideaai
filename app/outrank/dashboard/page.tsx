@@ -26,7 +26,7 @@ export default function DashboardPage() {
       if (user) {
         setUser(user)
       } else {
-        router.push('/outrank/login')
+        router.push('/login')
       }
     })
     return () => unsubscribe()
@@ -34,7 +34,7 @@ export default function DashboardPage() {
 
   const handleLogout = async () => {
     await signOut(auth)
-    router.push('/outrank/login')
+    router.push('/login')
   }
 
   if (!user) return <div className="min-h-screen bg-[#FAFAFA]" /> // loading state

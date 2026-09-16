@@ -132,8 +132,8 @@ export default function OutrankPage() {
         </div>
 
         <div className="flex items-center gap-4">
-          <Link href="/outrank/login" className="hidden md:block text-sm font-medium text-gray-600 hover:text-gray-900">Sign In</Link>
-          <Link href="/outrank/login" className="bg-black text-white px-5 py-2 rounded-full text-sm font-medium hover:bg-gray-800 transition-colors">
+          <Link href="/login" className="hidden md:block text-sm font-medium text-gray-600 hover:text-gray-900">Sign In</Link>
+          <Link href="/register" className="bg-black text-white px-5 py-2 rounded-full text-sm font-medium hover:bg-gray-800 transition-colors">
             Get Started
           </Link>
         </div>

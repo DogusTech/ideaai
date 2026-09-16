@@ -18,7 +18,7 @@ export default function LoginPage() {
       const provider = new GoogleAuthProvider()
       await signInWithPopup(auth, provider)
       // On success, redirect to dashboard
-      router.push('/outrank/dashboard')
+      router.push('/dashboard')
     } catch (error) {
       console.error('Login error:', error)
       setIsLoading(false)

@@ -121,9 +121,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      translate="no"
+      suppressHydrationWarning
       className={`light bg-background ${geistSans.variable} ${geistMono.variable}`}
     >
       <head>
+        <meta name="google" content="notranslate" />
         <meta name="impact-site-verification" content="77c85579-a9bf-40eb-b03c-b9bcf5b8426b" />
         <meta name="impact-site-verification" value="77c85579-a9bf-40eb-b03c-b9bcf5b8426b" />
         <Script
