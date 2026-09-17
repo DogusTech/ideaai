@@ -22,10 +22,12 @@ const TABS = [
 export function SettingsModal({ isOpen, onClose, initialTab = "general", userEmail }: SettingsModalProps) {
   const [activeTab, setActiveTab] = useState(initialTab)
   const [selectedAvatar, setSelectedAvatar] = useState(0)
+  const [localProjects, setLocalProjects] = useState<string[]>([])
 
   useEffect(() => {
     if (isOpen) {
       setActiveTab(initialTab)
+      // fetch or load projects here if necessary
     }
   }, [isOpen, initialTab])
 
@@ -70,29 +72,23 @@ export function SettingsModal({ isOpen, onClose, initialTab = "general", userEma
             <div className="mt-8 mb-2 px-2 text-[11px] font-semibold text-[#a3a3a3] uppercase tracking-wider">
               Projects
             </div>
-            <button 
-              onClick={() => setActiveTab("projects")}
-              className={`w-full text-left px-3 py-1.5 rounded-md text-[13px] truncate transition-colors ${activeTab === "projects" ? "bg-[#e5e5e5] text-[#171717] font-medium" : "text-[#525252] hover:bg-[#ebebeb]"}`}
-            >
-              C:\Users\dogus\Downloa...
-            </button>
-            <button 
-              onClick={() => setActiveTab("projects")}
-              className={`w-full text-left px-3 py-1.5 rounded-md text-[13px] truncate transition-colors ${activeTab === "projects" ? "bg-[#e5e5e5] text-[#171717] font-medium" : "text-[#525252] hover:bg-[#ebebeb]"}`}
-            >
-              MyGame
-            </button>
-            <button 
-              onClick={() => setActiveTab("projects")}
-              className={`w-full text-left px-3 py-1.5 rounded-md text-[13px] truncate transition-colors ${activeTab === "projects" ? "bg-[#e5e5e5] text-[#171717] font-medium" : "text-[#525252] hover:bg-[#ebebeb]"}`}
-            >
-              unity-gate.com
-            </button>
+            
+            {localProjects.map((proj, idx) => (
+              <button 
+                key={idx}
+                onClick={() => setActiveTab("projects")}
+                className={`w-full text-left px-3 py-1.5 rounded-md text-[13px] truncate transition-colors ${activeTab === "projects" ? "bg-[#e5e5e5] text-[#171717] font-medium" : "text-[#525252] hover:bg-[#ebebeb]"}`}
+                title={proj}
+              >
+                {proj.split('\\').pop() || proj}
+              </button>
+            ))}
+
             <button 
               onClick={() => setActiveTab("projects")}
               className="w-full text-left px-3 py-1.5 text-[13px] text-[#737373] hover:text-[#171717] transition-colors"
             >
-              Show all
+              Manage Projects...
             </button>
 
             <div className="mt-4">
@@ -400,19 +396,33 @@ export function SettingsModal({ isOpen, onClose, initialTab = "general", userEma
               <div className="max-w-[600px] animate-in fade-in duration-300">
                 <h2 className="text-[22px] font-semibold text-[#171717] mb-1">Projects</h2>
                 <p className="text-[14px] text-[#737373] mb-8">Manage your recent and active local projects.</p>
-                <div className="space-y-3">
-                  {['C:\\Users\\dogus\\Downloads\\togetlinkk', 'MyGame', 'unity-gate.com'].map((proj, i) => (
-                    <div key={i} className="flex items-center justify-between p-4 bg-[#f4f4f4] rounded-lg border border-[#e5e5e5]">
-                      <div className="flex flex-col">
-                        <span className="text-[14px] font-medium text-[#171717] truncate max-w-[300px]">{proj}</span>
-                        <span className="text-[12px] text-[#737373] mt-0.5">Last opened {i + 1} days ago</span>
+                
+                {localProjects.length > 0 ? (
+                  <div className="space-y-3">
+                    {localProjects.map((proj, i) => (
+                      <div key={i} className="flex items-center justify-between p-4 bg-[#f4f4f4] rounded-lg border border-[#e5e5e5]">
+                        <div className="flex flex-col">
+                          <span className="text-[14px] font-medium text-[#171717] truncate max-w-[300px]" title={proj}>{proj}</span>
+                          <span className="text-[12px] text-[#737373] mt-0.5">Last opened recently</span>
+                        </div>
+                        <button className="px-3 py-1.5 bg-[#ebebeb] hover:bg-[#e5e5e5] rounded-md text-[13px] text-[#525252] transition-colors">
+                          Open Project
+                        </button>
                       </div>
-                      <button className="px-3 py-1.5 bg-[#ebebeb] hover:bg-[#e5e5e5] rounded-md text-[13px] text-[#525252] transition-colors">
-                        Open Project
-                      </button>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-12 text-center bg-[#f4f4f4] border border-[#e5e5e5] border-dashed rounded-xl">
+                    <div className="w-12 h-12 bg-[#ebebeb] text-[#a3a3a3] rounded-full flex items-center justify-center mb-3">
+                      <Globe className="w-6 h-6" />
                     </div>
-                  ))}
-                </div>
+                    <h3 className="text-[15px] font-medium text-[#171717] mb-1">No recent projects</h3>
+                    <p className="text-[13px] text-[#737373] mb-4">You haven't opened any projects in IdeaAI yet.</p>
+                    <button className="px-4 py-2 bg-[#171717] text-white hover:bg-[#262626] rounded-md text-[13px] transition-colors font-medium">
+                      Open Folder...
+                    </button>
+                  </div>
+                )}
               </div>
             )}
 
