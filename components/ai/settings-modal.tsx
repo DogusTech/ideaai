@@ -70,34 +70,58 @@ export function SettingsModal({ isOpen, onClose, initialTab = "general", userEma
             <div className="mt-8 mb-2 px-2 text-[11px] font-semibold text-[#a3a3a3] uppercase tracking-wider">
               Projects
             </div>
-            <button className="w-full text-left px-3 py-1.5 rounded-md text-[13px] text-[#525252] hover:bg-[#ebebeb] truncate transition-colors">
+            <button 
+              onClick={() => setActiveTab("projects")}
+              className={`w-full text-left px-3 py-1.5 rounded-md text-[13px] truncate transition-colors ${activeTab === "projects" ? "bg-[#e5e5e5] text-[#171717] font-medium" : "text-[#525252] hover:bg-[#ebebeb]"}`}
+            >
               C:\Users\dogus\Downloa...
             </button>
-            <button className="w-full text-left px-3 py-1.5 rounded-md text-[13px] text-[#525252] hover:bg-[#ebebeb] truncate transition-colors">
+            <button 
+              onClick={() => setActiveTab("projects")}
+              className={`w-full text-left px-3 py-1.5 rounded-md text-[13px] truncate transition-colors ${activeTab === "projects" ? "bg-[#e5e5e5] text-[#171717] font-medium" : "text-[#525252] hover:bg-[#ebebeb]"}`}
+            >
               MyGame
             </button>
-            <button className="w-full text-left px-3 py-1.5 rounded-md text-[13px] text-[#525252] hover:bg-[#ebebeb] truncate transition-colors">
+            <button 
+              onClick={() => setActiveTab("projects")}
+              className={`w-full text-left px-3 py-1.5 rounded-md text-[13px] truncate transition-colors ${activeTab === "projects" ? "bg-[#e5e5e5] text-[#171717] font-medium" : "text-[#525252] hover:bg-[#ebebeb]"}`}
+            >
               unity-gate.com
             </button>
-            <button className="w-full text-left px-3 py-1.5 text-[13px] text-[#737373] hover:text-[#171717] transition-colors">
+            <button 
+              onClick={() => setActiveTab("projects")}
+              className="w-full text-left px-3 py-1.5 text-[13px] text-[#737373] hover:text-[#171717] transition-colors"
+            >
               Show all
             </button>
 
             <div className="mt-4">
-              <button className="w-full text-left px-3 py-1.5 rounded-md text-[13px] text-[#525252] hover:bg-[#ebebeb] transition-colors">
+              <button 
+                onClick={() => setActiveTab("projects")}
+                className={`w-full text-left px-3 py-1.5 rounded-md text-[13px] transition-colors ${activeTab === "projects" ? "bg-[#e5e5e5] text-[#171717] font-medium" : "text-[#525252] hover:bg-[#ebebeb]"}`}
+              >
                 Not in Project
               </button>
-              <button className="w-full text-left px-3 py-1.5 rounded-md text-[13px] text-[#525252] hover:bg-[#ebebeb] transition-colors">
+              <button 
+                onClick={() => setActiveTab("conversations")}
+                className={`w-full text-left px-3 py-1.5 rounded-md text-[13px] transition-colors ${activeTab === "conversations" ? "bg-[#e5e5e5] text-[#171717] font-medium" : "text-[#525252] hover:bg-[#ebebeb]"}`}
+              >
                 Conversations
               </button>
             </div>
           </div>
 
           <div className="px-2 mt-auto pt-4 border-t border-[#e5e5e5]">
-            <button className="w-full text-left px-3 py-1.5 rounded-md text-[13px] text-[#525252] hover:bg-[#ebebeb] transition-colors">
+            <button 
+              onClick={() => setActiveTab("shortcuts")}
+              className={`w-full text-left px-3 py-1.5 rounded-md text-[13px] transition-colors ${activeTab === "shortcuts" ? "bg-[#e5e5e5] text-[#171717] font-medium" : "text-[#525252] hover:bg-[#ebebeb]"}`}
+            >
               Shortcuts
             </button>
-            <button className="w-full text-left px-3 py-1.5 rounded-md text-[13px] text-[#525252] hover:bg-[#ebebeb] transition-colors">
+            <button 
+              onClick={() => setActiveTab("feedback")}
+              className={`w-full text-left px-3 py-1.5 rounded-md text-[13px] transition-colors ${activeTab === "feedback" ? "bg-[#e5e5e5] text-[#171717] font-medium" : "text-[#525252] hover:bg-[#ebebeb]"}`}
+            >
               Provide Feedback
             </button>
           </div>
@@ -367,6 +391,98 @@ export function SettingsModal({ isOpen, onClose, initialTab = "general", userEma
                     </div>
                     <div className="w-10 h-6 bg-[#e5e5e5] rounded-full relative cursor-pointer"><div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow-sm"></div></div>
                   </div>
+                </div>
+              </div>
+            )}
+
+            {/* PROJECTS TAB */}
+            {activeTab === "projects" && (
+              <div className="max-w-[600px] animate-in fade-in duration-300">
+                <h2 className="text-[22px] font-semibold text-[#171717] mb-1">Projects</h2>
+                <p className="text-[14px] text-[#737373] mb-8">Manage your recent and active local projects.</p>
+                <div className="space-y-3">
+                  {['C:\\Users\\dogus\\Downloads\\togetlinkk', 'MyGame', 'unity-gate.com'].map((proj, i) => (
+                    <div key={i} className="flex items-center justify-between p-4 bg-[#f4f4f4] rounded-lg border border-[#e5e5e5]">
+                      <div className="flex flex-col">
+                        <span className="text-[14px] font-medium text-[#171717] truncate max-w-[300px]">{proj}</span>
+                        <span className="text-[12px] text-[#737373] mt-0.5">Last opened {i + 1} days ago</span>
+                      </div>
+                      <button className="px-3 py-1.5 bg-[#ebebeb] hover:bg-[#e5e5e5] rounded-md text-[13px] text-[#525252] transition-colors">
+                        Open Project
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* CONVERSATIONS TAB */}
+            {activeTab === "conversations" && (
+              <div className="max-w-[600px] animate-in fade-in duration-300">
+                <h2 className="text-[22px] font-semibold text-[#171717] mb-1">Conversations</h2>
+                <p className="text-[14px] text-[#737373] mb-8">View your chat history and previous interactions.</p>
+                <div className="flex flex-col items-center justify-center py-12 text-center bg-[#f4f4f4] border border-[#e5e5e5] border-dashed rounded-xl">
+                  <div className="w-12 h-12 bg-[#ebebeb] text-[#a3a3a3] rounded-full flex items-center justify-center mb-3">
+                    <HelpCircle className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-[15px] font-medium text-[#171717] mb-1">No recent conversations</h3>
+                  <p className="text-[13px] text-[#737373]">Your chat history will appear here once you start interacting.</p>
+                </div>
+              </div>
+            )}
+
+            {/* SHORTCUTS TAB */}
+            {activeTab === "shortcuts" && (
+              <div className="max-w-[600px] animate-in fade-in duration-300">
+                <h2 className="text-[22px] font-semibold text-[#171717] mb-1">Keyboard Shortcuts</h2>
+                <p className="text-[14px] text-[#737373] mb-8">Boost your productivity with these quick actions.</p>
+                
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between p-3 border-b border-[#e5e5e5]">
+                    <span className="text-[13px] text-[#525252]">Open AI Terminal</span>
+                    <div className="flex gap-1"><kbd className="px-2 py-1 bg-[#f4f4f4] border border-[#e5e5e5] rounded text-[11px] font-mono">Ctrl</kbd><kbd className="px-2 py-1 bg-[#f4f4f4] border border-[#e5e5e5] rounded text-[11px] font-mono">K</kbd></div>
+                  </div>
+                  <div className="flex items-center justify-between p-3 border-b border-[#e5e5e5]">
+                    <span className="text-[13px] text-[#525252]">Submit Message</span>
+                    <div className="flex gap-1"><kbd className="px-2 py-1 bg-[#f4f4f4] border border-[#e5e5e5] rounded text-[11px] font-mono">Enter</kbd></div>
+                  </div>
+                  <div className="flex items-center justify-between p-3 border-b border-[#e5e5e5]">
+                    <span className="text-[13px] text-[#525252]">New Line</span>
+                    <div className="flex gap-1"><kbd className="px-2 py-1 bg-[#f4f4f4] border border-[#e5e5e5] rounded text-[11px] font-mono">Shift</kbd><kbd className="px-2 py-1 bg-[#f4f4f4] border border-[#e5e5e5] rounded text-[11px] font-mono">Enter</kbd></div>
+                  </div>
+                  <div className="flex items-center justify-between p-3 border-b border-[#e5e5e5]">
+                    <span className="text-[13px] text-[#525252]">Toggle Settings</span>
+                    <div className="flex gap-1"><kbd className="px-2 py-1 bg-[#f4f4f4] border border-[#e5e5e5] rounded text-[11px] font-mono">Ctrl</kbd><kbd className="px-2 py-1 bg-[#f4f4f4] border border-[#e5e5e5] rounded text-[11px] font-mono">,</kbd></div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* FEEDBACK TAB */}
+            {activeTab === "feedback" && (
+              <div className="max-w-[600px] animate-in fade-in duration-300">
+                <h2 className="text-[22px] font-semibold text-[#171717] mb-1">Provide Feedback</h2>
+                <p className="text-[14px] text-[#737373] mb-8">Help us improve IdeaAI by sharing your thoughts or reporting issues.</p>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-[13px] font-medium text-[#171717] mb-1.5">What would you like to tell us?</label>
+                    <textarea 
+                      className="w-full h-32 px-3 py-2 bg-white border border-[#e5e5e5] rounded-md text-[14px] outline-none focus:border-[#a3a3a3] transition-colors resize-none"
+                      placeholder="I love the product! Or... I found a bug when trying to..."
+                    ></textarea>
+                  </div>
+                  <button 
+                    onClick={() => {
+                      window.location.href = "mailto:support@togetlink.com?subject=IdeaAI Feedback";
+                    }}
+                    className="w-full bg-[#171717] hover:bg-[#262626] text-white px-4 py-2.5 rounded-md text-[14px] font-medium transition-colors"
+                  >
+                    Send via Email
+                  </button>
+                  <p className="text-center text-[12px] text-[#a3a3a3] mt-4">
+                    Or directly email us at <a href="mailto:support@togetlink.com" className="text-[#525252] hover:underline">support@togetlink.com</a>
+                  </p>
                 </div>
               </div>
             )}
