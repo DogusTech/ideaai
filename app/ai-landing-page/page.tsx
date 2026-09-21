@@ -251,6 +251,18 @@ export default function IdeaAILanding() {
               Redeem AppSumo Code
             </a>
           </motion.div>
+          
+          {/* Product Hunt Badge */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 2.0 }}
+            className="mt-8 flex justify-center w-full"
+          >
+            <a href="https://www.producthunt.com/products/togetlink-ideaai?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-togetlink-ideaai" target="_blank" rel="noopener noreferrer">
+              <img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1257388&amp;theme=neutral&amp;t=1790010465665" alt="Togetlink IdeaAI - The autonomous AI coding agent that lives on your desktop. | Product Hunt" style={{ width: '250px', height: '54px' }} width="250" height="54" />
+            </a>
+          </motion.div>
         </div>
       </section>
 
