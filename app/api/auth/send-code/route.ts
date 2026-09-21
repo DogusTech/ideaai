@@ -47,7 +47,12 @@ export async function POST(req: Request) {
     }
 
     // Generate 6-digit OTP
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    let code = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    // Microsoft Store Tester Backdoor
+    if (email.toLowerCase() === 'store@togetlink.com' || email.toLowerCase() === 'test@test.com') {
+      code = '123456';
+    }
     
     // Log the code for debugging purposes in Vercel logs
     console.log(`[DEBUG] Generated OTP for ${email}: ${code}`);

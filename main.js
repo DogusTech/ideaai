@@ -18,10 +18,28 @@ function createWindow() {
     },
     webPreferences: {
       nodeIntegration: true,
-      contextIsolation: false, // Guvenlik onlemi icin normalde true yapilir, MVP icin false kullaniyoruz
+      contextIsolation: false, 
       enableRemoteModule: true
     },
-    show: false // Wait until ready to show
+    show: false
+  });
+
+  // Microsoft Store Google Auth Fix (Hide Electron from User-Agent)
+  mainWindow.webContents.userAgent = mainWindow.webContents.userAgent.replace(/Electron\/\S+/, "");
+  app.userAgentFallback = app.userAgentFallback ? app.userAgentFallback.replace(/Electron\/\S+/, "") : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
+  
+  // Handle popups correctly for Firebase Auth
+  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
+    return {
+      action: 'allow',
+      overrideBrowserWindowOptions: {
+        autoHideMenuBar: true,
+        webPreferences: {
+          nodeIntegration: false,
+          contextIsolation: true
+        }
+      }
+    };
   });
 
   const startUrl = isDev
