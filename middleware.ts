@@ -14,6 +14,19 @@ export function middleware(request: NextRequest) {
   const isAiPath = url.pathname === '/ai' || url.pathname.startsWith('/ai/')
   const isAiLandingPath = url.pathname === '/ai-landing-page' || url.pathname.startsWith('/ai-landing-page/')
   
+  // Explicitly handle sitemap.xml for subdomains before ignoring files with extensions
+  if (url.pathname === '/sitemap.xml') {
+    if (isIdeaAiSubdomain) {
+      return NextResponse.rewrite(new URL('/ai-landing-page/sitemap.xml', request.url))
+    }
+    if (isOutrankSubdomain) {
+      return NextResponse.rewrite(new URL('/outrank/sitemap.xml', request.url))
+    }
+    if (isAdsSubdomain) {
+      return NextResponse.rewrite(new URL('/ads/sitemap.xml', request.url))
+    }
+  }
+  
   // Exclude public files and API routes from our checks/rewrites
   if (!url.pathname.includes('.') && !url.pathname.startsWith('/api')) {
     
