@@ -24,6 +24,19 @@ const nextConfig = {
       ]
     }
   },
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'Link',
+            value: '</llms.txt>; rel="api-catalog", </AGENTS.md>; rel="service-doc"'
+          }
+        ]
+      }
+    ];
+  },
   async redirects() {
     return [
       {
