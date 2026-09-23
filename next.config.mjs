@@ -18,6 +18,14 @@ const nextConfig = {
           destination: '/api/api-catalog',
         },
         {
+          source: '/.well-known/openid-configuration',
+          destination: '/api/auth/openid-configuration',
+        },
+        {
+          source: '/.well-known/oauth-protected-resource',
+          destination: '/api/auth/oauth-protected-resource',
+        },
+        {
           source: '/api/:path*',
           destination: `${baseUrl}/api/:path*`,
         },
