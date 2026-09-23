@@ -1,0 +1,24 @@
+# IdeaAI - Autonomous AI Coding Agent (Full Technical Context)
+
+## Architecture Details
+IdeaAI operates using a hybrid architecture:
+1. **Frontend:** Built with Next.js (React), utilizing Tailwind CSS and Framer Motion for the UI.
+2. **Backend/Bridge:** Packaged within Electron.js.
+3. **AgentBridge (IPC):** Uses Node.js native modules (`fs.promises`, `child_process`) exposed via `ipcMain` and `ipcRenderer` to allow the LLM to execute raw bash/PowerShell commands and perform file operations natively on the host machine.
+
+## Zero-State Methodology
+Traditional AI assistants operate on a "Blank State", relying entirely on developer prompts. IdeaAI shifts this to "Zero-State", meaning:
+- It autonomously queries the file system to understand the context.
+- It parses package.json and tsconfig.json automatically.
+- It intercepts errors from `stdout`/`stderr` and feeds them back into the LLM loop until execution succeeds.
+
+## System Prompts & Capabilities
+- **Terminal Execution:** The agent can run commands like `npm install`, `docker build`, etc.
+- **File System R/W:** The agent can write entire directory structures and edit specific AST nodes or line ranges.
+
+## Ethical and Safe Execution Guidelines
+- IdeaAI runs locally. All source code is restricted to the host machine unless explicitly pushed to a remote repository by the user.
+- Proprietary codebase data is never used to train global LLM models.
+
+Developer: Aeternexus Inc.
+Contact: ideaai@togetlink.com

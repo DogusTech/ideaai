@@ -34,20 +34,78 @@ export const metadata: Metadata = {
   },
 }
 
-const aiSchema = {
-  "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  "name": "IdeaAI",
-  "applicationCategory": "DeveloperApplication",
-  "operatingSystem": "Windows, macOS",
-  "description": "IdeaAI is a native desktop autonomous AI coding agent that helps developers build, debug, and refactor code directly within their local environment.",
-  "url": "https://ideaai.togetlink.com",
-  "publisher": {
+const schemas = [
+  {
+    "@context": "https://schema.org",
     "@type": "Organization",
-    "name": "TogetLink"
+    "name": "Aeternexus Inc.",
+    "alternateName": "IdeaAI",
+    "url": "https://ideaai.togetlink.com",
+    "logo": "https://ideaai.togetlink.com/icon-light-32x32.png",
+    "sameAs": [
+      "https://twitter.com/togetlink",
+      "https://github.com/DogusTech"
+    ]
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": "IdeaAI",
+    "image": "https://ideaai.togetlink.com/icon-light-32x32.png",
+    "description": "IdeaAI is a native desktop autonomous AI coding agent that helps developers build, debug, and refactor code directly within their local environment using Zero-State Architecture.",
+    "brand": {
+      "@type": "Brand",
+      "name": "Aeternexus"
+    },
+    "offers": {
+      "@type": "Offer",
+      "url": "https://ideaai.togetlink.com",
+      "priceCurrency": "USD",
+      "price": "0.00",
+      "priceValidUntil": "2027-12-31",
+      "availability": "https://schema.org/InStock",
+      "seller": {
+        "@type": "Organization",
+        "name": "Aeternexus Inc."
+      }
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.9",
+      "reviewCount": "28"
+    }
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What is IdeaAI?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "IdeaAI is an autonomous desktop AI coding agent with native file system and terminal access. It operates without requiring you to copy and paste code from a browser."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is IdeaAI free?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "IdeaAI offers a free tier for early adopters."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How does Zero-State Architecture work?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "It means the AI reads your local file system natively, runs commands in your terminal, and tests its own code autonomously via Inter-Process Communication (IPC)."
+        }
+      }
+    ]
   }
-};
-
+];
 export default function IdeaAILayout({
   children,
 }: {
@@ -58,7 +116,7 @@ export default function IdeaAILayout({
       <head>
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(aiSchema) }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(schemas) }}
         />
       </head>
       {children}
