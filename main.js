@@ -1,8 +1,55 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
 const path = require('path');
+const fs = require('fs').promises;
+const { exec } = require('child_process');
 const isDev = !app.isPackaged;
 
 let mainWindow;
+
+// --- AI Agent IPC Handlers ---
+ipcMain.handle('read-file', async (event, filePath) => {
+  try {
+    const content = await fs.readFile(filePath, 'utf-8');
+    return { success: true, content };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('write-file', async (event, filePath, content) => {
+  try {
+    // Klasor yoksa olustur
+    await fs.mkdir(path.dirname(filePath), { recursive: true });
+    await fs.writeFile(filePath, content, 'utf-8');
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('list-dir', async (event, dirPath) => {
+  try {
+    const files = await fs.readdir(dirPath, { withFileTypes: true });
+    const result = files.map(f => ({ name: f.name, isDirectory: f.isDirectory() }));
+    return { success: true, files: result };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('run-command', async (event, command, cwd) => {
+  return new Promise((resolve) => {
+    exec(command, { cwd }, (error, stdout, stderr) => {
+      resolve({
+        success: !error,
+        stdout,
+        stderr,
+        error: error ? error.message : null
+      });
+    });
+  });
+});
+// -----------------------------
 
 function createWindow() {
   mainWindow = new BrowserWindow({

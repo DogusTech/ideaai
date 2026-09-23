@@ -403,6 +403,9 @@ export default function IdeaAILanding() {
               <a href="https://althunt.io/compare/ideaai-vs-cursor" target="_blank" rel="noopener noreferrer">
                 <img src="https://althunt.io/badges/featured-light.svg" alt="Featured on AltHunt" width="130" height="28" />
               </a>
+              <a href="https://alternativeto.net/software/ideaai/about/?utm_source=badge&utm_medium=referral" target="_blank" rel="noopener noreferrer">
+                <img src="https://alternativeto.net/static/badges/badge-compact-light.svg" alt="IdeaAI | AlternativeTo" width="130" height="44" style={{ width: '130px', height: 'auto' }} />
+              </a>
             </div>
             <p className="text-sm text-zinc-400">
               Made with <span className="text-red-500">♥</span> for developers.

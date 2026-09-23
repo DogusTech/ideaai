@@ -30,6 +30,7 @@ import {
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 import { AntigravityMarkdown } from "./antigravity-markdown"
+import { AgentBridge } from "@/app/utils/agent-bridge"
 
 import { onAuthStateChanged } from "firebase/auth"
 import { auth } from "@/lib/firebase"
@@ -43,8 +44,6 @@ type Project = {
   files: string[]
   time: string
 }
-
-
 
 export function IdeaAIInterfaceMac() {
   const [selectedDept, setSelectedDept] = useState("Software")
@@ -158,20 +157,132 @@ export function IdeaAIInterfaceMac() {
   };
   
   const [localInput, setLocalInput] = useState("")
+
+
+  const stop = () => {
+    abortControllerRef.current?.abort();
+    setStatus('ready');
+  };
+
+  const sendMessage = async (message: any) => {
+    const newMessages = [...messages, message];
+    setMessages(newMessages);
+    setStatus('submitted');
+    setError(null);
+    
+    abortControllerRef.current = new AbortController();
+    
+    try {
+      const storedApiKey = typeof window !== 'undefined' ? localStorage.getItem('ideaai_api_key') || '' : '';
+      
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'X-API-Key': storedApiKey
+        },
+        body: JSON.stringify({ 
+          messages: newMessages
+        }),
+        signal: abortControllerRef.current.signal,
+      });
+        
+        if (!res.ok) {
+          let errText = "Bilinmeyen hata oluştu.";
+          if (res.status === 504) {
+            errText = "Sunucu (Modal GPU) şu anda uykudan uyanıyor (Cold Start). Lütfen 1 dakika bekleyip tekrar deneyin.";
+          } else {
+            try { 
+              const j = await res.json(); 
+              errText = j.error || errText; 
+            } catch(e) { 
+              errText = await res.text(); 
+            }
+          }
+          throw new Error(errText);
+        }
+        
+        const resData = await res.json();
+        const fullText = resData.response || resData.text || "No response";
+      const assistantId = Date.now().toString();
+      
+      setMessages([...newMessages, { id: assistantId, role: 'assistant', content: "" }]);
+      setStatus('streaming');
+      
+      let i = 0;
+      const chunkSize = 6;
+      
+      const interval = setInterval(() => {
+        if (i < fullText.length) {
+          const currentChunk = fullText.substring(0, i + chunkSize);
+          setMessages(prev => prev.map(m => m.id === assistantId ? { ...m, content: currentChunk } : m));
+          i += chunkSize;
+        } else {
+          clearInterval(interval);
+          setStatus('ready');
+        }
+      }, 15);
+      
+    } catch (err: any) {
+      if (err.name !== 'AbortError') {
+        setError(err);
+        setStatus('error');
+      } else {
+        setStatus('ready');
+      }
+    }
+  };
+  
+  const [localInput, setLocalInput] = useState("")
   const [isFocused, setIsFocused] = useState(false)
   const [isListening, setIsListening] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   
   const isLoading = status === 'submitted' || status === 'streaming';
 
-  const handleCustomSubmit = (e?: React.FormEvent) => {
+  const handleCustomSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!localInput.trim() || isLoading) return;
     
-    // In @ai-sdk/react 4.x, the method is sendMessage, not append.
-    sendMessage({ id: Date.now().toString(), role: 'user', content: localInput });
+    const userInput = localInput.trim();
     setLocalInput("");
     textareaRef.current?.focus();
+
+    // -- LOCAL AGENT BRIDGE INTERCEPTION --
+    if (userInput.startsWith('/terminal ')) {
+      const cmd = userInput.replace('/terminal ', '');
+      setMessages(prev => [...prev, { id: Date.now().toString(), role: 'user', content: userInput }]);
+      
+      setStatus('submitted');
+      const res = await AgentBridge.runCommand(cmd, selectedProject || "C:\\");
+      
+      const output = res.success 
+        ? `**[Terminal Success]**\n\`\`\`bash\n${res.stdout || 'Command executed with no output.'}\n\`\`\``
+        : `**[Terminal Error]**\n\`\`\`bash\n${res.stderr || res.error}\n\`\`\``;
+        
+      setMessages(prev => [...prev, { id: Date.now().toString(), role: 'assistant', content: output }]);
+      setStatus('ready');
+      return;
+    }
+
+    if (userInput.startsWith('/read ')) {
+      const filePath = userInput.replace('/read ', '');
+      setMessages(prev => [...prev, { id: Date.now().toString(), role: 'user', content: userInput }]);
+      
+      setStatus('submitted');
+      const res = await AgentBridge.readFile(filePath);
+      
+      const output = res.success 
+        ? `**[File Content: ${filePath}]**\n\`\`\`text\n${res.content}\n\`\`\``
+        : `**[Error reading file]**\n\`\`\`text\n${res.error}\n\`\`\``;
+        
+      setMessages(prev => [...prev, { id: Date.now().toString(), role: 'assistant', content: output }]);
+      setStatus('ready');
+      return;
+    }
+    // -------------------------------------
+
+    sendMessage({ id: Date.now().toString(), role: 'user', content: userInput });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
