@@ -14,6 +14,10 @@ const nextConfig = {
     return {
       fallback: [
         {
+          source: '/.well-known/api-catalog',
+          destination: '/api/api-catalog',
+        },
+        {
           source: '/api/:path*',
           destination: `${baseUrl}/api/:path*`,
         },

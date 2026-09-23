@@ -1,0 +1,22 @@
+User-agent: *
+Allow: /
+
+# AI Agent Allowances
+User-agent: GPTBot
+Allow: /
+User-agent: OAI-SearchBot
+Allow: /
+User-agent: Google-Extended
+Allow: /
+User-agent: PerplexityBot
+Allow: /
+User-agent: ClaudeBot
+Allow: /
+
+# Content Signals for AI (RFC Draft)
+# ai-train=no : Do not use our site content to train foundational AI models.
+# search=yes : You can index us for AI search results (like AI Overviews/Perplexity).
+# ai-input=yes : You can read our site to answer user questions about IdeaAI.
+Content-Signal: ai-train=no, search=yes, ai-input=yes
+
+Sitemap: https://ideaai.togetlink.com/sitemap.xml

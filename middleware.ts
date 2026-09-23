@@ -14,6 +14,16 @@ export function middleware(request: NextRequest) {
   const isAiPath = url.pathname === '/ai' || url.pathname.startsWith('/ai/')
   const isAiLandingPath = url.pathname === '/ai-landing-page' || url.pathname.startsWith('/ai-landing-page/')
   
+  const acceptHeader = request.headers.get('accept') || ''
+  
+  // Markdown for Agents (Content Negotiation)
+  if (acceptHeader.includes('text/markdown') && url.pathname === '/') {
+    const response = NextResponse.rewrite(new URL('/llms.txt', request.url))
+    response.headers.set('Content-Type', 'text/markdown')
+    response.headers.set('x-markdown-tokens', '150')
+    return response
+  }
+  
   // Explicitly handle sitemap.xml for subdomains before ignoring files with extensions
   if (url.pathname === '/sitemap.xml') {
     if (isIdeaAiSubdomain) {
