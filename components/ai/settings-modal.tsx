@@ -13,7 +13,7 @@ const TABS = [
   { id: "general", label: "General" },
   { id: "account", label: "Account" },
   { id: "appearance", label: "Appearance" },
-  { id: "models", label: "Models" },
+  { id: "models", label: "AI Brain & Engine" },
   { id: "customizations", label: "Customizations" },
   { id: "browser", label: "Browser" },
   { id: "app", label: "App" },
@@ -287,35 +287,84 @@ export function SettingsModal({ isOpen, onClose, initialTab = "general", userEma
             {/* MODELS TAB */}
             {activeTab === "models" && (
               <div className="max-w-[600px] animate-in fade-in duration-300">
-                <h2 className="text-[22px] font-semibold text-[#171717] mb-1">Models & AI</h2>
-                <p className="text-[14px] text-[#737373] mb-8">Configure your AI engine and API integrations.</p>
+                <h2 className="text-[22px] font-semibold text-[#171717] mb-1">AI Brain & Engine</h2>
+                <p className="text-[14px] text-[#737373] mb-8">Select the computational engine that powers IdeaAI's autonomy.</p>
                 
-                <h3 className="text-[14px] font-semibold text-[#171717] mb-3">API Key (BYOK)</h3>
-                <div className="mb-8 p-4 bg-[#f4f4f4] rounded-lg border border-[#e5e5e5]">
-                  <p className="text-[13px] text-[#737373] mb-3">
-                    Enter your OpenAI or Gemini API Key to power the autonomous engine. It will be stored securely in your browser.
-                  </p>
-                  <input 
-                    type="password" 
-                    placeholder="sk-proj-... or AIza..." 
-                    className="w-full p-2.5 rounded-md border border-[#d4d4d4] text-[13px] focus:outline-none focus:border-[#171717] mb-2"
-                    defaultValue={typeof window !== 'undefined' ? localStorage.getItem('ideaai_api_key') || '' : ''}
-                    onChange={(e) => {
-                      if (typeof window !== 'undefined') {
-                        localStorage.setItem('ideaai_api_key', e.target.value.trim());
-                      }
-                    }}
-                  />
-                </div>
-
-                <h3 className="text-[14px] font-semibold text-[#171717] mb-3">Active Model</h3>
-                <div className="space-y-3 mb-8">
-                  <label className="flex items-center justify-between p-4 bg-white border-2 border-[#171717] rounded-lg cursor-pointer shadow-sm">
-                    <div>
-                      <div className="text-[14px] font-medium text-[#171717]">Gemini 1.5 Flash (Auto-detected)</div>
-                      <div className="text-[12px] text-[#737373]">Optimized for low latency and high concurrency.</div>
+                <div className="space-y-4 mb-8">
+                  {/* Option 1: Hybrid Pro */}
+                  <label className="flex flex-col p-4 bg-white border-2 border-[#171717] rounded-xl cursor-pointer shadow-sm relative overflow-hidden">
+                    <div className="absolute top-0 right-0 bg-[#171717] text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg uppercase tracking-wider">
+                      Active
                     </div>
-                    <div className="w-5 h-5 rounded-full border-[5px] border-[#171717]"></div>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold">
+                          ★
+                        </div>
+                        <div className="text-[15px] font-semibold text-[#171717]">IdeaAI Hybrid Engine (Pro)</div>
+                      </div>
+                      <div className="w-5 h-5 rounded-full border-[5px] border-[#171717]"></div>
+                    </div>
+                    <p className="text-[13px] text-[#525252] leading-relaxed mb-3">
+                      Powered by our custom fine-tuned Llama 3 on high-performance Modal Serverless GPUs. 
+                      Seamlessly transitions from local IPC execution to cloud-based CI/CD bot when you sleep.
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-1 bg-green-50 text-green-700 border border-green-200 rounded text-[10px] font-semibold uppercase tracking-wide">
+                        Zero-State Enabled
+                      </span>
+                      <span className="px-2 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded text-[10px] font-semibold uppercase tracking-wide">
+                        Modal Cluster Ready
+                      </span>
+                    </div>
+                  </label>
+
+                  {/* Option 2: BYOK */}
+                  <div className="flex flex-col p-4 bg-[#f4f4f4] border border-[#e5e5e5] rounded-xl">
+                    <label className="flex items-center justify-between cursor-pointer mb-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded bg-[#e5e5e5] flex items-center justify-center text-[#737373] text-xs font-bold">
+                          🔑
+                        </div>
+                        <div className="text-[15px] font-semibold text-[#171717]">Bring Your Own Key (BYOK)</div>
+                      </div>
+                      <div className="w-5 h-5 rounded-full border-2 border-[#d4d4d4] bg-white"></div>
+                    </label>
+                    <p className="text-[13px] text-[#737373] mb-4">
+                      Connect your own OpenAI or Anthropic keys. <span className="font-semibold text-[#171717]">100% Free during Early Stage.</span>
+                    </p>
+                    <div className="relative">
+                      <input 
+                        type="password" 
+                        placeholder="sk-proj-... or sk-ant-..." 
+                        className="w-full p-2.5 rounded-lg border border-[#d4d4d4] text-[13px] focus:outline-none focus:border-[#171717] bg-white shadow-sm"
+                        defaultValue={typeof window !== 'undefined' ? localStorage.getItem('ideaai_api_key') || '' : ''}
+                        onChange={(e) => {
+                          if (typeof window !== 'undefined') {
+                            localStorage.setItem('ideaai_api_key', e.target.value.trim());
+                          }
+                        }}
+                      />
+                      <button className="absolute right-2 top-1.5 px-3 py-1 bg-[#171717] text-white rounded text-[11px] font-medium hover:bg-[#262626] transition-colors">
+                        Save Key
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Option 3: Local Engine */}
+                  <label className="flex flex-col p-4 bg-white border border-[#e5e5e5] rounded-xl cursor-pointer hover:border-[#d4d4d4] transition-colors">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded bg-[#171717] flex items-center justify-center text-white text-xs font-bold">
+                          🖥️
+                        </div>
+                        <div className="text-[15px] font-semibold text-[#171717]">Local Engine (Ollama)</div>
+                      </div>
+                      <div className="w-5 h-5 rounded-full border-2 border-[#d4d4d4]"></div>
+                    </div>
+                    <p className="text-[13px] text-[#737373]">
+                      Run open-source models completely offline on your own hardware. Maximum privacy, zero latency. Requires 16GB+ RAM.
+                    </p>
                   </label>
                 </div>
               </div>
