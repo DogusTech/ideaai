@@ -389,9 +389,9 @@ export function SettingsModal({ isOpen, onClose, initialTab = "general", userEma
                         <div className="text-[13px] text-[#737373]">Required for overnight push & PR automation</div>
                       </div>
                     </div>
-                    <button className="px-4 py-2 bg-[#171717] hover:bg-[#262626] text-white rounded-lg text-[13px] font-medium transition-colors">
+                    <a href="/api/github/auth" className="px-4 py-2 bg-[#171717] hover:bg-[#262626] text-white rounded-lg text-[13px] font-medium transition-colors">
                       Connect GitHub
-                    </button>
+                    </a>
                   </div>
                   <div className="p-3 bg-blue-50/50 border border-blue-100 rounded-lg">
                     <p className="text-[12px] text-blue-800">
