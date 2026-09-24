@@ -445,11 +445,11 @@ export function IdeaAIInterfaceMac() {
                       className="w-full min-h-[90px] bg-transparent resize-none outline-none text-[15px] text-black placeholder:text-black/30 mb-3 leading-relaxed"
                     />
                     
-                    <div className="flex items-center justify-between mt-auto">
-                      <button className="flex items-center gap-1.5 px-3 py-1.5 bg-black/5 hover:bg-black/10 text-black/70 rounded-[8px] text-[12px] font-medium transition-colors">
-                        <Plus className="w-3.5 h-3.5" />
-                        Composer 2.5 Fast
-                        <ChevronDown className="w-3 h-3 ml-0.5 text-black/40" />
+                      <div className="flex items-center justify-between mt-auto">
+                      <button className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-[8px] text-[12px] font-semibold transition-colors border border-indigo-100">
+                        <span className="text-indigo-500">★</span>
+                        IdeaAI Hybrid Engine (Pro)
+                        <ChevronDown className="w-3 h-3 ml-0.5 text-indigo-400" />
                       </button>
                       
                       <button 
