@@ -38,8 +38,8 @@ export default function CursorAlternativePage() {
             Beyond Autocomplete.<br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">Meet True Autonomy.</span>
           </h1>
-          <p className="text-xl text-zinc-500 mb-12 max-w-2xl mx-auto leading-relaxed">
-            While Cursor is a great IDE extension for inline edits, IdeaAI is a native desktop agent that autonomously reads, plans, and executes across your entire codebase.
+          <p className="text-xl text-zinc-500 mb-12 max-w-3xl mx-auto leading-relaxed">
+            While Cursor is a great IDE wrapper for conversational edits, IdeaAI is the world's first Hybrid Autonomous Agent. It works locally via an Electron IPC bridge and seamlessly transitions to a cloud CI/CD bot powered by our custom Llama 3 model on Modal servers. Set a Constitutional Prompt, and let it code while you sleep.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <a href="/" className="w-full sm:w-auto bg-zinc-900 hover:bg-zinc-800 text-white px-8 py-4 rounded-full text-lg font-medium transition-all shadow-lg flex items-center justify-center gap-2">
@@ -65,12 +65,12 @@ export default function CursorAlternativePage() {
             </div>
 
             {[
-              { name: 'AI Autocomplete', cursor: true, ideaai: true },
-              { name: 'Inline Chat', cursor: true, ideaai: true },
-              { name: 'Autonomous Execution', cursor: false, ideaai: true },
-              { name: 'Native Desktop Agent', cursor: false, ideaai: true },
-              { name: 'Overnight Coding Mode', cursor: false, ideaai: true },
-              { name: 'Zero-State Architecture', cursor: false, ideaai: true },
+              { name: 'AI Autocomplete & Chat', cursor: true, ideaai: true },
+              { name: 'Constitutional Prompting (Zero-State)', cursor: false, ideaai: true },
+              { name: 'Hybrid Execution (Local + Cloud CI/CD)', cursor: false, ideaai: true },
+              { name: 'Custom Fine-Tuned Llama 3', cursor: false, ideaai: true },
+              { name: 'Hosted on Modal Serverless GPUs', cursor: false, ideaai: true },
+              { name: 'Overnight Autonomous Coding', cursor: false, ideaai: true },
               { name: 'Cross-IDE Independence', cursor: false, ideaai: true },
             ].map((feature, i) => (
               <div key={i} className="grid grid-cols-3 border-b border-zinc-50 last:border-0 hover:bg-zinc-50/50 transition-colors">

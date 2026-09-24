@@ -222,9 +222,9 @@ export default function IdeaAILanding() {
             initial={{ opacity: 0, filter: 'blur(4px)' }}
             animate={{ opacity: 1, filter: 'blur(0px)' }}
             transition={{ duration: 0.8, delay: 1.5 }}
-            className="max-w-2xl mx-auto text-lg md:text-xl text-zinc-500 mb-12 leading-relaxed font-medium"
+            className="max-w-3xl mx-auto text-lg md:text-xl text-zinc-500 mb-12 leading-relaxed font-medium"
           >
-            The world's most capable autonomous execution engine. Built for velocity, precision, and zero-state architecture.
+            The world's first <strong>Hybrid Autonomous AI Coding Agent</strong>. IdeaAI runs as a native desktop client while you work, and seamlessly transforms into a cloud-based CI/CD bot executing via GitHub and Railway when you sleep. Governed by a single <strong>Constitutional Prompt</strong> and powered by our custom-trained <strong>Llama 3</strong> engine on Modal servers, it reads, writes, and debugs code 24/7 without needing conversational chat.
           </motion.p>
 
           {/* CTA Buttons */}
@@ -298,7 +298,7 @@ export default function IdeaAILanding() {
               </motion.span>
               
               <AIFastTyping 
-                text="The Intelligence That Actually Executes." 
+                text="The Only Hybrid AI Agent: Desktop + Cloud Autonomy." 
                 className="text-4xl md:text-5xl lg:text-6xl text-zinc-900 tracking-tight leading-tight"
                 style={{ fontVariationSettings: '"wght" 650' }}
               />
@@ -308,13 +308,13 @@ export default function IdeaAILanding() {
               
               <div>
                 <AIFastTyping 
-                  text="Zero-State Architecture" 
+                  text="Constitutional Prompt (Zero-State)" 
                   className="text-2xl md:text-3xl text-zinc-900 mb-6 block tracking-tight"
                   style={{ fontVariationSettings: '"wght" 600' }}
                   delay={0.2}
                 />
                 <AIFastTyping 
-                  text="Stop starting from a blank prompt. IdeaAI anticipates context, understands your codebase instantly, and offers executable solutions before you even ask. The future isn't conversational; it's proactive." 
+                  text="Unlike ChatGPT or Claude wrappers that require constant conversational babysitting, IdeaAI operates on a single 'Constitutional Prompt'. You define the master rules and architecture once, and the agent executes autonomously within those boundaries forever." 
                   className="text-lg text-zinc-500 leading-relaxed font-medium block"
                   delay={0.6}
                 />
@@ -322,13 +322,13 @@ export default function IdeaAILanding() {
 
               <div>
                 <AIFastTyping 
-                  text="Agentic Velocity" 
+                  text="Dual-Engine: Local + CI/CD Bot" 
                   className="text-2xl md:text-3xl text-zinc-900 mb-6 block tracking-tight"
                   style={{ fontVariationSettings: '"wght" 600' }}
                   delay={0.4}
                 />
                 <AIFastTyping 
-                  text="IdeaAI doesn't just suggest code snippets. It runs tests, reads error logs, fixes bugs, and deploys. We designed an engine that iterates autonomously until your build is perfectly green." 
+                  text="When your PC is on, IdeaAI uses an advanced Electron IPC Bridge to read, write, and execute commands directly on your local machine. When you sleep, it seamlessly switches to a cloud-based CI/CD bot, pulling from GitHub and pushing autonomous fixes overnight via Railway." 
                   className="text-lg text-zinc-500 leading-relaxed font-medium block"
                   delay={0.8}
                 />
@@ -336,13 +336,13 @@ export default function IdeaAILanding() {
 
               <div className="md:col-span-2 max-w-2xl">
                 <AIFastTyping 
-                  text="Uncompromised Security" 
+                  text="Custom Llama 3 on Modal Servers" 
                   className="text-2xl md:text-3xl text-zinc-900 mb-6 block tracking-tight"
                   style={{ fontVariationSettings: '"wght" 600' }}
                   delay={0.6}
                 />
                 <AIFastTyping 
-                  text="Enterprise-grade out of the box. Your proprietary code never trains public models. We provide complete VPC isolation, SOC2 Type II compliance, and granular role-based access controls for elite engineering teams." 
+                  text="We don't just route your data to standard APIs. IdeaAI is powered by our heavily fine-tuned Llama 3 model hosted on high-performance Modal serverless GPU clusters. This ensures lightning-fast execution, agentic reasoning tailored for software engineering, and absolute data privacy." 
                   className="text-lg text-zinc-500 leading-relaxed font-medium block"
                   delay={1.0}
                 />
