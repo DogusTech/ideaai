@@ -157,8 +157,9 @@ export function IdeaAIInterfaceMac() {
       
     } catch (err: any) {
       if (err.name !== 'AbortError') {
-        setError(err);
-        setStatus('error');
+        const errorMsg = { id: Date.now().toString(), role: 'assistant', content: `**[System Error]**\n` + (err.message || "An unknown error occurred.") };
+        setMessages(prev => [...prev, errorMsg]);
+        setStatus('ready');
       } else {
         setStatus('ready');
       }
@@ -643,16 +644,12 @@ export function IdeaAIInterfaceMac() {
                       animate={{ opacity: 1, y: 0 }}
                       className={`flex gap-4 ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
                     >
-                      <div className={`w-8 h-8 shrink-0 rounded-full flex items-center justify-center text-[13px] font-semibold ${
-                        message.role === 'user' ? 'bg-black text-white' : 'bg-gradient-to-br from-indigo-500 to-purple-500 text-white shadow-md'
-                      }`}>
-                        {message.role === 'user' ? (userEmail ? userEmail[0].toUpperCase() : 'U') : 'AI'}
-                      </div>
-                      <div className={`max-w-[85%] rounded-2xl px-5 py-4 ${
-                        message.role === 'user' 
-                          ? 'bg-black/5 border border-black/5 text-black' 
-                          : 'bg-white shadow-[0_2px_15px_rgba(0,0,0,0.03)] border border-black/5'
-                      }`}>
+                      
+                      <div className={`max-w-[85%] rounded-[20px] px-5 py-4 ${
+                          message.role === 'user' 
+                            ? 'bg-[#F9FAFB] border border-[#E5E7EB] text-black' 
+                            : 'bg-white shadow-sm border border-[#E5E7EB] text-black'
+                        }`}>
                         <AntigravityMarkdown content={message.content} />
                           {message.options && message.options.length > 0 && (
                             <div className="mt-4 flex flex-col gap-2">
@@ -681,7 +678,7 @@ export function IdeaAIInterfaceMac() {
                         <div className="w-8 h-8 shrink-0 rounded-full flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-500 text-white shadow-md">
                           AI
                         </div>
-                        <div className="bg-white shadow-[0_2px_15px_rgba(0,0,0,0.03)] border border-black/5 rounded-2xl px-6 py-4 flex items-center justify-center">
+                        <div className="flex items-center justify-center py-2 px-2">
                           <img 
                             src="/ideaai-logo.png" 
                             alt="Thinking..." 
