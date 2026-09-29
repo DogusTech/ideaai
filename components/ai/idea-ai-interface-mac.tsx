@@ -113,9 +113,7 @@ export function IdeaAIInterfaceMac() {
           'Content-Type': 'application/json',
           'X-API-Key': storedApiKey
         },
-        body: JSON.stringify({ 
-          messages: newMessages
-        }),
+        body: JSON.stringify({ messages: newMessages, model: selectedModel }),
         signal: abortControllerRef.current.signal,
       });
         
