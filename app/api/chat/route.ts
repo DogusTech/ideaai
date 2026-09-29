@@ -10,13 +10,18 @@ export async function POST(request: Request) {
     // 1. IDEAAI HYBRID ENGINE (PRO) - MODAL.COM
     // ==========================================
     if (model === "IdeaAI Hybrid Engine (Pro)") {
-      const modalUrl = "https://dogustech--ideaai-llama3-endpoint-fastapi-app.modal.run/v1/chat/completions";
+      const modalUrl = "https://dogustech--ideaai-llama3-endpoint-fastapi-app.modal.run/generate";
       
       try {
-        const cleanMessages = messages.map((m: any) => ({
-          role: m.role,
-          content: m.content
-        }));
+        // Format history for the custom Llama-3 endpoint
+        let conversationHistory = "";
+        for (let i = 0; i < messages.length - 1; i++) {
+            const role = messages[i].role === 'user' ? 'User' : 'Assistant';
+            conversationHistory += `${role}: ${messages[i].content}\n\n`;
+        }
+        
+        const lastUserMessage = messages[messages.length - 1]?.content || "";
+        const finalInput = conversationHistory ? `${conversationHistory}User: ${lastUserMessage}\n\nAssistant:` : lastUserMessage;
 
         const res = await fetch(modalUrl, {
           method: 'POST',
@@ -24,11 +29,8 @@ export async function POST(request: Request) {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            model: 'ideaai-llama3',
-            messages: [
-              { role: 'system', content: 'You are IdeaAI Hybrid Engine, a powerful custom-trained AI.' },
-              ...cleanMessages
-            ],
+            instruction: "You are IdeaAI Hybrid Engine, a powerful custom-trained AI assistant. Answer the user's input.",
+            input: finalInput
           }),
         });
 
@@ -38,7 +40,14 @@ export async function POST(request: Request) {
         }
 
         const data = await res.json();
-        const assistantMessage = data.choices?.[0]?.message?.content || data.response || "Hybrid Engine'den bos yanit geldi.";
+        // The endpoint likely returns {"response": "..."} or similar based on openapi.json.
+        // We will try standard fields. If it just returns string, we handle it.
+        let assistantMessage = data.response || data.output || data.text || data.result || "Hybrid Engine'den yanit alindi, ancak formati bilinmiyor.";
+        
+        if (typeof data === 'string') {
+            assistantMessage = data;
+        }
+
         return NextResponse.json({ response: assistantMessage });
       } catch (e: any) {
          return NextResponse.json({ error: `Hybrid Engine (Modal) sunucusuna ulasilamadi. Sunucu kapali (Inactive) durumda. Detay: ${e.message}` }, { status: 504 });
