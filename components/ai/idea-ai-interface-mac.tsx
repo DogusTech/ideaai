@@ -38,7 +38,7 @@ import { auth } from "@/lib/firebase"
 import { SettingsModal } from "./settings-modal"
 import { TeamModal } from "./team-modal"
 import { ConstitutionalModalMac } from "./constitutional-modal-mac"
-import { Github, Moon } from "lucide-react"
+import { Moon } from "lucide-react"
 
 type Project = {
   id: string
@@ -339,7 +339,7 @@ export function IdeaAIInterfaceMac() {
           
           <div className="flex items-center gap-4 text-[12px] font-medium text-black/60 pr-2">
             <div className="flex items-center gap-1.5 px-2 py-1 bg-black/5 rounded-md border border-black/5 cursor-pointer hover:bg-black/10 transition-colors">
-              <Github className="w-3.5 h-3.5" />
+              <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.2c3-.3 6-1.5 6-6.5a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 5 3 6.2 6 6.5a4.8 4.8 0 0 0-1 3.2v4"></path></svg>
               {selectedRepo}
               <ChevronDown className="w-3 h-3 ml-1 opacity-50" />
             </div>
