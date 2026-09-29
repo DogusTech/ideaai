@@ -4,7 +4,51 @@ export async function POST(request: Request) {
   try {
     const apiKey = request.headers.get('X-API-Key');
     const body = await request.json();
-    const { messages } = body;
+    const { messages, model } = body;
+    
+    // ==========================================
+    // 1. IDEAAI HYBRID ENGINE (PRO) - MODAL.COM
+    // ==========================================
+    if (model === "IdeaAI Hybrid Engine (Pro)") {
+      const modalUrl = "https://dogustech--ideaai-llama3-endpoint-fastapi-app.modal.run/v1/chat/completions";
+      
+      try {
+        const cleanMessages = messages.map((m: any) => ({
+          role: m.role,
+          content: m.content
+        }));
+
+        const res = await fetch(modalUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            // Eğer modal endpoint özel bir API key istiyorsa buraya eklenebilir. Şimdilik standart geçiyoruz.
+          },
+          body: JSON.stringify({
+            model: 'ideaai-llama3', // Custom model ID
+            messages: [
+              { role: 'system', content: 'You are IdeaAI Hybrid Engine, a powerful custom-trained AI.' },
+              ...cleanMessages
+            ],
+          }),
+        });
+
+        if (!res.ok) {
+          const errData = await res.text();
+          return NextResponse.json({ error: \`Hybrid Engine (Modal) yanıt vermedi: \${errData} (Sunucu kapalı olabilir veya URL güncellenmelidir)\` }, { status: res.status });
+        }
+
+        const data = await res.json();
+        const assistantMessage = data.choices?.[0]?.message?.content || data.response || "Hybrid Engine'den boş yanıt geldi.";
+        return NextResponse.json({ response: assistantMessage });
+      } catch (e: any) {
+         return NextResponse.json({ error: \`Hybrid Engine (Modal) sunucusuna ulaşılamadı. Sunucu kapalı (Inactive) durumda. Detay: \${e.message}\` }, { status: 504 });
+      }
+    }
+
+    // ==========================================
+    // 2. BRING YOUR OWN KEY (BYOK) - OPENAI / GEMINI
+    // ==========================================
     
     // BYOK (Bring Your Own Key) Kural: Kullanici API Key girmeden islem yapamaz.
     if (!apiKey || apiKey.trim() === '') {
@@ -33,23 +77,16 @@ export async function POST(request: Request) {
         parts: [{ text: m.content }]
       }));
 
-      // Google API explicitly requested we use gemini-3.6-flash in 2026
       const targetModel = 'gemini-3.6-flash';
 
-      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${cleanApiKey}`, {
+      const res = await fetch(\`https://generativelanguage.googleapis.com/v1beta/models/\${targetModel}:generateContent?key=\${cleanApiKey}\`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             systemInstruction: {
-              parts: [{ text: `You are IdeaAI, an elite autonomous coding agent. 
-Always structure your response exactly like this:
-1. Start with a <think>...</think> block explaining your plan.
-2. If you are modifying a file, output [MODIFY] filename.ext on its own line.
-3. If creating a new file, output [NEW] filename.ext on its own line.
-4. Then provide the markdown code block.
-Keep it concise and highly technical.` }]
+              parts: [{ text: \`You are IdeaAI, an elite autonomous coding agent.\` }]
             },
             contents: geminiMessages
           }),
@@ -75,7 +112,7 @@ Keep it concise and highly technical.` }]
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${cleanApiKey}`,
+            'Authorization': \`Bearer \${cleanApiKey}\`,
           },
           body: JSON.stringify({
             model: 'gpt-4o',
