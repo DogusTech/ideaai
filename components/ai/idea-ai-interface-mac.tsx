@@ -52,6 +52,7 @@ export function IdeaAIInterfaceMac() {
   const [projects, setProjects] = useState<Project[]>(typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('ideaai_projects') || '[]') : [])
   const [selectedProject, setSelectedProject] = useState<string | null>(null)
   const [userEmail, setUserEmail] = useState<string | null>(null)
+  const [userName, setUserName] = useState<string | null>(null)
   
   const [showAddMenu, setShowAddMenu] = useState(false)
   const [showModelMenu, setShowModelMenu] = useState(false)
@@ -61,7 +62,7 @@ export function IdeaAIInterfaceMac() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [settingsTab, setSettingsTab] = useState("general")
   const [isConstitutionalModalOpen, setIsConstitutionalModalOpen] = useState(false)
-  const [selectedRepo, setSelectedRepo] = useState("DogusTech/togetlink")
+  const [selectedRepo, setSelectedRepo] = useState("Connect GitHub")
     const [githubRepos, setGithubRepos] = useState<any[]>([])
     const [isConnectingGithub, setIsConnectingGithub] = useState(false)
     const [githubConnected, setGithubConnected] = useState(false)
@@ -315,11 +316,13 @@ export function IdeaAIInterfaceMac() {
     // Fetch current user
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user && user.email) {
-        setUserEmail(user.email)
-      } else {
-        setUserEmail(null)
-      }
+      if (user) {
+          setUserEmail(user.email || null)
+          setUserName(user.displayName || (user.email ? user.email.split('@')[0] : 'User'))
+        } else {
+          setUserEmail(null)
+          setUserName(null)
+        }
     })
     return () => unsubscribe()
   }, [])
@@ -476,7 +479,7 @@ export function IdeaAIInterfaceMac() {
                     {userEmail ? userEmail[0].toUpperCase() : 'U'}
                   </div>
                   <span className="text-[13px] font-medium text-black/70 truncate">
-                    {userEmail ? userEmail.split('@')[0] : 'User'}
+                    {userName || 'User'}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
