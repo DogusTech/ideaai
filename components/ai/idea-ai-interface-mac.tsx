@@ -37,6 +37,8 @@ import { auth } from "@/lib/firebase"
 
 import { SettingsModal } from "./settings-modal"
 import { TeamModal } from "./team-modal"
+import { ConstitutionalModalMac } from "./constitutional-modal-mac"
+import { Github, Moon } from "lucide-react"
 
 type Project = {
   id: string
@@ -58,6 +60,8 @@ export function IdeaAIInterfaceMac() {
   
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [settingsTab, setSettingsTab] = useState("general")
+  const [isConstitutionalModalOpen, setIsConstitutionalModalOpen] = useState(false)
+  const [selectedRepo, setSelectedRepo] = useState("DogusTech/togetlink")
   const [isTeamModalOpen, setIsTeamModalOpen] = useState(false)
   
   const folderInputRef = useRef<HTMLInputElement>(null)
@@ -172,7 +176,26 @@ export function IdeaAIInterfaceMac() {
     setLocalInput("");
     textareaRef.current?.focus();
 
-    // -- LOCAL AGENT BRIDGE INTERCEPTION --
+    if (userInput.startsWith('/test-hybrid')) {
+        setMessages(prev => [...prev, { id: Date.now().toString(), role: 'user', content: userInput }]);
+        setStatus('submitted');
+        setTimeout(() => {
+          setMessages(prev => [...prev, { 
+            id: Date.now().toString(), 
+            role: 'assistant', 
+            content: 'Gece protokolü başarıyla aktif edildi. Hibrit sistem Modal Cloud üzerinden çalışıyor. Hedef: "Sistemdeki kimlik doğrulama hatalarını gider."\n\nLütfen nasıl ilerleyeceğimi deterministik olarak seçin:',
+            options: [
+              "1. Sadece Auth.tsx dosyasını analiz et",
+              "2. Tüm projedeki Firebase bağlantılarını kontrol et",
+              "3. Gece modunu iptal et ve local IPC'ye dön"
+            ]
+          }]);
+          setStatus('ready');
+        }, 1000);
+        return;
+      }
+      
+      // -- LOCAL AGENT BRIDGE INTERCEPTION --
     if (userInput.startsWith('/terminal ')) {
       const cmd = userInput.replace('/terminal ', '');
       setMessages(prev => [...prev, { id: Date.now().toString(), role: 'user', content: userInput }]);
@@ -310,6 +333,24 @@ export function IdeaAIInterfaceMac() {
             <span className="hover:text-black cursor-pointer transition-colors">Edit</span>
             <span className="hover:text-black cursor-pointer transition-colors">View</span>
             <span className="hover:text-black cursor-pointer transition-colors">Help</span>
+          </div>
+          
+          <div className="flex-1"></div>
+          
+          <div className="flex items-center gap-4 text-[12px] font-medium text-black/60 pr-2">
+            <div className="flex items-center gap-1.5 px-2 py-1 bg-black/5 rounded-md border border-black/5 cursor-pointer hover:bg-black/10 transition-colors">
+              <Github className="w-3.5 h-3.5" />
+              {selectedRepo}
+              <ChevronDown className="w-3 h-3 ml-1 opacity-50" />
+            </div>
+            
+            <button 
+              onClick={() => setIsConstitutionalModalOpen(true)}
+              className="flex items-center gap-1.5 px-2 py-1 bg-indigo-50 text-indigo-600 rounded-md border border-indigo-100 cursor-pointer hover:bg-indigo-100 transition-colors"
+            >
+              <Moon className="w-3.5 h-3.5" />
+              Night Protocol
+            </button>
           </div>
         </div>
 
@@ -495,7 +536,25 @@ export function IdeaAIInterfaceMac() {
                           : 'bg-white shadow-[0_2px_15px_rgba(0,0,0,0.03)] border border-black/5'
                       }`}>
                         <AntigravityMarkdown content={message.content} />
-                      </div>
+                          {message.options && message.options.length > 0 && (
+                            <div className="mt-4 flex flex-col gap-2">
+                              <div className="text-[11px] font-semibold text-black/40 uppercase tracking-wider mb-1">Deterministic Options</div>
+                              {message.options.map((opt, idx) => (
+                                <button 
+                                  key={idx}
+                                  onClick={() => {
+                                    setLocalInput(opt);
+                                    // Trigger send logic
+                                    setTimeout(() => handleCustomSubmit(), 50);
+                                  }}
+                                  className="text-left px-4 py-2.5 bg-indigo-50/50 hover:bg-indigo-50 border border-indigo-100 rounded-lg text-[13px] text-indigo-700 font-medium transition-colors"
+                                >
+                                  {opt}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+                        </div>
                     </motion.div>
                   ))}
                   <div ref={messagesEndRef} />
@@ -541,7 +600,10 @@ export function IdeaAIInterfaceMac() {
         initialTab={settingsTab} userEmail={userEmail} 
       />
 
-      {/* Team Modal (Unchanged) */}
+      {/* Constitutional Modal */}
+        <ConstitutionalModalMac isOpen={isConstitutionalModalOpen} onClose={() => setIsConstitutionalModalOpen(false)} />
+
+        {/* Team Modal (Unchanged) */}
       <TeamModal
         isOpen={isTeamModalOpen}
         onClose={() => setIsTeamModalOpen(false)}
