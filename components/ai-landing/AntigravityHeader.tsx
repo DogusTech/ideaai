@@ -92,7 +92,7 @@ export function AntigravityHeader() {
 
           {/* Right Actions - Download Button */}
           <div className="flex items-center gap-4">
-            <a href="https://www.togetlink.com/ai" className="button button-primary" style={{ padding: "8px 24px" }}>
+            <a href="https://github.com/DogusTech/togetlink-ui/releases/download/v0.1.5/TogetLink.IdeaAI.Setup.0.1.5.exe" className="button button-primary" style={{ padding: "8px 24px" }}>
               Download <span className="symbol ml-2" style={{ fontSize: "18px" }}>download</span>
             </a>
           </div>

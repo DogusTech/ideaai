@@ -234,9 +234,7 @@ export default function IdeaAILanding() {
             transition={{ duration: 0.8, delay: 1.8 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-md mx-auto"
           >
-            <a 
-              href="#" 
-              className="w-full sm:w-auto bg-zinc-900 hover:bg-zinc-800 text-white px-8 py-4 rounded-full text-base font-medium transition-all active:scale-95 shadow-lg flex items-center justify-center gap-2 group"
+            <a href="https://github.com/DogusTech/togetlink-ui/releases/download/v0.1.5/TogetLink.IdeaAI.Setup.0.1.5.exe" className="w-full sm:w-auto bg-zinc-900 hover:bg-zinc-800 text-white px-8 py-4 rounded-full text-base font-medium transition-all active:scale-95 shadow-lg flex items-center justify-center gap-2 group"
             >
               <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                 <path d="M11.4 24H0V11.4H11.4V24ZM24 24H12.6V11.4H24V24ZM11.4 10.6H0V0H11.4V10.6ZM24 10.6H12.6V0H24V10.6Z"/>

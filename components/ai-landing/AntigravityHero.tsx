@@ -131,7 +131,7 @@ export function AntigravityHero() {
           transition={{ duration: 0.5, delay: 0.8, ease: "easeOut" }}
           className="flex flex-col sm:flex-row items-center gap-4 mb-24"
         >
-          <a href="https://www.togetlink.com/ai" className="button button-primary gap-2">
+          <a href="https://github.com/DogusTech/togetlink-ui/releases/download/v0.1.5/TogetLink.IdeaAI.Setup.0.1.5.exe" className="button button-primary gap-2">
             <Monitor className="w-5 h-5" strokeWidth={2.5} />
             Download for Windows
           </a>
