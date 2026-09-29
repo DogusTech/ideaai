@@ -22,10 +22,9 @@ export async function POST(request: Request) {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            // Eğer modal endpoint özel bir API key istiyorsa buraya eklenebilir. Şimdilik standart geçiyoruz.
           },
           body: JSON.stringify({
-            model: 'ideaai-llama3', // Custom model ID
+            model: 'ideaai-llama3',
             messages: [
               { role: 'system', content: 'You are IdeaAI Hybrid Engine, a powerful custom-trained AI.' },
               ...cleanMessages
@@ -35,14 +34,14 @@ export async function POST(request: Request) {
 
         if (!res.ok) {
           const errData = await res.text();
-          return NextResponse.json({ error: \`Hybrid Engine (Modal) yanıt vermedi: \${errData} (Sunucu kapalı olabilir veya URL güncellenmelidir)\` }, { status: res.status });
+          return NextResponse.json({ error: `Hybrid Engine (Modal) yanit vermedi: ${errData} (Sunucu kapali olabilir veya URL guncellenmelidir)` }, { status: res.status });
         }
 
         const data = await res.json();
-        const assistantMessage = data.choices?.[0]?.message?.content || data.response || "Hybrid Engine'den boş yanıt geldi.";
+        const assistantMessage = data.choices?.[0]?.message?.content || data.response || "Hybrid Engine'den bos yanit geldi.";
         return NextResponse.json({ response: assistantMessage });
       } catch (e: any) {
-         return NextResponse.json({ error: \`Hybrid Engine (Modal) sunucusuna ulaşılamadı. Sunucu kapalı (Inactive) durumda. Detay: \${e.message}\` }, { status: 504 });
+         return NextResponse.json({ error: `Hybrid Engine (Modal) sunucusuna ulasilamadi. Sunucu kapali (Inactive) durumda. Detay: ${e.message}` }, { status: 504 });
       }
     }
 
@@ -60,18 +59,15 @@ export async function POST(request: Request) {
 
     let cleanApiKey = apiKey.trim();
     
-    // Extract actual key if user accidentally pasted "Bearer sk-..."
     const openaiMatch = cleanApiKey.match(/sk-[a-zA-Z0-9_-]+/);
     if (openaiMatch) cleanApiKey = openaiMatch[0];
     else {
-      // Remove any 'Bearer ' or 'Key=' prefixes just in case
       cleanApiKey = cleanApiKey.replace(/^(Bearer\s+|Key=)/i, '').trim();
     }
 
     const isGemini = !cleanApiKey.startsWith('sk-');
       
     if (isGemini) {
-      // Native Gemini REST API
       const geminiMessages = messages.map((m: any) => ({
         role: m.role === 'user' ? 'user' : 'model',
         parts: [{ text: m.content }]
@@ -79,14 +75,14 @@ export async function POST(request: Request) {
 
       const targetModel = 'gemini-3.6-flash';
 
-      const res = await fetch(\`https://generativelanguage.googleapis.com/v1beta/models/\${targetModel}:generateContent?key=\${cleanApiKey}\`, {
+      const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${cleanApiKey}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
             systemInstruction: {
-              parts: [{ text: \`You are IdeaAI, an elite autonomous coding agent.\` }]
+              parts: [{ text: `You are IdeaAI, an elite autonomous coding agent.` }]
             },
             contents: geminiMessages
           }),
@@ -102,7 +98,6 @@ export async function POST(request: Request) {
         return NextResponse.json({ response: assistantMessage });
 
       } else {
-        // Standard OpenAI REST API
         const cleanMessages = messages.map((m: any) => ({
           role: m.role,
           content: m.content
@@ -112,7 +107,7 @@ export async function POST(request: Request) {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': \`Bearer \${cleanApiKey}\`,
+            'Authorization': `Bearer ${cleanApiKey}`,
           },
           body: JSON.stringify({
             model: 'gpt-4o',
