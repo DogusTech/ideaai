@@ -603,10 +603,7 @@ export function IdeaAIInterfaceMac() {
                                 )}
                               </div>
 
-                                <button onClick={() => { setSelectedRepo("DogusTech/togetlink"); setShowRepoMenu(false) }} className="w-full flex items-center px-3 py-2 text-[13px] text-black/80 hover:bg-black/5 text-left font-medium">DogusTech/togetlink</button>
-                                <button onClick={() => { setSelectedRepo("DogusTech/outrank"); setShowRepoMenu(false) }} className="w-full flex items-center px-3 py-2 text-[13px] text-black/80 hover:bg-black/5 text-left font-medium">DogusTech/outrank</button>
-                                <button onClick={() => { setSelectedRepo("Aeternexus/core"); setShowRepoMenu(false) }} className="w-full flex items-center px-3 py-2 text-[13px] text-black/80 hover:bg-black/5 text-left font-medium">Aeternexus/core</button>
-                              </div>
+                                
                             )}
                           </div>
                         </div>
@@ -764,10 +761,7 @@ export function IdeaAIInterfaceMac() {
                                 )}
                               </div>
 
-                                <button onClick={() => { setSelectedRepo("DogusTech/togetlink"); setShowRepoMenu(false) }} className="w-full flex items-center px-3 py-2 text-[13px] text-black/80 hover:bg-black/5 text-left font-medium">DogusTech/togetlink</button>
-                                <button onClick={() => { setSelectedRepo("DogusTech/outrank"); setShowRepoMenu(false) }} className="w-full flex items-center px-3 py-2 text-[13px] text-black/80 hover:bg-black/5 text-left font-medium">DogusTech/outrank</button>
-                                <button onClick={() => { setSelectedRepo("Aeternexus/core"); setShowRepoMenu(false) }} className="w-full flex items-center px-3 py-2 text-[13px] text-black/80 hover:bg-black/5 text-left font-medium">Aeternexus/core</button>
-                              </div>
+                                
                             )}
                           </div>
                         </div>
