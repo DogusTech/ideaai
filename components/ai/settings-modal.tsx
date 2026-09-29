@@ -24,6 +24,8 @@ export function SettingsModal({ isOpen, onClose, initialTab = "general", userEma
   const [activeTab, setActiveTab] = useState(initialTab)
   const [selectedAvatar, setSelectedAvatar] = useState(0)
   const [localProjects, setLocalProjects] = useState<string[]>([])
+  const [activeEngine, setActiveEngine] = useState("hybrid")
+  const [keySaved, setKeySaved] = useState(false)
 
   useEffect(() => {
     if (isOpen) {
@@ -293,10 +295,15 @@ export function SettingsModal({ isOpen, onClose, initialTab = "general", userEma
                 
                 <div className="space-y-4 mb-8">
                   {/* Option 1: Hybrid Pro */}
-                  <label className="flex flex-col p-4 bg-white border-2 border-[#171717] rounded-xl cursor-pointer shadow-sm relative overflow-hidden">
-                    <div className="absolute top-0 right-0 bg-[#171717] text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg uppercase tracking-wider">
-                      Active
-                    </div>
+                  <label 
+                    onClick={() => setActiveEngine("hybrid")}
+                    className={`flex flex-col p-4 bg-white border-2 rounded-xl cursor-pointer shadow-sm relative overflow-hidden transition-colors ${activeEngine === "hybrid" ? "border-[#171717]" : "border-[#e5e5e5] hover:border-[#d4d4d4]"}`}
+                  >
+                    {activeEngine === "hybrid" && (
+                      <div className="absolute top-0 right-0 bg-[#171717] text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg uppercase tracking-wider">
+                        Active
+                      </div>
+                    )}
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
                         <div className="w-6 h-6 rounded bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold">
@@ -304,7 +311,7 @@ export function SettingsModal({ isOpen, onClose, initialTab = "general", userEma
                         </div>
                         <div className="text-[15px] font-semibold text-[#171717]">IdeaAI Hybrid Engine (Pro)</div>
                       </div>
-                      <div className="w-5 h-5 rounded-full border-[5px] border-[#171717]"></div>
+                      <div className={`w-5 h-5 rounded-full ${activeEngine === "hybrid" ? "border-[5px] border-[#171717]" : "border-2 border-[#d4d4d4]"}`}></div>
                     </div>
                     <p className="text-[13px] text-[#525252] leading-relaxed mb-3">
                       Powered by our custom fine-tuned Llama 3 on high-performance Modal Serverless GPUs. 
@@ -321,20 +328,23 @@ export function SettingsModal({ isOpen, onClose, initialTab = "general", userEma
                   </label>
 
                   {/* Option 2: BYOK */}
-                  <div className="flex flex-col p-4 bg-[#f4f4f4] border border-[#e5e5e5] rounded-xl">
-                    <label className="flex items-center justify-between cursor-pointer mb-3">
+                  <div 
+                    onClick={() => setActiveEngine("byok")}
+                    className={`flex flex-col p-4 border rounded-xl transition-colors cursor-pointer ${activeEngine === "byok" ? "bg-[#f4f4f4] border-[#171717] border-2" : "bg-[#f4f4f4] border-[#e5e5e5] hover:border-[#d4d4d4]"}`}
+                  >
+                    <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
                         <div className="w-6 h-6 rounded bg-[#e5e5e5] flex items-center justify-center text-[#737373] text-xs font-bold">
                           🔑
                         </div>
                         <div className="text-[15px] font-semibold text-[#171717]">Bring Your Own Key (BYOK)</div>
                       </div>
-                      <div className="w-5 h-5 rounded-full border-2 border-[#d4d4d4] bg-white"></div>
-                    </label>
+                      <div className={`w-5 h-5 rounded-full bg-white ${activeEngine === "byok" ? "border-[5px] border-[#171717]" : "border-2 border-[#d4d4d4]"}`}></div>
+                    </div>
                     <p className="text-[13px] text-[#737373] mb-4">
                       Connect your own OpenAI or Anthropic keys. <span className="font-semibold text-[#171717]">100% Free during Early Stage.</span>
                     </p>
-                    <div className="relative">
+                    <div className="relative" onClick={(e) => e.stopPropagation()}>
                       <input 
                         type="password" 
                         placeholder="sk-proj-... or sk-ant-..." 
@@ -343,17 +353,28 @@ export function SettingsModal({ isOpen, onClose, initialTab = "general", userEma
                         onChange={(e) => {
                           if (typeof window !== 'undefined') {
                             localStorage.setItem('ideaai_api_key', e.target.value.trim());
+                            setKeySaved(false);
                           }
                         }}
                       />
-                      <button className="absolute right-2 top-1.5 px-3 py-1 bg-[#171717] text-white rounded text-[11px] font-medium hover:bg-[#262626] transition-colors">
-                        Save Key
+                      <button 
+                        onClick={() => {
+                          setKeySaved(true);
+                          setActiveEngine("byok");
+                          setTimeout(() => setKeySaved(false), 2000);
+                        }}
+                        className={`absolute right-2 top-1.5 px-3 py-1 rounded text-[11px] font-medium transition-colors ${keySaved ? "bg-green-500 hover:bg-green-600 text-white" : "bg-[#171717] hover:bg-[#262626] text-white"}`}
+                      >
+                        {keySaved ? "Saved!" : "Save Key"}
                       </button>
                     </div>
                   </div>
 
                   {/* Option 3: Local Engine */}
-                  <label className="flex flex-col p-4 bg-white border border-[#e5e5e5] rounded-xl cursor-pointer hover:border-[#d4d4d4] transition-colors">
+                  <label 
+                    onClick={() => setActiveEngine("local")}
+                    className={`flex flex-col p-4 bg-white border rounded-xl cursor-pointer transition-colors ${activeEngine === "local" ? "border-[#171717] border-2" : "border-[#e5e5e5] hover:border-[#d4d4d4]"}`}
+                  >
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
                         <div className="w-6 h-6 rounded bg-[#171717] flex items-center justify-center text-white text-xs font-bold">
@@ -361,7 +382,7 @@ export function SettingsModal({ isOpen, onClose, initialTab = "general", userEma
                         </div>
                         <div className="text-[15px] font-semibold text-[#171717]">Local Engine (Ollama)</div>
                       </div>
-                      <div className="w-5 h-5 rounded-full border-2 border-[#d4d4d4]"></div>
+                      <div className={`w-5 h-5 rounded-full ${activeEngine === "local" ? "border-[5px] border-[#171717]" : "border-2 border-[#d4d4d4]"}`}></div>
                     </div>
                     <p className="text-[13px] text-[#737373]">
                       Run open-source models completely offline on your own hardware. Maximum privacy, zero latency. Requires 16GB+ RAM.
