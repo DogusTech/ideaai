@@ -52,7 +52,7 @@ export async function POST(request: Request) {
     // BYOK (Bring Your Own Key) Kural: Kullanici API Key girmeden islem yapamaz.
     if (!apiKey || apiKey.trim() === '') {
       return NextResponse.json(
-        { error: 'API Key not found. Please enter your OpenAI or Gemini API Key in Settings (BYOK Model).' }, 
+        { error: `API Key not found. Received model in payload: '${model}'. Please enter your API Key.` }, 
         { status: 401 }
       );
     }
