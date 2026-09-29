@@ -82,10 +82,17 @@ export function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL(newPath, request.url))
       }
 
+
       // Allow /app to route to the app/app folder (AI Terminal/Dashboard)
       if (url.pathname === '/app' || url.pathname.startsWith('/app/')) {
         return NextResponse.rewrite(new URL(url.pathname, request.url))
       }
+
+      // Allow /mac-test to route to the root mac-test folder
+      if (url.pathname === '/mac-test' || url.pathname.startsWith('/mac-test/')) {
+        return NextResponse.rewrite(new URL(url.pathname, request.url))
+      }
+
 
       // Allow /legal, /privacy-policy, and /redeem to route to the root app folder
       if (url.pathname.startsWith('/legal') || url.pathname.startsWith('/privacy-policy') || url.pathname.startsWith('/redeem')) {
