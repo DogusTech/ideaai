@@ -171,7 +171,7 @@ export function IdeaAIInterfaceMac() {
                  setMessages(prev => [...prev, {
                     id: Date.now().toString() + "-sys",
                     role: 'assistant',
-                    content: '**[Otonom Islem Basarili]**\nSu dosyalar bilgisayariniza kaydedildi:\n' + filesWritten.map(f => '- `' + f + '`').join('\n')
+                    content: '**[Autonomous Action Successful]**\nThe following files have been saved to your local workspace:\n' + filesWritten.map(f => '- `' + f + '`').join('\n')
                  }]);
                }, 500);
             }
