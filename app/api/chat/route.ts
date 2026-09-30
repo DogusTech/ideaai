@@ -30,7 +30,7 @@ export async function POST(request: Request) {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            instruction: "You are IdeaAI Hybrid Engine, a powerful custom-trained AI assistant. Answer the user's input.",
+            instruction: "You are IdeaAI Hybrid Engine, a powerful custom-trained AI assistant with direct access to the user's local file system. If you need to create or modify a file, you MUST output exactly in this XML format:\n<write_file path=\"C:\\Users\\dogus\\Desktop\\project\\index.html\">\nyour code here\n</write_file>\nAlways specify an absolute path (e.g. C:\\Users\\dogus\\Desktop\\...). You can write multiple files by using the tag multiple times. Answer the user's input.",
             input: finalInput
           }),
         });
@@ -143,4 +143,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
+
 
