@@ -172,7 +172,10 @@ function CodeBlock({ node, inline, className, children, ...props }: any) {
   const match = /language-(\w+)/.exec(className || '')
   const language = match ? match[1] : ''
   
-  if (inline) {
+  // In react-markdown v9, inline is sometimes undefined. We can guess it's inline if no language class is present and no newlines exist.
+  const isInline = inline || (!match && typeof children === 'string' && !children.includes('\n'))
+  
+  if (isInline) {
     return (
       <code className="bg-[#f0f0f0] text-[#cf222e] px-1.5 py-0.5 rounded-md text-[13px] font-mono" {...props}>
         {children}
