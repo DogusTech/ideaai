@@ -83,7 +83,7 @@ export async function POST(request: Request) {
         parts: [{ text: m.content }]
       }));
 
-      const targetModel = 'gemini-3.6-flash';
+      const targetModel = 'gemini-1.5-flash';
 
       const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${targetModel}:generateContent?key=${cleanApiKey}`, {
           method: 'POST',
