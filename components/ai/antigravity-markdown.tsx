@@ -18,9 +18,8 @@ interface ParsedChunk {
 function parseAntigravityText(text: string): ParsedChunk[] {
   // Transform autonomous XML into beautiful UI blocks
   text = text.replace(/<write_file\s+path=["']([^"']+)["']>([\s\S]*?)<\/write_file>/g, (match, path, content) => {
-     const ext = path.split('.').pop() || '';
-     // AI might put 3 backticks inside the content, so we use 4 backticks to wrap it safely
-     return `\n[NEW] ${path}\n\`\`\`\`${ext}\n${content.trim()}\n\`\`\`\`\n`;
+     // Sadece dosya oluşturulduğuna dair rozet göster, kodun kendisini arayüzde gizle (tıpkı Antigravity gibi)
+     return `\n[NEW] ${path}\n`;
   });
 
   const chunks: ParsedChunk[] = []
