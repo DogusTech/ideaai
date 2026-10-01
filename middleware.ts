@@ -94,8 +94,8 @@ export function middleware(request: NextRequest) {
       }
 
 
-      // Allow /legal, /privacy-policy, /redeem, and /blog to route to the root app folder
-      if (url.pathname.startsWith('/legal') || url.pathname.startsWith('/privacy-policy') || url.pathname.startsWith('/redeem') || url.pathname.startsWith('/blog')) {
+      // Allow /legal, /privacy-policy, /redeem, /blog, and /use-cases to route to the root app folder
+      if (url.pathname.startsWith('/legal') || url.pathname.startsWith('/privacy-policy') || url.pathname.startsWith('/redeem') || url.pathname.startsWith('/blog') || url.pathname.startsWith('/use-cases')) {
         return NextResponse.rewrite(new URL(url.pathname, request.url))
       }
       
