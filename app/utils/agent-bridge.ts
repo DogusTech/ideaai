@@ -20,10 +20,20 @@ export class AgentBridge {
     return null;
   }
 
+  static isElectron(): boolean {
+    return this.getIpcRenderer() !== null;
+  }
+
   static async readFile(filePath: string): Promise<AgentBridgeResponse<string>> {
     const ipcRenderer = this.getIpcRenderer();
     if (!ipcRenderer) return { success: false, error: 'Not running in Electron' };
     return await ipcRenderer.invoke('read-file', filePath);
+  }
+
+  static async askLocalAI(messages: any[]): Promise<AgentBridgeResponse<string>> {
+    const ipcRenderer = this.getIpcRenderer();
+    if (!ipcRenderer) return { success: false, error: 'Not running in Electron' };
+    return await ipcRenderer.invoke('ask-local-ai', messages);
   }
 
   static async writeFile(filePath: string, content: string): Promise<AgentBridgeResponse> {

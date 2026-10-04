@@ -107,15 +107,45 @@ export function IdeaAIInterfaceMac() {
     try {
       const storedApiKey = typeof window !== 'undefined' ? localStorage.getItem('ideaai_api_key') || '' : '';
       
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'X-API-Key': storedApiKey
-        },
-        body: JSON.stringify({ messages: newMessages, model: selectedModel }),
-        signal: abortControllerRef.current.signal,
-      });
+      let res;
+      
+      // --- YENİ: LOKAL MOTOR (OLLAMA) ENJEKSİYONU ---
+      // AgentBridge ile Electron'da olup olmadigimizi kontrol ediyoruz
+      if (selectedModel === "IdeaAI Hybrid Engine (Pro)" && AgentBridge.isElectron()) {
+        console.log("🟢 Hibrit Motor Devrede: Kodu yerel Ollama motoruna gönderiyorum...");
+        
+        // Yapay Zekayı bir AJAN'a (Agent) dönüştüren Sistem Komutunu ekliyoruz
+        const systemPrompt = {
+          role: "system",
+          content: "You are IdeaAI, an autonomous coding agent executing directly on the developer's machine.\nYou can read, modify, and delete files.\nIMPORTANT: To write or modify a file, you MUST use the following exact XML format:\n<write_file path=\"C:/absolute/path/file.txt\">\nconst example = 'hello';\n</write_file>\n\nIf the user shares code or file contents, read it carefully."
+        };
+        
+        const localMessages = [systemPrompt, ...newMessages];
+        const localResult = await AgentBridge.askLocalAI(localMessages);
+        
+        if (localResult.success) {
+          // Fake bir Fetch response nesnesi oluşturuyoruz ki aşağıdaki animasyonlu okuma (streaming) bozulmasın
+          res = {
+            ok: true,
+            json: async () => ({ response: localResult.text })
+          };
+        } else {
+           throw new Error(localResult.error || "Lokal Yapay Zeka çöktü.");
+        }
+      } else {
+        // --- ESKİ CLOUD (BULUT) MOTORU ---
+        res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'X-API-Key': storedApiKey
+          },
+          body: JSON.stringify({ messages: newMessages, model: selectedModel }),
+          signal: abortControllerRef.current.signal,
+        });
+      }
+      // ---------------------------------------------
+
         
         if (!res.ok) {
           let errText = "Bilinmeyen hata oluştu.";
