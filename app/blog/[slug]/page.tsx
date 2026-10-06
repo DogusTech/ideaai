@@ -60,6 +60,8 @@ function extractMetadata(markdown: string) {
   return { realTitle, excerpt };
 }
 
+import BlogNavbar from '@/components/blog/BlogNavbar';
+
 export default async function BlogPost({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const articlesDir = path.join(process.cwd(), 'content/articles');
@@ -99,43 +101,8 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
   return (
     <div className="bg-white min-h-screen text-[#1f1f1f] font-sans">
       
-      {/* GOOGLE-STYLE NAVBAR (White Background) */}
-      <div className="bg-white sticky top-0 z-50 border-b border-gray-100">
-        <nav className="flex items-center justify-between px-6 py-4 max-w-[1400px] mx-auto">
-          <div className="flex items-center space-x-8">
-            <span className="text-[22px] font-medium text-[#1f1f1f] tracking-tight">IdeaAI <span className="font-normal text-gray-500">News</span></span>
-            <div className="hidden md:flex items-center space-x-6 text-[15px] text-[#444746] font-medium">
-              <span className="cursor-pointer hover:text-[#1f1f1f] flex items-center">Innovation & AI <svg className="ml-1 w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg></span>
-              <span className="cursor-pointer hover:text-[#1f1f1f] flex items-center">Products & platforms <svg className="ml-1 w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg></span>
-              <span className="cursor-pointer hover:text-[#1f1f1f] flex items-center">Company news <svg className="ml-1 w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg></span>
-              <span className="cursor-pointer hover:text-[#1f1f1f]">Feed</span>
-            </div>
-          </div>
-          <div className="flex items-center space-x-4 relative">
-            <button className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors text-[#1f1f1f]">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-            </button>
-            
-            {/* 3 Dots Dropdown */}
-            <div className="relative group">
-              <button className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors text-[#1f1f1f]">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
-              </button>
-              <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.1)] border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 p-2">
-                <div className="px-4 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">Preferences</div>
-                <a href="#" className="flex items-center space-x-3 px-4 py-3 hover:bg-[#F4F7FC] rounded-xl text-[15px] font-medium text-[#1f1f1f]">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-                  <span>Global (English)</span>
-                </a>
-              </div>
-            </div>
-
-            <button className="bg-[#1a73e8] text-white px-6 py-2.5 rounded-full font-medium text-[15px] hover:bg-blue-700 transition-colors">
-              Newsletter
-            </button>
-          </div>
-        </nav>
-      </div>
+      {/* GOOGLE-STYLE MEGA MENU NAVBAR */}
+      <BlogNavbar />
 
       {/* HEADER (Gradient Background Transition) */}
       <div className="bg-gradient-to-b from-[#F4F7FC] via-[#F4F7FC] to-white pb-8 pt-10 px-6">
@@ -211,17 +178,17 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
       <div className="max-w-[1200px] mx-auto px-6 pb-24 flex flex-col lg:flex-row gap-16 relative">
         
         {/* SOL YAN MENÜ: In this article (TOC) */}
-        <aside className="w-full lg:w-64 shrink-0">
+        <aside className="w-full lg:w-64 shrink-0 relative z-20">
           {/* TOC (Pill-shaped accordion, visible on all screens) */}
-          <div className="mb-8 lg:sticky lg:top-24">
-            <details className="group bg-[#F8F9FA] rounded-[32px] overflow-hidden w-max min-w-[280px]">
+          <div className="mb-8 lg:sticky lg:top-28">
+            <details className="group bg-[#F8F9FA] rounded-[32px] overflow-hidden w-full max-w-[300px]">
               <summary className="flex items-center justify-between px-6 py-4 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
                 <span className="font-medium text-[#1f1f1f] text-[18px]">In this article</span>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#1f1f1f] transform transition-transform group-open:rotate-180 ml-6"><polyline points="6 9 12 15 18 9"></polyline></svg>
               </summary>
               <div className="px-6 pb-6 bg-[#F8F9FA]">
                 <div className="border-t border-gray-200 pt-4 mt-2">
-                  <ul className="space-y-4 max-h-[50vh] overflow-y-auto custom-scrollbar">
+                  <ul className="space-y-4 max-h-[50vh] overflow-y-auto custom-scrollbar pr-2">
                     {headings.map((heading, i) => (
                       <li key={i} className={`${heading.level === 3 ? 'ml-4' : ''}`}>
                         <a 
@@ -389,16 +356,16 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
             </details>
           </div>
 
-          {/* ABOUT THE AUTHOR (GOOGLE STYLE CARD) */}
-          <div className="mb-20">
-            <h3 className="text-[28px] font-normal text-[#1f1f1f] mb-8">About the author</h3>
-            <div className="bg-[#F4F7FC] rounded-[32px] p-8 md:p-10 flex flex-col md:flex-row gap-8 items-start">
-              <div className="w-40 h-40 shrink-0 rounded-[24px] overflow-hidden bg-gray-200">
-                <img 
-                  src="https://api.dicebear.com/7.x/avataaars/svg?seed=Dogus&backgroundColor=b6e3f4" 
-                  alt="Doğuş Yılmaz" 
-                  className="w-full h-full object-cover"
-                />
+        {/* ABOUT THE AUTHOR (GOOGLE STYLE CARD) */}
+        <div className="mb-20">
+          <h3 className="text-[28px] font-normal text-[#1f1f1f] mb-8">About the author</h3>
+          <div className="bg-[#F4F7FC] rounded-[32px] p-8 md:p-10 flex flex-col md:flex-row gap-8 items-start">
+            <div className="w-40 h-40 shrink-0 rounded-[24px] overflow-hidden bg-gray-200 shadow-sm">
+              <img 
+                src="/dogus-yilmaz.png" 
+                alt="Doğuş Yılmaz" 
+                className="w-full h-full object-cover"
+              />
               </div>
               <div className="flex-1">
                 <h4 className="text-[20px] font-medium text-[#1f1f1f] mb-1">Doğuş Yılmaz</h4>
