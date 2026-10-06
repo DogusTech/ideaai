@@ -16,6 +16,6 @@ export default function robots(): MetadataRoute.Robots {
         '/api/',
       ],
     },
-    sitemap: 'https://togetlink.com/sitemap.xml',
+    sitemap: 'https://ideaai.togetlink.com/sitemap.xml',
   }
 }
