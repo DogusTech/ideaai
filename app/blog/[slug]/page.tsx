@@ -61,6 +61,47 @@ function extractMetadata(markdown: string) {
 }
 
 import BlogNavbar from '@/components/blog/BlogNavbar';
+import type { Metadata } from 'next';
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const articlesDir = path.join(process.cwd(), 'content/articles');
+  const filePath = path.join(articlesDir, `${slug}.md`);
+
+  if (!fs.existsSync(filePath)) {
+    return { title: 'Post Not Found' };
+  }
+
+  const fileContent = fs.readFileSync(filePath, 'utf-8');
+  const contentParts = fileContent.split('---');
+  let markdownContent = fileContent;
+  let frontmatter: Record<string, string> = {};
+
+  if (contentParts.length >= 3) {
+    markdownContent = contentParts.slice(2).join('---').trim();
+    const fmText = contentParts[1];
+    const lines = fmText.split('\n');
+    lines.forEach(line => {
+      const match = line.match(/^([a-zA-Z0-9_]+):\s*"(.*)"$/);
+      if (match) {
+        frontmatter[match[1]] = match[2];
+      }
+    });
+  }
+
+  const { realTitle, excerpt } = extractMetadata(markdownContent);
+  
+  return {
+    title: `${realTitle} - IdeaAI Blog`,
+    description: excerpt || 'Read the latest from the IdeaAI engineering and product team.',
+    openGraph: {
+      title: realTitle,
+      description: excerpt,
+      images: frontmatter.coverImage ? [frontmatter.coverImage] : undefined,
+      type: 'article',
+    }
+  };
+}
 
 export default async function BlogPost({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
