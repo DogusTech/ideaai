@@ -179,7 +179,32 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
         
         {/* SOL YAN MENÜ: In this article (TOC) */}
         <aside className="w-full lg:w-64 shrink-0">
-          <div className="sticky top-24 bg-[#F8F9FA] rounded-2xl p-6 border border-gray-100">
+          {/* MOBILE TOC (Pill-shaped accordion) */}
+          <div className="lg:hidden mb-8">
+            <details className="group bg-[#F8F9FA] rounded-full border border-gray-100 overflow-hidden w-max min-w-[200px]">
+              <summary className="flex items-center justify-between px-6 py-3 cursor-pointer list-none hover:bg-gray-100 transition-colors">
+                <span className="font-medium text-[#1f1f1f] text-[16px] mr-6">In this article</span>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#1f1f1f] transform transition-transform group-open:rotate-180"><polyline points="6 9 12 15 18 9"></polyline></svg>
+              </summary>
+              <div className="px-6 py-4 bg-white border-t border-gray-100 shadow-[inset_0_4px_12px_rgba(0,0,0,0.02)]">
+                <ul className="space-y-4 max-h-[50vh] overflow-y-auto custom-scrollbar">
+                  {headings.map((heading, i) => (
+                    <li key={i} className={`${heading.level === 3 ? 'ml-4' : ''}`}>
+                      <a 
+                        href={`#${heading.id}`} 
+                        className="text-[#1a73e8] hover:underline text-[15px] leading-snug block transition-colors"
+                      >
+                        {heading.text}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </details>
+          </div>
+
+          {/* DESKTOP TOC (Sticky Sidebar) */}
+          <div className="hidden lg:block sticky top-24 bg-[#F8F9FA] rounded-[24px] p-6 border border-gray-100">
             <h3 className="text-[18px] font-medium text-[#1f1f1f] mb-4 pb-4 border-b border-gray-200">
               In this article
             </h3>
@@ -299,17 +324,125 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
             </ReactMarkdown>
           </div>
 
+          {/* POSTED IN & MORE INFO */}
+          <div className="mt-16 mb-16">
+            <h3 className="text-[22px] font-normal text-[#1f1f1f] mb-6">Posted in:</h3>
+            <div className="flex flex-wrap gap-3 mb-10">
+              <span className="px-4 py-2 bg-[#F8F9FA] hover:bg-[#F1F3F4] transition-colors rounded-full text-[14px] text-[#444746] font-medium cursor-pointer">
+                AI Coding Agents
+              </span>
+              <span className="px-4 py-2 bg-[#F8F9FA] hover:bg-[#F1F3F4] transition-colors rounded-full text-[14px] text-[#444746] font-medium cursor-pointer">
+                Engineering
+              </span>
+            </div>
+
+            <details className="group border-t border-b border-gray-200">
+              <summary className="flex items-center justify-between py-5 cursor-pointer list-none hover:bg-gray-50 transition-colors">
+                <span className="font-medium text-[#1a73e8] text-[16px]">More Information</span>
+                <span className="bg-[#F8F9FA] rounded-full p-2 group-open:rotate-180 transition-transform">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#444746]"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                </span>
+              </summary>
+              <div className="py-4 text-[#444746] text-[15px] leading-relaxed">
+                For media inquiries, please contact press@togetlink.com. IdeaAI is developed by Aeternexus Inc., a Delaware company.
+              </div>
+            </details>
+          </div>
+
+          {/* ABOUT THE AUTHOR (GOOGLE STYLE CARD) */}
+          <div className="mb-20">
+            <h3 className="text-[28px] font-normal text-[#1f1f1f] mb-8">About the author</h3>
+            <div className="bg-[#F4F7FC] rounded-[32px] p-8 md:p-10 flex flex-col md:flex-row gap-8 items-start">
+              <div className="w-40 h-40 shrink-0 rounded-[24px] overflow-hidden bg-gray-200">
+                <img 
+                  src="https://api.dicebear.com/7.x/avataaars/svg?seed=Dogus&backgroundColor=b6e3f4" 
+                  alt="Doğuş Yılmaz" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div className="flex-1">
+                <h4 className="text-[20px] font-medium text-[#1f1f1f] mb-1">Doğuş Yılmaz</h4>
+                <div className="text-[15px] text-[#444746] mb-4">CEO at Aeternexus and Chief AI Architect, TogetLink</div>
+                <p className="text-[15px] text-[#444746] leading-relaxed mb-6">
+                  Doğuş is the visionary Solo Technical Founder & CEO behind IdeaAI. He leads the development of state-of-the-art autonomous AI coding agents and their integration into modern software engineering workflows. His work focuses on transforming the traditional IDE experience into a 24/7 cloud-hybrid autonomous workspace.
+                </p>
+                <a href="#" className="inline-flex items-center space-x-2 text-[#1f1f1f] font-medium hover:text-[#1a73e8] transition-colors">
+                  <span>Read more from Doğuş Yılmaz</span>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14"></path><path d="M12 5l7 7-7 7"></path></svg>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* RELATED STORIES (CAROUSEL) */}
+          <div className="mb-12">
+            <h3 className="text-[28px] font-normal text-[#1f1f1f] mb-8">Related stories</h3>
+            
+            <div className="flex overflow-x-auto gap-6 pb-8 custom-scrollbar snap-x">
+              
+              {/* Card 1 */}
+              <div className="w-[300px] shrink-0 snap-start">
+                <div className="w-full aspect-square bg-[#E8F0FE] rounded-[32px] mb-6 flex items-center justify-center p-8 overflow-hidden group cursor-pointer relative">
+                  <div className="absolute inset-0 bg-gradient-to-tr from-blue-100 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  <h4 className="text-[64px] font-bold text-[#1a73e8] drop-shadow-sm z-10 transform group-hover:scale-110 transition-transform duration-500">IAI</h4>
+                </div>
+                <div className="text-[12px] font-medium text-[#444746] mb-3 uppercase tracking-wider">AI Models</div>
+                <h4 className="text-[20px] text-[#1f1f1f] font-medium leading-snug mb-2 hover:text-[#1a73e8] cursor-pointer transition-colors">IdeaAI 2.0: The next era of autonomous engineering</h4>
+                <div className="text-[14px] text-[#444746]">By Doğuş Yılmaz</div>
+              </div>
+
+              {/* Card 2 */}
+              <div className="w-[300px] shrink-0 snap-start">
+                <div className="w-full aspect-square bg-[#FCE8E6] rounded-[32px] mb-6 flex items-center justify-center p-8 overflow-hidden group cursor-pointer relative">
+                  <div className="absolute inset-0 bg-gradient-to-tr from-red-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  <h4 className="text-[64px] font-bold text-[#EA4335] drop-shadow-sm z-10 transform group-hover:scale-110 transition-transform duration-500">Term</h4>
+                </div>
+                <div className="text-[12px] font-medium text-[#444746] mb-3 uppercase tracking-wider">Engineering</div>
+                <h4 className="text-[20px] text-[#1f1f1f] font-medium leading-snug mb-2 hover:text-[#1a73e8] cursor-pointer transition-colors">How we automated GitHub CI/CD with Hybrid Agents</h4>
+                <div className="text-[14px] text-[#444746]">By Engineering Team</div>
+              </div>
+
+              {/* Card 3 */}
+              <div className="w-[300px] shrink-0 snap-start">
+                <div className="w-full aspect-square bg-[#E6F4EA] rounded-[32px] mb-6 flex items-center justify-center p-8 overflow-hidden group cursor-pointer relative">
+                  <div className="absolute inset-0 bg-gradient-to-tr from-green-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  <h4 className="text-[64px] font-bold text-[#34A853] drop-shadow-sm z-10 transform group-hover:scale-110 transition-transform duration-500">Sync</h4>
+                </div>
+                <div className="text-[12px] font-medium text-[#444746] mb-3 uppercase tracking-wider">Product Update</div>
+                <h4 className="text-[20px] text-[#1f1f1f] font-medium leading-snug mb-2 hover:text-[#1a73e8] cursor-pointer transition-colors">Local Ollama meets Cloud Deterministic Execution</h4>
+                <div className="text-[14px] text-[#444746]">By Doğuş Yılmaz</div>
+              </div>
+
+            </div>
+            
+            {/* Carousel Controls (Mock) */}
+            <div className="flex items-center space-x-4 mt-2">
+              <button className="w-10 h-10 rounded-full bg-[#F8F9FA] flex items-center justify-center hover:bg-gray-200 transition-colors text-gray-400 cursor-not-allowed">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>
+              </button>
+              <button className="w-10 h-10 rounded-full bg-[#F8F9FA] flex items-center justify-center hover:bg-gray-200 transition-colors text-[#1f1f1f]">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"></path></svg>
+              </button>
+              <div className="h-[2px] bg-gray-200 flex-1 max-w-[200px] ml-4">
+                <div className="h-full bg-[#1f1f1f] w-1/3"></div>
+              </div>
+            </div>
+          </div>
+
           {/* IDEA AI CALL TO ACTION (CTA) BLOCK */}
-          <div className="mt-20 bg-[#F4F7FC] rounded-3xl p-12 text-center flex flex-col items-center border border-blue-50">
-            <h2 className="text-[28px] font-normal text-[#1f1f1f] mb-4">Try IdeaAI Today</h2>
-            <p className="text-[#444746] text-[18px] max-w-[500px] mb-8 leading-relaxed">
+          <div className="mt-12 bg-[#F4F7FC] rounded-[32px] p-12 text-center flex flex-col items-center border border-blue-50 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-100 rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/2"></div>
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-100 rounded-full blur-3xl opacity-50 translate-y-1/2 -translate-x-1/2"></div>
+            
+            <h2 className="text-[32px] font-normal text-[#1f1f1f] mb-4 relative z-10">Try IdeaAI Today</h2>
+            <p className="text-[#444746] text-[18px] max-w-[500px] mb-8 leading-relaxed relative z-10">
               If you want an autonomous agent that does the heavy lifting but still mentors you like a Senior Developer, download it today.
             </p>
             <a 
               href="https://apps.microsoft.com/detail/9p9sfwqgbsk7?hl=en-US&gl=US" 
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-[#1a73e8] text-white px-8 py-3.5 rounded-full font-medium hover:bg-blue-700 transition-colors shadow-sm"
+              className="relative z-10 bg-[#1a73e8] text-white px-8 py-4 rounded-full font-medium hover:bg-blue-700 transition-colors shadow-sm"
             >
               Download on Microsoft Store
             </a>
