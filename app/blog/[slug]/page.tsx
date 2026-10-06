@@ -34,17 +34,30 @@ function extractHeadings(markdown: string) {
   return headings;
 }
 
-// İlk paragrafı özet (subtitle) olarak çıkaran fonksiyon
-function extractExcerpt(markdown: string) {
+// Markdown'dan asıl başlık ve özeti çıkaran fonksiyon
+function extractMetadata(markdown: string) {
   const paragraphs = markdown.split('\n\n');
+  let realTitle = '';
+  let excerpt = '';
+  
   for (const p of paragraphs) {
     const trimmed = p.trim();
-    // Başlık, liste, kod bloğu veya resim olmayan ilk düz metni bul
-    if (trimmed && !trimmed.startsWith('#') && !trimmed.startsWith('!') && !trimmed.startsWith('-') && !trimmed.startsWith('```') && !trimmed.startsWith('|')) {
-      return trimmed.length > 200 ? trimmed.substring(0, 200) + '...' : trimmed;
+    // Başlık, liste, kod bloğu veya resim olmayan ilk metinleri bul
+    if (!trimmed || trimmed.startsWith('!') || trimmed.startsWith('>') || trimmed.startsWith('|') || trimmed.startsWith('```')) continue;
+    
+    // Markdown karakterlerini temizle (#, *, vb.)
+    const cleanText = trimmed.replace(/^[#\*\s]+|[#\*\s]+$/g, '');
+    
+    if (!realTitle) {
+      realTitle = cleanText;
+    } else if (!excerpt) {
+      excerpt = cleanText;
+      if (excerpt.length > 250) excerpt = excerpt.substring(0, 250) + '...';
+      break;
     }
   }
-  return 'In this article, we explore how autonomous AI coding agents are revolutionizing software engineering and deployment workflows.';
+  
+  return { realTitle, excerpt };
 }
 
 export default async function BlogPost({ params }: { params: Promise<{ slug: string }> }) {
@@ -74,9 +87,14 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
     });
   }
 
+  // Replace standalone **Bold** lines with ## Headings for proper TOC and rendering
+  markdownContent = markdownContent.replace(/^\*\*([^\*]+)\*\*$/gm, '## $1');
+
   const headings = extractHeadings(markdownContent);
-  const excerpt = extractExcerpt(markdownContent);
+  const { realTitle, excerpt } = extractMetadata(markdownContent);
   const readingTime = Math.max(1, Math.ceil(markdownContent.split(' ').length / 200));
+  
+  const categoryBadge = frontmatter.title || slug.replace(/-/g, ' ').toUpperCase();
 
   return (
     <div className="bg-white min-h-screen text-[#1f1f1f] font-sans">
@@ -122,50 +140,55 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
       {/* HEADER (Gradient Background Transition) */}
       <div className="bg-gradient-to-b from-[#F4F7FC] via-[#F4F7FC] to-white pb-8 pt-10 px-6">
           <div className="max-w-[1000px] mx-auto">
-            {/* Breadcrumb */}
-            <div className="text-[14px] text-[#444746] font-medium mb-12 flex items-center space-x-2">
-              <span className="text-[#1a73e8] hover:underline cursor-pointer">Home</span>
+            {/* Breadcrumb & Category */}
+            <div className="text-[14px] text-[#444746] font-medium mb-10 flex items-center space-x-2">
+              <span className="text-[#1a73e8] hover:underline cursor-pointer">IdeaAI Updates</span>
               <span className="text-gray-400">›</span>
-              <span className="text-[#1a73e8] hover:underline cursor-pointer">Innovation & AI</span>
+              <span className="text-[#1a73e8] hover:underline cursor-pointer">DevOps Engineering</span>
               <span className="text-gray-400">›</span>
-              <span className="text-[#1a73e8] hover:underline cursor-pointer">News from TogetLink</span>
+              <span className="bg-[#E8F0FE] text-[#1a73e8] px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">{categoryBadge}</span>
             </div>
 
             {/* Title */}
-            <h1 className="text-[44px] md:text-[56px] font-normal tracking-tight text-[#1f1f1f] leading-[1.1] mb-12">
-              {frontmatter.title || slug.replace(/-/g, ' ').toUpperCase()}
+            <h1 className="text-[44px] md:text-[56px] font-normal tracking-tight text-[#1f1f1f] leading-[1.1] mb-8">
+              {realTitle}
             </h1>
 
-            {/* Date, Read Time & Excerpt */}
-            <div className="flex flex-col md:flex-row gap-8 mb-8">
-              <div className="w-full md:w-32 shrink-0 text-[14px] text-[#444746]">
-                <div className="mb-1">
-                  {frontmatter.publishedAt ? new Date(frontmatter.publishedAt).toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric'
-                  }) : 'Today'}
-                </div>
-                <div>{readingTime} min read</div>
-              </div>
-              <div className="flex-1 text-[20px] md:text-[22px] text-[#444746] font-bold leading-[1.6]">
+            {/* Excerpt */}
+            {excerpt && (
+              <div className="text-[20px] md:text-[22px] text-[#444746] font-medium leading-[1.6] mb-8">
                 {excerpt}
               </div>
-            </div>
+            )}
 
-            <hr className="border-gray-300 mb-6" />
+            <hr className="border-gray-200 mb-6" />
 
-            {/* Author & Share */}
-            <div className="flex justify-between items-center mb-6">
-              <div>
-                <a href="/authors/dogus-yilmaz" className="text-[16px] font-medium text-[#1f1f1f] hover:underline hover:text-[#1a73e8] transition-colors">Doğuş Yılmaz</a>
-                <div className="text-[14px] text-[#444746]">CEO at Aeternexus (TogetLink)</div>
+            {/* Date, Read Time, Author, Share */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+              <div className="flex items-center space-x-4">
+                <div className="w-11 h-11 bg-[#1a73e8] rounded-full flex items-center justify-center text-white font-semibold text-[16px] shadow-sm">
+                  DY
+                </div>
+                <div>
+                  <a href="/authors/dogus-yilmaz" className="text-[16px] font-semibold text-[#1f1f1f] hover:underline hover:text-[#1a73e8] transition-colors">Doğuş Yılmaz</a>
+                  <div className="text-[14px] text-[#444746] flex items-center space-x-2 mt-0.5">
+                     <span>CEO at IdeaAI</span>
+                     <span className="text-gray-300">•</span>
+                     <span>
+                      {frontmatter.publishedAt ? new Date(frontmatter.publishedAt).toLocaleDateString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric'
+                      }) : 'Today'}
+                     </span>
+                     <span className="text-gray-300">•</span>
+                     <span>{readingTime} min read</span>
+                  </div>
+                </div>
               </div>
               
-              <ShareMenu url="" title={frontmatter.title || ""} />
+              <ShareMenu url="" title={realTitle} />
             </div>
-            
-            <hr className="border-gray-300 mb-8" />
             
           </div>
         </div>
@@ -247,19 +270,43 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
             <ReactMarkdown 
               remarkPlugins={[remarkGfm]}
               components={{
-                h1: ({node, ...props}) => {
-                  const id = props.children?.toString().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-                  return <h1 id={id} className="text-[32px] font-normal mt-14 mb-6 text-[#1f1f1f] tracking-tight" {...props} />
+                h1: ({node, children, ...props}) => {
+                  const id = children?.toString().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+                  if (children?.toString().replace(/^[#\*\s]+|[#\*\s]+$/g, '') === realTitle) return null;
+                  return <h1 id={id} className="text-[32px] font-normal mt-14 mb-6 text-[#1f1f1f] tracking-tight" {...props}>{children}</h1>
                 },
-                h2: ({node, ...props}) => {
-                  const id = props.children?.toString().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-                  return <h2 id={id} className="text-[28px] font-normal mt-14 mb-5 text-[#1f1f1f] tracking-tight scroll-mt-24" {...props} />
+                h2: ({node, children, ...props}) => {
+                  const id = children?.toString().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+                  if (children?.toString().replace(/^[#\*\s]+|[#\*\s]+$/g, '') === realTitle) return null;
+                  return <h2 id={id} className="text-[28px] font-normal mt-14 mb-5 text-[#1f1f1f] tracking-tight scroll-mt-24" {...props}>{children}</h2>
                 },
-                h3: ({node, ...props}) => {
-                  const id = props.children?.toString().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-                  return <h3 id={id} className="text-[22px] font-medium mt-10 mb-4 text-[#1f1f1f] tracking-tight scroll-mt-24" {...props} />
+                h3: ({node, children, ...props}) => {
+                  const id = children?.toString().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+                  if (children?.toString().replace(/^[#\*\s]+|[#\*\s]+$/g, '') === realTitle) return null;
+                  return <h3 id={id} className="text-[22px] font-medium mt-10 mb-4 text-[#1f1f1f] tracking-tight scroll-mt-24" {...props}>{children}</h3>
                 },
-                p: ({node, ...props}) => <p className="text-[18px] leading-[1.7] mb-7 text-[#444746]" {...props} />,
+                p: ({node, children, ...props}) => {
+                  if (children && children.length === 1 && typeof children[0] === 'string') {
+                     const text = children[0].replace(/^[#\*\s]+|[#\*\s]+$/g, '');
+                     if (text === realTitle || text === excerpt) {
+                        return null; // Skip rendering title and excerpt inside body
+                     }
+                  }
+                  // Check if this paragraph contains strong elements matching title/excerpt
+                  if (children && Array.isArray(children)) {
+                     const joined = children.map(c => {
+                       if (typeof c === 'string') return c;
+                       if (c && typeof c === 'object' && c.props && c.props.children) {
+                         return String(c.props.children);
+                       }
+                       return '';
+                     }).join('').replace(/^[#\*\s]+|[#\*\s]+$/g, '');
+                     if (joined === realTitle || joined === excerpt) {
+                       return null;
+                     }
+                  }
+                  return <p className="text-[18px] leading-[1.7] mb-7 text-[#444746]" {...props}>{children}</p>;
+                },
                 ul: ({node, ...props}) => <ul className="list-disc list-outside ml-6 mb-7 space-y-3 text-[18px] text-[#444746]" {...props} />,
                 ol: ({node, ...props}) => <ol className="list-decimal list-outside ml-6 mb-7 space-y-3 text-[18px] text-[#444746]" {...props} />,
                 li: ({node, ...props}) => <li className="pl-2" {...props} />,
@@ -371,18 +418,18 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
 
           {/* IDEA AI CALL TO ACTION (CTA) BLOCK */}
           <div 
-            className="mt-12 bg-[#1d4ed8] text-white rounded-[32px] p-12 lg:p-16 text-center flex flex-col items-center shadow-sm"
+            className="mt-12 bg-[#F8F9FA] text-[#1f1f1f] rounded-[32px] p-12 lg:p-16 text-center flex flex-col items-center shadow-sm"
             style={{ fontFamily: "var(--font-sans), 'Inter Fallback', sans-serif" }}
           >
-            <h2 className="text-[32px] md:text-[36px] font-normal mb-6 leading-tight">Try IdeaAI Today</h2>
-            <p className="text-[18px] text-white/90 max-w-[600px] mb-10 leading-relaxed font-normal">
+            <h2 className="text-[32px] md:text-[36px] font-normal mb-6 leading-tight text-[#1f1f1f]">Try IdeaAI Today</h2>
+            <p className="text-[18px] text-[#444746] max-w-[600px] mb-10 leading-relaxed font-normal">
               If you want an autonomous agent that does the heavy lifting but still mentors you like a Senior Developer, download it today.
             </p>
             <a 
               href="https://apps.microsoft.com/detail/9p9sfwqgbsk7?hl=en-US&gl=US" 
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-[#F8F9FA] text-[#1d4ed8] px-8 py-4 rounded-full font-medium hover:bg-white transition-colors shadow-sm"
+              className="bg-[#1d4ed8] text-white px-8 py-4 rounded-full font-medium hover:bg-blue-700 transition-colors shadow-sm"
             >
               Download on Microsoft Store
             </a>
@@ -395,8 +442,8 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
         <div className="max-w-[1200px] mx-auto px-6 flex flex-col md:flex-row items-center justify-between text-[#444746] text-[15px]">
           <div className="flex items-center space-x-6 flex-wrap justify-center md:justify-start gap-y-4">
             <span className="text-[20px] font-medium text-[#1f1f1f] mr-2">IdeaAI</span>
-            <a href="#" className="hover:text-[#1a73e8] transition-colors">Privacy</a>
-            <a href="#" className="hover:text-[#1a73e8] transition-colors">Terms</a>
+            <a href="https://ideaai.togetlink.com/legal/privacy-policy" className="hover:text-[#1a73e8] transition-colors">Privacy</a>
+            <a href="https://ideaai.togetlink.com/legal/terms" className="hover:text-[#1a73e8] transition-colors">Terms</a>
             <a href="#" className="hover:text-[#1a73e8] transition-colors">Help</a>
             <div className="flex items-center space-x-1 cursor-pointer hover:text-[#1a73e8] transition-colors">
               <span>More of TogetLink</span>
@@ -410,7 +457,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
           
           <div className="flex items-center space-x-5 mt-6 md:mt-0 text-[#1f1f1f]">
             <a href="#" className="hover:text-[#1a73e8] transition-colors"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg></a>
-            <a href="#" className="hover:text-[#1a73e8] transition-colors"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+            <a href="https://x.com/togetlink" target="_blank" rel="noopener noreferrer" className="hover:text-[#1a73e8] transition-colors"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
             <a href="#" className="hover:text-[#1a73e8] transition-colors"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33 2.78 2.78 0 0 0 1.94 2c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.33 29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon></svg></a>
             <a href="#" className="hover:text-[#1a73e8] transition-colors"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg></a>
             <a href="#" className="hover:text-[#1a73e8] transition-colors"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg></a>
