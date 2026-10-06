@@ -80,8 +80,8 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
   return (
     <div className="bg-white min-h-screen text-[#1f1f1f] font-sans">
       
-      {/* GOOGLE-STYLE NAVBAR & HEADER (Aynı Arka Plan) */}
-      <div className="bg-[#F4F7FC]">
+      {/* GOOGLE-STYLE NAVBAR & HEADER (Gradient Background Transition) */}
+      <div className="bg-gradient-to-b from-[#F4F7FC] via-[#F4F7FC] to-white pb-8">
         {/* Navbar */}
         <nav className="flex items-center justify-between px-6 py-4 max-w-[1400px] mx-auto border-b border-transparent">
           <div className="flex items-center space-x-8">
@@ -208,24 +208,26 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
         <aside className="w-full lg:w-64 shrink-0">
           {/* MOBILE TOC (Pill-shaped accordion) */}
           <div className="lg:hidden mb-8">
-            <details className="group bg-[#F8F9FA] rounded-full border border-gray-100 overflow-hidden w-max min-w-[200px]">
-              <summary className="flex items-center justify-between px-6 py-3 cursor-pointer list-none hover:bg-gray-100 transition-colors">
-                <span className="font-medium text-[#1f1f1f] text-[16px] mr-6">In this article</span>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#1f1f1f] transform transition-transform group-open:rotate-180"><polyline points="6 9 12 15 18 9"></polyline></svg>
+            <details className="group bg-[#F8F9FA] rounded-[32px] overflow-hidden w-max min-w-[280px]">
+              <summary className="flex items-center justify-between px-6 py-4 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+                <span className="font-medium text-[#1f1f1f] text-[18px]">In this article</span>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#1f1f1f] transform transition-transform group-open:rotate-180 ml-6"><polyline points="6 9 12 15 18 9"></polyline></svg>
               </summary>
-              <div className="px-6 py-4 bg-white border-t border-gray-100 shadow-[inset_0_4px_12px_rgba(0,0,0,0.02)]">
-                <ul className="space-y-4 max-h-[50vh] overflow-y-auto custom-scrollbar">
-                  {headings.map((heading, i) => (
-                    <li key={i} className={`${heading.level === 3 ? 'ml-4' : ''}`}>
-                      <a 
-                        href={`#${heading.id}`} 
-                        className="text-[#1a73e8] hover:underline text-[15px] leading-snug block transition-colors"
-                      >
-                        {heading.text}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
+              <div className="px-6 pb-6 bg-[#F8F9FA]">
+                <div className="border-t border-gray-200 pt-4 mt-2">
+                  <ul className="space-y-4 max-h-[50vh] overflow-y-auto custom-scrollbar">
+                    {headings.map((heading, i) => (
+                      <li key={i} className={`${heading.level === 3 ? 'ml-4' : ''}`}>
+                        <a 
+                          href={`#${heading.id}`} 
+                          className="text-[#444746] hover:text-[#1a73e8] text-[15px] leading-snug block transition-colors"
+                        >
+                          {heading.text}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             </details>
           </div>
@@ -404,20 +406,19 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
           <RelatedStories />
 
           {/* IDEA AI CALL TO ACTION (CTA) BLOCK */}
-          <div className="mt-12 bg-[#1d4ed8] text-[#ffffff] rounded-[32px] p-12 text-center flex flex-col items-center relative overflow-hidden shadow-lg border border-blue-800">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500 rounded-full blur-3xl opacity-30 -translate-y-1/2 translate-x-1/2"></div>
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-600 rounded-full blur-3xl opacity-30 translate-y-1/2 -translate-x-1/2"></div>
-            
-            <h2 className="text-[32px] font-normal mb-4 relative z-10" style={{ fontFamily: "var(--font-sans), 'Inter Fallback', sans-serif" }}>Try IdeaAI Today</h2>
-            <p className="text-blue-100 text-[18px] max-w-[500px] mb-8 leading-relaxed relative z-10" style={{ fontFamily: "var(--font-sans), 'Inter Fallback', sans-serif" }}>
+          <div 
+            className="mt-12 bg-[#1d4ed8] text-white rounded-[32px] p-12 lg:p-16 text-center flex flex-col items-center shadow-sm"
+            style={{ fontFamily: "var(--font-sans), 'Inter Fallback', sans-serif" }}
+          >
+            <h2 className="text-[32px] md:text-[36px] font-normal mb-6 leading-tight">Try IdeaAI Today</h2>
+            <p className="text-[18px] text-white/90 max-w-[600px] mb-10 leading-relaxed font-normal">
               If you want an autonomous agent that does the heavy lifting but still mentors you like a Senior Developer, download it today.
             </p>
             <a 
               href="https://apps.microsoft.com/detail/9p9sfwqgbsk7?hl=en-US&gl=US" 
               target="_blank"
               rel="noopener noreferrer"
-              className="relative z-10 bg-white text-[#1d4ed8] px-8 py-4 rounded-full font-medium hover:bg-gray-100 transition-colors shadow-md"
-              style={{ fontFamily: "var(--font-sans), 'Inter Fallback', sans-serif" }}
+              className="bg-white text-[#1d4ed8] px-8 py-4 rounded-full font-medium hover:bg-gray-50 transition-colors shadow-sm"
             >
               Download on Microsoft Store
             </a>
@@ -426,7 +427,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
       </div>
 
       {/* FOOTER */}
-      <footer className="bg-white border-t border-gray-200 py-6">
+      <footer className="bg-[#F8F9FA] border-t border-gray-200 py-6">
         <div className="max-w-[1200px] mx-auto px-6 flex flex-col md:flex-row items-center justify-between text-[#444746] text-[15px]">
           <div className="flex items-center space-x-6 flex-wrap justify-center md:justify-start gap-y-4">
             <span className="text-[20px] font-medium text-[#1f1f1f] mr-2">IdeaAI</span>
