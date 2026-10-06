@@ -3,6 +3,7 @@ import path from 'path';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { notFound } from 'next/navigation';
+import RelatedStories from '@/components/blog/RelatedStories';
 
 export async function generateStaticParams() {
   const articlesDir = path.join(process.cwd(), 'content/articles');
@@ -79,84 +80,110 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
   return (
     <div className="bg-white min-h-screen text-[#1f1f1f] font-sans">
       
-      {/* GOOGLE-STYLE LIGHT BLUE HEADER SECTION */}
-      <div className="bg-[#F4F7FC] pt-12 pb-16 px-6">
-        <div className="max-w-[1000px] mx-auto">
-          
-          {/* Breadcrumb */}
-          <div className="text-[14px] text-[#444746] font-medium mb-12 flex items-center space-x-2">
-            <span className="text-[#1a73e8] hover:underline cursor-pointer">Home</span>
-            <span className="text-gray-400">›</span>
-            <span className="text-[#1a73e8] hover:underline cursor-pointer">Innovation & AI</span>
-            <span className="text-gray-400">›</span>
-            <span className="text-[#1a73e8] hover:underline cursor-pointer">News from TogetLink</span>
+      {/* GOOGLE-STYLE NAVBAR & HEADER (Aynı Arka Plan) */}
+      <div className="bg-[#F4F7FC]">
+        {/* Navbar */}
+        <nav className="flex items-center justify-between px-6 py-4 max-w-[1400px] mx-auto border-b border-transparent">
+          <div className="flex items-center space-x-8">
+            <span className="text-[22px] font-medium text-[#1f1f1f] tracking-tight">IdeaAI <span className="font-normal text-gray-500">News</span></span>
+            <div className="hidden md:flex items-center space-x-6 text-[15px] text-[#444746] font-medium">
+              <span className="cursor-pointer hover:text-[#1f1f1f] flex items-center">Innovation & AI <svg className="ml-1 w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg></span>
+              <span className="cursor-pointer hover:text-[#1f1f1f] flex items-center">Products & platforms <svg className="ml-1 w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg></span>
+              <span className="cursor-pointer hover:text-[#1f1f1f] flex items-center">Company news <svg className="ml-1 w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" /></svg></span>
+              <span className="cursor-pointer hover:text-[#1f1f1f]">Feed</span>
+            </div>
           </div>
+          <div className="flex items-center space-x-4">
+            <button className="w-10 h-10 rounded-full hover:bg-gray-200 flex items-center justify-center transition-colors text-[#1f1f1f]">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </button>
+            <button className="w-10 h-10 rounded-full hover:bg-gray-200 flex items-center justify-center transition-colors text-[#1f1f1f]">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+            </button>
+            <button className="bg-[#1a73e8] text-white px-6 py-2.5 rounded-full font-medium text-[15px] hover:bg-blue-700 transition-colors">
+              Newsletter
+            </button>
+          </div>
+        </nav>
 
-          {/* Title */}
-          <h1 className="text-[44px] md:text-[56px] font-normal tracking-tight text-[#1f1f1f] leading-[1.1] mb-12">
-            {frontmatter.title || slug.replace(/-/g, ' ').toUpperCase()}
-          </h1>
+        {/* Header Content */}
+        <div className="pt-10 pb-16 px-6">
+          <div className="max-w-[1000px] mx-auto">
+            {/* Breadcrumb */}
+            <div className="text-[14px] text-[#444746] font-medium mb-12 flex items-center space-x-2">
+              <span className="text-[#1a73e8] hover:underline cursor-pointer">Home</span>
+              <span className="text-gray-400">›</span>
+              <span className="text-[#1a73e8] hover:underline cursor-pointer">Innovation & AI</span>
+              <span className="text-gray-400">›</span>
+              <span className="text-[#1a73e8] hover:underline cursor-pointer">News from TogetLink</span>
+            </div>
 
-          {/* Date, Read Time & Excerpt */}
-          <div className="flex flex-col md:flex-row gap-8 mb-8">
-            <div className="w-full md:w-32 shrink-0 text-[14px] text-[#444746]">
-              <div className="mb-1">
-                {frontmatter.publishedAt ? new Date(frontmatter.publishedAt).toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric'
-                }) : 'Today'}
+            {/* Title */}
+            <h1 className="text-[44px] md:text-[56px] font-normal tracking-tight text-[#1f1f1f] leading-[1.1] mb-12">
+              {frontmatter.title || slug.replace(/-/g, ' ').toUpperCase()}
+            </h1>
+
+            {/* Date, Read Time & Excerpt */}
+            <div className="flex flex-col md:flex-row gap-8 mb-8">
+              <div className="w-full md:w-32 shrink-0 text-[14px] text-[#444746]">
+                <div className="mb-1">
+                  {frontmatter.publishedAt ? new Date(frontmatter.publishedAt).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                  }) : 'Today'}
+                </div>
+                <div>{readingTime} min read</div>
               </div>
-              <div>{readingTime} min read</div>
+              <div className="flex-1 text-[20px] md:text-[22px] text-[#444746] leading-[1.6]">
+                {excerpt}
+              </div>
             </div>
-            <div className="flex-1 text-[20px] md:text-[22px] text-[#444746] leading-[1.6]">
-              {excerpt}
-            </div>
-          </div>
 
-          <hr className="border-gray-300 mb-6" />
+            <hr className="border-gray-300 mb-6" />
 
-          {/* Author & Share */}
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <div className="text-[16px] font-medium text-[#1f1f1f]">Doğuş Yılmaz</div>
-              <div className="text-[14px] text-[#444746]">CEO at Aeternexus (TogetLink)</div>
+            {/* Author & Share */}
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <div className="text-[16px] font-medium text-[#1f1f1f]">Doğuş Yılmaz</div>
+                <div className="text-[14px] text-[#444746]">CEO at Aeternexus (TogetLink)</div>
+              </div>
+              
+              {/* Share Menu (CSS hover tabanlı) */}
+              <div className="relative group">
+                <button className="flex items-center space-x-2 text-[#1f1f1f] hover:bg-gray-200 px-4 py-2 rounded-full transition-colors">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                  <span className="font-medium text-[15px]">Share</span>
+                </button>
+                
+                <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.1)] border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 p-2">
+                  <a href="#" className="flex items-center space-x-3 px-4 py-3 hover:bg-[#F4F7FC] rounded-xl text-[15px] font-medium text-[#1f1f1f]">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                    <span>x.com</span>
+                  </a>
+                  <a href="#" className="flex items-center space-x-3 px-4 py-3 hover:bg-[#F4F7FC] rounded-xl text-[15px] font-medium text-[#1f1f1f]">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+                    <span>Facebook</span>
+                  </a>
+                  <a href="#" className="flex items-center space-x-3 px-4 py-3 hover:bg-[#F4F7FC] rounded-xl text-[15px] font-medium text-[#1f1f1f]">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
+                    <span>LinkedIn</span>
+                  </a>
+                  <a href="#" className="flex items-center space-x-3 px-4 py-3 hover:bg-[#F4F7FC] rounded-xl text-[15px] font-medium text-[#1f1f1f]">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                    <span>Mail</span>
+                  </a>
+                  <a href="#" className="flex items-center space-x-3 px-4 py-3 hover:bg-[#F4F7FC] rounded-xl text-[15px] font-medium text-[#1f1f1f]">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                    <span>Copy link</span>
+                  </a>
+                </div>
+              </div>
             </div>
             
-            {/* Share Menu (CSS hover tabanlı) */}
-            <div className="relative group">
-              <button className="flex items-center space-x-2 text-[#1f1f1f] hover:bg-gray-200 px-4 py-2 rounded-full transition-colors">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-                <span className="font-medium text-[15px]">Share</span>
-              </button>
-              
-              <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.1)] border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 p-2">
-                <a href="#" className="flex items-center space-x-3 px-4 py-3 hover:bg-[#F4F7FC] rounded-xl text-[15px] font-medium text-[#1f1f1f]">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                  <span>x.com</span>
-                </a>
-                <a href="#" className="flex items-center space-x-3 px-4 py-3 hover:bg-[#F4F7FC] rounded-xl text-[15px] font-medium text-[#1f1f1f]">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
-                  <span>Facebook</span>
-                </a>
-                <a href="#" className="flex items-center space-x-3 px-4 py-3 hover:bg-[#F4F7FC] rounded-xl text-[15px] font-medium text-[#1f1f1f]">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
-                  <span>LinkedIn</span>
-                </a>
-                <a href="#" className="flex items-center space-x-3 px-4 py-3 hover:bg-[#F4F7FC] rounded-xl text-[15px] font-medium text-[#1f1f1f]">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                  <span>Mail</span>
-                </a>
-                <a href="#" className="flex items-center space-x-3 px-4 py-3 hover:bg-[#F4F7FC] rounded-xl text-[15px] font-medium text-[#1f1f1f]">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
-                  <span>Copy link</span>
-                </a>
-              </div>
-            </div>
+            <hr className="border-gray-300 mb-8" />
+            
           </div>
-          
-          <hr className="border-gray-300 mb-8" />
-          
         </div>
       </div>
 
@@ -374,75 +401,23 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
             </div>
           </div>
 
-          {/* RELATED STORIES (CAROUSEL) */}
-          <div className="mb-12">
-            <h3 className="text-[28px] font-normal text-[#1f1f1f] mb-8">Related stories</h3>
-            
-            <div className="flex overflow-x-auto gap-6 pb-8 custom-scrollbar snap-x">
-              
-              {/* Card 1 */}
-              <div className="w-[300px] shrink-0 snap-start">
-                <div className="w-full aspect-square bg-[#E8F0FE] rounded-[32px] mb-6 flex items-center justify-center p-8 overflow-hidden group cursor-pointer relative">
-                  <div className="absolute inset-0 bg-gradient-to-tr from-blue-100 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  <h4 className="text-[64px] font-bold text-[#1a73e8] drop-shadow-sm z-10 transform group-hover:scale-110 transition-transform duration-500">IAI</h4>
-                </div>
-                <div className="text-[12px] font-medium text-[#444746] mb-3 uppercase tracking-wider">AI Models</div>
-                <h4 className="text-[20px] text-[#1f1f1f] font-medium leading-snug mb-2 hover:text-[#1a73e8] cursor-pointer transition-colors">IdeaAI 2.0: The next era of autonomous engineering</h4>
-                <div className="text-[14px] text-[#444746]">By Doğuş Yılmaz</div>
-              </div>
-
-              {/* Card 2 */}
-              <div className="w-[300px] shrink-0 snap-start">
-                <div className="w-full aspect-square bg-[#FCE8E6] rounded-[32px] mb-6 flex items-center justify-center p-8 overflow-hidden group cursor-pointer relative">
-                  <div className="absolute inset-0 bg-gradient-to-tr from-red-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  <h4 className="text-[64px] font-bold text-[#EA4335] drop-shadow-sm z-10 transform group-hover:scale-110 transition-transform duration-500">Term</h4>
-                </div>
-                <div className="text-[12px] font-medium text-[#444746] mb-3 uppercase tracking-wider">Engineering</div>
-                <h4 className="text-[20px] text-[#1f1f1f] font-medium leading-snug mb-2 hover:text-[#1a73e8] cursor-pointer transition-colors">How we automated GitHub CI/CD with Hybrid Agents</h4>
-                <div className="text-[14px] text-[#444746]">By Engineering Team</div>
-              </div>
-
-              {/* Card 3 */}
-              <div className="w-[300px] shrink-0 snap-start">
-                <div className="w-full aspect-square bg-[#E6F4EA] rounded-[32px] mb-6 flex items-center justify-center p-8 overflow-hidden group cursor-pointer relative">
-                  <div className="absolute inset-0 bg-gradient-to-tr from-green-50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  <h4 className="text-[64px] font-bold text-[#34A853] drop-shadow-sm z-10 transform group-hover:scale-110 transition-transform duration-500">Sync</h4>
-                </div>
-                <div className="text-[12px] font-medium text-[#444746] mb-3 uppercase tracking-wider">Product Update</div>
-                <h4 className="text-[20px] text-[#1f1f1f] font-medium leading-snug mb-2 hover:text-[#1a73e8] cursor-pointer transition-colors">Local Ollama meets Cloud Deterministic Execution</h4>
-                <div className="text-[14px] text-[#444746]">By Doğuş Yılmaz</div>
-              </div>
-
-            </div>
-            
-            {/* Carousel Controls (Mock) */}
-            <div className="flex items-center space-x-4 mt-2">
-              <button className="w-10 h-10 rounded-full bg-[#F8F9FA] flex items-center justify-center hover:bg-gray-200 transition-colors text-gray-400 cursor-not-allowed">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>
-              </button>
-              <button className="w-10 h-10 rounded-full bg-[#F8F9FA] flex items-center justify-center hover:bg-gray-200 transition-colors text-[#1f1f1f]">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"></path></svg>
-              </button>
-              <div className="h-[2px] bg-gray-200 flex-1 max-w-[200px] ml-4">
-                <div className="h-full bg-[#1f1f1f] w-1/3"></div>
-              </div>
-            </div>
-          </div>
+          <RelatedStories />
 
           {/* IDEA AI CALL TO ACTION (CTA) BLOCK */}
-          <div className="mt-12 bg-[#F4F7FC] rounded-[32px] p-12 text-center flex flex-col items-center border border-blue-50 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-100 rounded-full blur-3xl opacity-50 -translate-y-1/2 translate-x-1/2"></div>
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-purple-100 rounded-full blur-3xl opacity-50 translate-y-1/2 -translate-x-1/2"></div>
+          <div className="mt-12 bg-[#1d4ed8] text-[#ffffff] rounded-[32px] p-12 text-center flex flex-col items-center relative overflow-hidden shadow-lg border border-blue-800">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500 rounded-full blur-3xl opacity-30 -translate-y-1/2 translate-x-1/2"></div>
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-600 rounded-full blur-3xl opacity-30 translate-y-1/2 -translate-x-1/2"></div>
             
-            <h2 className="text-[32px] font-normal text-[#1f1f1f] mb-4 relative z-10">Try IdeaAI Today</h2>
-            <p className="text-[#444746] text-[18px] max-w-[500px] mb-8 leading-relaxed relative z-10">
+            <h2 className="text-[32px] font-normal mb-4 relative z-10" style={{ fontFamily: "var(--font-sans), 'Inter Fallback', sans-serif" }}>Try IdeaAI Today</h2>
+            <p className="text-blue-100 text-[18px] max-w-[500px] mb-8 leading-relaxed relative z-10" style={{ fontFamily: "var(--font-sans), 'Inter Fallback', sans-serif" }}>
               If you want an autonomous agent that does the heavy lifting but still mentors you like a Senior Developer, download it today.
             </p>
             <a 
               href="https://apps.microsoft.com/detail/9p9sfwqgbsk7?hl=en-US&gl=US" 
               target="_blank"
               rel="noopener noreferrer"
-              className="relative z-10 bg-[#1a73e8] text-white px-8 py-4 rounded-full font-medium hover:bg-blue-700 transition-colors shadow-sm"
+              className="relative z-10 bg-white text-[#1d4ed8] px-8 py-4 rounded-full font-medium hover:bg-gray-100 transition-colors shadow-md"
+              style={{ fontFamily: "var(--font-sans), 'Inter Fallback', sans-serif" }}
             >
               Download on Microsoft Store
             </a>
@@ -451,54 +426,29 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
       </div>
 
       {/* FOOTER */}
-      <footer className="bg-white border-t border-gray-200 py-16">
-        <div className="max-w-[1200px] mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
-            <div>
-              <h4 className="font-medium text-[#1f1f1f] mb-6">Product</h4>
-              <ul className="space-y-4 text-[15px] text-[#444746]">
-                <li><a href="#" className="hover:text-[#1a73e8]">How it works</a></li>
-                <li><a href="#" className="hover:text-[#1a73e8]">Discover hubs</a></li>
-                <li><a href="#" className="hover:text-[#1a73e8]">Plans</a></li>
-                <li><a href="#" className="hover:text-[#1a73e8]">Register</a></li>
-                <li><a href="#" className="hover:text-[#1a73e8]">Login</a></li>
-              </ul>
+      <footer className="bg-white border-t border-gray-200 py-6">
+        <div className="max-w-[1200px] mx-auto px-6 flex flex-col md:flex-row items-center justify-between text-[#444746] text-[15px]">
+          <div className="flex items-center space-x-6 flex-wrap justify-center md:justify-start gap-y-4">
+            <span className="text-[20px] font-medium text-[#1f1f1f] mr-2">IdeaAI</span>
+            <a href="#" className="hover:text-[#1a73e8] transition-colors">Privacy</a>
+            <a href="#" className="hover:text-[#1a73e8] transition-colors">Terms</a>
+            <a href="#" className="hover:text-[#1a73e8] transition-colors">Help</a>
+            <div className="flex items-center space-x-1 cursor-pointer hover:text-[#1a73e8] transition-colors">
+              <span>More of TogetLink</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
             </div>
-            <div>
-              <h4 className="font-medium text-[#1f1f1f] mb-6">Company</h4>
-              <ul className="space-y-4 text-[15px] text-[#444746]">
-                <li><a href="#" className="hover:text-[#1a73e8]">About TogetLink</a></li>
-                <li><a href="#" className="hover:text-[#1a73e8]">Founder</a></li>
-                <li><a href="#" className="hover:text-[#1a73e8]">Blog</a></li>
-                <li><a href="#" className="hover:text-[#1a73e8]">Press</a></li>
-                <li><a href="#" className="hover:text-[#1a73e8]">Contact</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-medium text-[#1f1f1f] mb-6">Trust</h4>
-              <ul className="space-y-4 text-[15px] text-[#444746]">
-                <li><a href="#" className="hover:text-[#1a73e8]">Privacy Policy</a></li>
-                <li><a href="#" className="hover:text-[#1a73e8]">Terms of Service</a></li>
-                <li><a href="#" className="hover:text-[#1a73e8]">Terms of Use</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-medium text-[#1f1f1f] mb-6">Resources</h4>
-              <ul className="space-y-4 text-[15px] text-[#444746]">
-                <li><a href="#" className="hover:text-[#1a73e8]">FAQ</a></li>
-                <li><a href="#" className="hover:text-[#1a73e8]">Support</a></li>
-                <li><a href="#" className="hover:text-[#1a73e8]">Community</a></li>
-              </ul>
+            <div className="flex items-center space-x-1 cursor-pointer hover:text-[#1a73e8] transition-colors">
+              <span>Global (English)</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
             </div>
           </div>
-          <div className="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-gray-200 text-[14px] text-[#444746]">
-            <p>© 2026 Aeternexus Inc. All rights reserved.</p>
-            <div className="flex space-x-8 mt-6 md:mt-0">
-              <a href="#" className="hover:text-[#1a73e8]">Privacy Policy</a>
-              <a href="#" className="hover:text-[#1a73e8]">Terms of Service</a>
-              <a href="#" className="hover:text-[#1a73e8]">Terms of Use</a>
-              <a href="#" className="hover:text-[#1a73e8]">Contact</a>
-            </div>
+          
+          <div className="flex items-center space-x-5 mt-6 md:mt-0 text-[#1f1f1f]">
+            <a href="#" className="hover:text-[#1a73e8] transition-colors"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg></a>
+            <a href="#" className="hover:text-[#1a73e8] transition-colors"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+            <a href="#" className="hover:text-[#1a73e8] transition-colors"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33 2.78 2.78 0 0 0 1.94 2c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.33 29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon></svg></a>
+            <a href="#" className="hover:text-[#1a73e8] transition-colors"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg></a>
+            <a href="#" className="hover:text-[#1a73e8] transition-colors"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg></a>
           </div>
         </div>
       </footer>
