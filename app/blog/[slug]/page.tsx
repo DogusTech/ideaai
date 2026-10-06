@@ -4,6 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { notFound } from 'next/navigation';
 import RelatedStories from '@/components/blog/RelatedStories';
+import ShareMenu from '@/components/blog/ShareMenu';
 
 export async function generateStaticParams() {
   const articlesDir = path.join(process.cwd(), 'content/articles');
@@ -80,10 +81,9 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
   return (
     <div className="bg-white min-h-screen text-[#1f1f1f] font-sans">
       
-      {/* GOOGLE-STYLE NAVBAR & HEADER (Gradient Background Transition) */}
-      <div className="bg-gradient-to-b from-[#F4F7FC] via-[#F4F7FC] to-white pb-8">
-        {/* Navbar */}
-        <nav className="flex items-center justify-between px-6 py-4 max-w-[1400px] mx-auto border-b border-transparent">
+      {/* GOOGLE-STYLE NAVBAR (White Background) */}
+      <div className="bg-white sticky top-0 z-50 border-b border-gray-100">
+        <nav className="flex items-center justify-between px-6 py-4 max-w-[1400px] mx-auto">
           <div className="flex items-center space-x-8">
             <span className="text-[22px] font-medium text-[#1f1f1f] tracking-tight">IdeaAI <span className="font-normal text-gray-500">News</span></span>
             <div className="hidden md:flex items-center space-x-6 text-[15px] text-[#444746] font-medium">
@@ -93,21 +93,34 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
               <span className="cursor-pointer hover:text-[#1f1f1f]">Feed</span>
             </div>
           </div>
-          <div className="flex items-center space-x-4">
-            <button className="w-10 h-10 rounded-full hover:bg-gray-200 flex items-center justify-center transition-colors text-[#1f1f1f]">
+          <div className="flex items-center space-x-4 relative">
+            <button className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors text-[#1f1f1f]">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             </button>
-            <button className="w-10 h-10 rounded-full hover:bg-gray-200 flex items-center justify-center transition-colors text-[#1f1f1f]">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
-            </button>
+            
+            {/* 3 Dots Dropdown */}
+            <div className="relative group">
+              <button className="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors text-[#1f1f1f]">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+              </button>
+              <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.1)] border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 p-2">
+                <div className="px-4 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">Preferences</div>
+                <a href="#" className="flex items-center space-x-3 px-4 py-3 hover:bg-[#F4F7FC] rounded-xl text-[15px] font-medium text-[#1f1f1f]">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                  <span>Global (English)</span>
+                </a>
+              </div>
+            </div>
+
             <button className="bg-[#1a73e8] text-white px-6 py-2.5 rounded-full font-medium text-[15px] hover:bg-blue-700 transition-colors">
               Newsletter
             </button>
           </div>
         </nav>
+      </div>
 
-        {/* Header Content */}
-        <div className="pt-10 pb-16 px-6">
+      {/* HEADER (Gradient Background Transition) */}
+      <div className="bg-gradient-to-b from-[#F4F7FC] via-[#F4F7FC] to-white pb-8 pt-10 px-6">
           <div className="max-w-[1000px] mx-auto">
             {/* Breadcrumb */}
             <div className="text-[14px] text-[#444746] font-medium mb-12 flex items-center space-x-2">
@@ -135,7 +148,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
                 </div>
                 <div>{readingTime} min read</div>
               </div>
-              <div className="flex-1 text-[20px] md:text-[22px] text-[#444746] leading-[1.6]">
+              <div className="flex-1 text-[20px] md:text-[22px] text-[#444746] font-bold leading-[1.6]">
                 {excerpt}
               </div>
             </div>
@@ -145,47 +158,17 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
             {/* Author & Share */}
             <div className="flex justify-between items-center mb-6">
               <div>
-                <div className="text-[16px] font-medium text-[#1f1f1f]">Doğuş Yılmaz</div>
+                <a href="/authors/dogus-yilmaz" className="text-[16px] font-medium text-[#1f1f1f] hover:underline hover:text-[#1a73e8] transition-colors">Doğuş Yılmaz</a>
                 <div className="text-[14px] text-[#444746]">CEO at Aeternexus (TogetLink)</div>
               </div>
               
-              {/* Share Menu (CSS hover tabanlı) */}
-              <div className="relative group">
-                <button className="flex items-center space-x-2 text-[#1f1f1f] hover:bg-gray-200 px-4 py-2 rounded-full transition-colors">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
-                  <span className="font-medium text-[15px]">Share</span>
-                </button>
-                
-                <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.1)] border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 p-2">
-                  <a href="#" className="flex items-center space-x-3 px-4 py-3 hover:bg-[#F4F7FC] rounded-xl text-[15px] font-medium text-[#1f1f1f]">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-                    <span>x.com</span>
-                  </a>
-                  <a href="#" className="flex items-center space-x-3 px-4 py-3 hover:bg-[#F4F7FC] rounded-xl text-[15px] font-medium text-[#1f1f1f]">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
-                    <span>Facebook</span>
-                  </a>
-                  <a href="#" className="flex items-center space-x-3 px-4 py-3 hover:bg-[#F4F7FC] rounded-xl text-[15px] font-medium text-[#1f1f1f]">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
-                    <span>LinkedIn</span>
-                  </a>
-                  <a href="#" className="flex items-center space-x-3 px-4 py-3 hover:bg-[#F4F7FC] rounded-xl text-[15px] font-medium text-[#1f1f1f]">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-                    <span>Mail</span>
-                  </a>
-                  <a href="#" className="flex items-center space-x-3 px-4 py-3 hover:bg-[#F4F7FC] rounded-xl text-[15px] font-medium text-[#1f1f1f]">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
-                    <span>Copy link</span>
-                  </a>
-                </div>
-              </div>
+              <ShareMenu url="" title={frontmatter.title || ""} />
             </div>
             
             <hr className="border-gray-300 mb-8" />
             
           </div>
         </div>
-      </div>
 
       <div className="max-w-[1200px] mx-auto px-6 -mt-6 relative z-10">
           {/* DEV KAPAK GÖRSELİ */}
@@ -206,8 +189,8 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
         
         {/* SOL YAN MENÜ: In this article (TOC) */}
         <aside className="w-full lg:w-64 shrink-0">
-          {/* MOBILE TOC (Pill-shaped accordion) */}
-          <div className="lg:hidden mb-8">
+          {/* TOC (Pill-shaped accordion, visible on all screens) */}
+          <div className="mb-8 lg:sticky lg:top-24">
             <details className="group bg-[#F8F9FA] rounded-[32px] overflow-hidden w-max min-w-[280px]">
               <summary className="flex items-center justify-between px-6 py-4 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
                 <span className="font-medium text-[#1f1f1f] text-[18px]">In this article</span>
@@ -230,25 +213,6 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
                 </div>
               </div>
             </details>
-          </div>
-
-          {/* DESKTOP TOC (Sticky Sidebar) */}
-          <div className="hidden lg:block sticky top-24 bg-[#F8F9FA] rounded-[24px] p-6 border border-gray-100">
-            <h3 className="text-[18px] font-medium text-[#1f1f1f] mb-4 pb-4 border-b border-gray-200">
-              In this article
-            </h3>
-            <ul className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
-              {headings.map((heading, i) => (
-                <li key={i} className={`${heading.level === 3 ? 'ml-4' : ''}`}>
-                  <a 
-                    href={`#${heading.id}`} 
-                    className="text-[#444746] hover:text-[#1a73e8] text-[15px] leading-snug block transition-colors"
-                  >
-                    {heading.text}
-                  </a>
-                </li>
-              ))}
-            </ul>
           </div>
         </aside>
 
@@ -418,7 +382,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
               href="https://apps.microsoft.com/detail/9p9sfwqgbsk7?hl=en-US&gl=US" 
               target="_blank"
               rel="noopener noreferrer"
-              className="bg-white text-[#1d4ed8] px-8 py-4 rounded-full font-medium hover:bg-gray-50 transition-colors shadow-sm"
+              className="bg-[#F8F9FA] text-[#1d4ed8] px-8 py-4 rounded-full font-medium hover:bg-white transition-colors shadow-sm"
             >
               Download on Microsoft Store
             </a>
