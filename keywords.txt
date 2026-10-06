@@ -556,7 +556,6 @@ ai site for coding
 create pr
 code editor cloud
 software dependencies
-online code review tools
 free ci tools
 code review automation tools
 autonomous agent in ai
@@ -745,7 +744,6 @@ dev ai
 software engineering projects
 software technology
 code review services
-github app development
 apps to run code
 git developer
 github copilot business plan
@@ -3244,7 +3242,6 @@ opean ai com
 open e ai
 openai comcom
 openal website
-https * openai com
 labs openai com login
 lopenai
 open dot ai
