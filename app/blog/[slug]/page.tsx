@@ -108,12 +108,12 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
       <div className="bg-gradient-to-b from-[#F4F7FC] via-[#F4F7FC] to-white pb-8 pt-10 px-6">
           <div className="max-w-[1000px] mx-auto">
             {/* Breadcrumb & Category */}
-            <div className="text-[14px] text-[#444746] font-medium mb-10 flex items-center space-x-2">
-              <span className="text-[#1a73e8] hover:underline cursor-pointer">IdeaAI Updates</span>
+            <div className="text-[14px] text-slate-500 font-medium mb-10 flex items-center space-x-2">
+              <span className="hover:text-slate-800 hover:underline cursor-pointer transition-colors">IdeaAI Updates</span>
               <span className="text-gray-400">›</span>
-              <span className="text-[#1a73e8] hover:underline cursor-pointer">DevOps Engineering</span>
+              <span className="hover:text-slate-800 hover:underline cursor-pointer transition-colors">DevOps Engineering</span>
               <span className="text-gray-400">›</span>
-              <span className="bg-[#E8F0FE] text-[#1a73e8] px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">{categoryBadge}</span>
+              <span className="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">{categoryBadge}</span>
             </div>
 
             {/* Title */}
@@ -160,15 +160,14 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
           </div>
         </div>
 
-      <div className="max-w-[1200px] mx-auto px-6 -mt-6 relative z-10">
+      <div className="w-full max-w-[1000px] mx-auto px-6 mt-8 mb-16 relative z-10">
           {/* DEV KAPAK GÖRSELİ */}
           {frontmatter.coverImage && (
-            <div className="w-full mb-16 rounded-3xl overflow-hidden shadow-sm border border-gray-100 bg-white p-2">
+            <div className="relative overflow-hidden rounded-2xl border border-slate-200/80 shadow-sm aspect-video bg-white">
               <img 
                 src={frontmatter.coverImage} 
                 alt={frontmatter.title || slug}
-                className="w-full h-auto object-cover rounded-2xl"
-                style={{ maxHeight: '700px' }}
+                className="w-full h-full object-cover"
               />
             </div>
           )}
