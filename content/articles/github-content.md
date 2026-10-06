@@ -1,7 +1,7 @@
 ---
 title: "Github Content"
 slug: "github-content"
-coverImage: "https://image.pollinations.ai/prompt/A%20sleek%20modern%20terminal%20window%20with%20dark%20theme%20and%20colorful%20bash%20syntax%20highlighting%20showing%20automated%20deployment%20logs.%20Minimalist%20tech%20blog%20cover%2C%20high%20quality%2C%20UI%20design%2C%20DevOps?width=1200&height=630&nologo=true&model=flux"
+coverImage: "/cover-cicd.jpg"
 publishedAt: "2026-10-06T12:11:54.728Z"
 ---
 

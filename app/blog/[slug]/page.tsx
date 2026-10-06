@@ -133,8 +133,8 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
             {/* Date, Read Time, Author, Share */}
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
               <div className="flex items-center space-x-4">
-                <div className="w-11 h-11 bg-[#1a73e8] rounded-full flex items-center justify-center text-white font-semibold text-[16px] shadow-sm">
-                  DY
+                <div className="w-11 h-11 rounded-full overflow-hidden shadow-sm border border-gray-100 bg-gray-50 shrink-0">
+                  <img src="/dogus-yilmaz.png" alt="Doğuş Yılmaz" className="w-full h-full object-cover" />
                 </div>
                 <div>
                   <a href="/authors/dogus-yilmaz" className="text-[16px] font-semibold text-[#1f1f1f] hover:underline hover:text-[#1a73e8] transition-colors">Doğuş Yılmaz</a>
