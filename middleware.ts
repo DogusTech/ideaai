@@ -65,7 +65,10 @@ export function middleware(request: NextRequest) {
       const isPitchDeck = url.pathname === '/ai/pitch-deck' || url.pathname === '/app/pitch-deck'
       const session = request.cookies.get('session')?.value
       
-      if (!session && !isPitchDeck) {
+      // LOCALHOST BYPASS: Eger sunucu localhost ise (Electron dev) session kontrolunu atla
+      const isLocalhost = request.url.includes('localhost');
+      
+      if (!session && !isPitchDeck && !isLocalhost) {
         if (isIdeaAiSubdomain) {
           return NextResponse.redirect(new URL('/login', request.url))
         } else {
@@ -94,8 +97,8 @@ export function middleware(request: NextRequest) {
       }
 
 
-      // Allow /legal, /privacy-policy, /redeem, /blog, and /use-cases to route to the root app folder
-      if (url.pathname.startsWith('/legal') || url.pathname.startsWith('/privacy-policy') || url.pathname.startsWith('/redeem') || url.pathname.startsWith('/blog') || url.pathname.startsWith('/use-cases')) {
+      // Allow /legal, /privacy-policy, /redeem, /blog, /use-cases, and /tools to route to the root app folder
+      if (url.pathname.startsWith('/legal') || url.pathname.startsWith('/privacy-policy') || url.pathname.startsWith('/redeem') || url.pathname.startsWith('/blog') || url.pathname.startsWith('/use-cases') || url.pathname.startsWith('/tools')) {
         return NextResponse.rewrite(new URL(url.pathname, request.url))
       }
       
