@@ -139,6 +139,32 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
   
   const categoryBadge = frontmatter.title || slug.replace(/-/g, ' ').toUpperCase();
 
+  // Fetch related posts
+  const allFiles = fs.readdirSync(articlesDir).filter(f => f.endsWith('.md') && f !== `${slug}.md`);
+  const relatedPosts = allFiles.slice(0, 4).map(file => {
+    const fPath = path.join(articlesDir, file);
+    const fContent = fs.readFileSync(fPath, 'utf-8');
+    const parts = fContent.split('---');
+    let rFrontmatter: Record<string, string> = {};
+    if (parts.length >= 3) {
+      parts[1].split('\n').forEach(line => {
+        const match = line.match(/^([a-zA-Z0-9_]+):\s*"(.*)"$/);
+        if (match) rFrontmatter[match[1]] = match[2];
+      });
+    }
+    
+    let mContent = parts.length >= 3 ? parts.slice(2).join('---').trim() : fContent;
+    mContent = mContent.replace(/^\*\*([^\*]+)\*\*$/gm, '## $1');
+    const { realTitle: rTitle } = extractMetadata(mContent);
+
+    return {
+      slug: file.replace('.md', ''),
+      category: rFrontmatter.title || 'IdeaAI Updates',
+      title: rTitle || rFrontmatter.title || file.replace('.md', ''),
+      coverImage: rFrontmatter.coverImage || ''
+    };
+  });
+
   return (
     <div className="bg-white min-h-screen text-[#1f1f1f] font-sans">
       
@@ -421,7 +447,7 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
             </div>
           </div>
 
-          <RelatedStories />
+          <RelatedStories posts={relatedPosts} />
 
           {/* IDEA AI CALL TO ACTION (CTA) BLOCK */}
           <div 
