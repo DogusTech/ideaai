@@ -61,6 +61,7 @@ export function IdeaAIInterfaceMac() {
   
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [settingsTab, setSettingsTab] = useState("general")
+  const [terminalOutput, setTerminalOutput] = useState<string | null>("✔ npm run dev:electron - Ready in 3.2s")
   const [isConstitutionalModalOpen, setIsConstitutionalModalOpen] = useState(false)
   const [selectedRepo, setSelectedRepo] = useState("Connect GitHub")
     const [githubRepos, setGithubRepos] = useState<any[]>([])
@@ -114,20 +115,75 @@ export function IdeaAIInterfaceMac() {
       if (selectedModel === "IdeaAI Hybrid Engine (Pro)" && AgentBridge.isElectron()) {
         console.log("🟢 Hibrit Motor Devrede: Kodu yerel Ollama motoruna gönderiyorum...");
         
+        // Seçili projenin fiziksel yolunu (path) buluyoruz
+        const currentProject = projects.find(p => p.name === selectedProject);
+        const currentPath = currentProject && currentProject.files.length > 0 ? currentProject.files[0] : "Unknown";
+
         // Yapay Zekayı bir AJAN'a (Agent) dönüştüren Sistem Komutunu ekliyoruz
         const systemPrompt = {
           role: "system",
-          content: "You are IdeaAI, an autonomous coding agent executing directly on the developer's machine.\nYou can read, modify, and delete files.\nIMPORTANT: To write or modify a file, you MUST use the following exact XML format:\n<write_file path=\"C:/absolute/path/file.txt\">\nconst example = 'hello';\n</write_file>\n\nIf the user shares code or file contents, read it carefully."
+          content: `You are IdeaAI, an autonomous coding agent executing directly on the developer's machine. 
+Your goal is to prevent developer laziness by ALWAYS acting as a senior mentor. 
+Before writing any code, you MUST explain the theory, architecture, and reasoning behind your solution. 
+You can read, modify, and delete files.
+
+CURRENT WORKSPACE PATH: ${currentPath}
+
+IMPORTANT: To write or modify a file, you MUST use the following exact XML format at the end of your explanation:
+<write_file path="${currentPath !== "Unknown" ? currentPath : "C:/absolute/path"}/filename.extension">
+const example = 'hello';
+</write_file>`
         };
         
         const localMessages = [systemPrompt, ...newMessages];
+        
+        // Mock terminal output for the video effect
+        setTerminalOutput("➜  ~ Analyzing codebase architecture...");
+        setTimeout(() => setTerminalOutput("➜  ~ Searching for reference 'useClient' in ./src..."), 1500);
+        setTimeout(() => setTerminalOutput("✔ Found 0 references. Creating new hook..."), 3000);
+        
         const localResult = await AgentBridge.askLocalAI(localMessages);
         
         if (localResult.success) {
-          // Fake bir Fetch response nesnesi oluşturuyoruz ki aşağıdaki animasyonlu okuma (streaming) bozulmasın
+          let responseText = localResult.text;
+          
+          // --- OTONOM TOOL CALLING (ARAÇ ÇAĞIRMA) MOTORU ---
+          // XML formatındaki <write_file path="...">...</write_file> etiketlerini yakala
+          const writeRegex = /<write_file path="([^"]+)">([\s\S]*?)<\/write_file>/g;
+          let match;
+          let operationsLog = "";
+          let fileCount = 0;
+
+          while ((match = writeRegex.exec(responseText)) !== null) {
+            const filePath = match[1];
+            const fileContent = match[2];
+            fileCount++;
+            
+            setTerminalOutput(`➜  ~ Otonom İşlem: ${filePath} dosyasına yazılıyor...`);
+            
+            const writeRes = await AgentBridge.writeFile(filePath, fileContent.trim());
+            
+            if (writeRes.success) {
+              operationsLog += `\n✅ **Başarılı:** \`${filePath}\` oluşturuldu/güncellendi.`;
+            } else {
+              operationsLog += `\n❌ **Hata:** \`${filePath}\` yazılamadı. Sebep: ${writeRes.error}`;
+            }
+          }
+          
+          if (operationsLog) {
+             // Yapay zekanın cevabının sonuna gerçek otonom işlem sonucunu ekliyoruz
+             responseText += `\n\n---\n**🤖 Otonom İşlem Raporu:**${operationsLog}`;
+             setTerminalOutput(`✔ ${fileCount} dosya işlemi başarıyla tamamlandı.`);
+          } else {
+             setTerminalOutput("✔ Yanıt alındı.");
+          }
+
+          setTimeout(() => setTerminalOutput(null), 4000); // Clear after a few seconds
+
+          // Fake bir Fetch response nesnesi oluşturuyoruz
           res = {
             ok: true,
-            json: async () => ({ response: localResult.text })
+            json: async () => ({ response: responseText })
           };
         } else {
            throw new Error(localResult.error || "Lokal Yapay Zeka çöktü.");
@@ -389,19 +445,33 @@ export function IdeaAIInterfaceMac() {
 
   const handleFolderSelect = async () => {
     try {
-      // Use File System Access API to avoid "Upload X files" browser prompt
-      const directoryHandle = await (window as any).showDirectoryPicker({ mode: 'read' })
-      const folderName = directoryHandle.name
-      
-      const newProject: Project = {
-        id: Date.now().toString(),
-        name: folderName,
-        files: [], // Skip counting to ensure instant loading
-        time: "Just now"
+      if (AgentBridge.isElectron()) {
+        const result = await AgentBridge.selectDirectory();
+        if (result.success && result.path) {
+          const folderName = result.path.split(/[/\\]/).pop() || result.path;
+          const newProject: Project = {
+            id: Date.now().toString(),
+            name: folderName,
+            files: [result.path], // Save absolute path in files array for later use
+            time: "Just now"
+          };
+          setProjects(prev => [...prev, newProject]);
+          setSelectedProject(newProject.name);
+        }
+      } else {
+        // Fallback for browser
+        const directoryHandle = await (window as any).showDirectoryPicker({ mode: 'read' })
+        const folderName = directoryHandle.name
+        
+        const newProject: Project = {
+          id: Date.now().toString(),
+          name: folderName,
+          files: [], 
+          time: "Just now"
+        }
+        setProjects(prev => [...prev, newProject])
+        setSelectedProject(newProject.name)
       }
-      
-      setProjects(prev => [...prev, newProject])
-      setSelectedProject(folderName)
       setShowAddMenu(false)
     } catch (err) {
       console.log('Folder selection cancelled or failed', err)
@@ -578,6 +648,14 @@ export function IdeaAIInterfaceMac() {
                     </span>
                   </div>
 
+                  {/* Terminal Output Bar */}
+                  {terminalOutput && (
+                    <div className="w-full mb-3 px-3 py-2 bg-black/80 backdrop-blur-md border border-white/10 rounded-lg shadow-lg flex items-center gap-2 text-green-400 font-mono text-[11px] animate-in fade-in slide-in-from-bottom-2">
+                      <Terminal className="w-3.5 h-3.5 text-slate-400" />
+                      <span className="truncate">{terminalOutput}</span>
+                    </div>
+                  )}
+
                   {/* Input Box */}
                   <div className="w-full bg-white rounded-[14px] shadow-[0_2px_15px_rgba(0,0,0,0.03)] border border-black/5 p-4 flex flex-col focus-within:ring-2 focus-within:ring-black/5 transition-all">
                     <textarea
@@ -748,7 +826,16 @@ export function IdeaAIInterfaceMac() {
                 </div>
                 
                 {/* Fixed Input at bottom */}
-                <div className="absolute bottom-6 left-0 right-0 px-8 flex justify-center">
+                <div className="absolute bottom-6 left-0 right-0 px-8 flex justify-center flex-col items-center">
+                  
+                  {/* Terminal Output Bar */}
+                  {terminalOutput && (
+                    <div className="w-full max-w-3xl mb-2 px-3 py-1.5 bg-black/80 backdrop-blur-md border border-white/10 rounded-md shadow-lg flex items-center gap-2 text-green-400 font-mono text-[10px] animate-in fade-in slide-in-from-bottom-2">
+                      <Terminal className="w-3 h-3 text-slate-400" />
+                      <span className="truncate">{terminalOutput}</span>
+                    </div>
+                  )}
+
                   <div className="w-full max-w-3xl bg-white/90 backdrop-blur-xl rounded-[14px] shadow-[0_10px_40px_rgba(0,0,0,0.08)] border border-black/10 p-3 flex flex-col focus-within:ring-2 focus-within:ring-black/10 transition-all">
                     <textarea
                       ref={textareaRef}

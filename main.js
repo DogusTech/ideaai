@@ -49,6 +49,46 @@ ipcMain.handle('run-command', async (event, command, cwd) => {
     });
   });
 });
+
+const { dialog } = require('electron');
+ipcMain.handle('select-directory', async () => {
+  const result = await dialog.showOpenDialog(mainWindow, {
+    properties: ['openDirectory']
+  });
+  if (result.canceled) return { success: false };
+  return { success: true, path: result.filePaths[0] };
+});
+
+// --- LOCAL AI ENGINE (OLLAMA) ROUTER ---
+ipcMain.handle('ask-local-ai', async (event, messages) => {
+  try {
+    // Ollama localhost REST API'sine (chat endpoint) istek atiyoruz
+    const response = await fetch('http://localhost:11434/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'ui-llama', // Bizim ozel egittigimiz UI modeline gecildi
+        messages: messages, // Artık tüm mesaj geçmişi ve system prompt gidiyor
+        stream: false 
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Ollama API Hatasi: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return { success: true, text: data.message.content };
+    
+  } catch (error) {
+    console.error("Local AI Hatasi:", error);
+    return { 
+      success: false, 
+      error: 'Lokal Yapay Zeka motoruna baglanilamadi. Ollama calisiyor mu?' 
+    };
+  }
+});
+// -----------------------------
 // -----------------------------
 
 function createWindow() {
@@ -90,8 +130,8 @@ function createWindow() {
   });
 
   const startUrl = isDev
-    ? 'http://localhost:3000/register'
-    : 'https://ideaai.togetlink.com/register';
+    ? 'http://localhost:3000/mac-test' // Changed from ideaai.localhost due to Windows DNS issues
+    : 'https://ideaai.togetlink.com/mac-test';
 
   mainWindow.loadURL(startUrl);
 

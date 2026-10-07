@@ -53,4 +53,10 @@ export class AgentBridge {
     if (!ipcRenderer) return { success: false, error: 'Not running in Electron' };
     return await ipcRenderer.invoke('run-command', command, cwd);
   }
+
+  static async selectDirectory(): Promise<{success: boolean, path?: string}> {
+    const ipcRenderer = this.getIpcRenderer();
+    if (!ipcRenderer) return { success: false };
+    return await ipcRenderer.invoke('select-directory');
+  }
 }
