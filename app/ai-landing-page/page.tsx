@@ -7,7 +7,14 @@ import path from 'path';
 export default function CodexLandingPage() {
     // SSR'da public içindeki saf HTML dosyasını oku
     const htmlFilePath = path.join(process.cwd(), 'public', 'matrix-demo', 'index.html');
-    const rawHtml = fs.readFileSync(htmlFilePath, 'utf8');
+    let rawHtml = '';
+    try {
+        if (fs.existsSync(htmlFilePath)) {
+            rawHtml = fs.readFileSync(htmlFilePath, 'utf8');
+        }
+    } catch (e) {
+        rawHtml = '';
+    }
     
     // Sadece body içeriğini al
     const bodyMatch = rawHtml.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
