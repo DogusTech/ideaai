@@ -1,296 +1,418 @@
+"use client";
+import React, { useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
+import { Play } from 'lucide-react';
 
-import React from 'react';
-import Script from 'next/script';
-import fs from 'fs';
-import path from 'path';
+// GSAP Akıcılığında (Spring Physics) çalışan "Agentic Galaxy/Vortex" Parçacık Sistemi
+// Antigravity'deki dash (çizgi) tarzını alıp, tamamen fareyle etkileşimli özgün bir galaksiye çevirdik.
+const InteractiveParticles = () => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const mouse = useRef({ x: -1000, y: -1000 });
+  const globe = useRef({ x: -1000, y: -1000 }); // Galaksinin (kürenin) merkezi
 
-export default function CodexLandingPage() {
-    // SSR'da public içindeki saf HTML dosyasını oku
-    const htmlFilePath = path.join(process.cwd(), 'public', 'matrix-demo', 'index.html');
-    let rawHtml = '';
-    try {
-        if (fs.existsSync(htmlFilePath)) {
-            rawHtml = fs.readFileSync(htmlFilePath, 'utf8');
-        }
-    } catch (e) {
-        rawHtml = '';
-    }
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
     
-    // Sadece body içeriğini al
-    const bodyMatch = rawHtml.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-    const bodyContent = bodyMatch ? bodyMatch[1] : rawHtml;
+    let animationFrameId: number;
+    
+    // Antigravity benzeri (soldan sağa sıcak-soğuk geçişi) IdeaAI renk paleti
+    const colorPalette = ['#f59e0b', '#ec4899', '#d946ef', '#8b5cf6', '#4f46e5', '#3b82f6'];
 
-    return (
-        <>
-            <div className="codex-container">
-                {/* Orijinal CSS dosyaları */}
-                <link rel="stylesheet" href="/matrix-demo/23tnaqn8ikmnp.css" />
-                <link rel="stylesheet" href="/matrix-demo/3445772jury6y.css" />
-                <link rel="stylesheet" href="/matrix-demo/2cz95lbx4ufp-.css" />
-                <link rel="stylesheet" href="/matrix-demo/23fky70g62fni.css" />
-                <link rel="stylesheet" href="/matrix-demo/2sbytptrrrh6y.css" />
-                <link rel="stylesheet" href="/matrix-demo/1c3l7ofa-vr4e.css" />
-                <link rel="stylesheet" href="/matrix-demo/1kvjjz1x6tgww.css" />
-                <link rel="stylesheet" href="/matrix-demo/3l0fumx68x--b.css" />
-                <link rel="stylesheet" href="/matrix-demo/371m1wkroup7c.css" />
-                <link rel="stylesheet" href="/matrix-demo/3k2g3v_uak-u1.css" />
-                <link rel="stylesheet" href="/matrix-demo/15ldpy9e2u5gw.css" />
-                <link rel="stylesheet" href="/matrix-demo/0x-5drfo4rixj.css" />
-                <link rel="stylesheet" href="/matrix-demo/0iy4z_6llviv2.css" />
-                <link rel="stylesheet" href="/matrix-demo/38cm2tkepwr00.css" />
-                <link rel="stylesheet" href="/matrix-demo/09t9in8h8h9yd.css" />
-                <link rel="stylesheet" href="/matrix-demo/0ifi67wxrbsaq.css" />
-                <link rel="stylesheet" href="/matrix-demo/2_uro-h4j39cs.css" />
-                <link rel="stylesheet" href="/matrix-demo/3joiz7zi61a_s.css" />
-                <link rel="stylesheet" href="/matrix-demo/3u9xgevl828vu.css" />
-                <link rel="stylesheet" href="/matrix-demo/3om74s_avintz.css" />
-                <link rel="stylesheet" href="/matrix-demo/0ja1ygm1247x2.css" />
-                <link rel="stylesheet" href="/matrix-demo/02qavatj933a5.css" />
-                <link rel="stylesheet" href="/matrix-demo/0h-tu49j5vys7.css" />
-                <link rel="stylesheet" href="/matrix-demo/0j6dvdpebovbg.css" />
-                <link rel="stylesheet" href="/matrix-demo/3bdopauhhn_cb.css" />
-                <link rel="stylesheet" href="/matrix-demo/0a73uk6y55u29.css" />
-                <link rel="stylesheet" href="/matrix-demo/0vpmvteqf0--a.css" />
-                <link rel="stylesheet" href="/matrix-demo/199w-v6wvp-zb.css" />
-                <link rel="stylesheet" href="/matrix-demo/011mcu7n6v7o0.css" />
-                <link rel="stylesheet" href="/matrix-demo/360bwgze7el5j.css" />
-                <link rel="stylesheet" href="/matrix-demo/0whxqe136feku.css" />
-                <link rel="stylesheet" href="/matrix-demo/0y9_y8-vlpmn1.css" />
-                <link rel="stylesheet" href="/matrix-demo/1t64wpjnpyypp.css" />
-                <link rel="stylesheet" href="/matrix-demo/2i3baeuj560v6.css" />
-                <link rel="stylesheet" href="/matrix-demo/1x81ox1s98glr.css" />
-                <link rel="stylesheet" href="/matrix-demo/1vsqvqpe0lwsi.css" />
-                <link rel="stylesheet" href="/matrix-demo/3ws6s-63hssiy.css" />
-                <link rel="stylesheet" href="/matrix-demo/1str9kb7mkyey.css" />
-                <link rel="stylesheet" href="/matrix-demo/1qjwv7z8-yp6s.css" />
-                
-                {/* Google Sans Font Yükleme */}
-                <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&display=swap" />
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight * 1.2;
+      // İlk açılışta galaksiyi merkeze koy
+      if (globe.current.x === -1000) {
+        globe.current = { x: canvas.width / 2, y: canvas.height / 2 };
+        mouse.current = { x: canvas.width / 2, y: canvas.height / 2 };
+      }
+    };
+    window.addEventListener('resize', resize);
+    resize();
 
-                {/* IdeaAI Minimalist Cursor-Grade Tasarım Sistemi */}
-                <style dangerouslySetInnerHTML={{ __html: `
-                    @import url('https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;600;700&display=swap');
+    const onMouseMove = (e: MouseEvent) => {
+      const rect = canvas.getBoundingClientRect();
+      mouse.current = {
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+      };
+    };
+    window.addEventListener('mousemove', onMouseMove);
 
-                    /* 1. Font: Google Sans */
-                    * {
-                        font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
-                    }
+    class DashParticle {
+      angle: number; distance: number; length: number; width: number;
+      speed: number; phase: number; zOffset: number; colorIndex: number;
 
-                    /* 2. Arka Plan: #fbfbfb */
-                    html, body, #__next, .codex-container, main, .bg-background {
-                        background-color: #fbfbfb !important;
-                        background: #fbfbfb !important;
-                    }
+      constructor() {
+        this.angle = Math.random() * Math.PI * 2;
+        // Küre/Galaksi içinde dağılım (Dışa doğru seyrekleşen)
+        this.distance = Math.pow(Math.random(), 0.6) * (Math.min(canvas.width, canvas.height) * 0.7); 
+        
+        // 2. ekran görüntüsündeki gibi minik çizgiler (dash)
+        this.length = Math.random() * 8 + 4;
+        this.width = Math.random() * 1.5 + 1;
+        
+        // Galaksinin dönüş hızı (içtekiler daha hızlı dönebilir, rastgele yön)
+        this.speed = (Math.random() * 0.0015 + 0.0002) * (Math.random() > 0.5 ? 1 : -1);
+        
+        this.phase = Math.random() * Math.PI * 2;
+        this.zOffset = Math.random() * 25 + 5; // Nefes alma (pulse) derinliği
+        
+        // Rengi açısına göre belirle (Solda sıcak, sağda soğuk renkler gibi gradyan hissi)
+        this.colorIndex = Math.floor(((Math.cos(this.angle) + 1) / 2) * (colorPalette.length - 1));
+      }
+      
+      update() {
+        this.angle += this.speed;
+        this.phase += 0.02; // Nefes alma hızı
+        // Renk indeksini dönüşe göre dinamik güncelle (renkler de döner)
+        this.colorIndex = Math.floor(((Math.cos(this.angle) + 1) / 2) * (colorPalette.length - 0.1));
+      }
+      
+      draw(gx: number, gy: number) {
+        if (!ctx) return;
+        
+        // Nefes alan (büyüyüp küçülen) galaksi çapı
+        const currentDist = this.distance + Math.sin(this.phase) * this.zOffset;
+        
+        const x = gx + Math.cos(this.angle) * currentDist;
+        const y = gy + Math.sin(this.angle) * currentDist;
+        
+        // Çizgilerin yönü merkeze teğet (Vortex / Küre görünümü oluşturur)
+        // Hafif bir dalgalanma (wobble) ekleyerek mükemmel organik hissi yakalıyoruz
+        const dashAngle = this.angle + Math.PI / 2 + Math.sin(this.phase) * 0.1;
 
-                    /* OpenAI inatçı video ve renklerini yok et */
-                    video, [data-video-container], [data-video-container="true"] {
-                        display: none !important;
-                        visibility: hidden !important;
-                        opacity: 0 !important;
-                        height: 0 !important;
-                    }
-                    [style*="#efeefe"], [style*="background-color:light-dark"], [style*="light-dark"] {
-                        background-color: transparent !important;
-                        background: transparent !important;
-                    }
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(dashAngle);
+        
+        // Parlayıp sönme (Twinkle) efekti
+        ctx.globalAlpha = 0.15 + Math.max(0, Math.sin(this.phase) * 0.6); 
+        ctx.fillStyle = colorPalette[this.colorIndex];
+        
+        ctx.beginPath();
+        ctx.roundRect(-this.length/2, -this.width/2, this.length, this.width, 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
 
-                    /* 3. Tipografi: Derin, Otoriter & Minimalist */
-                    :root {
-                        --color-primary-100: #171717 !important;
-                        --color-primary-80: #404040 !important;
-                        --color-primary-60: #737373 !important;
-                        --color-primary-solid-100: #171717 !important;
-                        --color-foreground: #171717 !important;
-                    }
+    const particles: DashParticle[] = [];
+    // Çok yoğun bir küre için 400 parça
+    for (let i = 0; i < 400; i++) particles.push(new DashParticle());
 
-                    h1, h2, h3, h4, [data-article-hero-copy-region="headline"] {
-                        color: #171717 !important;
-                        letter-spacing: -0.035em !important;
-                        font-weight: 550 !important;
-                    }
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // GSAP "Ease-Out" tarzı, galaksinin merkezinin fareyi pürüzsüz takip etmesi
+      globe.current.x += (mouse.current.x - globe.current.x) * 0.04;
+      globe.current.y += (mouse.current.y - globe.current.y) * 0.04;
 
-                    p, [data-article-hero-copy-region="subhead"], figcaption {
-                        color: #525252 !important;
-                        line-height: 1.6 !important;
-                    }
+      for (let i = 0; i < particles.length; i++) {
+        particles[i].update();
+        particles[i].draw(globe.current.x, globe.current.y);
+      }
+      
+      animationFrameId = requestAnimationFrame(animate);
+    };
+    animate();
 
-                    /* 4. Main CTA: #f3f3f3 */
-                    a[data-analytics="codex.ctas.download.windows"] {
-                        background-color: #f3f3f3 !important;
-                        color: #171717 !important;
-                        font-weight: 500 !important;
-                        border: 1px solid rgba(0, 0, 0, 0.08) !important;
-                        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02) !important;
-                        transition: all 0.15s ease !important;
-                    }
-                    a[data-analytics="codex.ctas.download.windows"]:hover {
-                        background-color: #eaeaea !important;
-                        border-color: rgba(0, 0, 0, 0.14) !important;
-                        transform: translateY(-1px) !important;
-                    }
+    return () => {
+      window.removeEventListener('resize', resize);
+      window.removeEventListener('mousemove', onMouseMove);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, []);
 
-                    /* İkincil CTA: Şeffaf Çerçeveli */
-                    a[data-analytics="codex_hero_try_on_web"] {
-                        background-color: transparent !important;
-                        color: #171717 !important;
-                        border: 1px solid rgba(0, 0, 0, 0.12) !important;
-                        font-weight: 500 !important;
-                        transition: all 0.15s ease !important;
-                    }
-                    a[data-analytics="codex_hero_try_on_web"]:hover {
-                        background-color: #f3f3f3 !important;
-                    }
+  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none z-0" />;
+};
 
-                    /* 5. Kartlar, Kutucuklar, Logo Kapsayıcısı ve Footer: #f1f1f1 */
-                    footer, [data-footer-variant], 
-                    .overflow-clip.rounded-\[24px\],
-                    [data-card],
-                    header button[id*="radix"] {
-                        background-color: #f1f1f1 !important;
-                        border: 1px solid rgba(0, 0, 0, 0.06) !important;
-                    }
+// Yapay Zeka Dinamik Yazma (Typing) Efekti
+const AIFastTyping = ({ text, className, delay = 0, style }: { text: string, className?: string, delay?: number, style?: React.CSSProperties }) => {
+  const words = text.split(" ");
+  return (
+    <motion.div
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-50px" }}
+      variants={{
+        hidden: { opacity: 0 },
+        visible: {
+          opacity: 1,
+          transition: { staggerChildren: 0.03, delayChildren: delay } // Yapay zeka hızında kelime basma
+        }
+      }}
+      className={className}
+      style={style}
+    >
+      {words.map((word, i) => (
+        <motion.span
+          key={i}
+          variants={{
+            hidden: { opacity: 0, filter: 'blur(4px)', y: 10 },
+            visible: { opacity: 1, filter: 'blur(0px)', y: 0, transition: { duration: 0.2 } }
+          }}
+          className="inline-block mr-[0.25em]"
+        >
+          {word}
+        </motion.span>
+      ))}
+    </motion.div>
+  );
+};
 
-                    /* Ortadaki Logo Kutucuğu */
-                    .overflow-clip.rounded-\[24px\] {
-                        background-color: #f1f1f1 !important;
-                        border: 1px solid rgba(0, 0, 0, 0.08) !important;
-                        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03) !important;
-                    }
+export default function IdeaAILanding() {
+  return (
+    <div className="min-h-screen bg-white text-zinc-900 selection:bg-indigo-100 selection:text-indigo-900 overflow-x-hidden relative" style={{ fontFamily: '"Google Sans Flex", sans-serif' }}>
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,slnt,wdth,wght,ROND@8..144,-10..0,25..150,400..500,0..100&display=swap" rel="stylesheet" />
+      
+      {/* Antigravity tarzı dinamik parçacıklar - Fare etkileşimli */}
+      <InteractiveParticles />
 
-                    /* Partner Logoları: Asil Siyah */
-                    .bg-primary-100 {
-                        background-color: #171717 !important;
-                    }
-                    [role="group"] div[style*="mask-image"],
-                    [role="group"] div[style*="-webkit-mask-image"] {
-                        background-color: #171717 !important;
-                    }
-                    [role="img"] svg, svg path {
-                        fill: #171717 !important;
-                    }
-                `}} />
+      {/* Navbar */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/60 backdrop-blur-2xl border-b border-zinc-100/50">
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-2 font-bold text-xl tracking-tight">
+             IdeaAI
+          </div>
+          <div className="flex items-center gap-4">
+            <a href="/login" className="text-sm font-medium text-zinc-500 hover:text-zinc-900 transition-colors hidden sm:block">Sign In</a>
+            <button className="bg-zinc-900 hover:bg-zinc-800 text-white px-5 py-2 rounded-full text-sm font-medium transition-all active:scale-95 shadow-sm">
+              Get Started
+            </button>
+          </div>
+        </div>
+      </nav>
 
-                {/* Sayfa İçeriği - public/matrix-demo/index.html dosyasını düzenlediğinizde buraya yansır! */}
-                <div dangerouslySetInnerHTML={{ __html: bodyContent }} />
-                
-                {/* Orijinal JS dosyaları */}
-                <Script src="/matrix-demo/42tiaadjn1077.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/0k1wdccbzb157.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/2ggr5oe6m1htd.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/0j58r-ra7oegc.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/turbopack-0m58kxyavr5mw.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/064oqbtq9t9mn.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/01wtxbqdnk7ie.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/1-3gqgmdiesb5.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/2xmc54z8glsrm.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/2z-01tve6du6u.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/0feqi7wrjk8-4.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/0qyc2oj-oke-8.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/3jgwbgxntqwwr.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/2rp65jm7oj0hn.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/2du2fc78sta6r.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/0-vezf443_2eq.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/22h8xinedftyi.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/28zi7p4n_defz.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/2tcps9yc3uass.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/0snfhlf0aonm0.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/27am0wkazfxix.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/2tl-a2x1_ob93.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/2k3-jd_w5v3kc.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/0wmp0-_3w2yp_.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/1i7x6m0--3h1n.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/2bb3ajwp45teh.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/1waul1yq_-_cj.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/1ftdjhy0bsc7e.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/1xc_eqnu6gng2.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/3-uucmx0sgz89.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/3ze-ydkmvf44x.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/1kdl23jxxeh-2.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/3_cn6z84if19w.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/0nkptvo1gujj6.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/1skpjns9jf5yc.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/3i6-bpq6fvnep.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/1cl79-awv56ar.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/1pp5su7fnpr4c.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/339_7rhz-3nvl.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/19m4ybdpejve-.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/1wuc96q24-c0v.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/1_696ov5tqelw.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/28wq3z5w3b9ts.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/0oso_852or9mb.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/087_6gma90f9n.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/2nfndo-7smc2c.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/3w3-_yl3cg3y0.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/1pchya2cnhb4-.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/3qsw_4nhdwlyn.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/3gpqj5aj08dp9.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/049ujnj5vablx.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/180y2p_8zfiy_.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/30zbapxzio2ow.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/1jhcl8mond989.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/2wbhes9h9w52b.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/0mljnom4bmi60.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/1u463yn3rieah.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/3pca3shjsiu_q.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/3zueomcw2qfq9.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/279czcyk8unho.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/0dfpqjin6t4po.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/0_nln-dfh2zd1.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/1zh-4axgz_vnu.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/1h2fm3n782_zl.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/1zwfko1xw_p_2.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/0may-55u184pq.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/0axwgld4-d0mo.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/0xd0r54jfp45_.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/0atdqzco56ud-.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/1bb_ab40u39f4.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/3fi-8eje8vu8g.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/1qz-s019_a3ao.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/0xxwzqgzfmvm9.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/28ru5mdy8a7iv.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/1vtbz1u_zwlfd.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/2m09ijlm_6grz.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/3je7o7eu1vhwr.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/251wuxbh0o6c6.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/3-tv5pseew9et.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/20mjzix66j32z.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/0mfy-g83oemjb.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/039sfodus91pk.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/08ycsj0xmi92x.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/0vecu5r93k-b6.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/1a43l2lhrwu30.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/2xpbk1v1cur5j.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/1_35jeeuuzmz8.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/3dr9shaq6311u.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/0trbzvqcuaerf.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/2q31jz50k0ycd.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/36-uzos2nn4nn.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/0pdbl_cb2y3is.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/1u7eaza6hu2c4.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/0-3txo3k221fw.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/0ariuo2o_psjp.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/1lp26knvqrt6b.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/3a6jrjz_1qzvc.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/2wuz_jrqocjw9.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/15o33c4-nmvk3.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/2i2g2ac5aqcj1.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/1f-u8ia60-88e.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/0c0hxoamwjsbw.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/3scvsdd37w8xj.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/2-0nqeu4h7c7n.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/3z1wmea92wb4_.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/script.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/15n71mzetf8_y.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/3q5-3y55ojpe5.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/2zek30linvzab.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/3o7fvefqsmdsh.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/3c-4x62s6vbnl.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/2yh17ve0_0rv6.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/0na1s__2pjtur.js" strategy="lazyOnload" />
-                <Script src="/matrix-demo/28t-jm-8d64gs.js" strategy="lazyOnload" />
+      {/* Hero Section */}
+      <section className="pt-40 pb-16 px-6 relative z-10 flex flex-col items-center justify-center min-h-[70vh]">
+        <div className="max-w-7xl mx-auto text-center relative w-full flex flex-col items-center">
+          
+          {/* Logo + TogetLink IdeaAI - Küçük "Badge" Stili (Antigravity referansı) */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="flex items-center justify-center gap-2 md:gap-3 mb-8"
+          >
+            {/* Küçük logo */}
+            <svg viewBox="0 0 100 100" className="w-6 h-6 md:w-8 md:h-8 drop-shadow-md" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M 15 80 Q 50 10, 85 80" stroke="#4f46e5" strokeWidth="16" strokeLinecap="round" />
+            </svg>
+            <div className="text-xl md:text-2xl flex gap-1.5 text-zinc-900 tracking-tight leading-none">
+               <span style={{ fontVariationSettings: '"wght" 600' }}>TogetLink</span>
+               <span style={{ fontVariationSettings: '"wght" 400' }} className="text-zinc-700">IdeaAI</span>
             </div>
-        </>
-    );
+          </motion.div>
+
+          {/* Dinamik Daktilo - Ana Slogan (Gerçek H1 büyüklüğünde) */}
+          <AIFastTyping 
+            text="Experience liftoff with the next-gen agent platform" 
+            className="text-5xl md:text-6xl lg:text-[76px] text-zinc-900 mb-8 leading-[1.05] max-w-5xl mx-auto tracking-tight"
+            style={{ fontVariationSettings: '"wght" 450' }}
+            delay={0.3}
+          />
+
+          <motion.p 
+            initial={{ opacity: 0, filter: 'blur(4px)' }}
+            animate={{ opacity: 1, filter: 'blur(0px)' }}
+            transition={{ duration: 0.8, delay: 1.5 }}
+            className="max-w-3xl mx-auto text-lg md:text-xl text-zinc-500 mb-12 leading-relaxed font-medium"
+          >
+            The world's first <strong>Hybrid Autonomous AI Coding Agent</strong>. IdeaAI runs as a native desktop client while you work, and seamlessly transforms into a cloud-based CI/CD bot executing via GitHub and Railway when you sleep. Governed by a single <strong>Constitutional Prompt</strong> and powered by our custom-trained <strong>Llama 3</strong> engine on Modal servers, it reads, writes, and debugs code 24/7 without needing conversational chat.
+          </motion.p>
+
+          {/* CTA Buttons */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 1.8 }}
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-md mx-auto"
+          >
+            <a href="https://apps.microsoft.com/store/detail/9P9SFWQGBSK7" className="w-full sm:w-auto bg-zinc-900 hover:bg-zinc-800 text-white px-8 py-4 rounded-full text-base font-medium transition-all active:scale-95 shadow-lg flex items-center justify-center gap-2 group"
+            >
+              <svg className="w-5 h-5 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M11.4 24H0V11.4H11.4V24ZM24 24H12.6V11.4H24V24ZM11.4 10.6H0V0H11.4V10.6ZM24 10.6H12.6V0H24V10.6Z"/>
+              </svg>
+              Get it from Microsoft
+            </a>
+            
+            <a 
+              href="/redeem" 
+              className="w-full sm:w-auto bg-white hover:bg-zinc-50 text-zinc-900 border border-zinc-200 px-8 py-4 rounded-full text-base font-medium transition-all active:scale-95 shadow-sm flex items-center justify-center gap-2"
+            >
+              Redeem AppSumo Code
+            </a>
+          </motion.div>
+          
+          {/* Product Hunt Badge */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 2.0 }}
+            className="mt-8 flex justify-center w-full"
+          >
+            <a href="https://www.producthunt.com/products/togetlink-ideaai?embed=true&amp;utm_source=badge-featured&amp;utm_medium=badge&amp;utm_campaign=badge-togetlink-ideaai" target="_blank" rel="noopener noreferrer">
+              <img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1257388&amp;theme=neutral&amp;t=1790010465665" alt="Togetlink IdeaAI - The autonomous AI coding agent that lives on your desktop. | Product Hunt" style={{ width: '250px', height: '54px' }} width="250" height="54" />
+            </a>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Video Placeholder Section */}
+      <section className="px-6 pb-32 relative z-10">
+        <div className="max-w-6xl mx-auto">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95, y: 40 }}
+            whileInView={{ opacity: 1, scale: 1, y: 0 }}
+            viewport={{ once: true, margin: "-100px" }}
+            transition={{ duration: 0.7, ease: "easeOut" }}
+            className="relative w-full aspect-video rounded-[2.5rem] bg-white/60 backdrop-blur-2xl border border-zinc-200/80 shadow-2xl overflow-hidden group cursor-pointer"
+          >
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-zinc-50/80 to-zinc-100/80">
+              <div className="w-24 h-24 rounded-full bg-white shadow-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 ease-out">
+                <Play className="w-10 h-10 text-indigo-600 ml-2" fill="currentColor" />
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* Neden Tercih Edilmeliyiz - AI Dynamic Terminal Stream */}
+      <section className="py-32 bg-[#f8f9fa] relative z-10 rounded-t-[4rem] border-t border-zinc-100">
+        <div className="max-w-5xl mx-auto px-6">
+           <div className="mb-24">
+              <motion.span 
+                initial={{ opacity: 0 }} 
+                whileInView={{ opacity: 1 }} 
+                className="text-indigo-600 font-bold tracking-widest uppercase text-sm mb-6 block"
+              >
+                Output Stream // 01
+              </motion.span>
+              
+              <AIFastTyping 
+                text="The Only Hybrid AI Agent: Desktop + Cloud Autonomy." 
+                className="text-4xl md:text-5xl lg:text-6xl text-zinc-900 tracking-tight leading-tight"
+                style={{ fontVariationSettings: '"wght" 650' }}
+              />
+           </div>
+
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-20">
+              
+              <div>
+                <AIFastTyping 
+                  text="Constitutional Prompt (Zero-State)" 
+                  className="text-2xl md:text-3xl text-zinc-900 mb-6 block tracking-tight"
+                  style={{ fontVariationSettings: '"wght" 600' }}
+                  delay={0.2}
+                />
+                <AIFastTyping 
+                  text="Unlike ChatGPT or Claude wrappers that require constant conversational babysitting, IdeaAI operates on a single 'Constitutional Prompt'. You define the master rules and architecture once, and the agent executes autonomously within those boundaries forever." 
+                  className="text-lg text-zinc-500 leading-relaxed font-medium block"
+                  delay={0.6}
+                />
+              </div>
+
+              <div>
+                <AIFastTyping 
+                  text="Dual-Engine: Local + CI/CD Bot" 
+                  className="text-2xl md:text-3xl text-zinc-900 mb-6 block tracking-tight"
+                  style={{ fontVariationSettings: '"wght" 600' }}
+                  delay={0.4}
+                />
+                <AIFastTyping 
+                  text="When your PC is on, IdeaAI uses an advanced Electron IPC Bridge to read, write, and execute commands directly on your local machine. When you sleep, it seamlessly switches to a cloud-based CI/CD bot, pulling from GitHub and pushing autonomous fixes overnight via Railway." 
+                  className="text-lg text-zinc-500 leading-relaxed font-medium block"
+                  delay={0.8}
+                />
+              </div>
+
+              <div className="md:col-span-2 max-w-2xl">
+                <AIFastTyping 
+                  text="Custom Llama 3 on Modal Servers" 
+                  className="text-2xl md:text-3xl text-zinc-900 mb-6 block tracking-tight"
+                  style={{ fontVariationSettings: '"wght" 600' }}
+                  delay={0.6}
+                />
+                <AIFastTyping 
+                  text="We don't just route your data to standard APIs. IdeaAI is powered by our heavily fine-tuned Llama 3 model hosted on high-performance Modal serverless GPU clusters. This ensures lightning-fast execution, agentic reasoning tailored for software engineering, and absolute data privacy." 
+                  className="text-lg text-zinc-500 leading-relaxed font-medium block"
+                  delay={1.0}
+                />
+              </div>
+              
+           </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-white border-t border-zinc-100 py-16 px-6 relative z-10">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-8 mb-16">
+            <div className="col-span-1 md:col-span-2">
+              <div className="flex items-center gap-2 mb-6">
+                <svg viewBox="0 0 100 100" className="w-6 h-6 text-indigo-600" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M 15 80 Q 50 10, 85 80" stroke="currentColor" strokeWidth="16" strokeLinecap="round" />
+                </svg>
+                <span className="font-bold text-xl tracking-tight text-zinc-900">IdeaAI</span>
+              </div>
+              <p className="text-zinc-500 text-sm leading-relaxed max-w-sm mb-6">
+                The autonomous execution engine for elite engineering teams. Stop typing, start shipping.
+              </p>
+              <div className="flex items-center gap-4">
+                <a href="https://twitter.com/togetlink" target="_blank" rel="noopener noreferrer" className="text-zinc-400 hover:text-zinc-900 transition-colors">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84"></path></svg>
+                </a>
+                <a href="https://github.com/DogusTech" target="_blank" rel="noopener noreferrer" className="text-zinc-400 hover:text-zinc-900 transition-colors">
+                  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd"></path></svg>
+                </a>
+              </div>
+            </div>
+            
+            <div>
+              <h3 className="font-semibold text-zinc-900 mb-4 text-sm tracking-wide">Product</h3>
+              <ul className="space-y-3">
+                <li><a href="#" className="text-sm text-zinc-500 hover:text-zinc-900 transition-colors">Download App</a></li>
+                <li><a href="/redeem" className="text-sm text-indigo-600 font-medium hover:text-indigo-700 transition-colors">Redeem AppSumo Code</a></li>
+                <li><a href="/login" className="text-sm text-zinc-500 hover:text-zinc-900 transition-colors">Sign In</a></li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-semibold text-zinc-900 mb-4 text-sm tracking-wide">Legal</h3>
+              <ul className="space-y-3">
+                <li><a href="/legal/privacy-policy" className="text-sm text-zinc-500 hover:text-zinc-900 transition-colors">Privacy Policy</a></li>
+                <li><a href="/legal/terms" className="text-sm text-zinc-500 hover:text-zinc-900 transition-colors">Terms of Service</a></li>
+                <li><a href="/contact" className="text-sm text-zinc-500 hover:text-zinc-900 transition-colors">Contact Us</a></li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="border-t border-zinc-100 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <p className="text-sm text-zinc-400">
+                © {new Date().getFullYear()} Aeternexus, Inc. (TogetLink). All rights reserved.
+              </p>
+              <a href="https://althunt.io/compare/ideaai-vs-cursor" target="_blank" rel="noopener noreferrer">
+                <img src="https://althunt.io/badges/featured-light.svg" alt="Featured on AltHunt" width="130" height="28" />
+              </a>
+              <a href="https://alternativeto.net/software/ideaai/about/?utm_source=badge&utm_medium=referral" target="_blank" rel="noopener noreferrer">
+                <img src="https://alternativeto.net/static/badges/badge-compact-light.svg" alt="IdeaAI | AlternativeTo" width="130" height="44" style={{ width: '130px', height: 'auto' }} />
+              </a>
+            </div>
+            <p className="text-sm text-zinc-400">
+              Made with <span className="text-red-500">♥</span> for developers.
+            </p>
+          </div>
+        </div>
+      </footer>
+
+    </div>
+  );
 }
 
-// Cache bust: 1791656291826
