@@ -5,6 +5,7 @@ import { AnnouncementBar } from "./announcement-bar"
 import { AnimatedHeadline } from "./animated-headline"
 import { CTAButtons } from "./cta-buttons"
 import { FloatingCircle } from "./floating-circle"
+import { MouseSnake } from "./mouse-snake"
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -23,6 +24,7 @@ export function Hero() {
         aria-hidden="true"
         className="hero-gradient pointer-events-none absolute inset-0 -z-10"
       />
+      <MouseSnake />
 
       <div className="mx-auto flex min-h-[92vh] max-w-[1400px] flex-col px-6 pb-16 pt-28 lg:justify-center lg:px-10 lg:pt-32">
         <AnnouncementBar />

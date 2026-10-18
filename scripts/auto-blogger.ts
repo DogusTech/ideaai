@@ -33,16 +33,28 @@ async function run() {
   try {
     // 1. OLLAMA İLE MAKALE YAZDIR (ui-llama)
     console.log(`[+] ui-llama'ya makale yazdırılıyor... (Lütfen bekleyin, bilgisayarınızın hızına göre sürebilir)`);
-    const prompt = `Write a comprehensive, SEO-optimized, highly engaging blog post in purely English about "${selectedKeyword}".
-Focus on how AI coding agents (especially our powerful tool, IdeaAI) help developers automate tasks and build software faster.
+    const prompt = `You are a Senior DevOps Engineer and Technical Content Strategist (Developer Advocate). 
+Your task is to write a highly technical, deep-dive blog post for software engineers and sysadmins about "${selectedKeyword}". 
+You must completely avoid empty marketing jargon and focus directly on problems, solutions, and technical depth.
 
-CRITICAL REQUIREMENTS FOR THE OUTPUT:
-1. The entire article must be in English.
-2. You MUST include a Markdown Table comparing IdeaAI with a competitor (e.g., GitHub Copilot, Cursor, or Devin).
-3. You MUST mention at least one competitor's landing page URL (e.g., cursor.com, github.com/features/copilot).
-4. You MUST include a relevant YouTube video link of a competitor or coding agent demo (use this exact Markdown format: [Watch the competitor demo on YouTube](https://www.youtube.com/watch?v=dQw4w9WgXcQ) but you can use a real coding agent video ID if you know one, otherwise use a placeholder).
-5. Use markdown formatting, H2/H3 headings, and bullet points. Write like an expert tech blogger.
-6. Do NOT include any intro like "Here is the blog". Start immediately with the blog content.`;
+STRICT RULES AND ANTI-PATTERNS:
+1. BANNED CLICHÉS: Never start or end with generic phrases like "In today's fast-paced digital world...", "The world of software development is rapidly evolving...", "game-changer", "revolutionizing the industry", or "stay ahead of the curve". 
+2. NO ABSTRACT PROMISES: Do not just say "automates everything" or "optimizes performance". If you claim something, immediately explain the TECHNICAL MECHANISM (which command, which config file, which protocol, e.g., systemd, Nginx, Docker, AST parsing).
+3. HONEST COMPARISON: Do not unfairly compare IdeaAI to Cursor or Copilot. Acknowledge that Cursor/Copilot are excellent IDE code-completion assistants. IdeaAI's difference is that it acts autonomously at the terminal/OS/workspace level, creating folders, running commands, and managing deployments directly on the local file system.
+
+CONTENT ARCHITECTURE (Follow this structure):
+1. A Real, Painful Problem: Start with a specific, painful terminal/deployment/coding problem related to the keyword (e.g., SSH drops, tricky Nginx reverse proxy SSL conflicts, environment variable mess).
+2. Traditional vs. Agent Approach: Briefly explain why doing this manually takes 45 minutes and is prone to human error.
+3. The IdeaAI Solution (Concrete Code/Terminal Block): Show exactly how IdeaAI is triggered in the terminal, which bash/powershell commands it executes automatically, and provide a concrete Markdown code block of the output or config it generates.
+4. Honest Comparison Table: Provide an objective Markdown table comparing IdeaAI (Terminal/OS autonomous execution) vs. standard IDE assistants (IDE code completion).
+5. Must include a YouTube video link formatted as: [Watch the Cursor Demo](https://youtu.be/UxbULt_hCdA?si=UmN6h_OvJuAymTvu) (or any relevant technical video).
+6. Must include a competitor URL (e.g., cursor.com, github.com).
+
+TONE:
+- Write purely in English.
+- Developer-to-developer, pragmatic, direct, no marketing fluff.
+- Use H2/H3 headings, bullet points, and code blocks. 
+- Do NOT output any conversational intro like "Here is the blog". Start directly with the content.`;
 
     const response = await fetch('http://localhost:11434/api/generate', {
       method: 'POST',

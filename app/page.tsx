@@ -6,6 +6,7 @@ import { AboutSection } from "@/components/sections/about-section"
 import { PricingSection } from "@/components/sections/pricing-section"
 import { FAQSection } from "@/components/sections/faq-section"
 import { SiteFooter } from "@/components/site/site-footer"
+import { VoiceAIButton } from "@/components/hero/voice-ai-button"
 import Script from "next/script"
 
 const webpageSchema = {
@@ -78,6 +79,7 @@ export default function Page() {
         <FAQSection />
       </main>
       <SiteFooter />
+      <VoiceAIButton />
     </div>
   )
 }

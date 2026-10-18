@@ -8,51 +8,86 @@ export async function POST(request: Request) {
     const { messages, model } = body;
     
     // ==========================================
-    // 1. IDEAAI HYBRID ENGINE (PRO) - MODAL.COM
+    // 1. IDEAAI CLOUD & LOCAL ENGINES (AZURE & OLLAMA)
     // ==========================================
-    if (model === "IdeaAI Hybrid Engine (Pro)") {
-      const modalUrl = "https://dogustech--ideaai-llama3-endpoint-fastapi-app.modal.run/generate";
-      
-      try {
-        // Format history for the custom Llama-3 endpoint
-        let conversationHistory = "";
-        for (let i = 0; i < messages.length - 1; i++) {
-            const role = messages[i].role === 'user' ? 'User' : 'Assistant';
-            conversationHistory += `${role}: ${messages[i].content}\n\n`;
+    const isAzureCloud = model === "IdeaAI Hybrid Engine (Pro)" || model === "Azure Enterprise Cloud (Llama 3.2)";
+    const isLocalOllama = model === "Local Engine (Ollama)";
+
+    if (isAzureCloud || isLocalOllama) {
+      // Endpoints to attempt in priority order (Tunnel first, then Direct IP, then Localhost)
+      const candidateUrls = isAzureCloud
+        ? [
+            "http://127.0.0.1:11435", // Active encrypted SSH tunnel to Azure VM (32GB E-Class)
+            process.env.AZURE_OLLAMA_URL || "http://40.76.116.101:11434",
+            "http://40.76.116.101:11434"
+          ]
+        : ["http://127.0.0.1:11434"];
+
+      const uniqueUrls = Array.from(new Set(candidateUrls.filter(Boolean)));
+
+      const systemPrompt = `You are IdeaAI, an elite Senior Developer and autonomous coding agent with direct access to the user's filesystem and tools.
+
+If you need to create or modify a file, you MUST output the code inside this exact XML format:
+<write_file path="C:\\Users\\dogus\\Desktop\\project\\index.html">
+your code here
+</write_file>
+Always specify an absolute path.
+
+CRITICAL INSTRUCTION:
+Your core philosophy is to PREVENT developer laziness. You do not just dump code. After you output the <write_file> tags, you MUST act as a Senior Developer mentoring a Junior. You must write a clear, educational summary explaining:
+1. WHAT you did and WHICH files you modified.
+2. HOW the architecture works and WHY you chose specific patterns or functions.
+3. The theoretical software engineering principles behind your choices.
+Do NOT output large code blocks outside of the <write_file> tags. Focus purely on mentorship, theory, and explaining the logic behind the code.`;
+
+      const formattedMessages = [
+        { role: 'system', content: systemPrompt },
+        ...messages.map((m: any) => ({
+          role: m.role === 'model' ? 'assistant' : m.role,
+          content: m.content
+        }))
+      ];
+
+      let lastError = null;
+
+      for (const targetUrl of uniqueUrls) {
+        try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 60000);
+
+          const res = await fetch(`${targetUrl}/api/chat`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              model: 'llama3.2',
+              messages: formattedMessages,
+              stream: false
+            }),
+            signal: controller.signal
+          });
+          clearTimeout(timeoutId);
+
+          if (!res.ok) {
+            const errData = await res.text();
+            lastError = new Error(`HTTP ${res.status}: ${errData}`);
+            continue;
+          }
+
+          const data = await res.json();
+          const assistantMessage = data.message?.content || data.response || "Motor yanıt verdi ancak format algılanamadı.";
+          return NextResponse.json({ response: assistantMessage });
+
+        } catch (err: any) {
+          lastError = err;
         }
-        
-        const lastUserMessage = messages[messages.length - 1]?.content || "";
-        const finalInput = conversationHistory ? `${conversationHistory}User: ${lastUserMessage}\n\nAssistant:` : lastUserMessage;
-
-        const res = await fetch(modalUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            instruction: "You are IdeaAI Hybrid Engine, an elite Senior Developer and autonomous coding agent with direct access to the user's local file system.\n\nIf you need to create or modify a file, you MUST output the code inside this exact XML format:\n<write_file path=\"C:\\Users\\dogus\\Desktop\\project\\index.html\">\nyour code here\n</write_file>\nAlways specify an absolute path. You can use the tag multiple times for different files.\n\nCRITICAL INSTRUCTION:\nYour core philosophy is to PREVENT developer laziness. You do not just dump code. After you output the <write_file> tags, you MUST act as a Senior Developer mentoring a Junior. You must write a clear, educational summary explaining:\n1. WHAT you did and WHICH files you modified.\n2. HOW the architecture works and WHY you chose specific patterns or functions.\n3. The theoretical software engineering principles behind your choices.\nDo NOT output large code blocks outside of the <write_file> tags. Focus purely on mentorship, theory, and explaining the logic behind the code.",
-            input: finalInput
-          }),
-        });
-
-        if (!res.ok) {
-          const errData = await res.text();
-          return NextResponse.json({ error: `Hybrid Engine (Modal) yanit vermedi: ${errData} (Sunucu kapali olabilir veya URL guncellenmelidir)` }, { status: res.status });
-        }
-
-        const data = await res.json();
-        // The endpoint likely returns {"response": "..."} or similar based on openapi.json.
-        // We will try standard fields. If it just returns string, we handle it.
-        let assistantMessage = data.response || data.output || data.text || data.result || "Hybrid Engine'den yanit alindi, ancak formati bilinmiyor.";
-        
-        if (typeof data === 'string') {
-            assistantMessage = data;
-        }
-
-        return NextResponse.json({ response: assistantMessage });
-      } catch (e: any) {
-         return NextResponse.json({ error: `Hybrid Engine (Modal) sunucusuna ulasilamadi. Sunucu kapali (Inactive) durumda. Detay: ${e.message}` }, { status: 504 });
       }
+
+      const targetName = isAzureCloud ? 'Azure Enterprise Cloud (40.76.116.101)' : 'Local Ollama (localhost:11434)';
+      return NextResponse.json({ 
+        error: `${targetName} sunucusuna bağlanılamadı. Detay: ${lastError?.message || 'Bağlantı zaman aşımına uğradı'}` 
+      }, { status: 504 });
     }
 
     // ==========================================

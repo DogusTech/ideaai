@@ -2055,7 +2055,6 @@ set up a github account
 http git
 github education copilot
 github pages pricing
-github content
 nexus github
 github web
 github create

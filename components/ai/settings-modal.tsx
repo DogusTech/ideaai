@@ -294,7 +294,7 @@ export function SettingsModal({ isOpen, onClose, initialTab = "general", userEma
                 <p className="text-[14px] text-[#737373] mb-8">Select the computational engine that powers IdeaAI's autonomy.</p>
                 
                 <div className="space-y-4 mb-8">
-                  {/* Option 1: Hybrid Pro */}
+                  {/* Option 1: Azure Enterprise Cloud */}
                   <label 
                     onClick={() => setActiveEngine("hybrid")}
                     className={`flex flex-col p-4 bg-white border-2 rounded-xl cursor-pointer shadow-sm relative overflow-hidden transition-colors ${activeEngine === "hybrid" ? "border-[#171717]" : "border-[#e5e5e5] hover:border-[#d4d4d4]"}`}
@@ -306,23 +306,23 @@ export function SettingsModal({ isOpen, onClose, initialTab = "general", userEma
                     )}
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xs font-bold">
-                          ★
+                        <div className="w-6 h-6 rounded bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-xs font-bold">
+                          ☁️
                         </div>
-                        <div className="text-[15px] font-semibold text-[#171717]">IdeaAI Hybrid Engine (Pro)</div>
+                        <div className="text-[15px] font-semibold text-[#171717]">Azure Enterprise Cloud (Llama 3.2)</div>
                       </div>
                       <div className={`w-5 h-5 rounded-full ${activeEngine === "hybrid" ? "border-[5px] border-[#171717]" : "border-2 border-[#d4d4d4]"}`}></div>
                     </div>
                     <p className="text-[13px] text-[#525252] leading-relaxed mb-3">
-                      Powered by our custom fine-tuned Llama 3 on high-performance Modal Serverless GPUs. 
-                      Seamlessly transitions from local IPC execution to cloud-based CI/CD bot when you sleep.
+                      Powered by high-performance Microsoft Azure E-series Compute (4 vCPU, 32GB RAM). 
+                      Runs deterministic cloud execution and overnight GitHub CI/CD agents while you sleep.
                     </p>
                     <div className="flex items-center gap-2">
-                      <span className="px-2 py-1 bg-green-50 text-green-700 border border-green-200 rounded text-[10px] font-semibold uppercase tracking-wide">
-                        Zero-State Enabled
-                      </span>
                       <span className="px-2 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded text-[10px] font-semibold uppercase tracking-wide">
-                        Modal Cluster Ready
+                        Azure E-Class (32GB)
+                      </span>
+                      <span className="px-2 py-1 bg-green-50 text-green-700 border border-green-200 rounded text-[10px] font-semibold uppercase tracking-wide">
+                        Cloud Worker Live
                       </span>
                     </div>
                   </label>

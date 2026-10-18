@@ -1,44 +1,145 @@
 "use client"
 
 import React, { useState, useEffect, useRef } from "react"
-import { motion } from "framer-motion"
-import { 
-  Search, 
-  Home, 
-  LayoutGrid, 
-  MessageSquare, 
-  PenTool, 
-  FileText, 
-  ChevronDown,
-  ChevronsUpDown,
-  MoreHorizontal, 
-  Plus, 
-  Mic, 
-  Sidebar,
-  Image as ImageIcon,
-  ArrowUp,
-  StopCircle,
-  Globe,
-  Info,
-  Users,
-  Settings,
-  ArrowRight,
-  ChevronRight,
-  Code2,
-  Terminal
-} from "lucide-react"
-import ReactMarkdown from "react-markdown"
-import remarkGfm from "remark-gfm"
+import { motion, AnimatePresence } from "framer-motion"
 import { AntigravityMarkdown } from "./antigravity-markdown"
 import { AgentBridge } from "@/app/utils/agent-bridge"
-
-import { onAuthStateChanged, signInWithPopup, GithubAuthProvider, GoogleAuthProvider } from "firebase/auth"
+import { onAuthStateChanged } from "firebase/auth"
 import { auth } from "@/lib/firebase"
-
 import { SettingsModal } from "./settings-modal"
 import { TeamModal } from "./team-modal"
 import { ConstitutionalModalMac } from "./constitutional-modal-mac"
-import { Moon } from "lucide-react"
+
+// ==========================================
+// BESPOKE MINIMALIST SVG ICONS (NO LUCIDE)
+// ==========================================
+
+const IdeaAILogo = ({ className = "w-6 h-6" }: { className?: string }) => (
+  <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+    <path d="M 18 80 Q 50 12, 82 80" stroke="#171717" strokeWidth="15" strokeLinecap="round" />
+    <circle cx="50" cy="52" r="8" fill="#4f46e5" />
+  </svg>
+)
+
+const SearchIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <circle cx="11" cy="11" r="7" />
+    <path d="m20 20-3.5-3.5" />
+  </svg>
+)
+
+const SidebarCollapseIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <rect width="18" height="18" x="3" y="3" rx="4" />
+    <path d="M9 3v18" />
+  </svg>
+)
+
+const PlusIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M12 5v14M5 12h14" />
+  </svg>
+)
+
+const ComputerIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <rect width="18" height="12" x="3" y="4" rx="2.5" />
+    <path d="M7 16h10" />
+    <path d="M12 16v4" />
+    <path d="M8 20h8" />
+  </svg>
+)
+
+const AutomationsIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <circle cx="12" cy="12" r="9" />
+    <polyline points="12 7 12 12 15 15" />
+  </svg>
+)
+
+const ArtifactsIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="m12 3 8 4-8 4-8-4z" />
+    <path d="m4 11 8 4 8-4" />
+    <path d="m4 16 8 4 8-4" />
+  </svg>
+)
+
+const CustomizeIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.5a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+    <circle cx="12" cy="12" r="3" />
+  </svg>
+)
+
+const ChevronDownIcon = ({ className = "w-3.5 h-3.5" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <polyline points="6 9 12 15 18 9" />
+  </svg>
+)
+
+const ChevronRightIcon = ({ className = "w-3.5 h-3.5" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <polyline points="9 18 15 12 9 6" />
+  </svg>
+)
+
+const MicIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+    <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+    <line x1="12" x2="12" y1="19" y2="22" />
+  </svg>
+)
+
+const AudioWaveIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <line x1="4" x2="4" y1="10" y2="14" />
+    <line x1="8" x2="8" y1="6" y2="18" />
+    <line x1="12" x2="12" y1="3" y2="21" />
+    <line x1="16" x2="16" y1="7" y2="17" />
+    <line x1="20" x2="20" y1="10" y2="14" />
+  </svg>
+)
+
+const UserIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+    <circle cx="12" cy="7" r="4" />
+  </svg>
+)
+
+const ArrowUpIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <line x1="12" x2="12" y1="19" y2="5" />
+    <polyline points="5 12 12 5 19 12" />
+  </svg>
+)
+
+const StopIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <rect width="14" height="14" x="5" y="5" rx="2" />
+  </svg>
+)
+
+const MoonIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
+  </svg>
+)
+
+const TerminalIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <polyline points="4 17 10 11 4 5" />
+    <line x1="12" x2="20" y1="19" y2="19" />
+  </svg>
+)
+
+const GitHubIcon = ({ className = "w-3.5 h-3.5" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.2c3-.3 6-1.5 6-6.5a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 5 3 6.2 6 6.5a4.8 4.8 0 0 0-1 3.2v4" />
+  </svg>
+)
 
 type Project = {
   id: string
@@ -48,926 +149,825 @@ type Project = {
 }
 
 export function IdeaAIInterfaceMac() {
-  const [selectedDept, setSelectedDept] = useState("Software")
-  const [projects, setProjects] = useState<Project[]>(typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('ideaai_projects') || '[]') : [])
+  const [projects, setProjects] = useState<Project[]>(
+    typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('ideaai_projects') || '[]') : []
+  )
   const [selectedProject, setSelectedProject] = useState<string | null>(null)
   const [userEmail, setUserEmail] = useState<string | null>(null)
   const [userName, setUserName] = useState<string | null>(null)
-  
-  const [showAddMenu, setShowAddMenu] = useState(false)
+
   const [showModelMenu, setShowModelMenu] = useState(false)
-  const [selectedModel, setSelectedModel] = useState("IdeaAI Hybrid Engine (Pro)")
-  const [showWorkspaceMenu, setShowWorkspaceMenu] = useState(false)
-  
+  const [selectedModel, setSelectedModel] = useState("Azure Enterprise Cloud (Llama 3.2)")
+
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
-  const [settingsTab, setSettingsTab] = useState("general")
-  const [terminalOutput, setTerminalOutput] = useState<string | null>("✔ npm run dev:electron - Ready in 3.2s")
+  const [settingsTab, setSettingsTab] = useState("models")
+  const [terminalOutput, setTerminalOutput] = useState<string | null>(null)
   const [isConstitutionalModalOpen, setIsConstitutionalModalOpen] = useState(false)
-  const [selectedRepo, setSelectedRepo] = useState("Connect GitHub")
-    const [githubRepos, setGithubRepos] = useState<any[]>([])
-    const [isConnectingGithub, setIsConnectingGithub] = useState(false)
-    const [githubConnected, setGithubConnected] = useState(false)
-  const [showRepoMenu, setShowRepoMenu] = useState(false)
   const [isTeamModalOpen, setIsTeamModalOpen] = useState(false)
-  
+
+  const [selectedRepo, setSelectedRepo] = useState("Connect GitHub")
+  const [githubRepos, setGithubRepos] = useState<any[]>([])
+  const [isConnectingGithub, setIsConnectingGithub] = useState(false)
+  const [githubConnected, setGithubConnected] = useState(false)
+  const [showRepoMenu, setShowRepoMenu] = useState(false)
+
+  // Accordion states
+  const [projectsOpen, setProjectsOpen] = useState(true)
+  const [recentsOpen, setRecentsOpen] = useState(true)
+
   const folderInputRef = useRef<HTMLInputElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const addMenuRef = useRef<HTMLDivElement>(null)
-  const addBtnRef = useRef<HTMLButtonElement>(null)
-  const modelMenuRef = useRef<HTMLDivElement>(null)
-  const modelBtnRef = useRef<HTMLButtonElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
-  
-  const body = React.useMemo(() => ({ department: selectedDept, project: selectedProject, model: selectedModel }), [selectedDept, selectedProject, selectedModel])
-
-  const [messages, setMessages] = useState<any[]>(typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('ideaai_current_chat') || '[]') : []);
-  const [status, setStatus] = useState<'ready' | 'submitted' | 'streaming' | 'error'>('ready');
-  const [error, setError] = useState<Error | null>(null);
-  const abortControllerRef = useRef<AbortController | null>(null);
-    useEffect(() => {
-      if (typeof window !== 'undefined') localStorage.setItem('ideaai_projects', JSON.stringify(projects));
-    }, [projects]);
-    useEffect(() => {
-      if (typeof window !== 'undefined') localStorage.setItem('ideaai_current_chat', JSON.stringify(messages));
-    }, [messages]);
-
-
-  const stop = () => {
-    abortControllerRef.current?.abort();
-    setStatus('ready');
-  };
-
-  const sendMessage = async (message: any) => {
-    const newMessages = [...messages, message];
-    setMessages(newMessages);
-    setStatus('submitted');
-    setError(null);
-    
-    abortControllerRef.current = new AbortController();
-    
-    try {
-      const storedApiKey = typeof window !== 'undefined' ? localStorage.getItem('ideaai_api_key') || '' : '';
-      
-      let res;
-      
-      // --- YENİ: LOKAL MOTOR (OLLAMA) ENJEKSİYONU ---
-      // AgentBridge ile Electron'da olup olmadigimizi kontrol ediyoruz
-      if (selectedModel === "IdeaAI Hybrid Engine (Pro)" && AgentBridge.isElectron()) {
-        console.log("🟢 Hibrit Motor Devrede: Kodu yerel Ollama motoruna gönderiyorum...");
-        
-        // Seçili projenin fiziksel yolunu (path) buluyoruz
-        const currentProject = projects.find(p => p.name === selectedProject);
-        const currentPath = currentProject && currentProject.files.length > 0 ? currentProject.files[0] : "Unknown";
-
-        // Yapay Zekayı bir AJAN'a (Agent) dönüştüren Sistem Komutunu ekliyoruz
-        const systemPrompt = {
-          role: "system",
-          content: `You are IdeaAI, an autonomous coding agent executing directly on the developer's machine. 
-Your goal is to prevent developer laziness by ALWAYS acting as a senior mentor. 
-Before writing any code, you MUST explain the theory, architecture, and reasoning behind your solution. 
-You can read, modify, and delete files.
-
-CURRENT WORKSPACE PATH: ${currentPath}
-
-IMPORTANT: To write or modify a file, you MUST use the following exact XML format at the end of your explanation:
-<write_file path="${currentPath !== "Unknown" ? currentPath : "C:/absolute/path"}/filename.extension">
-const example = 'hello';
-</write_file>`
-        };
-        
-        const localMessages = [systemPrompt, ...newMessages];
-        
-        // Mock terminal output for the video effect
-        setTerminalOutput("➜  ~ Analyzing codebase architecture...");
-        setTimeout(() => setTerminalOutput("➜  ~ Searching for reference 'useClient' in ./src..."), 1500);
-        setTimeout(() => setTerminalOutput("✔ Found 0 references. Creating new hook..."), 3000);
-        
-        const localResult = await AgentBridge.askLocalAI(localMessages);
-        
-        if (localResult.success) {
-          let responseText = localResult.text;
-          
-          // --- OTONOM TOOL CALLING (ARAÇ ÇAĞIRMA) MOTORU ---
-          // XML formatındaki <write_file path="...">...</write_file> etiketlerini yakala
-          const writeRegex = /<write_file path="([^"]+)">([\s\S]*?)<\/write_file>/g;
-          let match;
-          let operationsLog = "";
-          let fileCount = 0;
-
-          while ((match = writeRegex.exec(responseText)) !== null) {
-            const filePath = match[1];
-            const fileContent = match[2];
-            fileCount++;
-            
-            setTerminalOutput(`➜  ~ Otonom İşlem: ${filePath} dosyasına yazılıyor...`);
-            
-            const writeRes = await AgentBridge.writeFile(filePath, fileContent.trim());
-            
-            if (writeRes.success) {
-              operationsLog += `\n✅ **Başarılı:** \`${filePath}\` oluşturuldu/güncellendi.`;
-            } else {
-              operationsLog += `\n❌ **Hata:** \`${filePath}\` yazılamadı. Sebep: ${writeRes.error}`;
-            }
-          }
-          
-          if (operationsLog) {
-             // Yapay zekanın cevabının sonuna gerçek otonom işlem sonucunu ekliyoruz
-             responseText += `\n\n---\n**🤖 Otonom İşlem Raporu:**${operationsLog}`;
-             setTerminalOutput(`✔ ${fileCount} dosya işlemi başarıyla tamamlandı.`);
-          } else {
-             setTerminalOutput("✔ Yanıt alındı.");
-          }
-
-          setTimeout(() => setTerminalOutput(null), 4000); // Clear after a few seconds
-
-          // Fake bir Fetch response nesnesi oluşturuyoruz
-          res = {
-            ok: true,
-            json: async () => ({ response: responseText })
-          };
-        } else {
-           throw new Error(localResult.error || "Lokal Yapay Zeka çöktü.");
-        }
-      } else {
-        // --- ESKİ CLOUD (BULUT) MOTORU ---
-        res = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'X-API-Key': storedApiKey
-          },
-          body: JSON.stringify({ messages: newMessages, model: selectedModel }),
-          signal: abortControllerRef.current.signal,
-        });
-      }
-      // ---------------------------------------------
-
-        
-        if (!res.ok) {
-          let errText = "Bilinmeyen hata oluştu.";
-          if (res.status === 504) {
-            errText = "Sunucu (Modal GPU) şu anda uykudan uyanıyor (Cold Start). Lütfen 1 dakika bekleyip tekrar deneyin.";
-          } else {
-            try { 
-              const j = await res.json(); 
-              errText = j.error || errText; 
-            } catch(e) { 
-              errText = await res.text(); 
-            }
-          }
-          throw new Error(errText);
-        }
-        
-        const resData = await res.json();
-        const fullText = resData.response || resData.text || "No response";
-      const assistantId = Date.now().toString();
-      
-      setMessages([...newMessages, { id: assistantId, role: 'assistant', content: "" }]);
-      setStatus('streaming');
-      
-      let i = 0;
-      const chunkSize = 6;
-      
-      const interval = setInterval(() => {
-        if (i < fullText.length) {
-          const currentChunk = fullText.substring(0, i + chunkSize);
-          setMessages(prev => prev.map(m => m.id === assistantId ? { ...m, content: currentChunk } : m));
-          i += chunkSize;
-        } else {
-          clearInterval(interval);
-          setStatus('ready');
-
-          // --- AUTONOMOUS AGENT PARSER ---
-          try {
-            const writeRegex = /<write_file\s+path=["\']([^"\']+)["\']>([\s\S]*?)<\/write_file>/g;
-            let match;
-            let filesWritten = [];
-            while ((match = writeRegex.exec(fullText)) !== null) {
-               const filePath = match[1];
-               const fileContent = match[2].trim();
-               AgentBridge.writeFile(filePath, fileContent).then(res => {
-                  if (res.success) {
-                     console.log("File written:", filePath);
-                  }
-               });
-               filesWritten.push(filePath);
-            }
-            if (filesWritten.length > 0) {
-               setTimeout(() => {
-                 setMessages(prev => [...prev, {
-                    id: Date.now().toString() + "-sys",
-                    role: 'assistant',
-                    content: '**[Autonomous Action Successful]**\nThe following files have been saved to your local workspace:\n' + filesWritten.map(f => '- `' + f + '`').join('\n')
-                 }]);
-               }, 500);
-            }
-          } catch (e) {
-            console.error("Agent Parser Error:", e);
-          }
-          // -------------------------------
-        }
-      }, 15);
-      
-    } catch (err: any) {
-      if (err.name !== 'AbortError') {
-        const errorMsg = { id: Date.now().toString(), role: 'assistant', content: `**[System Error]**\n` + (err.message || "An unknown error occurred.") };
-        setMessages(prev => [...prev, errorMsg]);
-        setStatus('ready');
-      } else {
-        setStatus('ready');
-      }
-    }
-  };
-  
+  const messagesEndRef = useRef<HTMLDivElement>(null)
 
   const [localInput, setLocalInput] = useState("")
-  const [isFocused, setIsFocused] = useState(false)
   const [isListening, setIsListening] = useState(false)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
-  
-  const isLoading = status === 'submitted' || status === 'streaming';
+  const [messages, setMessages] = useState<any[]>(
+    typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('ideaai_current_chat') || '[]') : []
+  )
+  const [status, setStatus] = useState<'ready' | 'submitted' | 'streaming' | 'error'>('ready')
+  const [error, setError] = useState<Error | null>(null)
+  const abortControllerRef = useRef<AbortController | null>(null)
 
-  const handleCustomSubmit = async (e?: React.FormEvent) => {
-    e?.preventDefault();
-    if (!localInput.trim() || isLoading) return;
-    
-    const userInput = localInput.trim();
-    setLocalInput("");
-    textareaRef.current?.focus();
-
-    if (userInput.startsWith('/test-hybrid')) {
-        setMessages(prev => [...prev, { id: Date.now().toString(), role: 'user', content: userInput }]);
-        setStatus('submitted');
-        setTimeout(() => {
-          setMessages(prev => [...prev, { 
-            id: Date.now().toString(), 
-            role: 'assistant', 
-            content: 'Gece protokolü başarıyla aktif edildi. Hibrit sistem Modal Cloud üzerinden çalışıyor. Hedef: "Sistemdeki kimlik doğrulama hatalarını gider."\n\nLütfen nasıl ilerleyeceğimi deterministik olarak seçin:',
-            options: [
-              "1. Sadece Auth.tsx dosyasını analiz et",
-              "2. Tüm projedeki Firebase bağlantılarını kontrol et",
-              "3. Gece modunu iptal et ve local IPC'ye dön"
-            ]
-          }]);
-          setStatus('ready');
-        }, 1000);
-        return;
-      }
-      
-      // -- LOCAL AGENT BRIDGE INTERCEPTION --
-    if (userInput.startsWith('/terminal ')) {
-      const cmd = userInput.replace('/terminal ', '');
-      setMessages(prev => [...prev, { id: Date.now().toString(), role: 'user', content: userInput }]);
-      
-      setStatus('submitted');
-      const res = await AgentBridge.runCommand(cmd, selectedProject || "C:\\");
-      
-      const output = res.success 
-        ? `**[Terminal Success]**\n\`\`\`bash\n${res.stdout || 'Command executed with no output.'}\n\`\`\``
-        : `**[Terminal Error]**\n\`\`\`bash\n${res.stderr || res.error}\n\`\`\``;
-        
-      setMessages(prev => [...prev, { id: Date.now().toString(), role: 'assistant', content: output }]);
-      setStatus('ready');
-      return;
-    }
-
-    if (userInput.startsWith('/read ')) {
-      const filePath = userInput.replace('/read ', '');
-      setMessages(prev => [...prev, { id: Date.now().toString(), role: 'user', content: userInput }]);
-      
-      setStatus('submitted');
-      const res = await AgentBridge.readFile(filePath);
-      
-      const output = res.success 
-        ? `**[File Content: ${filePath}]**\n\`\`\`text\n${res.content}\n\`\`\``
-        : `**[Error reading file]**\n\`\`\`text\n${res.error}\n\`\`\``;
-        
-      setMessages(prev => [...prev, { id: Date.now().toString(), role: 'assistant', content: output }]);
-      setStatus('ready');
-      return;
-    }
-    // -------------------------------------
-
-    sendMessage({ id: Date.now().toString(), role: 'user', content: userInput });
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleCustomSubmit();
-    }
-  }
-
-  // Handle outside clicks to close popovers
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const target = event.target as Node
-      if (showAddMenu && addMenuRef.current && !addMenuRef.current.contains(target) && !addBtnRef.current?.contains(target)) {
-        setShowAddMenu(false)
-      }
-      if (showModelMenu && modelMenuRef.current && !modelMenuRef.current.contains(target) && !modelBtnRef.current?.contains(target)) {
-        setShowModelMenu(false)
-      }
-      // Extremely simple check for workspace menu using class matching to keep it minimalist
-      if (showWorkspaceMenu && !(target as Element).closest('.workspace-dropdown-container')) {
-        setShowWorkspaceMenu(false)
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => document.removeEventListener("mousedown", handleClickOutside)
-  }, [showAddMenu, showModelMenu])
+    if (typeof window !== 'undefined') localStorage.setItem('ideaai_projects', JSON.stringify(projects))
+  }, [projects])
 
-  // Auto scroll to bottom when new messages arrive
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+    if (typeof window !== 'undefined') localStorage.setItem('ideaai_current_chat', JSON.stringify(messages))
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  
-    const fetchGithubRepos = async (token: string) => {
-      try {
-        const res = await fetch('https://api.github.com/user/repos?sort=updated&per_page=100', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Accept': 'application/vnd.github.v3+json'
-          }
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setGithubRepos(data);
-          setGithubConnected(true);
-        }
-      } catch (e) {
-        console.error("Failed to fetch repos", e);
-      }
-    };
-
-    const handleConnectGithub = async () => {
-      setIsConnectingGithub(true);
-      try {
-        const provider = new GithubAuthProvider();
-        provider.addScope('repo');
-        const result = await signInWithPopup(auth, provider);
-        const credential = GithubAuthProvider.credentialFromResult(result);
-        const token = credential?.accessToken;
-        if (token) {
-          localStorage.setItem('github_token', token);
-          fetchGithubRepos(token);
-        }
-      } catch (error) {
-        console.error("Github login failed", error);
-      } finally {
-        setIsConnectingGithub(false);
-      }
-    };
-
-    useEffect(() => {
-      const token = localStorage.getItem('github_token');
-      if (token) {
-        fetchGithubRepos(token);
-      }
-    }, []);
-
-    // Fetch current user
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-          setUserEmail(user.email || null)
-          setUserName(user.displayName || (user.email ? user.email.split('@')[0] : 'User'))
-        } else {
-          setUserEmail(null)
-          setUserName(null)
-        }
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      if (currentUser) {
+        setUserEmail(currentUser.email)
+        setUserName(currentUser.displayName || currentUser.email?.split('@')[0] || "User")
+      } else {
+        setUserEmail(null)
+        setUserName(null)
+      }
     })
     return () => unsubscribe()
   }, [])
 
+  const stop = () => {
+    abortControllerRef.current?.abort()
+    setStatus('ready')
+  }
 
+  const handleMicClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    if (status === 'submitted') {
+      stop()
+      return
+    }
+
+    if (localInput.trim() && !isListening) {
+      handleCustomSubmit()
+      return
+    }
+
+    if (!('webkitSpeechRecognition' in window)) {
+      alert('Speech recognition is not supported in this browser. Please use Chrome or Edge.')
+      return
+    }
+
+    const SpeechRecognition = (window as any).webkitSpeechRecognition
+    const recognition = new SpeechRecognition()
+    recognition.lang = 'en-US'
+    recognition.interimResults = false
+    recognition.maxAlternatives = 1
+
+    recognition.onstart = () => setIsListening(true)
+    recognition.onend = () => setIsListening(false)
+    recognition.onerror = () => setIsListening(false)
+
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript
+      setLocalInput((prev) => prev + (prev ? " " : "") + transcript)
+    }
+
+    if (isListening) {
+      recognition.stop()
+      setIsListening(false)
+    } else {
+      recognition.start()
+    }
+  }
+
+  const sendMessage = async (message: any) => {
+    const newMessages = [...messages, message]
+    setMessages(newMessages)
+    setStatus('submitted')
+    setError(null)
+
+    abortControllerRef.current = new AbortController()
+
+    try {
+      const storedApiKey = typeof window !== 'undefined' ? localStorage.getItem('ideaai_api_key') || '' : ''
+
+      // Local Electron Engine
+      if (selectedModel === "Local Engine (Ollama)" && AgentBridge.isElectron()) {
+        const currentProject = projects.find(p => p.name === selectedProject)
+        const currentPath = currentProject && currentProject.files.length > 0 ? currentProject.files[0] : "Unknown"
+
+        const systemPrompt = {
+          role: "system",
+          content: `You are IdeaAI, an autonomous senior engineering agent executing locally.
+CURRENT WORKSPACE PATH: ${currentPath}
+
+To create or modify files, output inside this exact XML format:
+<write_file path="${currentPath !== "Unknown" ? currentPath : "C:/absolute/path"}/filename.extension">
+your code here
+</write_file>`
+        }
+
+        setTerminalOutput("➜  ~ Analyzing codebase architecture...")
+        const localResult = await AgentBridge.askLocalAI([systemPrompt, ...newMessages])
+
+        if (localResult.success) {
+          let responseText = localResult.text
+          setMessages(prev => [...prev, { id: Date.now().toString(), role: 'assistant', content: responseText }])
+          setStatus('ready')
+          setTerminalOutput("✔ Local task finished.")
+          return
+        }
+      }
+
+      // Cloud Azure or Fallback API
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': storedApiKey,
+        },
+        body: JSON.stringify({
+          messages: newMessages,
+          model: selectedModel,
+        }),
+        signal: abortControllerRef.current.signal
+      })
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}))
+        throw new Error(errData.error || `Server responded with ${res.status}`)
+      }
+
+      const data = await res.json()
+      setMessages(prev => [...prev, {
+        id: Date.now().toString(),
+        role: 'assistant',
+        content: data.response
+      }])
+      setStatus('ready')
+    } catch (err: any) {
+      if (err.name === 'AbortError') {
+        setStatus('ready')
+        return
+      }
+      setError(err)
+      setStatus('error')
+      setMessages(prev => [...prev, {
+        id: Date.now().toString(),
+        role: 'assistant',
+        content: `**Execution Error:** ${err.message}`
+      }])
+    }
+  }
+
+  const handleCustomSubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault()
+    if (!localInput.trim()) return
+
+    sendMessage({
+      id: Date.now().toString(),
+      role: 'user',
+      content: localInput
+    })
+    setLocalInput("")
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault()
+      handleCustomSubmit()
+    }
+  }
 
   const handleFolderSelect = async () => {
     try {
       if (AgentBridge.isElectron()) {
-        const result = await AgentBridge.selectDirectory();
+        const result = await AgentBridge.selectDirectory()
         if (result.success && result.path) {
-          const folderName = result.path.split(/[/\\]/).pop() || result.path;
+          const folderName = result.path.split(/[/\\]/).pop() || result.path
           const newProject: Project = {
             id: Date.now().toString(),
             name: folderName,
-            files: [result.path], // Save absolute path in files array for later use
+            files: [result.path],
             time: "Just now"
-          };
-          setProjects(prev => [...prev, newProject]);
-          setSelectedProject(newProject.name);
+          }
+          setProjects(prev => [...prev, newProject])
+          setSelectedProject(newProject.name)
         }
-      } else {
-        // Fallback for browser
+      } else if ('showDirectoryPicker' in window) {
         const directoryHandle = await (window as any).showDirectoryPicker({ mode: 'read' })
-        const folderName = directoryHandle.name
-        
         const newProject: Project = {
           id: Date.now().toString(),
-          name: folderName,
-          files: [], 
+          name: directoryHandle.name,
+          files: [],
           time: "Just now"
         }
         setProjects(prev => [...prev, newProject])
         setSelectedProject(newProject.name)
+      } else {
+        folderInputRef.current?.click()
       }
-      setShowAddMenu(false)
     } catch (err) {
-      console.log('Folder selection cancelled or failed', err)
+      console.log('Folder selection cancelled', err)
     }
   }
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Just a mock handler for media for now
     if (e.target.files && e.target.files.length > 0) {
-      setShowAddMenu(false)
-      // Would process file here
+      const file = e.target.files[0]
+      const newProject: Project = {
+        id: Date.now().toString(),
+        name: file.name,
+        files: [file.name],
+        time: "Just now"
+      }
+      setProjects(prev => [...prev, newProject])
+      setSelectedProject(newProject.name)
     }
   }
 
-  const insertAction = (char: string) => {
-    setLocalInput(prev => prev + char)
-    setShowAddMenu(false)
-    textareaRef.current?.focus()
+  const handleConnectGithub = () => {
+    setIsConnectingGithub(true)
+    setTimeout(() => {
+      setIsConnectingGithub(false)
+      setGithubConnected(true)
+      setSelectedRepo("ideaai-production")
+      setShowRepoMenu(false)
+    }, 1200)
   }
 
   return (
-    <div className="flex h-screen w-full font-sans overflow-hidden bg-gradient-to-br from-[#FF9A9E] via-[#FECFEF] to-[#A18CD1]">
-      {/* Hidden file inputs for system dialogs */}
+    <div 
+      className="flex h-screen w-full bg-[#ffffff] text-[#171717] overflow-hidden select-none"
+      style={{ fontFamily: "'Google Sans', 'Google Sans Flex', -apple-system, BlinkMacSystemFont, sans-serif" }}
+    >
       <input type="file" ref={folderInputRef} onChange={handleFileSelect} className="hidden" />
       <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" />
-      
-      {/* MAC-LIKE GLASSMORPHISM WINDOW */}
-      <div className="w-full h-full bg-[#F9F9F9]/80 backdrop-blur-3xl flex flex-col overflow-hidden relative">
+
+      {/* ========================================================= */}
+      {/* LEFT SIDEBAR (#f3f3f3, rgba(243, 243, 243), hsl(0, 0, 95)) */}
+      {/* ========================================================= */}
+      <aside className="w-[260px] bg-[#f3f3f3] border-r border-[#e5e5e5] flex flex-col shrink-0 justify-between">
         
-        {/* Top Mac Traffic Lights and Menu */}
-        <div className="h-10 flex items-center px-4 gap-4 border-b border-black/5 bg-white/40 shrink-0">
-          <div className="flex items-center gap-2">
-            <div className="w-[11px] h-[11px] rounded-full bg-[#ff5f56] border border-[#e0443e]"></div>
-            <div className="w-[11px] h-[11px] rounded-full bg-[#ffbd2e] border border-[#dea123]"></div>
-            <div className="w-[11px] h-[11px] rounded-full bg-[#27c93f] border border-[#1aab29]"></div>
-          </div>
-          <div className="flex gap-4 text-[13px] text-black/50 font-medium ml-2">
-            <span className="hover:text-black cursor-pointer transition-colors">File</span>
-            <span className="hover:text-black cursor-pointer transition-colors">Edit</span>
-            <span className="hover:text-black cursor-pointer transition-colors">View</span>
-            <span className="hover:text-black cursor-pointer transition-colors">Help</span>
-          </div>
+        {/* Top Header & Navigation */}
+        <div className="flex flex-col p-3">
           
-          <div className="flex-1"></div>
-          <div className="flex items-center gap-4 text-[12px] font-medium text-black/60 pr-2">
-            <button 
-              onClick={() => setIsConstitutionalModalOpen(true)}
-              className="flex items-center gap-1.5 px-2 py-1 bg-indigo-50 text-indigo-600 rounded-md border border-indigo-100 cursor-pointer hover:bg-indigo-100 transition-colors"
+          {/* Logo & Quick Action Buttons */}
+          <div className="flex items-center justify-between px-2 pt-1 pb-4">
+            <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => { setMessages([]); setLocalInput(""); }}>
+              <IdeaAILogo className="w-6 h-6" />
+              <span className="text-[15px] font-semibold tracking-tight text-[#171717]">IdeaAI</span>
+            </div>
+            
+            <div className="flex items-center gap-1.5 text-[#737373]">
+              <button 
+                onClick={() => textareaRef.current?.focus()}
+                title="Search"
+                className="p-1.5 rounded-md hover:bg-[#e8e8e8] hover:text-[#171717] transition-colors"
+              >
+                <SearchIcon className="w-4 h-4" />
+              </button>
+              <button 
+                onClick={() => setIsSettingsOpen(true)}
+                title="Workspace settings"
+                className="p-1.5 rounded-md hover:bg-[#e8e8e8] hover:text-[#171717] transition-colors"
+              >
+                <SidebarCollapseIcon className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Primary Sidebar Menu Items */}
+          <div className="space-y-0.5 mb-5">
+            <button
+              onClick={() => { setMessages([]); setLocalInput(""); }}
+              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-[#171717] hover:bg-[#eaeaea] transition-colors text-left"
             >
-              <Moon className="w-3.5 h-3.5" />
-              Night Protocol
+              <PlusIcon className="w-4 h-4 text-[#525252]" />
+              <span>New</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setSelectedModel("Local Engine (Ollama)")
+                setTerminalOutput("➜  ~ Switched to local Computer execution.")
+              }}
+              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-[#404040] hover:bg-[#eaeaea] hover:text-[#171717] transition-colors text-left"
+            >
+              <ComputerIcon className="w-4 h-4 text-[#525252]" />
+              <span>Computer</span>
+            </button>
+
+            <button
+              onClick={() => setIsConstitutionalModalOpen(true)}
+              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-[#404040] hover:bg-[#eaeaea] hover:text-[#171717] transition-colors text-left"
+            >
+              <AutomationsIcon className="w-4 h-4 text-[#525252]" />
+              <span>Automations</span>
+            </button>
+
+            <button
+              onClick={() => setIsTeamModalOpen(true)}
+              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-[#404040] hover:bg-[#eaeaea] hover:text-[#171717] transition-colors text-left"
+            >
+              <ArtifactsIcon className="w-4 h-4 text-[#525252]" />
+              <span>Artifacts</span>
+            </button>
+
+            <button
+              onClick={() => { setSettingsTab("models"); setIsSettingsOpen(true); }}
+              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-[#404040] hover:bg-[#eaeaea] hover:text-[#171717] transition-colors text-left"
+            >
+              <CustomizeIcon className="w-4 h-4 text-[#525252]" />
+              <span>Customize</span>
             </button>
           </div>
-        </div>
 
-        <div className="flex flex-1 overflow-hidden">
-          {/* LEFT SIDEBAR (Cursor style layout) */}
-          <div className="w-[260px] bg-white/30 border-r border-black/5 flex flex-col shrink-0">
-            {/* Top actions */}
-            <div className="p-3">
-              <div className="flex items-center justify-between text-black/40 mb-4 px-2">
-                <Search className="w-[15px] h-[15px] cursor-pointer hover:text-black" />
-                <div className="flex items-center gap-3">
-                  <ArrowRight className="w-[15px] h-[15px] rotate-180 cursor-pointer hover:text-black" />
-                  <ArrowRight className="w-[15px] h-[15px] cursor-pointer hover:text-black" />
-                </div>
-              </div>
-              
-              <div className="space-y-0.5">
-                <button 
-                  onClick={() => { setMessages([]); setLocalInput(""); }}
-                  className="w-full flex items-center justify-between px-2 py-1.5 rounded-md hover:bg-black/5 text-black/80 font-medium text-[13px] transition-colors"
+          {/* Section: Projects (Accordion) */}
+          <div className="mb-4">
+            <button 
+              onClick={() => setProjectsOpen(!projectsOpen)}
+              className="w-full flex items-center justify-between px-3 py-1.5 text-[11px] font-semibold text-[#8a8a8a] uppercase tracking-wider hover:text-[#171717] transition-colors"
+            >
+              <span>Projects</span>
+              <div className="flex items-center gap-1">
+                <span 
+                  onClick={(e) => { e.stopPropagation(); handleFolderSelect(); }}
+                  className="p-0.5 hover:text-[#171717] cursor-pointer"
+                  title="Add folder"
                 >
-                  <div className="flex items-center gap-2">
-                    <Plus className="w-[15px] h-[15px]" />
-                    New Agent
+                  <PlusIcon className="w-3 h-3" />
+                </span>
+                <ChevronDownIcon className={`w-3 h-3 transition-transform ${projectsOpen ? '' : '-rotate-90'}`} />
+              </div>
+            </button>
+
+            {projectsOpen && (
+              <div className="mt-1 space-y-0.5">
+                {projects.length === 0 ? (
+                  <div className="px-3 py-1.5 text-[12px] text-[#a3a3a3]">
+                    No projects yet
                   </div>
-                  <span className="text-[10px] text-black/40">Ctrl+N</span>
-                </button>
-                <button className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-black/5 text-black/70 text-[13px] transition-colors">
-                  <Terminal className="w-[15px] h-[15px]" />
-                  Automations
-                </button>
-                <button 
-                  onClick={() => setIsSettingsOpen(true)}
-                  className="w-full flex items-center gap-2 px-2 py-1.5 rounded-md hover:bg-black/5 text-black/70 text-[13px] transition-colors"
-                >
-                  <Settings className="w-[15px] h-[15px]" />
-                  Customize
-                </button>
-              </div>
-            </div>
-
-            {/* Repositories */}
-            <div className="mt-4 flex-1 overflow-y-auto">
-              <div className="flex items-center justify-between px-5 mb-2 text-[11px] font-semibold text-black/40 uppercase tracking-wider">
-                Repositories
-                <div className="flex items-center gap-1.5">
-                  <Settings className="w-3 h-3 cursor-pointer hover:text-black/70" />
-                  <Plus className="w-3 h-3 cursor-pointer hover:text-black/70" onClick={handleFolderSelect} />
-                </div>
-              </div>
-              
-              <div className="px-3">
-                <div className="flex items-center gap-2 px-2 py-1.5 rounded-md bg-black/5 text-black/80 text-[13px] cursor-pointer">
-                  <Home className="w-4 h-4 text-black/60" strokeWidth={1.25} />
-                  Home
-                </div>
-                <div className="pl-6 space-y-0.5 mt-1">
-                  {projects.map(proj => (
+                ) : (
+                  projects.map(proj => (
                     <div 
-                      key={proj.id} 
+                      key={proj.id}
                       onClick={() => setSelectedProject(proj.name)}
-                      className={`px-2 py-1.5 rounded-md text-[13px] cursor-pointer transition-colors ${selectedProject === proj.name ? "bg-black/10 text-black font-medium" : "text-black/50 hover:text-black hover:bg-black/5"}`}
+                      className={`w-full flex items-center justify-between px-3 py-1.5 rounded-md text-[13px] cursor-pointer transition-colors ${
+                        selectedProject === proj.name ? "bg-[#e5e5e5] text-[#171717] font-medium" : "text-[#525252] hover:bg-[#eaeaea]"
+                      }`}
                     >
-                      {proj.name}
+                      <span className="truncate">{proj.name}</span>
                     </div>
-                  ))}
-                  {projects.length === 0 && (
-                    <div className="px-2 py-1.5 text-[12px] text-black/40 italic">
-                      No agents yet
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-
-            {/* User Profile Footer */}
-            <div className="p-3 mt-auto border-t border-black/5 bg-[#F9F9F9]/50">
-              <div className="flex items-center justify-between p-1">
-                <div className="flex items-center gap-2 overflow-hidden">
-                  <div className="w-6 h-6 rounded-full bg-black/10 flex items-center justify-center text-[12px] font-medium text-black shrink-0">
-                    {userEmail ? userEmail[0].toUpperCase() : 'U'}
-                  </div>
-                  <span className="text-[13px] font-medium text-black/70 truncate">
-                    {userName || 'User'}
-                  </span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button className="bg-[#1e40af] hover:bg-[#1e3a8a] text-white text-[11px] font-medium px-3 py-1 rounded-full transition-colors">
-                    Update
-                  </button>
-                  <button onClick={() => setIsSettingsOpen(true)} className="text-black/40 hover:text-black transition-colors p-1 hover:bg-black/5 rounded-md">
-                    <Settings className="w-4 h-4" strokeWidth={1.5} />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* MAIN CONTENT */}
-          <div className="flex-1 relative flex flex-col bg-white/40">
-            {/* Header Actions */}
-            <div className="absolute top-3 right-4 flex items-center gap-4 text-black/40">
-              <span className="text-[12px] cursor-pointer hover:text-black">Editor Window ?</span>
-              <MoreHorizontal className="w-4 h-4 cursor-pointer hover:text-black" />
-              <div className="flex items-center gap-[2px] cursor-pointer hover:text-black">
-                <div className="w-[11px] h-[11px] border-[1.5px] border-current rounded-[3px]"></div>
-                <div className="w-[11px] h-[11px] border-[1.5px] border-current rounded-[3px]"></div>
-              </div>
-            </div>
-
-            {messages.length === 0 ? (
-              <div className="flex-1 flex flex-col items-center justify-center p-8">
-                <div className="w-full max-w-2xl flex flex-col items-center">
-                  
-                  {/* Breadcrumb */}
-                  <div className="flex items-center gap-2 text-[12px] text-black/50 mb-3 w-full pl-2 font-medium">
-                    <span className="flex items-center gap-1 cursor-pointer hover:text-black transition-colors">
-                      Home <ChevronDown className="w-3 h-3" />
-                    </span>
-                    <span className="flex items-center gap-1 cursor-pointer hover:text-black transition-colors">
-                      <Terminal className="w-3 h-3" /> Local
-                    </span>
-                  </div>
-
-                  {/* Terminal Output Bar */}
-                  {terminalOutput && (
-                    <div className="w-full mb-3 px-3 py-2 bg-black/80 backdrop-blur-md border border-white/10 rounded-lg shadow-lg flex items-center gap-2 text-green-400 font-mono text-[11px] animate-in fade-in slide-in-from-bottom-2">
-                      <Terminal className="w-3.5 h-3.5 text-slate-400" />
-                      <span className="truncate">{terminalOutput}</span>
-                    </div>
-                  )}
-
-                  {/* Input Box */}
-                  <div className="w-full bg-white rounded-[14px] shadow-[0_2px_15px_rgba(0,0,0,0.03)] border border-black/5 p-4 flex flex-col focus-within:ring-2 focus-within:ring-black/5 transition-all">
-                    <textarea
-                      ref={textareaRef}
-                      value={localInput}
-                      onChange={(e) => setLocalInput(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      placeholder="Plan, Build, / for skills, @ for context"
-                      className="w-full min-h-[90px] bg-transparent resize-none outline-none text-[15px] text-black placeholder:text-black/30 mb-3 leading-relaxed"
-                    />
-                    
-                      
-                      <div className="flex items-center justify-between mt-auto">
-                        <div className="flex items-center gap-3">
-                          {/* Plus Icon */}
-                          <button className="text-black/40 hover:text-black transition-colors p-1">
-                            <Plus className="w-5 h-5" />
-                          </button>
-                          
-                          {/* Model Dropdown */}
-                          <div className="relative">
-                            <button onClick={() => setShowModelMenu(!showModelMenu)} className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-[8px] text-[12px] font-semibold transition-colors border border-indigo-100">
-                              <span className="text-indigo-500">✨</span>
-                              {selectedModel}
-                              <ChevronDown className="w-3 h-3 ml-0.5 text-indigo-400" />
-                            </button>
-                            
-                            {showModelMenu && (
-                              <div className="absolute bottom-full left-0 mb-2 w-[220px] bg-white rounded-[12px] shadow-[0_4px_20px_rgba(0,0,0,0.12)] border border-black/5 py-1.5 z-50 overflow-hidden">
-                                <div className="px-3 py-1 text-[11px] font-bold text-black/40 uppercase tracking-wider">Models</div>
-                                <button onClick={() => { setSelectedModel("IdeaAI Hybrid Engine (Pro)"); setShowModelMenu(false) }} className="w-full flex items-center px-3 py-2 text-[13px] text-black/80 hover:bg-black/5 text-left font-medium">IdeaAI Hybrid Engine (Pro)</button>
-                                <button onClick={() => { setSelectedModel("Bring Your Own Key (BYOK)"); setShowModelMenu(false) }} className="w-full flex items-center px-3 py-2 text-[13px] text-black/80 hover:bg-black/5 text-left font-medium">Bring Your Own Key (BYOK)</button>
-                                <button onClick={() => { setSelectedModel("Local Engine (Ollama)"); setShowModelMenu(false) }} className="w-full flex items-center px-3 py-2 text-[13px] text-black/80 hover:bg-black/5 text-left font-medium">Local Engine (Ollama)</button>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* GitHub Dropdown */}
-                          
-                          <div className="relative">
-                            <button onClick={() => setShowRepoMenu(!showRepoMenu)} className="flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-black/5 text-black/70 rounded-[8px] text-[12px] font-medium transition-colors border border-black/10">
-                              <svg viewBox="0 0 24 24" width="14" height="14" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="w-3.5 h-3.5"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.2c3-.3 6-1.5 6-6.5a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 5 3 6.2 6 6.5a4.8 4.8 0 0 0-1 3.2v4"></path></svg>
-                              {selectedRepo}
-                              <ChevronDown className="w-3 h-3 ml-0.5 opacity-50" />
-                            </button>
-                            {showRepoMenu && (
-                              
-                              <div className="absolute bottom-full left-0 mb-2 w-[280px] max-h-[300px] overflow-y-auto custom-scrollbar bg-white rounded-[12px] shadow-[0_4px_20px_rgba(0,0,0,0.12)] border border-black/5 py-1.5 z-50">
-                                <div className="px-3 py-1.5 text-[11px] font-bold text-black/40 uppercase tracking-wider sticky top-0 bg-white/90 backdrop-blur-md z-10 border-b border-black/5">Repositories</div>
-                                
-                                {!githubConnected ? (
-                                  <div className="p-3">
-                                    <p className="text-[12px] text-black/60 mb-2 leading-relaxed">Connect your GitHub account to access your private and public repositories.</p>
-                                    <button 
-                                      onClick={handleConnectGithub}
-                                      disabled={isConnectingGithub}
-                                      className="w-full flex items-center justify-center gap-2 bg-black text-white rounded-lg px-3 py-2 text-[13px] font-medium hover:bg-black/80 transition-colors"
-                                    >
-                                      <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.2c3-.3 6-1.5 6-6.5a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 5 3 6.2 6 6.5a4.8 4.8 0 0 0-1 3.2v4"></path></svg>
-                                      {isConnectingGithub ? "Connecting..." : "Connect GitHub"}
-                                    </button>
-                                  </div>
-                                ) : (
-                                  <>
-                                    {githubRepos.length === 0 ? (
-                                      <div className="px-3 py-2 text-[12px] text-black/50">Loading repos...</div>
-                                    ) : (
-                                      githubRepos.map((repo) => (
-                                        <button 
-                                          key={repo.id}
-                                          onClick={() => { setSelectedRepo(repo.full_name); setShowRepoMenu(false) }} 
-                                          className="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-black/80 hover:bg-black/5 text-left font-medium transition-colors"
-                                        >
-                                          {repo.private ? (
-                                            <svg className="w-3.5 h-3.5 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                                          ) : (
-                                            <svg className="w-3.5 h-3.5 text-black/40 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
-                                          )}
-                                          <span className="truncate">{repo.full_name}</span>
-                                        </button>
-                                      ))
-                                    )}
-                                  </>
-                                )}
-                              </div>
-
-                                
-                            )}
-                          </div>
-                        </div>
-                        
-                        <button 
-                          onClick={handleCustomSubmit}
-                          disabled={!localInput.trim() || isLoading}
-                          className={`w-8 h-8 flex items-center justify-center rounded-full transition-all ${
-                            localInput.trim() ? "bg-black text-white shadow-md hover:scale-105" : "bg-black/80 text-white"
-                          }`}
-                        >
-                          {isLoading ? <StopCircle className="w-[15px] h-[15px] animate-pulse" /> : <Mic className="w-[15px] h-[15px]" />}
-                        </button>
-                      </div>
-                  </div>
-
-                  {/* Small Action Buttons */}
-                  <div className="w-full flex mt-4 pl-2">
-                    <button className="flex items-center gap-2 text-[12px] text-black/50 hover:text-black px-4 py-1.5 rounded-full border border-black/5 bg-white hover:bg-white/70 shadow-[0_1px_4px_rgba(0,0,0,0.02)] transition-all font-medium">
-                      Plan New Idea <span className="flex items-center text-[10px] text-black/30 ml-1"><ArrowUp className="w-3 h-3 mr-0.5" />Tab</span>
-                    </button>
-                  </div>
-
-                </div>
-              </div>
-            ) : (
-              <div className="flex-1 flex flex-col w-full h-full pt-12 pb-6 px-4 md:px-8 max-w-4xl mx-auto">
-                {/* Chat Interface */}
-                <div className="flex-1 overflow-y-auto custom-scrollbar space-y-6 pb-24 pr-4">
-                  {messages.map((message, i) => (
-                    <motion.div 
-                      key={message.id || i}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className={`flex gap-4 ${message.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
-                    >
-                      
-                      <div className={`max-w-[85%] rounded-[20px] px-5 py-4 ${
-                          message.role === 'user' 
-                            ? 'bg-[#F9FAFB] border border-[#E5E7EB] text-black' 
-                            : 'bg-white shadow-sm border border-[#E5E7EB] text-black'
-                        }`}>
-                        <AntigravityMarkdown content={message.content} />
-                          {message.options && message.options.length > 0 && (
-                            <div className="mt-4 flex flex-col gap-2">
-                              <div className="text-[11px] font-semibold text-black/40 uppercase tracking-wider mb-1">Deterministic Options</div>
-                              {message.options.map((opt, idx) => (
-                                <button 
-                                  key={idx}
-                                  onClick={() => {
-                                    setLocalInput(opt);
-                                    // Trigger send logic
-                                    setTimeout(() => handleCustomSubmit(), 50);
-                                  }}
-                                  className="text-left px-4 py-2.5 bg-indigo-50/50 hover:bg-indigo-50 border border-indigo-100 rounded-lg text-[13px] text-indigo-700 font-medium transition-colors"
-                                >
-                                  {opt}
-                                </button>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                    </motion.div>
-                  ))}
-                  
-                    {status === 'submitted' && (
-                      <div className="flex gap-4 flex-row opacity-80 transition-opacity">
-                        <div className="w-8 h-8 shrink-0 rounded-full flex items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-500 text-white shadow-md">
-                          AI
-                        </div>
-                        <div className="flex items-center justify-center py-2 px-2">
-                          <img 
-                            src="/ideaai-logo.png" 
-                            alt="Thinking..." 
-                            className="w-5 h-5 ideaai-thinking-anim" 
-                          />
-                        </div>
-                      </div>
-                    )}
-                    <div ref={messagesEndRef} />
-                </div>
-                
-                {/* Fixed Input at bottom */}
-                <div className="absolute bottom-6 left-0 right-0 px-8 flex justify-center flex-col items-center">
-                  
-                  {/* Terminal Output Bar */}
-                  {terminalOutput && (
-                    <div className="w-full max-w-3xl mb-2 px-3 py-1.5 bg-black/80 backdrop-blur-md border border-white/10 rounded-md shadow-lg flex items-center gap-2 text-green-400 font-mono text-[10px] animate-in fade-in slide-in-from-bottom-2">
-                      <Terminal className="w-3 h-3 text-slate-400" />
-                      <span className="truncate">{terminalOutput}</span>
-                    </div>
-                  )}
-
-                  <div className="w-full max-w-3xl bg-white/90 backdrop-blur-xl rounded-[14px] shadow-[0_10px_40px_rgba(0,0,0,0.08)] border border-black/10 p-3 flex flex-col focus-within:ring-2 focus-within:ring-black/10 transition-all">
-                    <textarea
-                      ref={textareaRef}
-                      value={localInput}
-                      onChange={(e) => setLocalInput(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      placeholder="Reply to AI..."
-                      className="w-full max-h-[150px] min-h-[40px] bg-transparent resize-none outline-none text-[14px] text-black placeholder:text-black/40 mb-2"
-                    />
-                    
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          {/* Plus Icon */}
-                          <button className="text-black/40 hover:text-black transition-colors p-1">
-                            <Plus className="w-4 h-4" />
-                          </button>
-                          
-                          {/* Model Dropdown */}
-                          <div className="relative">
-                            <button onClick={() => setShowModelMenu(!showModelMenu)} className="flex items-center gap-1 px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-md text-[11px] font-semibold transition-colors border border-indigo-100">
-                              <span className="text-indigo-500">✨</span>
-                              {selectedModel}
-                              <ChevronDown className="w-2.5 h-2.5 ml-0.5 text-indigo-400" />
-                            </button>
-                            
-                            {showModelMenu && (
-                              <div className="absolute bottom-full left-0 mb-2 w-[220px] bg-white rounded-[12px] shadow-[0_4px_20px_rgba(0,0,0,0.12)] border border-black/5 py-1.5 z-50 overflow-hidden">
-                                <div className="px-3 py-1 text-[11px] font-bold text-black/40 uppercase tracking-wider">Models</div>
-                                <button onClick={() => { setSelectedModel("IdeaAI Hybrid Engine (Pro)"); setShowModelMenu(false) }} className="w-full flex items-center px-3 py-2 text-[13px] text-black/80 hover:bg-black/5 text-left font-medium">IdeaAI Hybrid Engine (Pro)</button>
-                                <button onClick={() => { setSelectedModel("Bring Your Own Key (BYOK)"); setShowModelMenu(false) }} className="w-full flex items-center px-3 py-2 text-[13px] text-black/80 hover:bg-black/5 text-left font-medium">Bring Your Own Key (BYOK)</button>
-                                <button onClick={() => { setSelectedModel("Local Engine (Ollama)"); setShowModelMenu(false) }} className="w-full flex items-center px-3 py-2 text-[13px] text-black/80 hover:bg-black/5 text-left font-medium">Local Engine (Ollama)</button>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* GitHub Dropdown */}
-                          
-                          <div className="relative">
-                            <button onClick={() => setShowRepoMenu(!showRepoMenu)} className="flex items-center gap-1.5 px-2.5 py-1 bg-white hover:bg-black/5 text-black/70 rounded-md text-[11px] font-medium transition-colors border border-black/10">
-                              <svg viewBox="0 0 24 24" width="12" height="12" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" className="w-3 h-3"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.2c3-.3 6-1.5 6-6.5a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 5 3 6.2 6 6.5a4.8 4.8 0 0 0-1 3.2v4"></path></svg>
-                              {selectedRepo}
-                              <ChevronDown className="w-2.5 h-2.5 ml-0.5 opacity-50" />
-                            </button>
-                            {showRepoMenu && (
-                              
-                              <div className="absolute bottom-full left-0 mb-2 w-[280px] max-h-[300px] overflow-y-auto custom-scrollbar bg-white rounded-[12px] shadow-[0_4px_20px_rgba(0,0,0,0.12)] border border-black/5 py-1.5 z-50">
-                                <div className="px-3 py-1.5 text-[11px] font-bold text-black/40 uppercase tracking-wider sticky top-0 bg-white/90 backdrop-blur-md z-10 border-b border-black/5">Repositories</div>
-                                
-                                {!githubConnected ? (
-                                  <div className="p-3">
-                                    <p className="text-[12px] text-black/60 mb-2 leading-relaxed">Connect your GitHub account to access your private and public repositories.</p>
-                                    <button 
-                                      onClick={handleConnectGithub}
-                                      disabled={isConnectingGithub}
-                                      className="w-full flex items-center justify-center gap-2 bg-black text-white rounded-lg px-3 py-2 text-[13px] font-medium hover:bg-black/80 transition-colors"
-                                    >
-                                      <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.2c3-.3 6-1.5 6-6.5a4.6 4.6 0 0 0-1.3-3.2 4.2 4.2 0 0 0-.1-3.2s-1.1-.3-3.5 1.3a12.3 12.3 0 0 0-6.2 0C6.5 2.8 5.4 3.1 5.4 3.1a4.2 4.2 0 0 0-.1 3.2A4.6 4.6 0 0 0 4 9.5c0 5 3 6.2 6 6.5a4.8 4.8 0 0 0-1 3.2v4"></path></svg>
-                                      {isConnectingGithub ? "Connecting..." : "Connect GitHub"}
-                                    </button>
-                                  </div>
-                                ) : (
-                                  <>
-                                    {githubRepos.length === 0 ? (
-                                      <div className="px-3 py-2 text-[12px] text-black/50">Loading repos...</div>
-                                    ) : (
-                                      githubRepos.map((repo) => (
-                                        <button 
-                                          key={repo.id}
-                                          onClick={() => { setSelectedRepo(repo.full_name); setShowRepoMenu(false) }} 
-                                          className="w-full flex items-center gap-2 px-3 py-2 text-[13px] text-black/80 hover:bg-black/5 text-left font-medium transition-colors"
-                                        >
-                                          {repo.private ? (
-                                            <svg className="w-3.5 h-3.5 text-amber-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                                          ) : (
-                                            <svg className="w-3.5 h-3.5 text-black/40 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
-                                          )}
-                                          <span className="truncate">{repo.full_name}</span>
-                                        </button>
-                                      ))
-                                    )}
-                                  </>
-                                )}
-                              </div>
-
-                                
-                            )}
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center gap-3">
-                          <div className="text-[10px] text-black/40 font-medium hidden md:block">
-                            Use <span className="bg-black/5 px-1 py-0.5 rounded">@</span> to reference files
-                          </div>
-                          <button 
-                            onClick={handleCustomSubmit}
-                            disabled={!localInput.trim() || isLoading}
-                            className={`w-8 h-8 flex items-center justify-center rounded-full transition-all ${
-                              localInput.trim() ? "bg-black text-white shadow-md" : "bg-black/5 text-black/30"
-                            }`}
-                          >
-                            {isLoading ? <StopCircle className="w-4 h-4 animate-pulse" /> : <ArrowUp className="w-4 h-4" />}
-                          </button>
-                        </div>
-                      </div>
-                  </div>
-                </div>
+                  ))
+                )}
               </div>
             )}
           </div>
+
+          {/* Section: Recents / Sessions (Accordion) */}
+          <div>
+            <button 
+              onClick={() => setRecentsOpen(!recentsOpen)}
+              className="w-full flex items-center justify-between px-3 py-1.5 text-[11px] font-semibold text-[#8a8a8a] uppercase tracking-wider hover:text-[#171717] transition-colors"
+            >
+              <span>Recents</span>
+              <ChevronDownIcon className={`w-3 h-3 transition-transform ${recentsOpen ? '' : '-rotate-90'}`} />
+            </button>
+
+            {recentsOpen && (
+              <div className="mt-1 space-y-0.5">
+                {messages.length === 0 ? (
+                  <div className="px-3 py-1.5 text-[12px] text-[#a3a3a3]">
+                    No recent chats
+                  </div>
+                ) : (
+                  <div 
+                    onClick={() => {}}
+                    className="px-3 py-1.5 rounded-md text-[12px] text-[#525252] hover:bg-[#eaeaea] cursor-pointer truncate"
+                  >
+                    {messages[0]?.content?.slice(0, 24) || "Current conversation"}...
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
         </div>
-      </div>
-      
-      {/* Settings Modal (Unchanged) */}
+
+        {/* Sidebar Footer */}
+        <div className="p-3 border-t border-[#e5e5e5] space-y-2">
+          {/* View Plans Pill Button (#f7f7f4) */}
+          <button 
+            onClick={() => { setSettingsTab("account"); setIsSettingsOpen(true); }}
+            className="w-full py-1.5 px-3 bg-[#f7f7f4] hover:bg-[#ebebe7] border border-[#e5e5e5] rounded-full text-[12px] font-medium text-[#404040] hover:text-[#171717] transition-all flex items-center justify-center gap-1.5"
+          >
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            View plans
+          </button>
+
+          {/* Sign In / Profile Row */}
+          <div 
+            onClick={() => {
+              if (!userEmail) window.location.href = "/login"
+              else setIsSettingsOpen(true)
+            }}
+            className="flex items-center justify-between p-2 rounded-lg hover:bg-[#eaeaea] cursor-pointer transition-colors"
+          >
+            <div className="flex items-center gap-2.5 overflow-hidden">
+              <div className="w-7 h-7 rounded-full bg-[#e5e5e5] border border-[#d4d4d4] flex items-center justify-center text-[12px] font-semibold text-[#171717]">
+                {userEmail ? userEmail[0].toUpperCase() : <UserIcon className="w-3.5 h-3.5 text-[#525252]" />}
+              </div>
+              <span className="text-[13px] font-medium text-[#171717] truncate">
+                {userEmail || "Sign in"}
+              </span>
+            </div>
+            <ChevronRightIcon className="w-3.5 h-3.5 text-[#8a8a8a]" />
+          </div>
+        </div>
+
+      </aside>
+
+      {/* ========================================================= */}
+      {/* MAIN VIEW AREA                                            */}
+      {/* ========================================================= */}
+      <main className="flex-1 flex flex-col bg-[#ffffff] relative overflow-hidden">
+        
+        {/* Top Utility Header Bar */}
+        <header className="h-12 border-b border-[#f0f0f0] flex items-center justify-between px-6 shrink-0 bg-[#ffffff]">
+          <div className="flex items-center gap-2 text-[12px] text-[#737373]">
+            <span className="hover:text-[#171717] cursor-pointer font-medium">IdeaAI</span>
+            <span>/</span>
+            <span className="text-[#171717] font-medium">
+              {selectedProject || "Workspace"}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-3">
+            {/* Night Protocol Pill */}
+            <button 
+              onClick={() => setIsConstitutionalModalOpen(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1 bg-[#f7f7f4] hover:bg-[#ebebe7] text-[#404040] hover:text-[#171717] rounded-md text-[12px] font-medium border border-[#e5e5e5] transition-colors"
+            >
+              <MoonIcon className="w-3.5 h-3.5 text-[#4f46e5]" />
+              Night Shift
+            </button>
+
+            {/* GitHub Connect Pill */}
+            <div className="relative">
+              <button 
+                onClick={() => setShowRepoMenu(!showRepoMenu)}
+                className="flex items-center gap-1.5 px-2.5 py-1 bg-[#f7f7f4] hover:bg-[#ebebe7] text-[#404040] hover:text-[#171717] rounded-md text-[12px] font-medium border border-[#e5e5e5] transition-colors"
+              >
+                <GitHubIcon className="w-3.5 h-3.5" />
+                <span>{selectedRepo}</span>
+                <ChevronDownIcon className="w-3 h-3 opacity-60" />
+              </button>
+
+              {showRepoMenu && (
+                <div className="absolute top-full right-0 mt-1.5 w-[260px] bg-[#ffffff] rounded-xl shadow-xl border border-[#e5e5e5] py-1.5 z-50">
+                  <div className="px-3 py-1.5 text-[11px] font-semibold text-[#8a8a8a] uppercase tracking-wider border-b border-[#f0f0f0]">
+                    Connected Repositories
+                  </div>
+                  {!githubConnected ? (
+                    <div className="p-3">
+                      <p className="text-[12px] text-[#525252] mb-3 leading-relaxed">
+                        Connect your GitHub account for overnight commits and PR reviews.
+                      </p>
+                      <button
+                        onClick={handleConnectGithub}
+                        disabled={isConnectingGithub}
+                        className="w-full flex items-center justify-center gap-2 bg-[#171717] hover:bg-[#262626] text-white text-[12px] font-medium py-2 rounded-lg transition-colors"
+                      >
+                        <GitHubIcon className="w-3.5 h-3.5" />
+                        {isConnectingGithub ? "Connecting..." : "Connect GitHub"}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="p-2 space-y-1">
+                      <div className="px-3 py-1.5 text-[13px] font-medium text-[#171717] hover:bg-[#f2f2f2] rounded-md cursor-pointer">
+                        ideaai-production
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </header>
+
+        {/* ========================================================= */}
+        {/* CENTER CONTENT: EMPTY STATE OR ACTIVE CONVERSATION       */}
+        {/* ========================================================= */}
+        {messages.length === 0 ? (
+          
+          <div className="flex-1 flex flex-col items-center justify-center px-6 overflow-y-auto">
+            <div className="w-full max-w-[700px] flex flex-col items-center text-center">
+              
+              {/* Category Kicker */}
+              <div className="text-[12px] font-medium text-[#8a8a8a] tracking-wide mb-2 uppercase">
+                Search & Build
+              </div>
+
+              {/* Main Headline */}
+              <h1 className="text-[32px] md:text-[36px] font-semibold tracking-tight text-[#171717] mb-8">
+                What would you like to build today?
+              </h1>
+
+              {/* Main Prompt Card (#f2f2f2, rgba(242, 242, 242), hsl(0, 0, 95)) */}
+              <div className="w-full bg-[#f2f2f2] rounded-[20px] border border-[#e5e5e5] p-4 flex flex-col shadow-[0_2px_12px_rgba(0,0,0,0.03)] focus-within:border-[#171717] transition-all">
+                <textarea
+                  ref={textareaRef}
+                  value={localInput}
+                  onChange={(e) => setLocalInput(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Type @ to add context, files, or connectors"
+                  className="w-full min-h-[95px] bg-transparent resize-none outline-none text-[15px] text-[#171717] placeholder:text-[#8a8a8a] leading-relaxed mb-3"
+                />
+
+                {/* Bottom Controls Row inside Prompt Card */}
+                <div className="flex items-center justify-between pt-2 border-t border-[#e5e5e5]/60">
+                  
+                  {/* Left Controls */}
+                  <div className="flex items-center gap-2">
+                    <button 
+                      onClick={handleFolderSelect}
+                      title="Add folder or file"
+                      className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-[#e5e5e5] text-[#525252] hover:text-[#171717] transition-colors"
+                    >
+                      <PlusIcon className="w-4 h-4" />
+                    </button>
+
+                    {/* Search Pill (#f7f7f4) */}
+                    <button 
+                      onClick={() => textareaRef.current?.focus()}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-[#f7f7f4] hover:bg-[#ebebe7] border border-[#e5e5e5] rounded-full text-[12px] font-medium text-[#404040] transition-colors"
+                    >
+                      <SearchIcon className="w-3.5 h-3.5 text-[#525252]" />
+                      <span>Search</span>
+                      <ChevronDownIcon className="w-3 h-3 opacity-60 ml-0.5" />
+                    </button>
+
+                    {/* Computer Pill (#f7f7f4) */}
+                    <button 
+                      onClick={() => setSelectedModel("Local Engine (Ollama)")}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-[#f7f7f4] hover:bg-[#ebebe7] border border-[#e5e5e5] rounded-full text-[12px] font-medium text-[#404040] transition-colors"
+                    >
+                      <ComputerIcon className="w-3.5 h-3.5 text-[#525252]" />
+                      <span>Computer</span>
+                    </button>
+                  </div>
+
+                  {/* Right Controls */}
+                  <div className="flex items-center gap-2">
+                    
+                    {/* Model Dropdown */}
+                    <div className="relative">
+                      <button 
+                        onClick={() => setShowModelMenu(!showModelMenu)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 bg-[#f7f7f4] hover:bg-[#ebebe7] border border-[#e5e5e5] rounded-full text-[12px] font-medium text-[#404040] transition-colors"
+                      >
+                        <span className="truncate max-w-[130px]">{selectedModel}</span>
+                        <ChevronDownIcon className="w-3 h-3 opacity-60 ml-0.5" />
+                      </button>
+
+                      {showModelMenu && (
+                        <div className="absolute bottom-full right-0 mb-2 w-[250px] bg-[#ffffff] rounded-xl shadow-xl border border-[#e5e5e5] py-1.5 z-50 text-left">
+                          <div className="px-3 py-1.5 text-[11px] font-semibold text-[#8a8a8a] uppercase tracking-wider">
+                            Inference Engines
+                          </div>
+                          
+                          <button 
+                            onClick={() => { setSelectedModel("Azure Enterprise Cloud (Llama 3.2)"); setShowModelMenu(false); }}
+                            className="w-full flex flex-col px-3 py-2 text-[12px] hover:bg-[#f2f2f2] text-[#171717] font-medium transition-colors text-left"
+                          >
+                            <span>Azure Enterprise Cloud (Llama 3.2)</span>
+                            <span className="text-[10px] text-[#8a8a8a] font-normal">32GB RAM E-Class Azure VM</span>
+                          </button>
+
+                          <button 
+                            onClick={() => { setSelectedModel("Local Engine (Ollama)"); setShowModelMenu(false); }}
+                            className="w-full flex flex-col px-3 py-2 text-[12px] hover:bg-[#f2f2f2] text-[#171717] font-medium transition-colors text-left"
+                          >
+                            <span>Local Engine (Ollama)</span>
+                            <span className="text-[10px] text-[#8a8a8a] font-normal">100% Offline & Private</span>
+                          </button>
+
+                          <button 
+                            onClick={() => { setSelectedModel("Bring Your Own Key (BYOK)"); setShowModelMenu(false); }}
+                            className="w-full flex flex-col px-3 py-2 text-[12px] hover:bg-[#f2f2f2] text-[#171717] font-medium transition-colors text-left"
+                          >
+                            <span>Bring Your Own Key (BYOK)</span>
+                            <span className="text-[10px] text-[#8a8a8a] font-normal">OpenAI / Gemini Keys</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Mic Button */}
+                    <button 
+                      onClick={handleMicClick}
+                      title="Dictate voice prompt"
+                      className={`w-8 h-8 flex items-center justify-center rounded-full border border-[#e5e5e5] transition-colors ${
+                        isListening ? "bg-red-500 text-white animate-pulse" : "bg-[#f7f7f4] hover:bg-[#ebebe7] text-[#525252]"
+                      }`}
+                    >
+                      <MicIcon className="w-4 h-4" />
+                    </button>
+
+                    {/* Submit / Audio Wave Circle Button */}
+                    <button 
+                      onClick={handleCustomSubmit}
+                      disabled={!localInput.trim() && status !== 'submitted'}
+                      className={`w-8 h-8 flex items-center justify-center rounded-full transition-all ${
+                        localInput.trim() 
+                          ? "bg-[#171717] text-white hover:scale-105" 
+                          : "bg-[#171717] text-white opacity-85 hover:opacity-100"
+                      }`}
+                    >
+                      {status === 'submitted' ? (
+                        <StopIcon className="w-3.5 h-3.5 animate-pulse" />
+                      ) : localInput.trim() ? (
+                        <ArrowUpIcon className="w-4 h-4" />
+                      ) : (
+                        <AudioWaveIcon className="w-3.5 h-3.5" />
+                      )}
+                    </button>
+
+                  </div>
+
+                </div>
+              </div>
+
+              {/* Two Suggestion Cards Below (#f2f2f2, hover #f7f7f4) */}
+              <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-3.5 mt-4 text-left">
+                
+                {/* Card 1: Search Anything */}
+                <div 
+                  onClick={() => {
+                    setLocalInput("Search across current repository architecture and find all references to authentication.")
+                    textareaRef.current?.focus()
+                  }}
+                  className="bg-[#f2f2f2] hover:bg-[#f7f7f4] border border-[#e5e5e5] rounded-[16px] p-4 cursor-pointer transition-all group"
+                >
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <SearchIcon className="w-4 h-4 text-[#525252] group-hover:text-[#171717]" />
+                    <span className="text-[14px] font-semibold text-[#171717]">Search anything</span>
+                  </div>
+                  <p className="text-[12px] text-[#737373] leading-relaxed">
+                    Get fast, accurate answers and deep codebase analysis from trusted sources.
+                  </p>
+                </div>
+
+                {/* Card 2: Run Tasks with Computer (NEW) */}
+                <div 
+                  onClick={() => {
+                    setSelectedModel("Local Engine (Ollama)")
+                    setLocalInput("Delegate terminal and filesystem task: inspect package.json and run test suite.")
+                    textareaRef.current?.focus()
+                  }}
+                  className="bg-[#f2f2f2] hover:bg-[#f7f7f4] border border-[#e5e5e5] rounded-[16px] p-4 cursor-pointer transition-all group"
+                >
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <ComputerIcon className="w-4 h-4 text-[#525252] group-hover:text-[#171717]" />
+                    <span className="text-[14px] font-semibold text-[#171717]">Run tasks with Computer</span>
+                    <span className="bg-[#dcfce7] text-[#15803d] text-[10px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider">
+                      NEW
+                    </span>
+                  </div>
+                  <p className="text-[12px] text-[#737373] leading-relaxed">
+                    Hand over engineering workflows to receive seamless outputs around the clock.
+                  </p>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+
+        ) : (
+          
+          /* Active Chat View */
+          <div className="flex-1 flex flex-col w-full h-full pt-6 pb-28 px-4 md:px-12 max-w-4xl mx-auto overflow-y-auto">
+            <div className="flex-1 space-y-6 pb-12">
+              {messages.map((message, i) => (
+                <motion.div 
+                  key={message.id || i}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className={`flex gap-3.5 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div className={`max-w-[85%] rounded-[18px] px-5 py-3.5 text-[14px] leading-relaxed ${
+                    message.role === 'user'
+                      ? 'bg-[#f2f2f2] text-[#171717] border border-[#e5e5e5]'
+                      : 'bg-[#ffffff] text-[#171717] border border-[#e5e5e5] shadow-sm'
+                  }`}>
+                    <AntigravityMarkdown content={message.content} />
+                  </div>
+                </motion.div>
+              ))}
+
+              {status === 'submitted' && (
+                <div className="flex items-center gap-3 text-[13px] text-[#737373] px-2 py-3 animate-pulse">
+                  <IdeaAILogo className="w-5 h-5" />
+                  <span>Thinking & executing...</span>
+                </div>
+              )}
+              <div ref={messagesEndRef} />
+            </div>
+
+            {/* Bottom Floating Input Card (#f2f2f2) */}
+            <div className="absolute bottom-6 left-0 right-0 px-6 flex justify-center">
+              <div className="w-full max-w-3xl bg-[#f2f2f2] rounded-[18px] border border-[#e5e5e5] p-3 shadow-lg flex flex-col focus-within:border-[#171717] transition-all">
+                <textarea
+                  ref={textareaRef}
+                  value={localInput}
+                  onChange={(e) => setLocalInput(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Reply to IdeaAI..."
+                  className="w-full max-h-[140px] min-h-[44px] bg-transparent resize-none outline-none text-[14px] text-[#171717] placeholder:text-[#8a8a8a] mb-2"
+                />
+
+                <div className="flex items-center justify-between pt-1">
+                  <div className="flex items-center gap-2">
+                    <button 
+                      onClick={handleFolderSelect}
+                      className="p-1.5 text-[#525252] hover:text-[#171717] rounded-md hover:bg-[#e5e5e5] transition-colors"
+                    >
+                      <PlusIcon className="w-4 h-4" />
+                    </button>
+
+                    <div className="text-[12px] font-medium text-[#737373] px-2 py-0.5 bg-[#f7f7f4] border border-[#e5e5e5] rounded-md">
+                      {selectedModel}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button 
+                      onClick={handleMicClick}
+                      className={`w-7 h-7 flex items-center justify-center rounded-full border border-[#e5e5e5] transition-colors ${
+                        isListening ? "bg-red-500 text-white animate-pulse" : "bg-[#f7f7f4] text-[#525252]"
+                      }`}
+                    >
+                      <MicIcon className="w-3.5 h-3.5" />
+                    </button>
+
+                    <button 
+                      onClick={handleCustomSubmit}
+                      disabled={!localInput.trim() && status !== 'submitted'}
+                      className="w-7 h-7 flex items-center justify-center rounded-full bg-[#171717] text-white hover:opacity-90 disabled:opacity-40 transition-all"
+                    >
+                      {status === 'submitted' ? (
+                        <StopIcon className="w-3.5 h-3.5 animate-pulse" />
+                      ) : (
+                        <ArrowUpIcon className="w-3.5 h-3.5" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+        )}
+
+      </main>
+
+      {/* Modals */}
       <SettingsModal 
         isOpen={isSettingsOpen} 
         onClose={() => setIsSettingsOpen(false)} 
-        initialTab={settingsTab} userEmail={userEmail} 
+        initialTab={settingsTab} 
+        userEmail={userEmail} 
       />
 
-      {/* Constitutional Modal */}
-        <ConstitutionalModalMac isOpen={isConstitutionalModalOpen} onClose={() => setIsConstitutionalModalOpen(false)} />
+      <ConstitutionalModalMac 
+        isOpen={isConstitutionalModalOpen} 
+        onClose={() => setIsConstitutionalModalOpen(false)} 
+      />
 
-        {/* Team Modal (Unchanged) */}
-      <TeamModal
-        isOpen={isTeamModalOpen}
-        onClose={() => setIsTeamModalOpen(false)}
-        userEmail={userEmail}
+      <TeamModal 
+        isOpen={isTeamModalOpen} 
+        onClose={() => setIsTeamModalOpen(false)} 
+        userEmail={userEmail} 
       />
     </div>
   )
 }
-
-
-
-
