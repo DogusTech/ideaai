@@ -130,8 +130,8 @@ function createWindow() {
   });
 
   const startUrl = isDev
-    ? 'http://localhost:3000/mac-test' // Changed from ideaai.localhost due to Windows DNS issues
-    : 'https://ideaai.togetlink.com/mac-test';
+    ? 'http://localhost:3000/matrix-demo/app/register'
+    : 'https://ideaai.togetlink.com/matrix-demo/app/register';
 
   mainWindow.loadURL(startUrl);
 

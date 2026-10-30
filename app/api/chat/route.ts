@@ -1,6 +1,22 @@
 export const maxDuration = 60;
 import { NextResponse } from 'next/server';
 
+const OLLAMA_REQUEST_TIMEOUT_MS = 60000;
+const LOCAL_OLLAMA_URL = 'http://127.0.0.1:11434';
+
+function normalizeEndpoint(value: string | undefined) {
+  return value?.trim().replace(/\/+$/, '');
+}
+
+function deterministicProfile(prompt: string) {
+  let hash = 2166136261;
+  for (let index = 0; index < prompt.length; index += 1) {
+    hash ^= prompt.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return Math.abs(hash >>> 0) % 1024;
+}
+
 export async function POST(request: Request) {
   try {
     const apiKey = request.headers.get('X-API-Key');
@@ -8,22 +24,24 @@ export async function POST(request: Request) {
     const { messages, model } = body;
     
     // ==========================================
-    // 1. IDEAAI CLOUD & LOCAL ENGINES (AZURE & OLLAMA)
+    // 1. IDEAAI CLOUD & LOCAL ENGINES (LOCAL OLLAMA TEST ROUTE)
     // ==========================================
     const isAzureCloud = model === "IdeaAI Hybrid Engine (Pro)" || model === "Azure Enterprise Cloud (Llama 3.2)";
     const isLocalOllama = model === "Local Engine (Ollama)";
 
     if (isAzureCloud || isLocalOllama) {
-      // Endpoints to attempt in priority order (Tunnel first, then Direct IP, then Localhost)
-      const candidateUrls = isAzureCloud
-        ? [
-            "http://127.0.0.1:11435", // Active encrypted SSH tunnel to Azure VM (32GB E-Class)
-            process.env.AZURE_OLLAMA_URL || "http://40.76.116.101:11434",
-            "http://40.76.116.101:11434"
-          ]
-        : ["http://127.0.0.1:11434"];
+      // Azure is intentionally routed to the local Ollama instance while the
+      // local-only deployment is being tested. No public Azure address is used.
+      const candidateUrls = [
+        normalizeEndpoint(process.env.LOCAL_OLLAMA_URL) || LOCAL_OLLAMA_URL,
+      ];
 
-      const uniqueUrls = Array.from(new Set(candidateUrls.filter(Boolean)));
+      const uniqueUrls = Array.from(new Set(candidateUrls.filter((url): url is string => Boolean(url))));
+      if (uniqueUrls.length === 0) {
+        return NextResponse.json({
+          error: 'Local Ollama endpoint is not configured. Set LOCAL_OLLAMA_URL or start Ollama on localhost:11434.'
+        }, { status: 503 });
+      }
 
       const systemPrompt = `You are IdeaAI, an elite Senior Developer and autonomous coding agent with direct access to the user's filesystem and tools.
 
@@ -32,6 +50,9 @@ If you need to create or modify a file, you MUST output the code inside this exa
 your code here
 </write_file>
 Always specify an absolute path.
+Before each write_file block, add a one-line change marker in this format:
+[MODIFY] path/to/file (+12 -4)
+Use [NEW] for a new file and [DELETE] for a deleted file. Estimate the changed line counts when an exact diff is unavailable.
 
 CRITICAL INSTRUCTION:
 Your core philosophy is to PREVENT developer laziness. You do not just dump code. After you output the <write_file> tags, you MUST act as a Senior Developer mentoring a Junior. You must write a clear, educational summary explaining:
@@ -41,7 +62,19 @@ Your core philosophy is to PREVENT developer laziness. You do not just dump code
 Do NOT output large code blocks outside of the <write_file> tags. Focus purely on mentorship, theory, and explaining the logic behind the code.`;
 
       const formattedMessages = [
-        { role: 'system', content: systemPrompt },
+        {
+          role: 'system',
+          content: `${systemPrompt}
+
+DETERMINISTIC EXECUTION MATRIX:
+Use a deterministic profile from the 1024 valid profiles defined by these four dimensions:
+- operation: inspect, implement, refactor, repair
+- scope: file, module, repository, deployment
+- validation: syntax, unit, integration, production
+- delivery: explain, patch, commit, pull-request
+There are exactly 4 x 4 x 4 x 4 = 1024 profiles. The server-selected profile for this request is P-${String(deterministicProfile(String(messages.at(-1)?.content || ''))).padStart(4, '0')}.
+Follow that profile consistently. Never invent tool results, file changes, tests, commits, or deployment status. If a required integration is unavailable, state it explicitly and stop at a verifiable plan.`,
+        },
         ...messages.map((m: any) => ({
           role: m.role === 'model' ? 'assistant' : m.role,
           content: m.content
@@ -51,9 +84,10 @@ Do NOT output large code blocks outside of the <write_file> tags. Focus purely o
       let lastError = null;
 
       for (const targetUrl of uniqueUrls) {
+        let timeoutId: ReturnType<typeof setTimeout> | undefined;
         try {
           const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 60000);
+          timeoutId = setTimeout(() => controller.abort(), OLLAMA_REQUEST_TIMEOUT_MS);
 
           const res = await fetch(`${targetUrl}/api/chat`, {
             method: 'POST',
@@ -68,6 +102,7 @@ Do NOT output large code blocks outside of the <write_file> tags. Focus purely o
             signal: controller.signal
           });
           clearTimeout(timeoutId);
+          timeoutId = undefined;
 
           if (!res.ok) {
             const errData = await res.text();
@@ -80,13 +115,16 @@ Do NOT output large code blocks outside of the <write_file> tags. Focus purely o
           return NextResponse.json({ response: assistantMessage });
 
         } catch (err: any) {
+          if (timeoutId) clearTimeout(timeoutId);
           lastError = err;
         }
       }
 
-      const targetName = isAzureCloud ? 'Azure Enterprise Cloud (40.76.116.101)' : 'Local Ollama (localhost:11434)';
+      const targetName = isAzureCloud
+        ? 'Azure test engine (local Ollama at localhost:11434)'
+        : 'Local Ollama (localhost:11434)';
       return NextResponse.json({ 
-        error: `${targetName} sunucusuna bağlanılamadı. Detay: ${lastError?.message || 'Bağlantı zaman aşımına uğradı'}` 
+        error: `${targetName} sunucusuna bağlanılamadı. Ollama'nın localhost:11434 üzerinde çalıştığından emin olun. Detay: ${lastError?.name === 'AbortError' ? 'Bağlantı zaman aşımına uğradı' : lastError?.message || 'Bilinmeyen bağlantı hatası'}` 
       }, { status: 504 });
     }
 
@@ -134,6 +172,9 @@ If you need to create or modify a file, you MUST output the code inside this exa
 your code here
 </write_file>
 Always specify an absolute path. You can use the tag multiple times for different files.
+Before each write_file block, add a one-line change marker in this format:
+[MODIFY] path/to/file (+12 -4)
+Use [NEW] for a new file and [DELETE] for a deleted file. Estimate the changed line counts when an exact diff is unavailable.
 
 CRITICAL INSTRUCTION:
 Your core philosophy is to PREVENT developer laziness. You do not just dump code. After you output the <write_file> tags, you MUST act as a Senior Developer mentoring a Junior. You must write a clear, educational summary explaining:
@@ -191,5 +232,3 @@ Do NOT output large code blocks outside of the <write_file> tags. Focus purely o
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
-
-

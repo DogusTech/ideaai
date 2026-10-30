@@ -15,6 +15,7 @@ export async function createSession(idToken: string) {
     headers: {
       "Content-Type": "application/json",
     },
+    credentials: "same-origin",
     body: JSON.stringify({ idToken })
   });
   
@@ -27,13 +28,6 @@ export async function createSession(idToken: string) {
 
   if (!res.ok) {
     throw new Error(`API Error (${res.status}): ${data.error || "Unknown error"}`);
-  }
-  
-  // Client-side fallback to guarantee the cookie is saved even if Set-Cookie header is dropped
-  if (data && data.sessionValue && typeof document !== 'undefined') {
-    const date = new Date();
-    date.setTime(date.getTime() + (5 * 24 * 60 * 60 * 1000)); // 5 days
-    document.cookie = `session=${data.sessionValue}; expires=${date.toUTCString()}; path=/; secure; samesite=none`;
   }
   
   return data;

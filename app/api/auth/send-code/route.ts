@@ -12,16 +12,29 @@ export async function POST(req: Request) {
   try {
     let email: string;
     let type: string;
+    let fullName: string | undefined;
+    let password: string | undefined;
     try {
       const body = await req.json();
       email = body.email;
       type = body.type;
+      fullName = typeof body.fullName === 'string' ? body.fullName.trim() : undefined;
+      password = typeof body.password === 'string' ? body.password : undefined;
     } catch (e) {
       return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
 
     if (!email || !email.includes('@')) {
       return NextResponse.json({ error: 'Invalid email address' }, { status: 400 });
+    }
+
+    if (type === 'register') {
+      if (!fullName || fullName.length < 2) {
+        return NextResponse.json({ error: 'FULL_NAME_REQUIRED' }, { status: 400 });
+      }
+      if (!password || password.length < 8) {
+        return NextResponse.json({ error: 'PASSWORD_TOO_SHORT' }, { status: 400 });
+      }
     }
 
     if (type === 'login' || type === 'register') {
@@ -77,12 +90,12 @@ export async function POST(req: Request) {
     // Send email via Resend
     if (process.env.RESEND_API_KEY && !process.env.RESEND_API_KEY.includes('re_mock_key')) {
       const resendResult = await resend.emails.send({
-        from: 'TogetLink Security <noreply@togetlink.com>', 
+        from: process.env.RESEND_FROM_EMAIL || 'IdeaAI Security <noreply@togetlink.com>',
         to: email,
-        subject: 'Your TogetLink Verification Code',
+        subject: 'Your IdeaAI verification code',
         html: `
           <div style="font-family: sans-serif; max-width: 400px; margin: 0 auto;">
-            <h2>Sign in to TogetLink</h2>
+            <h2>Verify your IdeaAI account</h2>
             <p>Your verification code is:</p>
             <h1 style="font-size: 32px; letter-spacing: 4px; padding: 12px; background: #f4f4f5; border-radius: 8px; text-align: center;">
               ${code}

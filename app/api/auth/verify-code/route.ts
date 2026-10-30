@@ -10,10 +10,14 @@ export async function POST(req: Request) {
   try {
     let email: string;
     let code: string;
+    let password: string | undefined;
+    let fullName: string | undefined;
     try {
       const body = await req.json();
       email = body.email;
       code = body.code;
+      password = typeof body.password === 'string' ? body.password : undefined;
+      fullName = typeof body.fullName === 'string' ? body.fullName.trim() : undefined;
     } catch (e) {
       return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
     }
@@ -49,7 +53,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid verification code.' }, { status: 400 });
     }
 
-    // Check if user exists in Firebase Auth, if not create them
+    if (password !== undefined && password.length < 8) {
+      return NextResponse.json({ error: 'Password must be at least 8 characters.' }, { status: 400 });
+    }
+
+    // Check if user exists in Firebase Auth, if not create them.
     let user;
     const { getAdminAuth } = await import('@/lib/firebase-admin');
     const adminAuth = getAdminAuth();
@@ -57,9 +65,14 @@ export async function POST(req: Request) {
       user = await adminAuth.getUserByEmail(emailLower);
     } catch (error: any) {
       if (error.code === 'auth/user-not-found') {
+        if (!password) {
+          return NextResponse.json({ error: 'Password is required to finish registration.' }, { status: 400 });
+        }
         user = await adminAuth.createUser({
           email: emailLower,
-          emailVerified: true
+          password,
+          displayName: fullName || undefined,
+          emailVerified: true,
         });
       } else {
         throw error;

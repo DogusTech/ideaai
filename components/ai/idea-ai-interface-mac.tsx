@@ -15,10 +15,11 @@ import { ConstitutionalModalMac } from "./constitutional-modal-mac"
 // ==========================================
 
 const IdeaAILogo = ({ className = "w-6 h-6" }: { className?: string }) => (
-  <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    <path d="M 18 80 Q 50 12, 82 80" stroke="#171717" strokeWidth="15" strokeLinecap="round" />
-    <circle cx="50" cy="52" r="8" fill="#4f46e5" />
-  </svg>
+  <img
+    src="/Gemini_Generated_Image_dpurc9dpurc9dpur-removebg-preview.png"
+    alt="IdeaAI"
+    className={`${className} rounded-md object-cover`}
+  />
 )
 
 const SearchIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
@@ -148,10 +149,40 @@ type Project = {
   time: string
 }
 
+type ChatMessage = {
+  id: string
+  role: string
+  content: string
+}
+
+type ChatSession = {
+  id: string
+  title: string
+  messages: ChatMessage[]
+  updatedAt: number
+}
+
+const CHAT_HISTORY_KEY = "ideaai_chat_history"
+const CURRENT_CHAT_KEY = "ideaai_current_chat"
+
+function readStoredJson<T>(key: string, fallback: T): T {
+  if (typeof window === "undefined") return fallback
+  try {
+    const value = localStorage.getItem(key)
+    return value ? JSON.parse(value) as T : fallback
+  } catch {
+    return fallback
+  }
+}
+
+function sessionTitle(messages: ChatMessage[]) {
+  const firstUserMessage = messages.find((message) => message.role === "user")
+  return firstUserMessage?.content?.trim().slice(0, 48) || "Current conversation"
+}
+
 export function IdeaAIInterfaceMac() {
-  const [projects, setProjects] = useState<Project[]>(
-    typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('ideaai_projects') || '[]') : []
-  )
+  const [hasHydrated, setHasHydrated] = useState(false)
+  const [projects, setProjects] = useState<Project[]>([])
   const [selectedProject, setSelectedProject] = useState<string | null>(null)
   const [userEmail, setUserEmail] = useState<string | null>(null)
   const [userName, setUserName] = useState<string | null>(null)
@@ -170,10 +201,12 @@ export function IdeaAIInterfaceMac() {
   const [isConnectingGithub, setIsConnectingGithub] = useState(false)
   const [githubConnected, setGithubConnected] = useState(false)
   const [showRepoMenu, setShowRepoMenu] = useState(false)
+  const [nightShiftEnabled, setNightShiftEnabled] = useState(false)
 
   // Accordion states
   const [projectsOpen, setProjectsOpen] = useState(true)
   const [recentsOpen, setRecentsOpen] = useState(true)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
 
   const folderInputRef = useRef<HTMLInputElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -182,21 +215,80 @@ export function IdeaAIInterfaceMac() {
 
   const [localInput, setLocalInput] = useState("")
   const [isListening, setIsListening] = useState(false)
-  const [messages, setMessages] = useState<any[]>(
-    typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('ideaai_current_chat') || '[]') : []
-  )
+  const [chatSessions, setChatSessions] = useState<ChatSession[]>([])
+  const [activeChatId, setActiveChatId] = useState("")
+  const [messages, setMessages] = useState<ChatMessage[]>([])
   const [status, setStatus] = useState<'ready' | 'submitted' | 'streaming' | 'error'>('ready')
+  const [thinkingSeconds, setThinkingSeconds] = useState(0)
   const [error, setError] = useState<Error | null>(null)
   const abortControllerRef = useRef<AbortController | null>(null)
+  const thinkingStartedAtRef = useRef<number | null>(null)
 
   useEffect(() => {
-    if (typeof window !== 'undefined') localStorage.setItem('ideaai_projects', JSON.stringify(projects))
-  }, [projects])
+    const storedActiveChatId = localStorage.getItem("ideaai_active_chat") || `chat-${Date.now()}`
+    setProjects(readStoredJson<Project[]>("ideaai_projects", []))
+    setChatSessions(readStoredJson<ChatSession[]>(CHAT_HISTORY_KEY, []))
+    setMessages(readStoredJson<ChatMessage[]>(CURRENT_CHAT_KEY, []))
+    setActiveChatId(storedActiveChatId)
+    setNightShiftEnabled(localStorage.getItem("ideaai_night_shift") === "enabled")
+    setHasHydrated(true)
+  }, [])
 
   useEffect(() => {
-    if (typeof window !== 'undefined') localStorage.setItem('ideaai_current_chat', JSON.stringify(messages))
+    if (hasHydrated) localStorage.setItem('ideaai_projects', JSON.stringify(projects))
+  }, [projects, hasHydrated])
+
+  useEffect(() => {
+    if (hasHydrated && activeChatId) {
+      localStorage.setItem(CURRENT_CHAT_KEY, JSON.stringify(messages))
+      localStorage.setItem("ideaai_active_chat", activeChatId)
+    }
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+  }, [messages, activeChatId, hasHydrated])
+
+  useEffect(() => {
+    if (status !== "submitted") return
+    const timer = window.setInterval(() => {
+      if (thinkingStartedAtRef.current) {
+        setThinkingSeconds(Math.max(1, Math.round((Date.now() - thinkingStartedAtRef.current) / 1000)))
+      }
+    }, 1000)
+    return () => window.clearInterval(timer)
+  }, [status])
+
+  useEffect(() => {
+    if (!hasHydrated || !activeChatId || messages.length === 0) return
+    setChatSessions((previous) => {
+      const nextSession: ChatSession = {
+        id: activeChatId,
+        title: sessionTitle(messages),
+        messages,
+        updatedAt: Date.now(),
+      }
+      const withoutCurrent = previous.filter((session) => session.id !== activeChatId)
+      const next = [nextSession, ...withoutCurrent].slice(0, 30)
+      localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify(next))
+      return next
+    })
+  }, [messages, activeChatId, hasHydrated])
+
+  useEffect(() => {
+    if (!hasHydrated || messages.length === 0 || chatSessions.length > 0) return
+    const migratedSession: ChatSession = {
+      id: activeChatId,
+      title: sessionTitle(messages),
+      messages,
+      updatedAt: Date.now(),
+    }
+    setChatSessions([migratedSession])
+    localStorage.setItem(CHAT_HISTORY_KEY, JSON.stringify([migratedSession]))
+  }, [messages, activeChatId, chatSessions.length, hasHydrated])
+
+  useEffect(() => {
+    if (!hasHydrated || messages.length > 0 || !activeChatId) return
+    const storedSession = chatSessions.find((session) => session.id === activeChatId)
+    if (storedSession) setMessages(storedSession.messages)
+  }, [activeChatId, chatSessions, messages.length, hasHydrated])
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -260,6 +352,8 @@ export function IdeaAIInterfaceMac() {
     const newMessages = [...messages, message]
     setMessages(newMessages)
     setStatus('submitted')
+    thinkingStartedAtRef.current = Date.now()
+    setThinkingSeconds(0)
     setError(null)
 
     abortControllerRef.current = new AbortController()
@@ -288,9 +382,14 @@ your code here
 
         if (localResult.success) {
           let responseText = localResult.text
+          const duration = Math.max(1, Math.round((Date.now() - (thinkingStartedAtRef.current || Date.now())) / 1000))
+          responseText = `Thought for ${duration}s\n${responseText}`
           setMessages(prev => [...prev, { id: Date.now().toString(), role: 'assistant', content: responseText }])
           setStatus('ready')
           setTerminalOutput("✔ Local task finished.")
+          if (localStorage.getItem("ideaai_desktop_notifications") === "enabled" && "Notification" in window && Notification.permission === "granted") {
+            new Notification("IdeaAI task complete", { body: "Your local engineering task has finished." })
+          }
           return
         }
       }
@@ -315,12 +414,16 @@ your code here
       }
 
       const data = await res.json()
+      const duration = Math.max(1, Math.round((Date.now() - (thinkingStartedAtRef.current || Date.now())) / 1000))
       setMessages(prev => [...prev, {
         id: Date.now().toString(),
         role: 'assistant',
-        content: data.response
+        content: `Thought for ${duration}s\n${data.response}`
       }])
       setStatus('ready')
+      if (localStorage.getItem("ideaai_desktop_notifications") === "enabled" && "Notification" in window && Notification.permission === "granted") {
+        new Notification("IdeaAI task complete", { body: "Your engineering task has finished." })
+      }
     } catch (err: any) {
       if (err.name === 'AbortError') {
         setStatus('ready')
@@ -346,6 +449,23 @@ your code here
       content: localInput
     })
     setLocalInput("")
+  }
+
+  const startNewChat = () => {
+    const nextChatId = `chat-${Date.now()}`
+    setActiveChatId(nextChatId)
+    setMessages([])
+    setLocalInput("")
+    localStorage.setItem(CURRENT_CHAT_KEY, "[]")
+    localStorage.setItem("ideaai_active_chat", nextChatId)
+  }
+
+  const openChat = (session: ChatSession) => {
+    setActiveChatId(session.id)
+    setMessages(session.messages)
+    setLocalInput("")
+    localStorage.setItem(CURRENT_CHAT_KEY, JSON.stringify(session.messages))
+    localStorage.setItem("ideaai_active_chat", session.id)
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -423,29 +543,29 @@ your code here
       {/* ========================================================= */}
       {/* LEFT SIDEBAR (#f3f3f3, rgba(243, 243, 243), hsl(0, 0, 95)) */}
       {/* ========================================================= */}
-      <aside className="w-[260px] bg-[#f3f3f3] border-r border-[#e5e5e5] flex flex-col shrink-0 justify-between">
+      <aside className={`${sidebarCollapsed ? "w-[64px]" : "w-[260px]"} bg-[#f3f3f3] border-r border-[#e5e5e5] flex flex-col shrink-0 justify-between transition-[width] duration-200`}>
         
         {/* Top Header & Navigation */}
         <div className="flex flex-col p-3">
           
           {/* Logo & Quick Action Buttons */}
-          <div className="flex items-center justify-between px-2 pt-1 pb-4">
-            <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => { setMessages([]); setLocalInput(""); }}>
+          <div className={`flex items-center ${sidebarCollapsed ? "justify-center" : "justify-between"} px-2 pt-1 pb-4`}>
+            <div className="flex items-center gap-2.5 cursor-pointer" onClick={startNewChat}>
               <IdeaAILogo className="w-6 h-6" />
-              <span className="text-[15px] font-semibold tracking-tight text-[#171717]">IdeaAI</span>
+              {!sidebarCollapsed && <span className="text-[15px] font-semibold tracking-tight text-[#171717]">IdeaAI</span>}
             </div>
             
-            <div className="flex items-center gap-1.5 text-[#737373]">
+            <div className={`flex items-center gap-1.5 text-[#737373] ${sidebarCollapsed ? "absolute left-[40px]" : ""}`}>
               <button 
                 onClick={() => textareaRef.current?.focus()}
                 title="Search"
-                className="p-1.5 rounded-md hover:bg-[#e8e8e8] hover:text-[#171717] transition-colors"
+                className={`${sidebarCollapsed ? "hidden" : ""} p-1.5 rounded-md hover:bg-[#e8e8e8] hover:text-[#171717] transition-colors`}
               >
                 <SearchIcon className="w-4 h-4" />
               </button>
               <button 
-                onClick={() => setIsSettingsOpen(true)}
-                title="Workspace settings"
+                onClick={() => setSidebarCollapsed(value => !value)}
+                title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
                 className="p-1.5 rounded-md hover:bg-[#e8e8e8] hover:text-[#171717] transition-colors"
               >
                 <SidebarCollapseIcon className="w-4 h-4" />
@@ -456,51 +576,58 @@ your code here
           {/* Primary Sidebar Menu Items */}
           <div className="space-y-0.5 mb-5">
             <button
-              onClick={() => { setMessages([]); setLocalInput(""); }}
-              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-[#171717] hover:bg-[#eaeaea] transition-colors text-left"
+              onClick={startNewChat}
+              title="New chat"
+              className={`w-full flex items-center ${sidebarCollapsed ? "justify-center" : ""} gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-[#171717] hover:bg-[#eaeaea] transition-colors text-left`}
             >
               <PlusIcon className="w-4 h-4 text-[#525252]" />
-              <span>New</span>
+              {!sidebarCollapsed && <span>New</span>}
             </button>
 
             <button
               onClick={() => {
                 setSelectedModel("Local Engine (Ollama)")
+                setNightShiftEnabled(true)
+                localStorage.setItem("ideaai_night_shift", "enabled")
                 setTerminalOutput("➜  ~ Switched to local Computer execution.")
               }}
-              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-[#404040] hover:bg-[#eaeaea] hover:text-[#171717] transition-colors text-left"
+              title="Computer"
+              className={`w-full flex items-center ${sidebarCollapsed ? "justify-center" : ""} gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-[#404040] hover:bg-[#eaeaea] hover:text-[#171717] transition-colors text-left`}
             >
               <ComputerIcon className="w-4 h-4 text-[#525252]" />
-              <span>Computer</span>
+              {!sidebarCollapsed && <span>Computer</span>}
             </button>
 
             <button
               onClick={() => setIsConstitutionalModalOpen(true)}
-              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-[#404040] hover:bg-[#eaeaea] hover:text-[#171717] transition-colors text-left"
+              title="Automations"
+              className={`w-full flex items-center ${sidebarCollapsed ? "justify-center" : ""} gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-[#404040] hover:bg-[#eaeaea] hover:text-[#171717] transition-colors text-left`}
             >
               <AutomationsIcon className="w-4 h-4 text-[#525252]" />
-              <span>Automations</span>
+              {!sidebarCollapsed && <span>Automations</span>}
             </button>
 
             <button
               onClick={() => setIsTeamModalOpen(true)}
-              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-[#404040] hover:bg-[#eaeaea] hover:text-[#171717] transition-colors text-left"
+              title="Artifacts"
+              className={`w-full flex items-center ${sidebarCollapsed ? "justify-center" : ""} gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-[#404040] hover:bg-[#eaeaea] hover:text-[#171717] transition-colors text-left`}
             >
               <ArtifactsIcon className="w-4 h-4 text-[#525252]" />
-              <span>Artifacts</span>
+              {!sidebarCollapsed && <span>Artifacts</span>}
             </button>
 
             <button
               onClick={() => { setSettingsTab("models"); setIsSettingsOpen(true); }}
-              className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-[#404040] hover:bg-[#eaeaea] hover:text-[#171717] transition-colors text-left"
+              title="Customize"
+              className={`w-full flex items-center ${sidebarCollapsed ? "justify-center" : ""} gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-[#404040] hover:bg-[#eaeaea] hover:text-[#171717] transition-colors text-left`}
             >
               <CustomizeIcon className="w-4 h-4 text-[#525252]" />
-              <span>Customize</span>
+              {!sidebarCollapsed && <span>Customize</span>}
             </button>
           </div>
 
           {/* Section: Projects (Accordion) */}
-          <div className="mb-4">
+          <div className={`mb-4 ${sidebarCollapsed ? "hidden" : ""}`}>
             <button 
               onClick={() => setProjectsOpen(!projectsOpen)}
               className="w-full flex items-center justify-between px-3 py-1.5 text-[11px] font-semibold text-[#8a8a8a] uppercase tracking-wider hover:text-[#171717] transition-colors"
@@ -542,7 +669,7 @@ your code here
           </div>
 
           {/* Section: Recents / Sessions (Accordion) */}
-          <div>
+          <div className={sidebarCollapsed ? "hidden" : ""}>
             <button 
               onClick={() => setRecentsOpen(!recentsOpen)}
               className="w-full flex items-center justify-between px-3 py-1.5 text-[11px] font-semibold text-[#8a8a8a] uppercase tracking-wider hover:text-[#171717] transition-colors"
@@ -553,17 +680,24 @@ your code here
 
             {recentsOpen && (
               <div className="mt-1 space-y-0.5">
-                {messages.length === 0 ? (
+                {chatSessions.length === 0 ? (
                   <div className="px-3 py-1.5 text-[12px] text-[#a3a3a3]">
                     No recent chats
                   </div>
                 ) : (
-                  <div 
-                    onClick={() => {}}
-                    className="px-3 py-1.5 rounded-md text-[12px] text-[#525252] hover:bg-[#eaeaea] cursor-pointer truncate"
-                  >
-                    {messages[0]?.content?.slice(0, 24) || "Current conversation"}...
-                  </div>
+                  chatSessions.map((session) => (
+                    <button
+                      key={session.id}
+                      onClick={() => openChat(session)}
+                      className={`w-full px-3 py-1.5 rounded-md text-left text-[12px] truncate transition-colors ${
+                        activeChatId === session.id
+                          ? "bg-[#e5e5e5] text-[#171717] font-medium"
+                          : "text-[#525252] hover:bg-[#eaeaea]"
+                      }`}
+                    >
+                      {session.title}
+                    </button>
+                  ))
                 )}
               </div>
             )}
@@ -572,7 +706,7 @@ your code here
         </div>
 
         {/* Sidebar Footer */}
-        <div className="p-3 border-t border-[#e5e5e5] space-y-2">
+        <div className={`p-3 border-t border-[#e5e5e5] space-y-2 ${sidebarCollapsed ? "hidden" : ""}`}>
           {/* View Plans Pill Button (#f7f7f4) */}
           <button 
             onClick={() => { setSettingsTab("account"); setIsSettingsOpen(true); }}
@@ -585,7 +719,7 @@ your code here
           {/* Sign In / Profile Row */}
           <div 
             onClick={() => {
-              if (!userEmail) window.location.href = "/login"
+              if (!userEmail) window.location.href = "/matrix-demo/app/login"
               else setIsSettingsOpen(true)
             }}
             className="flex items-center justify-between p-2 rounded-lg hover:bg-[#eaeaea] cursor-pointer transition-colors"
@@ -626,7 +760,7 @@ your code here
               className="flex items-center gap-1.5 px-2.5 py-1 bg-[#f7f7f4] hover:bg-[#ebebe7] text-[#404040] hover:text-[#171717] rounded-md text-[12px] font-medium border border-[#e5e5e5] transition-colors"
             >
               <MoonIcon className="w-3.5 h-3.5 text-[#4f46e5]" />
-              Night Shift
+              {nightShiftEnabled ? "Night Shift Active" : "Night Shift"}
             </button>
 
             {/* GitHub Connect Pill */}
@@ -873,10 +1007,10 @@ your code here
                   animate={{ opacity: 1, y: 0 }}
                   className={`flex gap-3.5 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
-                  <div className={`max-w-[85%] rounded-[18px] px-5 py-3.5 text-[14px] leading-relaxed ${
+                  <div className={`max-w-[85%] text-[14px] leading-relaxed ${
                     message.role === 'user'
-                      ? 'bg-[#f2f2f2] text-[#171717] border border-[#e5e5e5]'
-                      : 'bg-[#ffffff] text-[#171717] border border-[#e5e5e5] shadow-sm'
+                      ? 'rounded-[18px] bg-[#f2f2f2] px-5 py-3.5 text-[#171717] border border-[#e5e5e5]'
+                      : 'text-[#171717]'
                   }`}>
                     <AntigravityMarkdown content={message.content} />
                   </div>
@@ -884,9 +1018,9 @@ your code here
               ))}
 
               {status === 'submitted' && (
-                <div className="flex items-center gap-3 text-[13px] text-[#737373] px-2 py-3 animate-pulse">
+                <div className="flex items-center gap-2 text-[13px] text-[#737373] px-2 py-3 animate-pulse">
                   <IdeaAILogo className="w-5 h-5" />
-                  <span>Thinking & executing...</span>
+                  <span>Thought for {Math.max(1, thinkingSeconds)}s</span>
                 </div>
               )}
               <div ref={messagesEndRef} />

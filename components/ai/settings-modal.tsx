@@ -26,11 +26,32 @@ export function SettingsModal({ isOpen, onClose, initialTab = "general", userEma
   const [localProjects, setLocalProjects] = useState<string[]>([])
   const [activeEngine, setActiveEngine] = useState("hybrid")
   const [keySaved, setKeySaved] = useState(false)
+  const [railwayToken, setRailwayToken] = useState("")
+  const [railwayTokenType, setRailwayTokenType] = useState<"account" | "workspace" | "project">("workspace")
+  const [railwayConnected, setRailwayConnected] = useState(false)
+  const [railwayStatus, setRailwayStatus] = useState("")
+  const [railwayLoading, setRailwayLoading] = useState(false)
+  const [desktopNotifications, setDesktopNotifications] = useState(false)
+  const [browserPreference, setBrowserPreference] = useState<"Google" | "Microsoft Edge">("Google")
+  const [codeGeneration, setCodeGeneration] = useState(true)
+  const [webResearch, setWebResearch] = useState(true)
+  const [systemPrompt, setSystemPrompt] = useState("")
+  const [conversations, setConversations] = useState<Array<{ title: string; updatedAt?: number }>>([])
 
   useEffect(() => {
     if (isOpen) {
       setActiveTab(initialTab)
-      // fetch or load projects here if necessary
+      fetch("/api/integrations/railway")
+        .then((response) => response.json())
+        .then((data) => setRailwayConnected(data.connected === true))
+        .catch(() => setRailwayConnected(false))
+      setLocalProjects(JSON.parse(localStorage.getItem("ideaai_projects") || "[]").map((project: { name?: string }) => project.name || "").filter(Boolean))
+      setDesktopNotifications(localStorage.getItem("ideaai_desktop_notifications") === "enabled")
+      setBrowserPreference(localStorage.getItem("ideaai_browser_preference") === "edge" ? "Microsoft Edge" : "Google")
+      setCodeGeneration(localStorage.getItem("ideaai_skill_code_generation") !== "disabled")
+      setWebResearch(localStorage.getItem("ideaai_skill_web_research") !== "disabled")
+      setSystemPrompt(localStorage.getItem("ideaai_global_system_prompt") || "")
+      setConversations(JSON.parse(localStorage.getItem("ideaai_chat_history") || "[]").map((item: { title?: string; updatedAt?: number }) => ({ title: item.title || "Untitled conversation", updatedAt: item.updatedAt })).slice(0, 30))
     }
   }, [isOpen, initialTab])
 
@@ -299,11 +320,6 @@ export function SettingsModal({ isOpen, onClose, initialTab = "general", userEma
                     onClick={() => setActiveEngine("hybrid")}
                     className={`flex flex-col p-4 bg-white border-2 rounded-xl cursor-pointer shadow-sm relative overflow-hidden transition-colors ${activeEngine === "hybrid" ? "border-[#171717]" : "border-[#e5e5e5] hover:border-[#d4d4d4]"}`}
                   >
-                    {activeEngine === "hybrid" && (
-                      <div className="absolute top-0 right-0 bg-[#171717] text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg uppercase tracking-wider">
-                        Active
-                      </div>
-                    )}
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
                         <div className="w-6 h-6 rounded bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-xs font-bold">
@@ -402,8 +418,8 @@ export function SettingsModal({ isOpen, onClose, initialTab = "general", userEma
                 <div className="flex flex-col p-4 bg-white border border-[#e5e5e5] rounded-xl mb-4">
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-[#171717] flex items-center justify-center text-white">
-                        <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd"></path></svg>
+                      <div className="w-10 h-10 rounded-lg bg-[#171717] flex items-center justify-center overflow-hidden">
+                        <img src="/matrix-demo/app/png-transparent-github-social-media-computer-icons-logo-android-github-logo-computer-wallpaper-banner.png" alt="GitHub" className="h-full w-full object-cover" />
                       </div>
                       <div>
                         <div className="text-[15px] font-semibold text-[#171717]">GitHub Repository Access</div>
@@ -421,24 +437,68 @@ export function SettingsModal({ isOpen, onClose, initialTab = "general", userEma
                   </div>
                 </div>
 
-                {/* Railway / Vercel */}
-                <div className="flex flex-col p-4 bg-white border border-[#e5e5e5] rounded-xl mb-4 opacity-70">
+                {/* Railway */}
+                <div className="flex flex-col p-4 bg-white border border-[#e5e5e5] rounded-xl mb-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-[#e5e5e5] flex items-center justify-center font-bold text-[#171717] text-xl">
-                        R
+                      <div className="w-10 h-10 rounded-lg bg-[#e5e5e5] flex items-center justify-center overflow-hidden">
+                      <img src="/matrix-demo/app/9253400_imgwebp-removebg-preview.png" alt="Railway" className="h-full w-full object-contain p-1" />
                       </div>
                       <div>
-                        <div className="text-[15px] font-semibold text-[#171717]">Railway / Vercel Deployments</div>
-                        <div className="text-[13px] text-[#737373]">Autonomous rollback on build failure</div>
+                        <div className="text-[15px] font-semibold text-[#171717]">Railway Cloud Execution</div>
+                        <div className="text-[13px] text-[#737373]">Run an overnight worker while your computer is offline</div>
                       </div>
                     </div>
-                    <button className="px-4 py-2 bg-[#f4f4f4] text-[#a3a3a3] rounded-lg text-[13px] font-medium cursor-not-allowed">
-                      Connect
-                    </button>
+                    <span className={`px-3 py-1.5 rounded-lg text-[12px] font-medium ${railwayConnected ? "bg-emerald-100 text-emerald-700" : "bg-[#f4f4f4] text-[#737373]"}`}>
+                      {railwayConnected ? "Connected" : "Not connected"}
+                    </span>
                   </div>
-                  <div className="mt-3">
-                    <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-[10px] font-semibold uppercase tracking-wide">Coming Soon</span>
+                  <p className="mt-3 text-[12px] leading-5 text-[#737373]">
+                    Railway is optional. It provides cloud compute for overnight jobs; GitHub access is still required for repository checkout and pull requests.
+                  </p>
+                  {!railwayConnected && (
+                    <div className="mt-4 space-y-3">
+                      <div className="flex gap-2">
+                        <select value={railwayTokenType} onChange={(event) => setRailwayTokenType(event.target.value as typeof railwayTokenType)} className="rounded-lg border border-[#d4d4d4] bg-white px-3 py-2 text-[13px] text-[#171717]">
+                          <option value="workspace">Workspace token</option>
+                          <option value="project">Project token</option>
+                          <option value="account">Account token</option>
+                        </select>
+                        <input type="password" value={railwayToken} onChange={(event) => setRailwayToken(event.target.value)} placeholder="Railway token" className="min-w-0 flex-1 rounded-lg border border-[#d4d4d4] px-3 py-2 text-[13px] text-[#171717] focus:outline-none focus:border-[#171717]" />
+                      </div>
+                      <button
+                        type="button"
+                        disabled={railwayLoading}
+                        onClick={async () => {
+                          setRailwayLoading(true)
+                          setRailwayStatus("")
+                          try {
+                            const response = await fetch("/api/integrations/railway", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token: railwayToken, tokenType: railwayTokenType }) })
+                            const data = await response.json()
+                            if (!response.ok) throw new Error(data.error || "Railway connection failed.")
+                            setRailwayConnected(true)
+                            setRailwayToken("")
+                            setRailwayStatus("Railway connection verified and stored securely.")
+                          } catch (error) {
+                            setRailwayStatus(error instanceof Error ? error.message : "Railway connection failed.")
+                          } finally {
+                            setRailwayLoading(false)
+                          }
+                        }}
+                        className="rounded-lg bg-[#171717] px-4 py-2 text-[13px] font-medium text-white hover:bg-[#262626] disabled:opacity-50"
+                      >
+                        {railwayLoading ? "Verifying..." : "Connect Railway"}
+                      </button>
+                    </div>
+                  )}
+                  {railwayConnected && (
+                    <button type="button" onClick={async () => { await fetch("/api/integrations/railway", { method: "DELETE" }); setRailwayConnected(false); setRailwayStatus("Railway disconnected.") }} className="mt-3 self-start text-[12px] text-red-600 hover:underline">
+                      Disconnect Railway
+                    </button>
+                  )}
+                  {railwayStatus && <p className="mt-3 text-[12px] text-[#525252]">{railwayStatus}</p>}
+                  <div className="mt-4 rounded-lg border border-amber-100 bg-amber-50 p-3 text-[12px] leading-5 text-amber-800">
+                    Official Railway API: <code>backboard.railway.com/graphql/v2</code>. Use a scoped workspace or project token for production.
                   </div>
                 </div>
               </div>
@@ -453,18 +513,20 @@ export function SettingsModal({ isOpen, onClose, initialTab = "general", userEma
                 <h3 className="text-[14px] font-semibold text-[#171717] mb-3">Global System Prompt</h3>
                 <textarea 
                   className="w-full h-32 p-3 bg-[#f4f4f4] border border-[#e5e5e5] rounded-lg text-[13px] text-[#171717] focus:outline-none focus:border-[#171717] mb-8 resize-none"
-                  defaultValue="You are an elite Silicon Valley software engineer. Always answer with the most minimalist, high-end technical approach possible."
+                  value={systemPrompt}
+                  onChange={(event) => { setSystemPrompt(event.target.value); localStorage.setItem("ideaai_global_system_prompt", event.target.value) }}
+                  placeholder="Add optional instructions for IdeaAI..."
                 />
 
                 <h3 className="text-[14px] font-semibold text-[#171717] mb-3">Active Skills</h3>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between p-3 bg-white border border-[#e5e5e5] rounded-lg">
                     <div className="text-[13px] font-medium text-[#171717]">Code Generation</div>
-                    <div className="w-10 h-6 bg-[#4f46e5] rounded-full relative cursor-pointer"><div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full"></div></div>
+                    <button type="button" aria-pressed={codeGeneration} onClick={() => { const next = !codeGeneration; setCodeGeneration(next); localStorage.setItem("ideaai_skill_code_generation", next ? "enabled" : "disabled") }} className={`w-10 h-6 rounded-full relative ${codeGeneration ? "bg-[#4f46e5]" : "bg-[#d4d4d4]"}`}><div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${codeGeneration ? "right-1" : "left-1"}`}></div></button>
                   </div>
                   <div className="flex items-center justify-between p-3 bg-white border border-[#e5e5e5] rounded-lg">
                     <div className="text-[13px] font-medium text-[#171717]">Web Research</div>
-                    <div className="w-10 h-6 bg-[#4f46e5] rounded-full relative cursor-pointer"><div className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full"></div></div>
+                    <button type="button" aria-pressed={webResearch} onClick={() => { const next = !webResearch; setWebResearch(next); localStorage.setItem("ideaai_skill_web_research", next ? "enabled" : "disabled") }} className={`w-10 h-6 rounded-full relative ${webResearch ? "bg-[#4f46e5]" : "bg-[#d4d4d4]"}`}><div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${webResearch ? "right-1" : "left-1"}`}></div></button>
                   </div>
                 </div>
               </div>
@@ -481,9 +543,10 @@ export function SettingsModal({ isOpen, onClose, initialTab = "general", userEma
                     <div className="text-[14px] text-[#171717] font-medium">Search Engine Preference</div>
                     <div className="text-[13px] text-[#737373]">Which engine the agent uses to look up live facts.</div>
                   </div>
-                  <button className="flex items-center gap-2 px-3 py-1.5 bg-[#ebebeb] hover:bg-[#e5e5e5] rounded-md text-[13px] text-[#525252] transition-colors">
-                    Google <ChevronDown className="w-3.5 h-3.5" />
-                  </button>
+                  <select value={browserPreference} onChange={(event) => { const next = event.target.value as typeof browserPreference; setBrowserPreference(next); localStorage.setItem("ideaai_browser_preference", next === "Microsoft Edge" ? "edge" : "google") }} className="px-3 py-1.5 bg-[#ebebeb] rounded-md text-[13px] text-[#525252]">
+                    <option>Google</option>
+                    <option>Microsoft Edge</option>
+                  </select>
                 </div>
               </div>
             )}
@@ -499,16 +562,14 @@ export function SettingsModal({ isOpen, onClose, initialTab = "general", userEma
                     <div>
                       <div className="text-[14px] text-[#171717] font-medium">Language</div>
                     </div>
-                    <button className="flex items-center gap-2 px-3 py-1.5 bg-[#ebebeb] hover:bg-[#e5e5e5] rounded-md text-[13px] text-[#525252] transition-colors">
-                      English (US) <ChevronDown className="w-3.5 h-3.5" />
-                    </button>
+                    <span className="px-3 py-1.5 bg-[#ebebeb] rounded-md text-[13px] text-[#525252]">English (US)</span>
                   </div>
                   <div className="flex items-center justify-between p-4 bg-[#f4f4f4] rounded-lg border border-[#e5e5e5]">
                     <div>
                       <div className="text-[14px] text-[#171717] font-medium">Desktop Notifications</div>
                       <div className="text-[13px] text-[#737373]">Receive an alert when an agent finishes a long task.</div>
                     </div>
-                    <div className="w-10 h-6 bg-[#e5e5e5] rounded-full relative cursor-pointer"><div className="absolute left-1 top-1 w-4 h-4 bg-white rounded-full shadow-sm"></div></div>
+                    <button type="button" aria-pressed={desktopNotifications} onClick={() => { const next = !desktopNotifications; setDesktopNotifications(next); localStorage.setItem("ideaai_desktop_notifications", next ? "enabled" : "disabled"); if (next && "Notification" in window && Notification.permission === "default") void Notification.requestPermission() }} className={`w-10 h-6 rounded-full relative ${desktopNotifications ? "bg-[#4f46e5]" : "bg-[#e5e5e5]"}`}><div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all ${desktopNotifications ? "right-1" : "left-1"}`}></div></button>
                   </div>
                 </div>
               </div>
@@ -554,13 +615,13 @@ export function SettingsModal({ isOpen, onClose, initialTab = "general", userEma
               <div className="max-w-[600px] animate-in fade-in duration-300">
                 <h2 className="text-[22px] font-semibold text-[#171717] mb-1">Conversations</h2>
                 <p className="text-[14px] text-[#737373] mb-8">View your chat history and previous interactions.</p>
-                <div className="flex flex-col items-center justify-center py-12 text-center bg-[#f4f4f4] border border-[#e5e5e5] border-dashed rounded-xl">
+                {conversations.length > 0 ? <div className="space-y-2">{conversations.map((conversation) => <div key={`${conversation.title}-${conversation.updatedAt}`} className="flex items-center justify-between rounded-lg border border-[#e5e5e5] bg-[#f4f4f4] px-4 py-3"><span className="truncate text-[13px] text-[#171717]">{conversation.title}</span><span className="ml-3 shrink-0 text-[11px] text-[#737373]">{conversation.updatedAt ? new Date(conversation.updatedAt).toLocaleDateString("en-US") : ""}</span></div>)}</div> : <div className="flex flex-col items-center justify-center py-12 text-center bg-[#f4f4f4] border border-[#e5e5e5] border-dashed rounded-xl">
                   <div className="w-12 h-12 bg-[#ebebeb] text-[#a3a3a3] rounded-full flex items-center justify-center mb-3">
                     <HelpCircle className="w-6 h-6" />
                   </div>
                   <h3 className="text-[15px] font-medium text-[#171717] mb-1">No recent conversations</h3>
                   <p className="text-[13px] text-[#737373]">Your chat history will appear here once you start interacting.</p>
-                </div>
+                </div>}
               </div>
             )}
 
@@ -626,5 +687,3 @@ export function SettingsModal({ isOpen, onClose, initialTab = "general", userEma
     </div>
   )
 }
-
-
