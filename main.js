@@ -131,7 +131,7 @@ function createWindow() {
 
   const startUrl = isDev
     ? 'http://localhost:3000/matrix-demo/app/register'
-    : 'https://ideaai.togetlink.com/matrix-demo/app/register';
+    : (process.env.IDEAAI_WEB_APP_URL || 'https://togetlink-ui.vercel.app/matrix-demo/app/register');
 
   mainWindow.loadURL(startUrl);
 
