@@ -120,7 +120,7 @@ export default function LoginPage() {
       <div className="mx-auto flex min-h-[calc(100vh-5rem)] w-full max-w-[480px] flex-col justify-center">
         <div className="text-center">
           <div className="mx-auto mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-lime-400 p-2">
-            <Image src="/Gemini_Generated_Image_dpurc9dpurc9dpur-removebg-preview.png" alt="IdeaAI" width={32} height={32} className="h-full w-full rounded-md object-contain" priority />
+            <Image src="/matrix-demo/Gemini_Generated_Image_dpurc9dpurc9dpur.jpg" alt="IdeaAI" width={32} height={32} className="h-full w-full rounded-md object-contain" priority />
           </div>
           <h1 className="text-[25px] font-medium tracking-tight">Sign in to IdeaAI</h1>
           <p className="mt-2 text-[16px] text-[#61738b]">Don&apos;t have an account? <Link href="/matrix-demo/app/register" className="text-blue-600 hover:underline">Register</Link></p>

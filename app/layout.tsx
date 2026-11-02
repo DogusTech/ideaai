@@ -44,7 +44,7 @@ export const metadata: Metadata = {
     siteName: 'togetlink',
     images: [
       {
-        url: '/icon-light-32x32.png',
+        url: '/matrix-demo/Gemini_Generated_Image_dpurc9dpurc9dpur.jpg',
         width: 800,
         height: 600,
         alt: 'togetlink - Professional Networking',
@@ -55,7 +55,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'togetlink — Professional Networking & Co-working Hubs',
     description: 'Where local builders build together and meet nearby. Discover professional hubs across USA and Turkey to find collaborators and ship faster.',
-    images: ['/icon-light-32x32.png'],
+    images: ['/matrix-demo/Gemini_Generated_Image_dpurc9dpurc9dpur.jpg'],
   },
   robots: {
     index: true,
@@ -69,9 +69,9 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: '/favicon.ico',
-    shortcut: '/favicon.ico',
-    apple: '/icon.png',
+    icon: '/matrix-demo/Gemini_Generated_Image_dpurc9dpurc9dpur.jpg',
+    shortcut: '/matrix-demo/Gemini_Generated_Image_dpurc9dpurc9dpur.jpg',
+    apple: '/matrix-demo/Gemini_Generated_Image_dpurc9dpurc9dpur.jpg',
   },
 }
 
@@ -94,7 +94,7 @@ const globalSchema = {
       "@id": "https://togetlink.com/#organization",
       "name": "TogetLink",
       "url": "https://togetlink.com",
-      "logo": "https://togetlink.com/icon-light-32x32.png",
+      "logo": "https://ideaai.togetlink.com/matrix-demo/Gemini_Generated_Image_dpurc9dpurc9dpur.jpg",
       "sameAs": [
         "https://twitter.com/togetlink",
         "https://linkedin.com/company/togetlink"

@@ -16,7 +16,7 @@ import { ConstitutionalModalMac } from "./constitutional-modal-mac"
 
 const IdeaAILogo = ({ className = "w-6 h-6" }: { className?: string }) => (
   <img
-    src="/Gemini_Generated_Image_dpurc9dpurc9dpur-removebg-preview.png"
+    src="/matrix-demo/Gemini_Generated_Image_dpurc9dpurc9dpur.jpg"
     alt="IdeaAI"
     className={`${className} rounded-md object-cover`}
   />
