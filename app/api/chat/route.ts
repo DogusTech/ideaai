@@ -29,9 +29,8 @@ export async function POST(request: Request) {
     const isAzureCloud = model === "IdeaAI Hybrid Engine (Pro)" || model === "Azure Enterprise Cloud (Llama 3.2)";
     const isLocalOllama = model === "Local Engine (Ollama)";
 
-    if (isAzureCloud || isLocalOllama) {
-      // Azure is intentionally routed to the local Ollama instance while the
-      // local-only deployment is being tested. No public Azure address is used.
+    if (isLocalOllama) {
+      // Local execution is the only mode that may connect to localhost.
       const candidateUrls = [
         normalizeEndpoint(process.env.LOCAL_OLLAMA_URL) || LOCAL_OLLAMA_URL,
       ];
@@ -120,16 +119,62 @@ Follow that profile consistently. Never invent tool results, file changes, tests
         }
       }
 
-      const targetName = isAzureCloud
-        ? 'Azure test engine (local Ollama at localhost:11434)'
-        : 'Local Ollama (localhost:11434)';
+      const targetName = 'Local Ollama (localhost:11434)';
       return NextResponse.json({ 
         error: `${targetName} sunucusuna bağlanılamadı. Ollama'nın localhost:11434 üzerinde çalıştığından emin olun. Detay: ${lastError?.name === 'AbortError' ? 'Bağlantı zaman aşımına uğradı' : lastError?.message || 'Bilinmeyen bağlantı hatası'}` 
       }, { status: 504 });
     }
 
     // ==========================================
-    // 2. BRING YOUR OWN KEY (BYOK) - OPENAI / GEMINI
+    // 2. CLOUD ENGINE - SERVER-SIDE PROVIDER
+    // ==========================================
+    if (isAzureCloud) {
+      const cloudApiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY?.trim();
+      if (!cloudApiKey) {
+        return NextResponse.json(
+          { error: 'Cloud engine is not configured. Set GOOGLE_GENERATIVE_AI_API_KEY in the deployment environment.' },
+          { status: 503 }
+        );
+      }
+
+      const cloudMessages = messages.map((m: any) => ({
+        role: m.role === 'user' ? 'user' : 'model',
+        parts: [{ text: m.content }]
+      }));
+      const cloudResponse = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(cloudApiKey)}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            systemInstruction: {
+              parts: [{
+                text: 'You are IdeaAI, an autonomous senior software engineering agent. Explain your reasoning clearly, never invent tool results, and describe file changes and validation steps precisely.'
+              }]
+            },
+            contents: cloudMessages
+          })
+        }
+      );
+
+      if (!cloudResponse.ok) {
+        const errorData = await cloudResponse.json().catch(() => ({}));
+        return NextResponse.json(
+          { error: errorData.error?.message || 'Cloud engine request failed.' },
+          { status: cloudResponse.status }
+        );
+      }
+
+      const cloudData = await cloudResponse.json();
+      const response = cloudData.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!response) {
+        return NextResponse.json({ error: 'Cloud engine returned an empty response.' }, { status: 502 });
+      }
+      return NextResponse.json({ response });
+    }
+
+    // ==========================================
+    // 3. BRING YOUR OWN KEY (BYOK) - OPENAI / GEMINI
     // ==========================================
     
     // BYOK (Bring Your Own Key) Kural: Kullanici API Key girmeden islem yapamaz.
