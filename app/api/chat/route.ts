@@ -126,71 +126,80 @@ Follow that profile consistently. Never invent tool results, file changes, tests
     }
 
     // ==========================================
-    // 2. CLOUD ENGINE - AZURE/MODAL FINE-TUNED LLAMA
+    // 2. CLOUD ENGINE - AZURE VM OLLAMA
     // ==========================================
     if (isAzureCloud) {
-      const cloudEndpoint = normalizeEndpoint(
-        process.env.CLOUD_LLM_ENDPOINT ||
-        process.env.AZURE_LLM_ENDPOINT ||
-        process.env.MODAL_LLM_ENDPOINT
-      );
-      const cloudApiKey = (
-        process.env.CLOUD_LLM_API_KEY ||
-        process.env.AZURE_LLM_API_KEY ||
-        process.env.MODAL_LLM_API_KEY
-      )?.trim();
-      const cloudModel = (
-        process.env.CLOUD_LLM_MODEL ||
+      const azureEndpoint = normalizeEndpoint(process.env.AZURE_OLLAMA_URL)
+        || (process.env.AZURE_VM_PUBLIC_IP
+          ? `http://${process.env.AZURE_VM_PUBLIC_IP.trim()}:11434`
+          : undefined);
+      const azureModel = (
+        process.env.AZURE_OLLAMA_MODEL ||
         process.env.AZURE_LLM_MODEL ||
-        process.env.MODAL_LLM_MODEL ||
-        'llama-3.2'
+        'llama3.2'
       ).trim();
 
-      if (!cloudEndpoint || !cloudApiKey) {
+      if (!azureEndpoint) {
         return NextResponse.json(
           {
             error:
-              'Fine-tuned Llama 3.2 cloud engine is not configured. Set CLOUD_LLM_ENDPOINT, CLOUD_LLM_API_KEY, and optionally CLOUD_LLM_MODEL in the deployment environment.'
+              'Azure cloud engine is not configured. Set AZURE_OLLAMA_URL or AZURE_VM_PUBLIC_IP in the deployment environment.'
           },
           { status: 503 }
         );
       }
 
-      const cloudResponse = await fetch(`${cloudEndpoint}/v1/chat/completions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${cloudApiKey}`
+      const azureMessages = [
+        {
+          role: 'system',
+          content:
+            'You are IdeaAI, the fine-tuned Llama 3.2 engineering agent running on the IdeaAI Azure VM. Explain reasoning clearly, never invent tool results, and describe file changes and validation precisely.'
         },
-        body: JSON.stringify({
-          model: cloudModel,
-          messages: [
-            {
-              role: 'system',
-              content:
-                'You are IdeaAI, an autonomous senior software engineering agent. Explain reasoning clearly, never invent tool results, and describe file changes and validation precisely.'
-            },
-            ...messages.map((m: any) => ({
-              role: m.role === 'model' ? 'assistant' : m.role,
-              content: m.content
-            }))
-          ],
-          stream: false
-        })
-      });
-
-      if (!cloudResponse.ok) {
-        const errorText = await cloudResponse.text();
+        ...messages.map((m: any) => ({
+          role: m.role === 'model' ? 'assistant' : m.role,
+          content: m.content
+        }))
+      ];
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), OLLAMA_REQUEST_TIMEOUT_MS);
+      let azureResponse: Response;
+      try {
+        azureResponse = await fetch(`${azureEndpoint}/api/chat`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: azureModel,
+            messages: azureMessages,
+            stream: false
+          }),
+          signal: controller.signal
+        });
+      } catch (error) {
+        const detail = error instanceof Error && error.name === 'AbortError'
+          ? 'request timed out'
+          : error instanceof Error ? error.message : 'unknown network error';
         return NextResponse.json(
-          { error: `Fine-tuned Llama 3.2 cloud request failed (HTTP ${cloudResponse.status}): ${errorText.slice(0, 500)}` },
-          { status: cloudResponse.status }
+          { error: `Azure fine-tuned Llama 3.2 endpoint is unreachable at ${azureEndpoint}. Detail: ${detail}` },
+          { status: 504 }
+        );
+      } finally {
+        clearTimeout(timeoutId);
+      }
+
+      if (!azureResponse.ok) {
+        const errorText = await azureResponse.text();
+        return NextResponse.json(
+          { error: `Azure fine-tuned Llama 3.2 request failed (HTTP ${azureResponse.status}): ${errorText.slice(0, 500)}` },
+          { status: azureResponse.status }
         );
       }
 
-      const cloudData = await cloudResponse.json();
-      const response = cloudData.choices?.[0]?.message?.content;
+      const azureData = await azureResponse.json();
+      const response = azureData.message?.content || azureData.response;
       if (!response) {
-        return NextResponse.json({ error: 'Fine-tuned Llama 3.2 cloud engine returned an empty response.' }, { status: 502 });
+        return NextResponse.json({ error: 'Azure fine-tuned Llama 3.2 returned an empty response.' }, { status: 502 });
       }
       return NextResponse.json({ response });
     }
