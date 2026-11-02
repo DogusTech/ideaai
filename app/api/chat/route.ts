@@ -126,49 +126,71 @@ Follow that profile consistently. Never invent tool results, file changes, tests
     }
 
     // ==========================================
-    // 2. CLOUD ENGINE - SERVER-SIDE PROVIDER
+    // 2. CLOUD ENGINE - AZURE/MODAL FINE-TUNED LLAMA
     // ==========================================
     if (isAzureCloud) {
-      const cloudApiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY?.trim();
-      if (!cloudApiKey) {
+      const cloudEndpoint = normalizeEndpoint(
+        process.env.CLOUD_LLM_ENDPOINT ||
+        process.env.AZURE_LLM_ENDPOINT ||
+        process.env.MODAL_LLM_ENDPOINT
+      );
+      const cloudApiKey = (
+        process.env.CLOUD_LLM_API_KEY ||
+        process.env.AZURE_LLM_API_KEY ||
+        process.env.MODAL_LLM_API_KEY
+      )?.trim();
+      const cloudModel = (
+        process.env.CLOUD_LLM_MODEL ||
+        process.env.AZURE_LLM_MODEL ||
+        process.env.MODAL_LLM_MODEL ||
+        'llama-3.2'
+      ).trim();
+
+      if (!cloudEndpoint || !cloudApiKey) {
         return NextResponse.json(
-          { error: 'Cloud engine is not configured. Set GOOGLE_GENERATIVE_AI_API_KEY in the deployment environment.' },
+          {
+            error:
+              'Fine-tuned Llama 3.2 cloud engine is not configured. Set CLOUD_LLM_ENDPOINT, CLOUD_LLM_API_KEY, and optionally CLOUD_LLM_MODEL in the deployment environment.'
+          },
           { status: 503 }
         );
       }
 
-      const cloudMessages = messages.map((m: any) => ({
-        role: m.role === 'user' ? 'user' : 'model',
-        parts: [{ text: m.content }]
-      }));
-      const cloudResponse = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${encodeURIComponent(cloudApiKey)}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            systemInstruction: {
-              parts: [{
-                text: 'You are IdeaAI, an autonomous senior software engineering agent. Explain your reasoning clearly, never invent tool results, and describe file changes and validation steps precisely.'
-              }]
+      const cloudResponse = await fetch(`${cloudEndpoint}/v1/chat/completions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${cloudApiKey}`
+        },
+        body: JSON.stringify({
+          model: cloudModel,
+          messages: [
+            {
+              role: 'system',
+              content:
+                'You are IdeaAI, an autonomous senior software engineering agent. Explain reasoning clearly, never invent tool results, and describe file changes and validation precisely.'
             },
-            contents: cloudMessages
-          })
-        }
-      );
+            ...messages.map((m: any) => ({
+              role: m.role === 'model' ? 'assistant' : m.role,
+              content: m.content
+            }))
+          ],
+          stream: false
+        })
+      });
 
       if (!cloudResponse.ok) {
-        const errorData = await cloudResponse.json().catch(() => ({}));
+        const errorText = await cloudResponse.text();
         return NextResponse.json(
-          { error: errorData.error?.message || 'Cloud engine request failed.' },
+          { error: `Fine-tuned Llama 3.2 cloud request failed (HTTP ${cloudResponse.status}): ${errorText.slice(0, 500)}` },
           { status: cloudResponse.status }
         );
       }
 
       const cloudData = await cloudResponse.json();
-      const response = cloudData.candidates?.[0]?.content?.parts?.[0]?.text;
+      const response = cloudData.choices?.[0]?.message?.content;
       if (!response) {
-        return NextResponse.json({ error: 'Cloud engine returned an empty response.' }, { status: 502 });
+        return NextResponse.json({ error: 'Fine-tuned Llama 3.2 cloud engine returned an empty response.' }, { status: 502 });
       }
       return NextResponse.json({ response });
     }
