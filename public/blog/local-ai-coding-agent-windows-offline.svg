@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Local AI coding agent on Windows</title>
+  <desc id="desc">A dark terminal window connected to a Windows desktop workspace and an AI control node.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#08111f"/>
+      <stop offset="1" stop-color="#112d3b"/>
+    </linearGradient>
+    <linearGradient id="screen" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0d1d2b"/>
+      <stop offset="1" stop-color="#071018"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="7" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="1020" cy="90" r="220" fill="#21d4a7" opacity=".08"/>
+  <circle cx="180" cy="560" r="260" fill="#4a8dff" opacity=".1"/>
+  <path d="M70 470 C330 330 420 535 640 390 S930 190 1130 300" fill="none" stroke="#27d9aa" stroke-opacity=".22" stroke-width="2"/>
+  <path d="M70 490 C330 350 420 555 640 410 S930 210 1130 320" fill="none" stroke="#4a8dff" stroke-opacity=".16" stroke-width="2"/>
+  <g transform="translate(92 92)">
+    <rect width="710" height="390" rx="22" fill="#071018" stroke="#6de5c1" stroke-opacity=".35" stroke-width="2"/>
+    <rect x="1" y="1" width="708" height="48" rx="21" fill="#10212a"/>
+    <circle cx="28" cy="25" r="6" fill="#ff6c78"/>
+    <circle cx="50" cy="25" r="6" fill="#ffc85c"/>
+    <circle cx="72" cy="25" r="6" fill="#5ee6a5"/>
+    <text x="104" y="31" fill="#b9c9d2" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16">IdeaAI / local workspace</text>
+    <text x="38" y="100" fill="#6de5c1" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="20">$ ideaai inspect ./project</text>
+    <text x="38" y="142" fill="#dbe9ee" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="17">[READ] src/app.tsx</text>
+    <text x="38" y="176" fill="#dbe9ee" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="17">[RUN] npm test</text>
+    <text x="38" y="210" fill="#dbe9ee" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="17">[WRITE] src/agent-tools.ts</text>
+    <text x="38" y="270" fill="#8aa7b5" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16">workspace boundary: enforced</text>
+    <text x="38" y="300" fill="#8aa7b5" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16">network required: no</text>
+    <text x="38" y="344" fill="#6de5c1" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="17">✔ verified local change</text>
+  </g>
+  <g transform="translate(850 160)" filter="url(#glow)">
+    <circle cx="110" cy="110" r="84" fill="#0c2530" stroke="#6de5c1" stroke-width="3"/>
+    <circle cx="110" cy="110" r="54" fill="none" stroke="#4a8dff" stroke-width="2" stroke-dasharray="8 10"/>
+    <path d="M80 105 L101 126 L143 82" fill="none" stroke="#6de5c1" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="110" y="238" text-anchor="middle" fill="#dbe9ee" font-family="ui-sans-serif, system-ui, sans-serif" font-size="21" font-weight="600">Local-first AI</text>
+    <text x="110" y="270" text-anchor="middle" fill="#8aa7b5" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15">read · change · verify</text>
+  </g>
+  <text x="92" y="565" fill="#ffffff" font-family="ui-sans-serif, system-ui, sans-serif" font-size="34" font-weight="700">Run an AI coding agent locally on Windows</text>
+  <text x="94" y="598" fill="#9fc4cb" font-family="ui-sans-serif, system-ui, sans-serif" font-size="18">Keep code local. Let the desktop bridge execute verified engineering work.</text>
+</svg>
