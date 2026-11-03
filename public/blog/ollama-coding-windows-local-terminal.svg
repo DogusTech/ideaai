@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Ollama coding on Windows</title>
+  <desc id="desc">A local terminal coding workflow connected to an AI model.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#07111d"/>
+      <stop offset="1" stop-color="#183645"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#102934"/>
+      <stop offset="1" stop-color="#07151d"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#background)"/>
+  <circle cx="1010" cy="90" r="220" fill="#6de5c1" opacity=".08"/>
+  <circle cx="170" cy="580" r="250" fill="#4a8dff" opacity=".1"/>
+  <g transform="translate(80 82)">
+    <rect width="760" height="390" rx="22" fill="url(#panel)" stroke="#6de5c1" stroke-opacity=".38" stroke-width="2"/>
+    <rect width="760" height="52" rx="22" fill="#18323d"/>
+    <circle cx="30" cy="26" r="6" fill="#ff6c78"/>
+    <circle cx="52" cy="26" r="6" fill="#ffc85c"/>
+    <circle cx="74" cy="26" r="6" fill="#5ee6a5"/>
+    <text x="108" y="33" fill="#c6d9df" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16">Ollama / Windows workspace</text>
+    <text x="42" y="105" fill="#6de5c1" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="20">$ ollama run llama3.2</text>
+    <text x="42" y="150" fill="#e1eef1" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="17">&lt;read_file path="src/app.tsx" /&gt;</text>
+    <text x="42" y="192" fill="#e1eef1" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="17">&lt;run_command&gt;npm test&lt;/run_command&gt;</text>
+    <text x="42" y="234" fill="#e1eef1" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="17">&lt;write_file path="src/fix.ts"&gt;</text>
+    <text x="42" y="292" fill="#8aa7b5" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16">local model • real output • verified change</text>
+    <text x="42" y="344" fill="#6de5c1" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="17">✔ workspace boundary enforced</text>
+  </g>
+  <g transform="translate(900 165)">
+    <circle cx="100" cy="100" r="82" fill="#0c2530" stroke="#4a8dff" stroke-width="3"/>
+    <path d="M100 42v116M42 100h116" stroke="#6de5c1" stroke-width="5" opacity=".7"/>
+    <circle cx="100" cy="100" r="30" fill="#6de5c1"/>
+    <text x="100" y="230" text-anchor="middle" fill="#ffffff" font-family="ui-sans-serif, system-ui, sans-serif" font-size="21" font-weight="600">Local AI</text>
+    <text x="100" y="260" text-anchor="middle" fill="#9fc4cb" font-family="ui-sans-serif, system-ui, sans-serif" font-size="15">Ollama + tools</text>
+  </g>
+  <text x="80" y="555" fill="#ffffff" font-family="ui-sans-serif, system-ui, sans-serif" font-size="34" font-weight="700">Ollama coding on Windows</text>
+  <text x="82" y="590" fill="#9fc4cb" font-family="ui-sans-serif, system-ui, sans-serif" font-size="18">Local files, terminal automation, and verified engineering changes.</text>
+</svg>
