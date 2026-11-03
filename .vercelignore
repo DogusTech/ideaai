@@ -1,0 +1,35 @@
+.git
+.git/**
+.next
+.next/**
+node_modules
+node_modules/**
+release
+release/**
+mobile app
+mobile app/**
+all-files
+all-files/**
+store-screenshots-windows
+store-screenshots-windows/**
+public/matrix-demo/published-updates
+public/matrix-demo/published-updates/**
+public/matrix-demo/store-screenshots-windows
+public/matrix-demo/store-screenshots-windows/**
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.zip
+*.appx
+*.msix
+ui-main
+ui-main/**
+ui_dataset.jsonl
+*.csv
+*.ipynb
+__pycache__
+__pycache__/**
+.env
+.env.*
+!.env.example

@@ -26,9 +26,6 @@ export function middleware(request: NextRequest) {
   
   // Explicitly handle sitemap.xml for subdomains before ignoring files with extensions
   if (url.pathname === '/sitemap.xml') {
-    if (isIdeaAiSubdomain) {
-      return NextResponse.rewrite(new URL('/ai-landing-page/sitemap.xml', request.url))
-    }
     if (isOutrankSubdomain) {
       return NextResponse.rewrite(new URL('/outrank/sitemap.xml', request.url))
     }
@@ -97,8 +94,8 @@ export function middleware(request: NextRequest) {
       }
 
 
-      // Allow /legal, /privacy-policy, /redeem, /blog, /use-cases, /tools, and /pitch-deck to route to the root app folder
-      if (url.pathname.startsWith('/legal') || url.pathname.startsWith('/privacy-policy') || url.pathname.startsWith('/redeem') || url.pathname.startsWith('/blog') || url.pathname.startsWith('/use-cases') || url.pathname.startsWith('/tools') || url.pathname.startsWith('/pitch-deck')) {
+      // Allow public IdeaAI product, documentation, and content routes to use the root app folder
+      if (url.pathname === '/matrix-demo' || url.pathname.startsWith('/matrix-demo/') || url.pathname === '/docs' || url.pathname.startsWith('/docs/') || url.pathname === '/security' || url.pathname.startsWith('/security/') || url.pathname.startsWith('/legal') || url.pathname.startsWith('/privacy-policy') || url.pathname.startsWith('/redeem') || url.pathname.startsWith('/blog') || url.pathname.startsWith('/use-cases') || url.pathname.startsWith('/tools') || url.pathname.startsWith('/pitch-deck')) {
         return NextResponse.rewrite(new URL(url.pathname, request.url))
       }
       
@@ -133,4 +130,3 @@ export const config = {
     '/((?!api|_next/static|_next/image|favicon.ico).*)',
   ],
 }
-
