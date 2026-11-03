@@ -139,6 +139,12 @@ Before using any local AI coding agent on a production repository, confirm that 
 - Distinguish proposed changes from applied changes
 - Explain the final result clearly
 
+## Continue learning
+
+- [Run an AI coding agent locally on Windows](https://ideaai.togetlink.com/blog/local-ai-coding-agent-windows-offline)
+- [How IdeaAI protects workspace file access](https://ideaai.togetlink.com/security)
+- [Read the IdeaAI documentation](https://ideaai.togetlink.com/docs)
+
 ## Download IdeaAI for Windows
 
 If you want to connect local Ollama coding to a Windows engineering workspace, download IdeaAI from the Microsoft Store:

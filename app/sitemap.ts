@@ -40,6 +40,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/terms-of-use',
     '/privacy-policy',
     '/blog', // Anasayfaya blog eklendi
+    '/matrix-demo',
+    '/docs',
+    '/security',
   ].map((route) => ({
     url: `${baseUrl}${route}`,
     lastModified: new Date(),

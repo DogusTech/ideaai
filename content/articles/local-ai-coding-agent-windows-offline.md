@@ -105,6 +105,12 @@ Before trusting any AI coding tool with a repository, check whether it can:
 
 If an agent says “I created the file” but the file timestamp and contents never change, it is still a chatbot. The execution bridge is the feature that turns generated code into engineering work.
 
+## Continue learning
+
+- [How to use Ollama for coding on Windows](https://ideaai.togetlink.com/blog/ollama-coding-windows-local-terminal)
+- [Read the IdeaAI security model](https://ideaai.togetlink.com/security)
+- [Explore the IdeaAI documentation](https://ideaai.togetlink.com/docs)
+
 ## Download IdeaAI for Windows
 
 If you want to try a local AI coding agent with a Windows desktop workspace, download IdeaAI from the Microsoft Store:

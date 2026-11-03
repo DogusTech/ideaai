@@ -62,6 +62,7 @@ function extractMetadata(markdown: string) {
 
 import BlogNavbar from '@/components/blog/BlogNavbar';
 import type { Metadata } from 'next';
+import Script from 'next/script';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -138,6 +139,34 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
   const readingTime = Math.max(1, Math.ceil(markdownContent.split(' ').length / 200));
   
   const categoryBadge = frontmatter.title || slug.replace(/-/g, ' ').toUpperCase();
+  const articleSchema = {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "@id": `https://ideaai.togetlink.com/blog/${slug}#article`,
+    headline: realTitle,
+    description: excerpt,
+    url: `https://ideaai.togetlink.com/blog/${slug}`,
+    datePublished: frontmatter.publishedAt || undefined,
+    dateModified: frontmatter.publishedAt || undefined,
+    image: frontmatter.coverImage
+      ? `https://ideaai.togetlink.com${frontmatter.coverImage}`
+      : undefined,
+    author: {
+      "@type": "Person",
+      name: "Doğuş Yılmaz",
+      url: "https://ideaai.togetlink.com/founder",
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "Aeternexus, Inc.",
+      url: "https://ideaai.togetlink.com",
+    },
+    isPartOf: {
+      "@type": "Blog",
+      name: "IdeaAI Blog",
+      url: "https://ideaai.togetlink.com/blog",
+    },
+  };
 
   // Fetch related posts
   const allFiles = fs.readdirSync(articlesDir).filter(f => f.endsWith('.md') && f !== `${slug}.md`);
@@ -167,6 +196,11 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
 
   return (
     <div className="bg-white min-h-screen text-[#1f1f1f] font-sans">
+      <Script
+        id={`article-schema-${slug}`}
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
       
       {/* GOOGLE-STYLE MEGA MENU NAVBAR */}
       <BlogNavbar />

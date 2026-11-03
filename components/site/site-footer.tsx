@@ -4,17 +4,17 @@ const FOOTER_COLUMNS = [
   {
     title: "Product",
     links: [
-      { label: "How it works", href: "/#how-it-works" },
-      { label: "Discover hubs", href: "/#places" },
-      { label: "Plans", href: "/#plans" },
-      { label: "Register", href: "/register" },
-      { label: "Login", href: "/login" },
+      { label: "How IdeaAI works", href: "/matrix-demo" },
+      { label: "Microsoft Store", href: "https://apps.microsoft.com/detail/9p9sfqgbsk7" },
+      { label: "Web Console", href: "/app" },
+      { label: "Documentation", href: "/docs" },
+      { label: "Security model", href: "/security" },
     ],
   },
   {
     title: "Company",
     links: [
-      { label: "About TogetLink", href: "/about" },
+      { label: "About Aeternexus", href: "/about" },
       { label: "Founder", href: "/founder" },
       { label: "Blog", href: "/blog" },
       { label: "Press", href: "/press" },
@@ -32,9 +32,10 @@ const FOOTER_COLUMNS = [
   {
     title: "Resources",
     links: [
-      { label: "FAQ", href: "/#faq" },
+      { label: "FAQ", href: "/docs#faq" },
+      { label: "RSS feed", href: "/feed.xml" },
+      { label: "Sitemap", href: "/sitemap.xml" },
       { label: "Support", href: "/contact" },
-      { label: "Community", href: "/#places" },
     ],
   },
 ]
@@ -125,7 +126,7 @@ export function SiteFooter() {
         <div className="flex flex-col items-start justify-between gap-4 py-5 sm:flex-row sm:items-center">
           <div className="flex items-center gap-4">
             <p className="text-xs text-muted-foreground">
-              &copy; 2026 Aeternexus Inc. All rights reserved.
+            &copy; 2026 Aeternexus, Inc. All rights reserved.
             </p>
             <a href="https://althunt.io/compare/ideaai-vs-cursor" target="_blank" rel="noopener noreferrer">
               <img src="https://althunt.io/badges/featured-light.svg" alt="Featured on AltHunt" width="130" height="28" />

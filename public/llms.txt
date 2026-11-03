@@ -15,6 +15,7 @@
 ## Company
 - **Developer:** Aeternexus Inc. (TogetLink)
 - **Website:** https://ideaai.togetlink.com
+- **RSS feed:** https://ideaai.togetlink.com/feed.xml
 - **Pricing:** Free tier available for early adopters.
 
 For full technical specifications and API context, refer to [/llms-full.txt](/llms-full.txt).

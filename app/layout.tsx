@@ -10,51 +10,49 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://www.togetlink.com'),
+  metadataBase: new URL('https://ideaai.togetlink.com'),
   alternates: {
     canonical: '/',
+    types: {
+      'application/rss+xml': '/feed.xml',
+    },
   },
   title: {
-    default: 'togetlink — Professional Networking & Co-working Hubs',
-    template: '%s | togetlink',
+    default: 'IdeaAI — Autonomous AI Coding Agent',
+    template: '%s | IdeaAI',
   },
   description:
-    'Where local builders build together and meet nearby. Discover professional hubs across USA and Turkey to find collaborators and ship faster.',
+    'IdeaAI is a Windows desktop autonomous AI coding agent and engineering workspace with local Ollama, terminal automation, and workspace-scoped file operations.',
   keywords: [
-    'professional networking', 
-    'local hubs', 
-    'builders', 
-    'founders', 
-    'co-working', 
-    'networking in Istanbul', 
-    'networking in USA', 
-    'startup collaboration', 
-    'meet founders',
-    'check in to work',
-    'TogetLink'
+    'local AI coding agent',
+    'Windows AI coding assistant',
+    'Ollama coding',
+    'offline coding assistant',
+    'terminal automation',
+    'IdeaAI'
   ],
   authors: [{ name: 'DogusTech' }],
-  creator: 'TogetLink',
+  creator: 'Aeternexus, Inc.',
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://www.togetlink.com',
-    title: 'togetlink — Professional Networking & Co-working Hubs',
-    description: 'Where local builders build together and meet nearby. Discover professional hubs across USA and Turkey to find collaborators and ship faster.',
-    siteName: 'togetlink',
+    url: 'https://ideaai.togetlink.com',
+    title: 'IdeaAI — Autonomous AI Coding Agent',
+    description: 'A Windows desktop engineering workspace that connects local Ollama models to files, terminals, and autonomous workflows.',
+    siteName: 'IdeaAI',
     images: [
       {
         url: '/matrix-demo/Gemini_Generated_Image_dpurc9dpurc9dpur.jpg',
         width: 800,
         height: 600,
-        alt: 'togetlink - Professional Networking',
+        alt: 'IdeaAI autonomous Windows coding agent',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'togetlink — Professional Networking & Co-working Hubs',
-    description: 'Where local builders build together and meet nearby. Discover professional hubs across USA and Turkey to find collaborators and ship faster.',
+    title: 'IdeaAI — Autonomous AI Coding Agent',
+    description: 'A Windows desktop engineering workspace that connects local Ollama models to files, terminals, and autonomous workflows.',
     images: ['/matrix-demo/Gemini_Generated_Image_dpurc9dpurc9dpur.jpg'],
   },
   robots: {
@@ -91,23 +89,23 @@ const globalSchema = {
   "@graph": [
     {
       "@type": "Organization",
-      "@id": "https://togetlink.com/#organization",
-      "name": "TogetLink",
-      "url": "https://togetlink.com",
+      "@id": "https://ideaai.togetlink.com/#organization",
+      "name": "Aeternexus, Inc.",
+      "url": "https://ideaai.togetlink.com",
       "logo": "https://ideaai.togetlink.com/matrix-demo/Gemini_Generated_Image_dpurc9dpurc9dpur.jpg",
       "sameAs": [
-        "https://twitter.com/togetlink",
-        "https://linkedin.com/company/togetlink"
+        "https://apps.microsoft.com/detail/9p9sfqgbsk7",
+        "https://ideaai.togetlink.com"
       ],
-      "description": "TogetLink connects builders, designers, and founders in local hubs across the USA and Turkey."
+      "description": "Aeternexus, Inc. develops IdeaAI, a Windows desktop autonomous AI coding agent and engineering workspace."
     },
     {
       "@type": "WebSite",
-      "@id": "https://togetlink.com/#website",
-      "url": "https://togetlink.com",
-      "name": "TogetLink",
+      "@id": "https://ideaai.togetlink.com/#website",
+      "url": "https://ideaai.togetlink.com",
+      "name": "IdeaAI",
       "publisher": {
-        "@id": "https://togetlink.com/#organization"
+        "@id": "https://ideaai.togetlink.com/#organization"
       }
     }
   ]
