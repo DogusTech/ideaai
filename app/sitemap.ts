@@ -3,6 +3,25 @@ import { MetadataRoute } from 'next'
 import fs from 'fs'
 import path from 'path'
 
+function parseArticleFrontmatter(fileContent: string) {
+  const contentParts = fileContent.split('---')
+  if (contentParts.length < 3) {
+    return { slug: '', publishedAt: '' }
+  }
+
+  let slug = ''
+  let publishedAt = ''
+
+  contentParts[1].split('\n').forEach(line => {
+    const slugMatch = line.match(/^slug:\s*"(.*)"$/)
+    const dateMatch = line.match(/^publishedAt:\s*"(.*)"$/)
+    if (slugMatch) slug = slugMatch[1]
+    if (dateMatch) publishedAt = dateMatch[1]
+  })
+
+  return { slug, publishedAt }
+}
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const baseUrl = 'https://ideaai.togetlink.com'
 
@@ -36,29 +55,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     files.forEach(filename => {
       const filePath = path.join(articlesDir, filename);
       const fileContent = fs.readFileSync(filePath, 'utf-8');
-      
-      let slug = filename.replace('.md', '');
-      let lastModified = new Date(); // Fallback
-
-      const contentParts = fileContent.split('---');
-      if (contentParts.length >= 3) {
-        const fmText = contentParts[1];
-        const lines = fmText.split('\n');
-        
-        let fmSlug = '';
-        let fmDate = '';
-        
-        lines.forEach(line => {
-          const slugMatch = line.match(/^slug:\s*"(.*)"$/);
-          if (slugMatch) fmSlug = slugMatch[1];
-          
-          const dateMatch = line.match(/^publishedAt:\s*"(.*)"$/);
-          if (dateMatch) fmDate = dateMatch[1];
-        });
-
-        if (fmSlug) slug = fmSlug;
-        if (fmDate) lastModified = new Date(fmDate);
-      }
+      const { slug: frontmatterSlug, publishedAt } = parseArticleFrontmatter(fileContent);
+      const slug = frontmatterSlug || filename.replace('.md', '');
+      const parsedDate = publishedAt ? new Date(publishedAt) : null;
+      const lastModified = parsedDate && !Number.isNaN(parsedDate.getTime())
+        ? parsedDate
+        : fs.statSync(filePath).mtime;
 
       routes.push({
         url: `${baseUrl}/blog/${slug}`,
