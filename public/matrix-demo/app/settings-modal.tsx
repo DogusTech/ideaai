@@ -31,6 +31,7 @@ export function SettingsModal({ isOpen, onClose, initialTab = "general", userEma
   const [railwayConnected, setRailwayConnected] = useState(false)
   const [railwayStatus, setRailwayStatus] = useState("")
   const [railwayLoading, setRailwayLoading] = useState(false)
+  const [connectedIntegrations, setConnectedIntegrations] = useState<Record<string, boolean>>({})
   const [desktopNotifications, setDesktopNotifications] = useState(false)
   const [browserPreference, setBrowserPreference] = useState<"Google" | "Microsoft Edge">("Google")
   const [codeGeneration, setCodeGeneration] = useState(true)
@@ -499,6 +500,158 @@ export function SettingsModal({ isOpen, onClose, initialTab = "general", userEma
                   {railwayStatus && <p className="mt-3 text-[12px] text-[#525252]">{railwayStatus}</p>}
                   <div className="mt-4 rounded-lg border border-amber-100 bg-amber-50 p-3 text-[12px] leading-5 text-amber-800">
                     Official Railway API: <code>backboard.railway.com/graphql/v2</code>. Use a scoped workspace or project token for production.
+                  </div>
+                </div>
+
+                {/* Developer Tools & Productivity Integrations */}
+                <div className="mt-8">
+                  <h3 className="text-[16px] font-semibold text-[#171717] mb-1">Developer Tools & Productivity</h3>
+                  <p className="text-[13px] text-[#737373] mb-4">Connect workplace tools for context indexing, task delegation and automations.</p>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                    {/* Gmail */}
+                    <div className="p-3.5 bg-white border border-[#e5e5e5] rounded-xl flex items-center justify-between hover:border-[#d4d4d4] transition-all">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-[#f8f9fa] border border-[#e5e5e5] flex items-center justify-center p-1.5">
+                          <svg viewBox="0 0 24 24" className="w-full h-full"><path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z" fill="#EA4335"/></svg>
+                        </div>
+                        <div>
+                          <div className="text-[13px] font-semibold text-[#171717]">Gmail</div>
+                          <div className="text-[11px] text-[#737373]">Read & summarize emails</div>
+                        </div>
+                      </div>
+                      <button className="px-2.5 py-1 text-[11px] font-medium rounded-md border border-[#e5e5e5] bg-[#f8f8f8] hover:bg-[#eaeaea] text-[#171717] transition-colors">
+                        Connect
+                      </button>
+                    </div>
+
+                    {/* Google Calendar */}
+                    <div className="p-3.5 bg-white border border-[#e5e5e5] rounded-xl flex items-center justify-between hover:border-[#d4d4d4] transition-all">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-[#f8f9fa] border border-[#e5e5e5] flex items-center justify-center p-1.5">
+                          <svg viewBox="0 0 24 24" className="w-full h-full"><rect x="2" y="3" width="20" height="19" rx="3" fill="#4285F4"/><rect x="4" y="8" width="16" height="12" rx="1" fill="#fff"/><rect x="6" y="10" width="3" height="2.5" rx="0.5" fill="#4285F4"/><rect x="10.5" y="10" width="3" height="2.5" rx="0.5" fill="#4285F4"/><rect x="15" y="10" width="3" height="2.5" rx="0.5" fill="#4285F4"/><rect x="6" y="14.5" width="3" height="2.5" rx="0.5" fill="#4285F4"/><rect x="10.5" y="14.5" width="3" height="2.5" rx="0.5" fill="#4285F4"/><rect x="7" y="2" width="2" height="3" rx="1" fill="#4285F4"/><rect x="15" y="2" width="2" height="3" rx="1" fill="#4285F4"/></svg>
+                        </div>
+                        <div>
+                          <div className="text-[13px] font-semibold text-[#171717]">Google Calendar</div>
+                          <div className="text-[11px] text-[#737373]">Schedule meetings & tasks</div>
+                        </div>
+                      </div>
+                      <button className="px-2.5 py-1 text-[11px] font-medium rounded-md border border-[#e5e5e5] bg-[#f8f8f8] hover:bg-[#eaeaea] text-[#171717] transition-colors">
+                        Connect
+                      </button>
+                    </div>
+
+                    {/* Google Drive */}
+                    <div className="p-3.5 bg-white border border-[#e5e5e5] rounded-xl flex items-center justify-between hover:border-[#d4d4d4] transition-all">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-[#f8f9fa] border border-[#e5e5e5] flex items-center justify-center p-1.5">
+                          <svg viewBox="0 0 24 24" className="w-full h-full"><path d="M8.267 14.68l-1.6 2.76H22.4l1.6-2.76z" fill="#4285F4"/><path d="M8 3L1.6 14.68l1.6 2.76L15.2 3z" fill="#0F9D58"/><path d="M15.2 3H8l6.4 11.68h7.2z" fill="#FFCD40"/></svg>
+                        </div>
+                        <div>
+                          <div className="text-[13px] font-semibold text-[#171717]">Google Drive</div>
+                          <div className="text-[11px] text-[#737373]">Sync documents & assets</div>
+                        </div>
+                      </div>
+                      <button className="px-2.5 py-1 text-[11px] font-medium rounded-md border border-[#e5e5e5] bg-[#f8f8f8] hover:bg-[#eaeaea] text-[#171717] transition-colors">
+                        Connect
+                      </button>
+                    </div>
+
+                    {/* Slack */}
+                    <div className="p-3.5 bg-white border border-[#e5e5e5] rounded-xl flex items-center justify-between hover:border-[#d4d4d4] transition-all">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-[#f8f9fa] border border-[#e5e5e5] flex items-center justify-center p-1.5">
+                          <svg viewBox="0 0 24 24" className="w-full h-full"><path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313z" fill="#E01E5A"/><path d="M8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312z" fill="#36C5F0"/><path d="M18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312z" fill="#2EB67D"/><path d="M15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z" fill="#ECB22E"/></svg>
+                        </div>
+                        <div>
+                          <div className="text-[13px] font-semibold text-[#171717]">Slack</div>
+                          <div className="text-[11px] text-[#737373]">Post updates & listen to DMs</div>
+                        </div>
+                      </div>
+                      <button className="px-2.5 py-1 text-[11px] font-medium rounded-md border border-[#e5e5e5] bg-[#f8f8f8] hover:bg-[#eaeaea] text-[#171717] transition-colors">
+                        Connect
+                      </button>
+                    </div>
+
+                    {/* Notion */}
+                    <div className="p-3.5 bg-white border border-[#e5e5e5] rounded-xl flex items-center justify-between hover:border-[#d4d4d4] transition-all">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-[#f8f9fa] border border-[#e5e5e5] flex items-center justify-center p-1.5">
+                          <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full text-[#171717]"><path d="M4.459 4.208c.746.606 1.026.56 2.428.466l13.215-.793c.28 0 .047-.28-.046-.326L18.37 2.29c-.467-.374-.7-.187-1.587-.28L3.84 3.293c-.467.047-.56.28-.374.467l.993.748zm.793 3.08v13.904c0 .747.373 1.027 1.214.98l14.523-.84c.841-.046.935-.56.935-1.166V6.354c0-.606-.233-.933-.748-.886l-15.177.84c-.56.047-.747.327-.747.98zm14.337.745c.093.42 0 .84-.42.888l-.7.14v10.264c-.608.327-1.168.514-1.635.514-.748 0-.935-.234-1.495-.933l-4.577-7.186v6.952l1.448.327s0 .84-1.168.84l-3.222.187c-.094-.187 0-.653.327-.747l.84-.233V9.854L7.822 9.62c-.094-.42.14-1.026.793-1.073l3.456-.233 4.764 7.279v-6.44l-1.215-.14c-.093-.514.28-.886.747-.933l3.222-.187zM3.098 1.87L16.913.936c1.681-.14 2.102.28 2.803.793L23.15 4.16c.467.374.607.84.607 1.354v17.437c0 1.167-.42 1.821-1.915 1.914l-15.457.934c-1.12.047-1.681-.14-2.289-.84L1.107 21.2c-.7-.934-.84-1.634-.84-2.707V4.348c0-1.4.42-2.427 1.831-2.477z"/></svg>
+                        </div>
+                        <div>
+                          <div className="text-[13px] font-semibold text-[#171717]">Notion</div>
+                          <div className="text-[11px] text-[#737373]">Docs, knowledge & roadmap</div>
+                        </div>
+                      </div>
+                      <button className="px-2.5 py-1 text-[11px] font-medium rounded-md border border-[#e5e5e5] bg-[#f8f8f8] hover:bg-[#eaeaea] text-[#171717] transition-colors">
+                        Connect
+                      </button>
+                    </div>
+
+                    {/* Figma */}
+                    <div className="p-3.5 bg-white border border-[#e5e5e5] rounded-xl flex items-center justify-between hover:border-[#d4d4d4] transition-all">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-[#f8f9fa] border border-[#e5e5e5] flex items-center justify-center p-1.5">
+                          <svg viewBox="0 0 24 24" className="w-full h-full"><path d="M8 24c2.2 0 4-1.8 4-4v-4H8c-2.2 0-4 1.8-4 4s1.8 4 4 4z" fill="#0ACF83"/><path d="M4 12c0-2.2 1.8-4 4-4h4v8H8c-2.2 0-4-1.8-4-4z" fill="#A259FF"/><path d="M4 4c0-2.2 1.8-4 4-4h4v8H8C5.8 8 4 6.2 4 4z" fill="#F24E1E"/><path d="M12 0h4c2.2 0 4 1.8 4 4s-1.8 4-4 4h-4V0z" fill="#FF7262"/><path d="M20 12c0 2.2-1.8 4-4 4s-4-1.8-4-4 1.8-4 4-4 4 1.8 4 4z" fill="#1ABCFE"/></svg>
+                        </div>
+                        <div>
+                          <div className="text-[13px] font-semibold text-[#171717]">Figma</div>
+                          <div className="text-[11px] text-[#737373]">Inspect UI specs & components</div>
+                        </div>
+                      </div>
+                      <button className="px-2.5 py-1 text-[11px] font-medium rounded-md border border-[#e5e5e5] bg-[#f8f8f8] hover:bg-[#eaeaea] text-[#171717] transition-colors">
+                        Connect
+                      </button>
+                    </div>
+
+                    {/* Supabase */}
+                    <div className="p-3.5 bg-white border border-[#e5e5e5] rounded-xl flex items-center justify-between hover:border-[#d4d4d4] transition-all">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-[#f8f9fa] border border-[#e5e5e5] flex items-center justify-center p-1.5">
+                          <svg viewBox="0 0 24 24" className="w-full h-full"><path d="M13.7 21.8c-.4.5-1.3.2-1.3-.5V13h8.2c.9 0 1.4 1.1.8 1.8L13.7 21.8z" fill="#3ECF8E"/><path d="M10.3 2.2c.4-.5 1.3-.2 1.3.5V11H3.4c-.9 0-1.4-1.1-.8-1.8L10.3 2.2z" fill="#3ECF8E"/></svg>
+                        </div>
+                        <div>
+                          <div className="text-[13px] font-semibold text-[#171717]">Supabase</div>
+                          <div className="text-[11px] text-[#737373]">Postgres DB & Edge Functions</div>
+                        </div>
+                      </div>
+                      <button className="px-2.5 py-1 text-[11px] font-medium rounded-md border border-[#e5e5e5] bg-[#f8f8f8] hover:bg-[#eaeaea] text-[#171717] transition-colors">
+                        Connect
+                      </button>
+                    </div>
+
+                    {/* Firebase */}
+                    <div className="p-3.5 bg-white border border-[#e5e5e5] rounded-xl flex items-center justify-between hover:border-[#d4d4d4] transition-all">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-[#f8f9fa] border border-[#e5e5e5] flex items-center justify-center p-1.5">
+                          <svg viewBox="0 0 24 24" className="w-full h-full"><path d="M4.53 20.27L6.18 3.72a.42.42 0 0 1 .78-.18l1.74 3.28L4.53 20.27z" fill="#FFA000"/><path d="M12.69 10.37L10.83 6.7 8.7 6.82l2.3 4.38 1.69-.83z" fill="#F57C00"/><path d="M19.47 20.27L17.6 5.21a.42.42 0 0 0-.72-.22l-12.35 15.28L11.78 23.9a1.26 1.26 0 0 0 1.22 0l6.47-3.63z" fill="#FFCA28"/></svg>
+                        </div>
+                        <div>
+                          <div className="text-[13px] font-semibold text-[#171717]">Firebase</div>
+                          <div className="text-[11px] text-[#737373]">Auth, Firestore & Rules</div>
+                        </div>
+                      </div>
+                      <button className="px-2.5 py-1 text-[11px] font-medium rounded-md border border-[#e5e5e5] bg-[#f8f8f8] hover:bg-[#eaeaea] text-[#171717] transition-colors">
+                        Connect
+                      </button>
+                    </div>
+
+                    {/* Vercel */}
+                    <div className="p-3.5 bg-white border border-[#e5e5e5] rounded-xl flex items-center justify-between hover:border-[#d4d4d4] transition-all col-span-1 sm:col-span-2">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-[#171717] flex items-center justify-center p-1.5">
+                          <svg viewBox="0 0 24 24" fill="currentColor" className="w-full h-full text-white"><path d="M12 1L24 22H0L12 1Z"/></svg>
+                        </div>
+                        <div>
+                          <div className="text-[13px] font-semibold text-[#171717]">Vercel</div>
+                          <div className="text-[11px] text-[#737373]">Live build logs, preview deployments & environment sync</div>
+                        </div>
+                      </div>
+                      <button className="px-2.5 py-1 text-[11px] font-medium rounded-md border border-[#e5e5e5] bg-[#f8f8f8] hover:bg-[#eaeaea] text-[#171717] transition-colors">
+                        Connect
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

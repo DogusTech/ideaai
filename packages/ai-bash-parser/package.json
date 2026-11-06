@@ -1,0 +1,20 @@
+{
+  "name": "ai-bash-parser",
+  "version": "1.0.0",
+  "description": "A lightweight utility to parse bash stderr outputs into LLM-optimized JSON context.",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "keywords": [
+    "ai",
+    "llm",
+    "bash",
+    "terminal",
+    "parser",
+    "autonomous-agents",
+    "ideaai"
+  ],
+  "author": "Doğuş Yılmaz (IdeaAI)",
+  "license": "MIT"
+}

@@ -1,0 +1,194 @@
+#!/usr/bin/env node
+
+/**
+ * IdeaAI - Open-Source Autonomous Desktop AI Engineer
+ * CLI Entry Point
+ */
+
+const path = require('path');
+const readline = require('readline');
+const { CoreEngine } = require('../packages/core-engine');
+
+// Color helpers for beautiful developer terminal output
+const colors = {
+  reset: '\x1b[0m',
+  bright: '\x1b[1m',
+  dim: '\x1b[2m',
+  cyan: '\x1b[36m',
+  green: '\x1b[32m',
+  yellow: '\x1b[33m',
+  blue: '\x1b[34m',
+  magenta: '\x1b[35m',
+  red: '\x1b[31m',
+  bgGray: '\x1b[100m'
+};
+
+function banner() {
+  console.log(`
+${colors.cyan}${colors.bright}  ██╗██████╗ ███████╗ █████╗  █████╗ ██╗
+  ██║██╔══██╗██╔════╝██╔══██╗██╔══██╗██║
+  ██║██║  ██║█████╗  ███████║███████║██║
+  ██║██║  ██║██╔══╝  ██╔══██║██╔══██║██║
+  ██║██████╔╝███████╗██║  ██║██║  ██║██║
+  ╚═╝╚═════╝ ╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝${colors.reset}
+  ${colors.bright}IdeaAI Core CLI${colors.reset} - ${colors.dim}Your Open-Source Autonomous Desktop AI Engineer${colors.reset}
+  Workspace: ${colors.green}${process.cwd()}${colors.reset}
+`);
+}
+
+function parseArgs() {
+  const args = process.argv.slice(2);
+  const options = {
+    task: '',
+    provider: process.env.IDEAAI_PROVIDER || (process.env.OPENAI_API_KEY ? 'openai' : 'ollama'),
+    model: process.env.IDEAAI_MODEL || '',
+    interactive: false
+  };
+
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (arg === '-h' || arg === '--help') {
+      console.log(`
+Usage:
+  npx ideaai [task] [options]
+  node bin/ideaai [task] [options]
+
+Examples:
+  node bin/ideaai "Analyze package.json and summarize our main dependencies"
+  node bin/ideaai "Create a utility function to format dates in utils/date.js"
+  node bin/ideaai -i  # Interactive mode
+
+Options:
+  -p, --provider <ollama|openai>  Choose LLM provider (default: ${options.provider})
+  -m, --model <name>              Specify model name (e.g. llama3.2, gpt-4o)
+  -i, --interactive               Run in continuous interactive chat mode
+  -h, --help                      Show this help message
+`);
+      process.exit(0);
+    } else if (arg === '-p' || arg === '--provider') {
+      options.provider = args[++i];
+    } else if (arg === '-m' || arg === '--model') {
+      options.model = args[++i];
+    } else if (arg === '-i' || arg === '--interactive') {
+      options.interactive = true;
+    } else if (!options.task && !arg.startsWith('-')) {
+      options.task = arg;
+    }
+  }
+
+  return options;
+}
+
+async function runTask(task, options) {
+  const engine = new CoreEngine({
+    workspaceRoot: process.cwd(),
+    provider: options.provider,
+    model: options.model
+  });
+
+  console.log(`${colors.cyan}⚡ Running autonomous engineering loop...${colors.reset}`);
+  console.log(`${colors.dim}Provider: ${engine.provider} | Model: ${engine.model}${colors.reset}\n`);
+
+  try {
+    await engine.run(task, (event) => {
+      switch (event.type) {
+        case 'start':
+          console.log(`${colors.bright}🎯 Goal:${colors.reset} ${event.task}`);
+          break;
+
+        case 'step_start':
+          console.log(`\n${colors.dim}--- [Autonomous Step ${event.step}/${event.maxSteps}] ---${colors.reset}`);
+          break;
+
+        case 'status':
+          console.log(`${colors.blue}ℹ  ${event.message}${colors.reset}`);
+          break;
+
+        case 'thought':
+          const cleanThought = event.content
+            .replace(/<read_file[\s\S]*?\/>/g, '')
+            .replace(/<write_file[\s\S]*?<\/write_file>/g, '')
+            .replace(/<run_command>[\s\S]*?<\/run_command>/g, '')
+            .trim();
+          if (cleanThought) {
+            console.log(`\n${colors.cyan}🧠 Reasoning:${colors.reset}\n${cleanThought}\n`);
+          }
+          break;
+
+        case 'tool_executing':
+          if (event.tool === 'read_file') {
+            console.log(`   ${colors.yellow}📖 Reading file:${colors.reset} ${event.params.path}`);
+          } else if (event.tool === 'write_file') {
+            console.log(`   ${colors.green}✍  Writing file:${colors.reset} ${event.params.path}`);
+          } else if (event.tool === 'run_command') {
+            console.log(`   ${colors.magenta}⚙  Executing command:${colors.reset} ${event.params.command}`);
+          }
+          break;
+
+        case 'tool_result':
+          if (event.result.success) {
+            console.log(`      ${colors.green}✔ Success${colors.reset}`);
+          } else {
+            console.log(`      ${colors.red}✖ Failed:${colors.reset} ${event.result.error}`);
+          }
+          break;
+
+        case 'completed':
+          console.log(`\n${colors.green}${colors.bright}✔ Task complete.${colors.reset}\n`);
+          break;
+
+        case 'error':
+          console.log(`\n${colors.red}✖ Execution Error:${colors.reset} ${event.error}\n`);
+          break;
+      }
+    });
+  } catch (err) {
+    console.error(`\n${colors.red}✖ Fatal Error:${colors.reset} ${err.message}`);
+    if (err.message.includes('Ollama')) {
+      console.log(`${colors.yellow}💡 Tip:${colors.reset} Is Ollama running? Try \`ollama serve\` or provide an OpenAI key with OPENAI_API_KEY.`);
+    }
+  }
+}
+
+async function main() {
+  banner();
+  const options = parseArgs();
+
+  if (options.task) {
+    await runTask(options.task, options);
+    return;
+  }
+
+  // Interactive CLI prompt
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout
+  });
+
+  const ask = () => {
+    rl.question(`${colors.bright}${colors.cyan}ideaai > ${colors.reset}`, async (prompt) => {
+      const trimmed = prompt.trim();
+      if (!trimmed || trimmed === 'exit' || trimmed === 'quit') {
+        console.log(`${colors.dim}Exiting IdeaAI CLI. Happy hacking!${colors.reset}`);
+        rl.close();
+        return;
+      }
+
+      await runTask(trimmed, options);
+      if (options.interactive) {
+        ask();
+      } else {
+        rl.close();
+      }
+    });
+  };
+
+  console.log(`${colors.dim}Enter a task for IdeaAI (or 'exit' to quit):${colors.reset}`);
+  ask();
+}
+
+if (require.main === module) {
+  main();
+}
+
+module.exports = { main };

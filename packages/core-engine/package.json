@@ -1,0 +1,14 @@
+{
+  "name": "@ideaai/core-engine",
+  "version": "0.1.0",
+  "description": "Autonomous open-core execution engine for IdeaAI",
+  "main": "index.js",
+  "license": "MIT",
+  "keywords": [
+    "ai",
+    "agent",
+    "developer-tool",
+    "coding-agent",
+    "autonomous-agent"
+  ]
+}

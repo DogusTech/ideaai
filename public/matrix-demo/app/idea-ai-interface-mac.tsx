@@ -11,6 +11,17 @@ import { TeamModal } from "./team-modal"
 import { ConstitutionalModalMac } from "./constitutional-modal-mac"
 
 // ==========================================
+// GOOGLE SANS FLEX FONT IMPORT
+// ==========================================
+const GoogleSansFlexLink = () => (
+  <>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+    <link href="https://fonts.googleapis.com/css2?family=Google+Sans+Flex:opsz,slnt,wdth,wght,ROND@8..144,-10..0,25..150,400..500,0..100&display=swap" rel="stylesheet" />
+  </>
+)
+
+// ==========================================
 // BESPOKE MINIMALIST SVG ICONS (NO LUCIDE)
 // ==========================================
 
@@ -123,6 +134,94 @@ const StopIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
   </svg>
 )
 
+// ==========================================
+// DEVELOPER TOOL INTEGRATION ICONS
+// ==========================================
+
+const GmailIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" className={className}>
+    <path d="M24 5.457v13.909c0 .904-.732 1.636-1.636 1.636h-3.819V11.73L12 16.64l-6.545-4.91v9.273H1.636A1.636 1.636 0 0 1 0 19.366V5.457c0-2.023 2.309-3.178 3.927-1.964L5.455 4.64 12 9.548l6.545-4.91 1.528-1.145C21.69 2.28 24 3.434 24 5.457z" fill="#EA4335"/>
+  </svg>
+)
+
+const CalendarIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" className={className}>
+    <rect x="2" y="3" width="20" height="19" rx="3" fill="#4285F4"/>
+    <rect x="4" y="8" width="16" height="12" rx="1" fill="#fff"/>
+    <rect x="6" y="10" width="3" height="2.5" rx="0.5" fill="#4285F4"/>
+    <rect x="10.5" y="10" width="3" height="2.5" rx="0.5" fill="#4285F4"/>
+    <rect x="15" y="10" width="3" height="2.5" rx="0.5" fill="#4285F4"/>
+    <rect x="6" y="14.5" width="3" height="2.5" rx="0.5" fill="#4285F4"/>
+    <rect x="10.5" y="14.5" width="3" height="2.5" rx="0.5" fill="#4285F4"/>
+    <rect x="7" y="2" width="2" height="3" rx="1" fill="#4285F4"/>
+    <rect x="15" y="2" width="2" height="3" rx="1" fill="#4285F4"/>
+  </svg>
+)
+
+const DriveIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" className={className}>
+    <path d="M8.267 14.68l-1.6 2.76H22.4l1.6-2.76z" fill="#4285F4"/>
+    <path d="M8 3L1.6 14.68l1.6 2.76L15.2 3z" fill="#0F9D58"/>
+    <path d="M15.2 3H8l6.4 11.68h7.2z" fill="#FFCD40"/>
+  </svg>
+)
+
+const NotionIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <path d="M4.459 4.208c.746.606 1.026.56 2.428.466l13.215-.793c.28 0 .047-.28-.046-.326L18.37 2.29c-.467-.374-.7-.187-1.587-.28L3.84 3.293c-.467.047-.56.28-.374.467l.993.748zm.793 3.08v13.904c0 .747.373 1.027 1.214.98l14.523-.84c.841-.046.935-.56.935-1.166V6.354c0-.606-.233-.933-.748-.886l-15.177.84c-.56.047-.747.327-.747.98zm14.337.745c.093.42 0 .84-.42.888l-.7.14v10.264c-.608.327-1.168.514-1.635.514-.748 0-.935-.234-1.495-.933l-4.577-7.186v6.952l1.448.327s0 .84-1.168.84l-3.222.187c-.094-.187 0-.653.327-.747l.84-.233V9.854L7.822 9.62c-.094-.42.14-1.026.793-1.073l3.456-.233 4.764 7.279v-6.44l-1.215-.14c-.093-.514.28-.886.747-.933l3.222-.187zM3.098 1.87L16.913.936c1.681-.14 2.102.28 2.803.793L23.15 4.16c.467.374.607.84.607 1.354v17.437c0 1.167-.42 1.821-1.915 1.914l-15.457.934c-1.12.047-1.681-.14-2.289-.84L1.107 21.2c-.7-.934-.84-1.634-.84-2.707V4.348c0-1.4.42-2.427 1.831-2.477z"/>
+  </svg>
+)
+
+const SlackIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" className={className}>
+    <path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313z" fill="#E01E5A"/>
+    <path d="M8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312z" fill="#36C5F0"/>
+    <path d="M18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312z" fill="#2EB67D"/>
+    <path d="M15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z" fill="#ECB22E"/>
+  </svg>
+)
+
+const FigmaIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" className={className}>
+    <path d="M8 24c2.2 0 4-1.8 4-4v-4H8c-2.2 0-4 1.8-4 4s1.8 4 4 4z" fill="#0ACF83"/>
+    <path d="M4 12c0-2.2 1.8-4 4-4h4v8H8c-2.2 0-4-1.8-4-4z" fill="#A259FF"/>
+    <path d="M4 4c0-2.2 1.8-4 4-4h4v8H8C5.8 8 4 6.2 4 4z" fill="#F24E1E"/>
+    <path d="M12 0h4c2.2 0 4 1.8 4 4s-1.8 4-4 4h-4V0z" fill="#FF7262"/>
+    <path d="M20 12c0 2.2-1.8 4-4 4s-4-1.8-4-4 1.8-4 4-4 4 1.8 4 4z" fill="#1ABCFE"/>
+  </svg>
+)
+
+const SupabaseIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" className={className}>
+    <path d="M13.7 21.8c-.4.5-1.3.2-1.3-.5V13h8.2c.9 0 1.4 1.1.8 1.8L13.7 21.8z" fill="url(#sb-a)"/>
+    <path d="M10.3 2.2c.4-.5 1.3-.2 1.3.5V11H3.4c-.9 0-1.4-1.1-.8-1.8L10.3 2.2z" fill="#3ECF8E"/>
+    <defs><linearGradient id="sb-a" x1="12.5" y1="14" x2="19" y2="22" gradientUnits="userSpaceOnUse"><stop stopColor="#249361"/><stop offset="1" stopColor="#3ECF8E"/></linearGradient></defs>
+  </svg>
+)
+
+const FirebaseIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" className={className}>
+    <path d="M4.53 20.27L6.18 3.72a.42.42 0 0 1 .78-.18l1.74 3.28L4.53 20.27z" fill="#FFA000"/>
+    <path d="M12.69 10.37L10.83 6.7 8.7 6.82l2.3 4.38 1.69-.83z" fill="#F57C00"/>
+    <path d="M19.47 20.27L17.6 5.21a.42.42 0 0 0-.72-.22l-12.35 15.28L11.78 23.9a1.26 1.26 0 0 0 1.22 0l6.47-3.63z" fill="#FFCA28"/>
+    <path d="M12.69 10.37L10.58 6.82a.42.42 0 0 0-.73 0L4.53 20.27l7.25 3.63z" fill="#FFA000"/>
+  </svg>
+)
+
+const VercelIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <path d="M12 1L24 22H0L12 1Z"/>
+  </svg>
+)
+
+const IntegrationsIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M4 12h6M14 12h6" />
+    <path d="M12 4v6M12 14v6" />
+    <circle cx="12" cy="12" r="2" />
+  </svg>
+)
+
 const MoonIcon = ({ className = "w-4 h-4" }: { className?: string }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={className}>
     <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
@@ -160,6 +259,11 @@ type ChatSession = {
   title: string
   messages: ChatMessage[]
   updatedAt: number
+}
+
+type WorkspaceToolResult = {
+  path: string
+  content: string
 }
 
 const CHAT_HISTORY_KEY = "ideaai_chat_history"
@@ -223,6 +327,114 @@ export function IdeaAIInterfaceMac() {
   const [error, setError] = useState<Error | null>(null)
   const abortControllerRef = useRef<AbortController | null>(null)
   const thinkingStartedAtRef = useRef<number | null>(null)
+
+  const runAgentWithTools = async (
+    workspaceRoot: string,
+    initialMessages: ChatMessage[],
+    requestModel: (conversation: any[]) => Promise<string>
+  ) => {
+    const workspace = await AgentBridge.inspectWorkspace(workspaceRoot)
+    if (!workspace.success) throw new Error(workspace.error || "Workspace could not be inspected")
+
+    const entries = Array.isArray(workspace.content) ? workspace.content : []
+    const tree = entries.map((entry: any) => `${entry.isDirectory ? "[DIR] " : "[FILE] "}${entry.path}`).join("\n")
+    const systemPrompt = {
+      role: "system",
+      content: `You are IdeaAI, an autonomous coding agent running on the user's computer.
+WORKSPACE ROOT: ${workspaceRoot}
+You can inspect and modify files only inside this workspace root.
+
+Available tools are represented as XML and must be used exactly:
+<read_file path="relative/path"> to request a file, then wait for the tool result.
+<write_file path="relative/path">file contents</write_file> to create or replace a file.
+<run_command>command</run_command> to run a command with this workspace as cwd.
+
+Never invent file contents or command output. Use read_file before editing an existing file.
+Do not claim that a file was created or changed unless you emitted a <write_file> block.
+The <write_file> block must contain the complete file contents, not a summary.
+After tool results, continue the task and finish with a concise explanation. Do not use absolute paths.
+
+WORKSPACE TREE:
+${tree.slice(0, 50000)}`
+    }
+
+    let conversation: any[] = [systemPrompt, ...initialMessages]
+    let finalText = ""
+    const applied: string[] = []
+
+    for (let round = 0; round < 4; round += 1) {
+      finalText = await requestModel(conversation)
+
+      const reads = Array.from(finalText.matchAll(/<read_file\s+path=["']([^"']+)["']\s*\/?>/gi))
+      const writes = Array.from(finalText.matchAll(/<write_file\s+path=["']([^"']+)["']>([\s\S]*?)<\/write_file>/gi))
+      const commands = Array.from(finalText.matchAll(/<run_command>([\s\S]*?)<\/run_command>/gi))
+      const fencedWrites = Array.from(finalText.matchAll(/\[(?:NEW|MODIFY)\]\s+([^\r\n]+?)(?:\s+\(\+\d+\s+-\d+\))?\s*\r?\n+```[^\r\n]*\r?\n([\s\S]*?)```/gi))
+      if (!reads.length && !writes.length && !commands.length && !fencedWrites.length) break
+
+      const toolResults: WorkspaceToolResult[] = []
+      for (const match of reads) {
+        const relativePath = match[1].trim()
+        const readResult = await AgentBridge.readFileInWorkspace(workspaceRoot, relativePath)
+        toolResults.push({ path: relativePath, content: readResult.success ? String(readResult.content || "") : `ERROR: ${readResult.error}` })
+      }
+      for (const match of writes) {
+        const relativePath = match[1].trim()
+        const writeResult = await AgentBridge.writeFileInWorkspace(workspaceRoot, relativePath, match[2])
+        if (!writeResult.success) throw new Error(writeResult.error || `Could not write ${relativePath}`)
+        applied.push(`[WRITE] ${relativePath}`)
+      }
+      for (const match of fencedWrites) {
+        const relativePath = match[1].trim()
+        if (writes.some((write) => write[1].trim() === relativePath)) continue
+        const writeResult = await AgentBridge.writeFileInWorkspace(workspaceRoot, relativePath, match[2])
+        if (!writeResult.success) throw new Error(writeResult.error || `Could not write ${relativePath}`)
+        applied.push(`[WRITE] ${relativePath}`)
+      }
+      for (const match of commands) {
+        const command = match[1].trim()
+        const commandResult = await AgentBridge.runCommandInWorkspace(workspaceRoot, command)
+        toolResults.push({
+          path: `command: ${command}`,
+          content: `exit=${commandResult.success ? "0" : "1"}\nstdout:\n${commandResult.stdout || ""}\nstderr:\n${commandResult.stderr || commandResult.error || ""}`
+        })
+        applied.push(`[COMMAND] ${command}`)
+      }
+
+      conversation = [
+        ...conversation,
+        { role: "assistant", content: finalText },
+        { role: "user", content: `TOOL RESULTS:\n${toolResults.map(result => `<tool_result path="${result.path}">\n${result.content}\n</tool_result>`).join("\n")}\nContinue the task. Do not repeat completed tool calls.` }
+      ]
+    }
+
+    return { text: finalText, applied }
+  }
+
+  const runLocalAgent = (workspaceRoot: string, initialMessages: ChatMessage[]) =>
+    runAgentWithTools(workspaceRoot, initialMessages, async (conversation) => {
+      const result = await AgentBridge.askLocalAI(conversation)
+      if (!result.success) throw new Error(result.error || "Local Ollama request failed")
+      return String(result.text || result.content || "")
+    })
+
+  const runAzureAgent = (workspaceRoot: string, initialMessages: ChatMessage[], apiKey: string) =>
+    runAgentWithTools(workspaceRoot, initialMessages, async (conversation) => {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': apiKey,
+        },
+        body: JSON.stringify({
+          messages: conversation,
+          model: "Azure Enterprise Cloud (Llama 3.2)",
+        }),
+        signal: abortControllerRef.current?.signal,
+      })
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(data.error || `Azure responded with ${response.status}`)
+      return String(data.response || "")
+    })
 
   useEffect(() => {
     const storedActiveChatId = localStorage.getItem("ideaai_active_chat") || `chat-${Date.now()}`
@@ -364,34 +576,45 @@ export function IdeaAIInterfaceMac() {
       // Local Electron Engine
       if (selectedModel === "Local Engine (Ollama)" && AgentBridge.isElectron()) {
         const currentProject = projects.find(p => p.name === selectedProject)
-        const currentPath = currentProject && currentProject.files.length > 0 ? currentProject.files[0] : "Unknown"
-
-        const systemPrompt = {
-          role: "system",
-          content: `You are IdeaAI, an autonomous senior engineering agent executing locally.
-CURRENT WORKSPACE PATH: ${currentPath}
-
-To create or modify files, output inside this exact XML format:
-<write_file path="${currentPath !== "Unknown" ? currentPath : "C:/absolute/path"}/filename.extension">
-your code here
-</write_file>`
-        }
+        const currentPath = currentProject?.files[0]
+        if (!currentPath) throw new Error("Önce bir çalışma klasörü seçin.")
 
         setTerminalOutput("➜  ~ Analyzing codebase architecture...")
-        const localResult = await AgentBridge.askLocalAI([systemPrompt, ...newMessages])
+        const localResult = await runLocalAgent(currentPath, newMessages)
 
-        if (localResult.success) {
-          let responseText = localResult.text
-          const duration = Math.max(1, Math.round((Date.now() - (thinkingStartedAtRef.current || Date.now())) / 1000))
-          responseText = `Thought for ${duration}s\n${responseText}`
-          setMessages(prev => [...prev, { id: Date.now().toString(), role: 'assistant', content: responseText }])
-          setStatus('ready')
-          setTerminalOutput("✔ Local task finished.")
-          if (localStorage.getItem("ideaai_desktop_notifications") === "enabled" && "Notification" in window && Notification.permission === "granted") {
-            new Notification("IdeaAI task complete", { body: "Your local engineering task has finished." })
-          }
-          return
+        let responseText = localResult.text
+        if (localResult.applied.length) responseText += `\n\n${localResult.applied.join("\n")}`
+        const duration = Math.max(1, Math.round((Date.now() - (thinkingStartedAtRef.current || Date.now())) / 1000))
+        responseText = `Thought for ${duration}s\n${responseText}`
+        setMessages(prev => [...prev, { id: Date.now().toString(), role: 'assistant', content: responseText }])
+        setStatus('ready')
+        setTerminalOutput("✔ Local task finished.")
+        if (localStorage.getItem("ideaai_desktop_notifications") === "enabled" && "Notification" in window && Notification.permission === "granted") {
+          new Notification("IdeaAI task complete", { body: "Your local engineering task has finished." })
         }
+        return
+      }
+
+      // Azure can reason remotely, but file and terminal tools execute locally.
+      const isAzureModel = selectedModel === "Azure Enterprise Cloud (Llama 3.2)" || selectedModel === "IdeaAI Hybrid Engine (Pro)"
+      if (isAzureModel && AgentBridge.isElectron()) {
+        const currentProject = projects.find(p => p.name === selectedProject)
+        const currentPath = currentProject?.files[0]
+        if (!currentPath) throw new Error("Önce bir çalışma klasörü seçin.")
+
+        setTerminalOutput("➜  ~ Connecting Azure reasoning to local workspace...")
+        const azureResult = await runAzureAgent(currentPath, newMessages, storedApiKey)
+        let responseText = azureResult.text
+        if (azureResult.applied.length) responseText += `\n\n${azureResult.applied.join("\n")}`
+        const duration = Math.max(1, Math.round((Date.now() - (thinkingStartedAtRef.current || Date.now())) / 1000))
+        setMessages(prev => [...prev, {
+          id: Date.now().toString(),
+          role: 'assistant',
+          content: `Thought for ${duration}s\n${responseText}`
+        }])
+        setStatus('ready')
+        setTerminalOutput("✔ Azure task finished locally.")
+        return
       }
 
       // Cloud Azure or Fallback API
@@ -534,16 +757,19 @@ your code here
 
   return (
     <div 
-      className="flex h-screen w-full bg-[#ffffff] text-[#171717] overflow-hidden select-none"
-      style={{ fontFamily: "'Google Sans', 'Google Sans Flex', -apple-system, BlinkMacSystemFont, sans-serif" }}
+      className="flex h-screen w-full bg-[#f8f9fc] p-0 md:p-3 overflow-hidden select-none"
+      style={{ fontFamily: "'Google Sans Flex', 'Google Sans', -apple-system, BlinkMacSystemFont, sans-serif" }}
     >
+      <GoogleSansFlexLink />
       <input type="file" ref={folderInputRef} onChange={handleFileSelect} className="hidden" />
       <input type="file" ref={fileInputRef} onChange={handleFileSelect} className="hidden" />
 
-      {/* ========================================================= */}
-      {/* LEFT SIDEBAR (#f3f3f3, rgba(243, 243, 243), hsl(0, 0, 95)) */}
-      {/* ========================================================= */}
-      <aside className={`${sidebarCollapsed ? "w-[64px]" : "w-[260px]"} bg-[#f3f3f3] border-r border-[#e5e5e5] flex flex-col shrink-0 justify-between transition-[width] duration-200`}>
+      {/* Main Window Frame (Mac/Codex style rounded frame with subtle border & shadow) */}
+      <div className="flex-1 flex w-full h-full bg-[#ffffff] rounded-none md:rounded-[20px] border-0 md:border md:border-[#000000]/[0.08] shadow-[0_20px_50px_rgba(0,0,0,0.06)] overflow-hidden relative">
+        {/* ========================================================= */}
+        {/* LEFT SIDEBAR (#f3f3f3, rgba(243, 243, 243), hsl(0, 0, 95)) */}
+        {/* ========================================================= */}
+        <aside className={`${sidebarCollapsed ? "w-[64px]" : "w-[260px]"} bg-[#f7f7f8] border-r border-[#ebebee] flex flex-col shrink-0 justify-between transition-[width] duration-200`}>
         
         {/* Top Header & Navigation */}
         <div className="flex flex-col p-3">
@@ -614,6 +840,15 @@ your code here
             >
               <ArtifactsIcon className="w-4 h-4 text-[#525252]" />
               {!sidebarCollapsed && <span>Artifacts</span>}
+            </button>
+
+            <button
+              onClick={() => { setSettingsTab("integrations"); setIsSettingsOpen(true); }}
+              title="Integrations"
+              className={`w-full flex items-center ${sidebarCollapsed ? "justify-center" : ""} gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium text-[#404040] hover:bg-[#eaeaea] hover:text-[#171717] transition-colors text-left`}
+            >
+              <IntegrationsIcon className="w-4 h-4 text-[#525252]" />
+              {!sidebarCollapsed && <span>Integrations</span>}
             </button>
 
             <button
@@ -823,6 +1058,48 @@ your code here
               <h1 className="text-[32px] md:text-[36px] font-semibold tracking-tight text-[#171717] mb-8">
                 What would you like to build today?
               </h1>
+
+              {/* Codex Inspired Minimalist Integrations Feed */}
+              <div className="w-full flex flex-col gap-2 mb-6 max-w-[620px] text-left">
+                <div 
+                  onClick={() => {
+                    setLocalInput("Check latest unread emails via Gmail and draft status reply.")
+                    textareaRef.current?.focus()
+                  }}
+                  className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-[#f6f6f6] border border-transparent hover:border-[#eaeaea] cursor-pointer transition-all group"
+                >
+                  <GmailIcon className="w-4 h-4 shrink-0" />
+                  <span className="text-[13px] text-[#525252] group-hover:text-[#171717] font-medium truncate">
+                    Your email to Mount Lemmon lodge bounced back
+                  </span>
+                </div>
+
+                <div 
+                  onClick={() => {
+                    setLocalInput("Check Slack channel #proactivity-eng and summarize requests.")
+                    textareaRef.current?.focus()
+                  }}
+                  className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-[#f6f6f6] border border-transparent hover:border-[#eaeaea] cursor-pointer transition-all group"
+                >
+                  <SlackIcon className="w-4 h-4 shrink-0" />
+                  <span className="text-[13px] text-[#525252] group-hover:text-[#171717] font-medium truncate">
+                    Reply to Ty in proactivity-eng
+                  </span>
+                </div>
+
+                <div 
+                  onClick={() => {
+                    setLocalInput("Check Google Calendar for upcoming review meeting and gather project notes.")
+                    textareaRef.current?.focus()
+                  }}
+                  className="flex items-center gap-3 px-3.5 py-2.5 rounded-xl hover:bg-[#f6f6f6] border border-transparent hover:border-[#eaeaea] cursor-pointer transition-all group"
+                >
+                  <CalendarIcon className="w-4 h-4 shrink-0" />
+                  <span className="text-[13px] text-[#525252] group-hover:text-[#171717] font-medium truncate">
+                    Prep for the upcoming review with Tibo
+                  </span>
+                </div>
+              </div>
 
               {/* Main Prompt Card (#f2f2f2, rgba(242, 242, 242), hsl(0, 0, 95)) */}
               <div className="w-full bg-[#f2f2f2] rounded-[20px] border border-[#e5e5e5] p-4 flex flex-col shadow-[0_2px_12px_rgba(0,0,0,0.03)] focus-within:border-[#171717] transition-all">
@@ -1083,6 +1360,7 @@ your code here
         )}
 
       </main>
+      </div>
 
       {/* Modals */}
       <SettingsModal 

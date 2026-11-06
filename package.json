@@ -9,7 +9,8 @@
     "start": "next start",
     "lint": "eslint .",
     "dev:electron": "concurrently -k \"npm run dev\" \"wait-on http://localhost:3000 && electron .\"",
-    "build:electron": "electron-builder"
+    "build:electron": "electron-builder",
+    "cli": "node bin/ideaai"
   },
   "dependencies": {
     "@ai-sdk/google": "^4.0.72",
@@ -91,5 +92,8 @@
     }
   },
   "author": "Aeternexus, Inc.",
-  "description": "IdeaAI Agent Desktop Application"
+  "description": "IdeaAI Agent Desktop Application",
+  "bin": {
+    "ideaai": "./bin/ideaai"
+  }
 }
