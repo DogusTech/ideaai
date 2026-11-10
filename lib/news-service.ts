@@ -1,4 +1,4 @@
-import { aggregateRawNews, scrapeArticleText, RawNewsItem } from './scraper';
+import { aggregateRawNews, scrapeArticleTextAndImage, RawNewsItem } from './scraper';
 import { filterRelevance, processAndTranslate, ProcessedNewsArticle } from './ollama-pipeline';
 import { db } from './firebase';
 import { collection, doc, setDoc, getDoc, getDocs, query, orderBy, limit, updateDoc, increment } from 'firebase/firestore';
@@ -78,13 +78,19 @@ export async function runIngestionPipeline(options: { maxItems?: number } = {}) 
 
     console.log(`[Pipeline] Processing relevant item [${relevance.category}]: "${item.title}"`);
 
-    // Step 2: Fetch full text if snippet is too short
+    // Step 2: Fetch full text & lead image
     let bodyText = item.contentSnippet || '';
-    if (bodyText.length < 300) {
-      const scraped = await scrapeArticleText(item.link);
-      if (scraped.length > bodyText.length) {
-        bodyText = scraped;
+    let imageUrl = item.imageUrl;
+    try {
+      const scraped = await scrapeArticleTextAndImage(item.link);
+      if (scraped.text && scraped.text.length > bodyText.length) {
+        bodyText = scraped.text;
       }
+      if (scraped.imageUrl && !imageUrl) {
+        imageUrl = scraped.imageUrl;
+      }
+    } catch {
+      // ignore
     }
 
     // Step 3: LLM 7-Language In-Depth Processing with Ollama
@@ -97,6 +103,7 @@ export async function runIngestionPipeline(options: { maxItems?: number } = {}) 
         source: item.source,
         category: relevance.category,
         createdAt: new Date().toISOString(),
+        imageUrl: imageUrl || undefined,
         translations,
         views: 0,
         isFeatured: processedCount === 0 // Mark first top item as featured
@@ -167,6 +174,7 @@ export async function getLatestNews(lang: string = 'en', count: number = 20): Pr
       source: data.source,
       category: data.category,
       createdAt: data.createdAt,
+      imageUrl: data.imageUrl,
       views: data.views || 0,
       isFeatured: Boolean(data.isFeatured),
       title: trans?.title || 'Untitled',
@@ -212,6 +220,7 @@ export async function getNewsArticleById(id: string, lang: string = 'en'): Promi
     source: data.source,
     category: data.category,
     createdAt: data.createdAt,
+    imageUrl: data.imageUrl,
     views: (data.views || 0) + 1,
     isFeatured: Boolean(data.isFeatured),
     title: trans?.title || 'Untitled',

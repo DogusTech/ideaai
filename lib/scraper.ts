@@ -9,6 +9,7 @@ export interface RawNewsItem {
   contentSnippet?: string;
   source: string;
   rawText?: string;
+  imageUrl?: string;
 }
 
 const parser = new Parser({
@@ -39,9 +40,9 @@ function generateSlug(title: string): string {
 }
 
 /**
- * Scrapes clean readable text from target webpage URL using Cheerio
+ * Scrapes clean readable text and lead image from target webpage URL using Cheerio
  */
-export async function scrapeArticleText(url: string): Promise<string> {
+export async function scrapeArticleTextAndImage(url: string): Promise<{ text: string; imageUrl?: string }> {
   try {
     const res = await fetch(url, {
       headers: {
@@ -51,9 +52,25 @@ export async function scrapeArticleText(url: string): Promise<string> {
       signal: AbortSignal.timeout(8000)
     });
 
-    if (!res.ok) return '';
+    if (!res.ok) return { text: '' };
     const html = await res.text();
     const $ = cheerio.load(html);
+
+    // Extract high-resolution OpenGraph or Twitter preview image
+    let imageUrl = 
+      $('meta[property="og:image:secure_url"]').attr('content') ||
+      $('meta[property="og:image"]').attr('content') ||
+      $('meta[name="twitter:image"]').attr('content') ||
+      $('meta[name="twitter:image:src"]').attr('content') ||
+      $('article img').first().attr('src');
+
+    if (imageUrl && !imageUrl.startsWith('http')) {
+      try {
+        imageUrl = new URL(imageUrl, url).href;
+      } catch {
+        imageUrl = undefined;
+      }
+    }
 
     // Remove noise
     $('script, style, noscript, nav, header, footer, svg, iframe, form').remove();
@@ -64,10 +81,18 @@ export async function scrapeArticleText(url: string): Promise<string> {
       text = $('body').text();
     }
 
-    return text.replace(/\s+/g, ' ').trim().slice(0, 3000);
+    return {
+      text: text.replace(/\s+/g, ' ').trim().slice(0, 3000),
+      imageUrl
+    };
   } catch (error) {
-    return '';
+    return { text: '' };
   }
+}
+
+export async function scrapeArticleText(url: string): Promise<string> {
+  const res = await scrapeArticleTextAndImage(url);
+  return res.text;
 }
 
 /**
@@ -83,13 +108,19 @@ export async function fetchRssFeeds(): Promise<RawNewsItem[]> {
 
       for (const entry of topEntries) {
         if (!entry.title || !entry.link) continue;
+        const entryAny = entry as any;
+        const imageUrl = entryAny.enclosure?.url || 
+          entryAny['media:content']?.['$']?.url ||
+          entryAny['media:thumbnail']?.['$']?.url;
+
         items.push({
           id: generateSlug(entry.title),
           title: entry.title.trim(),
           link: entry.link.trim(),
           pubDate: entry.pubDate || new Date().toISOString(),
           contentSnippet: entry.contentSnippet || entry.summary || '',
-          source: feed.name
+          source: feed.name,
+          imageUrl: imageUrl || undefined
         });
       }
     } catch (err: any) {

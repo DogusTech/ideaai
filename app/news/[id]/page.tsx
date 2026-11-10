@@ -2,19 +2,19 @@ import React from 'react';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getNewsArticleById } from '@/lib/news-service';
-import { ArrowLeft, Globe, Sparkles, ExternalLink, Calendar, Eye, Tag } from 'lucide-react';
+import { ArrowLeft, Globe, Sparkles, ExternalLink, Calendar, Eye, Tag, ArrowRight, CheckCircle2 } from 'lucide-react';
 import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
 
 const SUPPORTED_LANGS = [
-  { code: 'en', label: 'English', flag: '🇺🇸' },
-  { code: 'tr', label: 'Türkçe', flag: '🇹🇷' },
-  { code: 'es', label: 'Español', flag: '🇪🇸' },
-  { code: 'fr', label: 'Français', flag: '🇫🇷' },
-  { code: 'it', label: 'Italiano', flag: '🇮🇹' },
-  { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
-  { code: 'ja', label: '日本語', flag: '🇯🇵' },
+  { code: 'en', label: 'EN', flag: '🇺🇸', name: 'English' },
+  { code: 'tr', label: 'TR', flag: '🇹🇷', name: 'Türkçe' },
+  { code: 'es', label: 'ES', flag: '🇪🇸', name: 'Español' },
+  { code: 'fr', label: 'FR', flag: '🇫🇷', name: 'Français' },
+  { code: 'it', label: 'IT', flag: '🇮🇹', name: 'Italiano' },
+  { code: 'de', label: 'DE', flag: '🇩🇪', name: 'Deutsch' },
+  { code: 'ja', label: 'JA', flag: '🇯🇵', name: '日本語' },
 ];
 
 interface ArticlePageProps {
@@ -49,9 +49,7 @@ export async function generateMetadata({ params, searchParams }: ArticlePageProp
       title: article.title,
       description: article.summary,
       url: `https://news.togetlink.com/news/${resolvedParams.id}?lang=${lang}`,
-      siteName: 'IdeaAI News',
-      type: 'article',
-      publishedTime: article.createdAt,
+      images: article.imageUrl ? [{ url: article.imageUrl }] : undefined,
     }
   };
 }
@@ -59,37 +57,42 @@ export async function generateMetadata({ params, searchParams }: ArticlePageProp
 export default async function NewsArticleDetailPage({ params, searchParams }: ArticlePageProps) {
   const resolvedParams = await params;
   const resolvedQuery = await searchParams;
-  const currentLang = resolvedQuery?.lang || 'en';
+  const lang = resolvedQuery?.lang || 'en';
 
-  const article = await getNewsArticleById(resolvedParams.id, currentLang);
+  const article = await getNewsArticleById(resolvedParams.id, lang);
   if (!article) notFound();
 
+  // Split multi-paragraph content
+  const paragraphs = article.content
+    ? article.content.split(/\n\s*\n/).filter((p: string) => p.trim().length > 0)
+    : [article.summary];
+
   return (
-    <div className="min-h-screen bg-[#fafafa] text-[#171717] font-sans">
-      {/* Top Header */}
-      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-[#e5e5e5]">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <div className="min-h-screen bg-[#FBFBFA] text-[#111613] selection:bg-[#CEF23A] selection:text-[#111613] antialiased">
+      {/* Top Bar */}
+      <header className="border-b border-black/[0.08] bg-[#FBFBFA]/80 backdrop-blur-md sticky top-0 z-50">
+        <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link
-            href={`/news?lang=${currentLang}`}
-            className="inline-flex items-center gap-2 text-sm font-medium text-zinc-600 hover:text-zinc-900 transition-colors"
+            href={`/news?lang=${lang}`}
+            className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-black/60 hover:text-black transition-colors"
           >
-            <ArrowLeft className="w-4 h-4" /> Back to News
+            <ArrowLeft className="w-3.5 h-3.5" />
+            Back to Transmissions
           </Link>
 
           {/* Language Switcher */}
-          <div className="flex items-center gap-1">
-            <Globe className="w-3.5 h-3.5 text-zinc-400 mr-1 hidden sm:block" />
-            {SUPPORTED_LANGS.map(lang => (
+          <div className="flex items-center gap-1 bg-black/[0.04] p-1 rounded-full border border-black/[0.06]">
+            {SUPPORTED_LANGS.map(l => (
               <Link
-                key={lang.code}
-                href={`/news/${article.id}?lang=${lang.code}`}
-                className={`px-2 py-0.5 rounded-full text-xs font-medium transition-all ${
-                  currentLang === lang.code
-                    ? 'bg-zinc-900 text-white'
-                    : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100'
+                key={l.code}
+                href={`/news/${article.id}?lang=${l.code}`}
+                className={`px-2.5 py-1 text-xs font-semibold rounded-full transition-all duration-150 ${
+                  lang === l.code
+                    ? 'bg-[#111613] text-white shadow-sm'
+                    : 'text-black/60 hover:text-black hover:bg-black/[0.04]'
                 }`}
               >
-                <span>{lang.flag}</span>
+                {l.label}
               </Link>
             ))}
           </div>
@@ -97,97 +100,131 @@ export default async function NewsArticleDetailPage({ params, searchParams }: Ar
       </header>
 
       {/* Main Article Container */}
-      <main className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
-        <article className="bg-white border border-[#e5e5e5] rounded-3xl p-6 sm:p-10 shadow-sm">
-          {/* Metadata badges */}
-          <div className="flex flex-wrap items-center gap-3 text-xs text-zinc-500 mb-6">
-            <span className="px-2.5 py-1 rounded-full font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">
-              {article.category}
-            </span>
-            <span>Source: <strong className="text-zinc-700">{article.source}</strong></span>
-            <span>•</span>
-            <span className="inline-flex items-center gap-1">
-              <Calendar className="w-3 h-3" /> {new Date(article.createdAt).toLocaleDateString()}
-            </span>
-            <span>•</span>
-            <span className="inline-flex items-center gap-1">
-              <Eye className="w-3 h-3" /> {article.views} views
-            </span>
+      <article className="max-w-4xl mx-auto px-6 py-12 md:py-16">
+        {/* Header Breadcrumbs / Tags */}
+        <div className="flex flex-wrap items-center gap-2 text-[11px] font-bold tracking-[0.18em] uppercase text-black/45 mb-4">
+          <span className="text-[#1f2803] bg-[#CEF23A] px-2 py-0.5 rounded text-[10px] font-bold">
+            {article.category}
+          </span>
+          <span>·</span>
+          <span>SOURCE: {article.source}</span>
+          <span>·</span>
+          <span>{article.createdAt ? new Date(article.createdAt).toLocaleDateString(lang, { year: 'numeric', month: 'short', day: 'numeric' }) : 'Live'}</span>
+        </div>
+
+        {/* Title */}
+        <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-[#111613] leading-[1.14] mb-6">
+          {article.title}
+        </h1>
+
+        {/* Lead Executive Summary Pill Box (PDF Style Accent Card) */}
+        <div className="rounded-2xl bg-[#111613] text-white p-6 md:p-8 mb-10 shadow-lg border border-black/10 relative overflow-hidden">
+          <div className="absolute right-0 top-0 w-64 h-64 rounded-full bg-[#CEF23A]/10 blur-3xl pointer-events-none"></div>
+          <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-[#CEF23A] mb-2">
+            01 · EXECUTIVE SUMMARY & CONTEXT
+          </div>
+          <p className="text-base md:text-lg text-white/90 leading-relaxed font-normal">
+            {article.summary}
+          </p>
+        </div>
+
+        {/* High Resolution Article Image if available */}
+        {article.imageUrl && (
+          <div className="mb-12 rounded-3xl overflow-hidden border border-black/[0.08] shadow-sm bg-black/[0.02]">
+            <img
+              src={article.imageUrl}
+              alt={article.title}
+              className="w-full max-h-[480px] object-cover"
+            />
+            <div className="p-3 px-4 bg-[#FBFBFA] border-t border-black/[0.06] text-[11px] text-black/50 flex items-center justify-between font-mono">
+              <span>Verified editorial visual</span>
+              <span>Source: {article.source}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Key Takeaways Section (PDF 4-Quadrant or Structured Card Style) */}
+        {article.keyTakeaways && article.keyTakeaways.length > 0 && (
+          <div className="mb-12 rounded-3xl bg-white border border-black/[0.08] p-8 shadow-sm">
+            <div className="flex items-center gap-2 mb-6">
+              <span className="w-5 h-5 rounded-md bg-[#CEF23A] text-[#111613] flex items-center justify-center font-bold text-xs">
+                ✓
+              </span>
+              <h2 className="text-sm font-bold tracking-[0.18em] uppercase text-[#111613]">
+                02 · CRITICAL INTELLIGENCE & KEY TAKEAWAYS
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {article.keyTakeaways.map((item: string, idx: number) => {
+                const num = String(idx + 1).padStart(2, '0');
+                return (
+                  <div
+                    key={idx}
+                    className="p-4 rounded-xl bg-[#FBFBFA] border border-black/[0.05] flex items-start gap-3"
+                  >
+                    <span className="text-xs font-mono font-bold text-black/35 mt-0.5">
+                      {num}
+                    </span>
+                    <p className="text-xs md:text-sm text-[#111613] font-medium leading-relaxed">
+                      {item}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Body Paragraphs (Deep Reading) */}
+        <div className="mb-12">
+          <div className="text-[10px] font-bold tracking-[0.2em] uppercase text-black/40 mb-6 border-b border-black/[0.06] pb-2">
+            03 · THE IN-DEPTH ANALYSIS
           </div>
 
-          {/* Title */}
-          <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-zinc-900 mb-6 leading-tight">
-            {article.title}
-          </h1>
-
-          {/* Executive Summary */}
-          <div className="p-4 rounded-2xl bg-zinc-50 border-l-4 border-indigo-500 mb-8">
-            <div className="text-xs font-bold uppercase tracking-wider text-indigo-600 mb-1">
-              Executive Summary
-            </div>
-            <p className="text-zinc-700 leading-relaxed text-sm sm:text-base">
-              {article.summary}
-            </p>
-          </div>
-
-          {/* Key Takeaways */}
-          {article.keyTakeaways && article.keyTakeaways.length > 0 && (
-            <div className="mb-8 p-5 rounded-2xl bg-gradient-to-br from-indigo-50/50 to-violet-50/50 border border-indigo-100">
-              <div className="text-xs font-bold uppercase tracking-wider text-indigo-900 mb-3 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-indigo-600" />
-                Key Takeaways (Llama 3.2 Analysis)
-              </div>
-              <ul className="space-y-2.5">
-                {article.keyTakeaways.map((takeaway: string, idx: number) => (
-                  <li key={idx} className="text-sm text-zinc-800 flex items-start gap-2.5">
-                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 mt-2 shrink-0"></span>
-                    <span className="leading-relaxed">{takeaway}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {/* In-depth 3-paragraph Article Content */}
-          <div className="prose prose-zinc max-w-none text-zinc-700 leading-relaxed space-y-4 mb-8">
-            {article.content.split('\n\n').map((paragraph: string, idx: number) => (
-              <p key={idx} className="text-base sm:text-lg">
-                {paragraph.trim()}
+          <div className="space-y-6 text-base md:text-lg text-black/85 leading-relaxed font-normal">
+            {paragraphs.map((p: string, idx: number) => (
+              <p key={idx} className="leading-[1.75]">
+                {p}
               </p>
             ))}
           </div>
+        </div>
 
-          {/* Tags */}
-          {article.tags && article.tags.length > 0 && (
-            <div className="flex flex-wrap items-center gap-2 pt-6 border-t border-zinc-100 mb-8">
-              <Tag className="w-3.5 h-3.5 text-zinc-400 mr-1" />
-              {article.tags.map((tag: string, idx: number) => (
-                <span
-                  key={idx}
-                  className="px-2.5 py-1 rounded-full text-xs font-medium bg-zinc-100 text-zinc-600 hover:bg-zinc-200 transition-colors"
-                >
-                  #{tag.replace(/^#/, '')}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {/* External Citation Link */}
-          <div className="p-4 rounded-xl bg-zinc-50 border border-zinc-200 flex items-center justify-between">
-            <span className="text-xs text-zinc-500">
-              Verified from primary source: <strong className="text-zinc-700">{article.source}</strong>
-            </span>
-            <a
-              href={article.originalUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600 hover:underline"
-            >
-              Original Article <ExternalLink className="w-3.5 h-3.5" />
-            </a>
+        {/* Tags & External Source Citation Footer */}
+        <div className="border-t border-black/[0.08] pt-8 mt-12 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="flex flex-wrap items-center gap-2">
+            {(article.tags || []).map((tag: string, idx: number) => (
+              <span
+                key={idx}
+                className="px-3 py-1 rounded-full text-xs font-medium bg-black/[0.04] text-black/70 border border-black/[0.06]"
+              >
+                #{tag}
+              </span>
+            ))}
           </div>
-        </article>
-      </main>
+
+          <a
+            href={article.originalUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#111613] text-white hover:bg-[#CEF23A] hover:text-[#111613] font-bold text-xs uppercase tracking-wider transition-colors shadow-sm"
+          >
+            Read Original Coverage
+            <ExternalLink className="w-3.5 h-3.5" />
+          </a>
+        </div>
+      </article>
+
+      {/* Minimal Footer */}
+      <footer className="border-t border-black/[0.08] py-12 bg-white mt-16">
+        <div className="max-w-4xl mx-auto px-6 flex items-center justify-between text-xs text-black/50">
+          <span>IdeaAI News · Autonomous 7-Language Intelligence</span>
+          <Link href={`/news?lang=${lang}`} className="hover:text-black font-semibold">
+            All Stories →
+          </Link>
+        </div>
+      </footer>
     </div>
   );
 }

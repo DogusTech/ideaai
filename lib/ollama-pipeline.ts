@@ -12,6 +12,7 @@ export interface ProcessedNewsArticle {
   source: string;
   category: 'AI' | 'SaaS' | 'DevTools' | 'Startups' | 'Tech';
   createdAt: string;
+  imageUrl?: string;
   translations: {
     en: NewsTranslation;
     tr: NewsTranslation;

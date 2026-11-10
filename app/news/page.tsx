@@ -1,19 +1,20 @@
 import React from 'react';
 import Link from 'next/link';
-import { Newspaper, Sparkles, Globe, TrendingUp, ExternalLink, Flame, Bookmark } from 'lucide-react';
+import Image from 'next/image';
+import { Newspaper, Sparkles, Globe, TrendingUp, ExternalLink, Flame, ArrowRight, Clock } from 'lucide-react';
 import { getLatestNews } from '@/lib/news-service';
 import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
 
 const SUPPORTED_LANGS = [
-  { code: 'en', label: 'English', flag: '🇺🇸' },
-  { code: 'tr', label: 'Türkçe', flag: '🇹🇷' },
-  { code: 'es', label: 'Español', flag: '🇪🇸' },
-  { code: 'fr', label: 'Français', flag: '🇫🇷' },
-  { code: 'it', label: 'Italiano', flag: '🇮🇹' },
-  { code: 'de', label: 'Deutsch', flag: '🇩🇪' },
-  { code: 'ja', label: '日本語', flag: '🇯🇵' },
+  { code: 'en', label: 'EN', flag: '🇺🇸', name: 'English' },
+  { code: 'tr', label: 'TR', flag: '🇹🇷', name: 'Türkçe' },
+  { code: 'es', label: 'ES', flag: '🇪🇸', name: 'Español' },
+  { code: 'fr', label: 'FR', flag: '🇫🇷', name: 'Français' },
+  { code: 'it', label: 'IT', flag: '🇮🇹', name: 'Italiano' },
+  { code: 'de', label: 'DE', flag: '🇩🇪', name: 'Deutsch' },
+  { code: 'ja', label: 'JA', flag: '🇯🇵', name: '日本語' },
 ];
 
 interface PageProps {
@@ -36,7 +37,7 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
 
   return {
     title: titles[lang] || titles.en,
-    description: 'Autonomous global tech news platform powered by local Llama 3.2 Ollama intelligence.',
+    description: 'Autonomous global tech and SaaS media platform powered by local Llama 3.2 intelligence.',
     alternates: {
       canonical: `https://news.togetlink.com/news?lang=${lang}`
     }
@@ -48,41 +49,39 @@ export default async function NewsPlatformPage({ searchParams }: PageProps) {
   const currentLang = resolved?.lang || 'en';
 
   const articles = await getLatestNews(currentLang, 25);
-  const featured = articles.find(a => a.isFeatured) || articles[0];
-  const listArticles = articles.filter(a => a.id !== featured?.id);
+  const featuredArticle = articles.find(a => a.isFeatured) || articles[0];
+  const listArticles = articles.filter(a => a.id !== featuredArticle?.id);
 
   return (
-    <div className="min-h-screen bg-[#fafafa] text-[#171717] font-sans selection:bg-indigo-100 selection:text-indigo-900">
-      {/* Top Bar Header */}
-      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-[#e5e5e5]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <div className="min-h-screen bg-[#FBFBFA] text-[#111613] selection:bg-[#CEF23A] selection:text-[#111613] antialiased">
+      {/* Top Header Bar */}
+      <header className="border-b border-black/[0.08] bg-[#FBFBFA]/80 backdrop-blur-md sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link href={`/news?lang=${currentLang}`} className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center text-white shadow-sm shadow-indigo-200">
-                <Newspaper className="w-5 h-5" />
-              </div>
-              <div>
-                <span className="font-bold text-lg tracking-tight text-zinc-900">IdeaAI<span className="text-indigo-600">News</span></span>
-                <span className="hidden sm:inline-block ml-2 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider bg-zinc-100 text-zinc-600 rounded">Llama 3.2 Live</span>
-              </div>
+            <span className="w-6 h-6 rounded bg-[#111613] text-[#CEF23A] flex items-center justify-center font-bold text-xs tracking-wider">
+              N
+            </span>
+            <Link href={`/news?lang=${currentLang}`} className="text-[17px] font-bold tracking-tight text-[#111613]">
+              IdeaAI <span className="font-medium text-black/45">News</span>
             </Link>
+            <span className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold tracking-wider uppercase bg-[#CEF23A]/30 text-[#1f2803] border border-[#CEF23A]">
+              Autonomous Intel
+            </span>
           </div>
 
-          {/* i18n Language Switcher */}
-          <div className="flex items-center gap-1.5 overflow-x-auto py-1">
-            <Globe className="w-4 h-4 text-zinc-400 mr-1 hidden md:block" />
+          {/* Minimal Language Switcher */}
+          <div className="flex items-center gap-1 bg-black/[0.04] p-1 rounded-full border border-black/[0.06]">
             {SUPPORTED_LANGS.map(lang => (
               <Link
                 key={lang.code}
                 href={`/news?lang=${lang.code}`}
-                className={`px-2.5 py-1 rounded-full text-xs font-medium transition-all ${
+                className={`px-2.5 py-1 text-xs font-semibold rounded-full transition-all duration-150 ${
                   currentLang === lang.code
-                    ? 'bg-zinc-900 text-white shadow-sm'
-                    : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100'
+                    ? 'bg-[#111613] text-white shadow-sm'
+                    : 'text-black/60 hover:text-black hover:bg-black/[0.04]'
                 }`}
               >
-                <span className="mr-1">{lang.flag}</span>
-                <span className="hidden lg:inline">{lang.label}</span>
+                {lang.label}
               </Link>
             ))}
           </div>
@@ -90,135 +89,209 @@ export default async function NewsPlatformPage({ searchParams }: PageProps) {
       </header>
 
       {/* Main Content Area */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
-        {/* Hero Featured Article */}
-        {featured ? (
-          <section className="mb-12">
-            <div className="bg-white border border-[#e5e5e5] rounded-3xl p-6 sm:p-10 shadow-sm hover:shadow-md transition-shadow">
-              <div className="flex flex-wrap items-center gap-3 mb-4">
-                <span className="px-3 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100 flex items-center gap-1.5">
-                  <Flame className="w-3.5 h-3.5 text-indigo-600" />
-                  {featured.category || 'Featured'}
-                </span>
-                <span className="text-xs text-zinc-400">•</span>
-                <span className="text-xs text-zinc-500 font-medium">{featured.source}</span>
-                <span className="text-xs text-zinc-400">•</span>
-                <span className="text-xs text-zinc-400">{new Date(featured.createdAt).toLocaleDateString()}</span>
-              </div>
+      <main className="max-w-6xl mx-auto px-6 py-12 md:py-16">
+        {/* Section Pill & Subhead */}
+        <div className="mb-8">
+          <div className="text-[11px] font-bold tracking-[0.2em] uppercase text-[#1f2803] flex items-center gap-2 mb-3">
+            <span className="w-2 h-2 rounded-full bg-[#CEF23A] ring-2 ring-[#CEF23A]/40 inline-block animate-pulse"></span>
+            GLOBAL TECH · SAAS · AI DISCOVERY
+          </div>
+          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-[#111613] max-w-3xl leading-[1.12]">
+            Turn complex AI breakthroughs into actionable intelligence.
+          </h1>
+          <p className="mt-4 text-base md:text-lg text-black/65 max-w-2xl font-normal leading-relaxed">
+            Curated from leading technology research hubs, filtered by autonomous agents, and analyzed across 7 languages.
+          </p>
+        </div>
 
-              <Link href={`/news/${featured.id}?lang=${currentLang}`} className="group">
-                <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-zinc-900 group-hover:text-indigo-600 transition-colors mb-4 leading-tight">
-                  {featured.title}
-                </h1>
-              </Link>
+        {/* Featured Top Story (Hero Card matching PDF Style) */}
+        {featuredArticle && (
+          <section className="mb-16">
+            <div className="group relative rounded-3xl bg-[#111613] text-white p-8 md:p-12 overflow-hidden shadow-xl border border-black/10">
+              {/* Background Geometric Accent (inspired by PDF cover) */}
+              <div className="absolute -right-24 -bottom-24 w-96 h-96 rounded-full bg-[#CEF23A]/15 blur-3xl pointer-events-none"></div>
+              <div className="absolute right-12 top-12 w-48 h-48 rounded-full border border-white/[0.08] pointer-events-none hidden md:block"></div>
+              <div className="absolute right-24 top-24 w-72 h-72 rounded-full border border-white/[0.04] pointer-events-none hidden md:block"></div>
 
-              <p className="text-base sm:text-lg text-zinc-600 leading-relaxed mb-6 max-w-4xl">
-                {featured.summary}
-              </p>
-
-              {/* Key Takeaways Preview */}
-              {featured.keyTakeaways && featured.keyTakeaways.length > 0 && (
-                <div className="bg-zinc-50 border border-zinc-200/70 rounded-2xl p-4 sm:p-5 mb-6">
-                  <div className="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-3 flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-indigo-500" />
-                    Key Takeaways (Ollama Analysis)
+              <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                <div className="lg:col-span-7">
+                  <div className="flex items-center gap-3 mb-4">
+                    <span className="px-2.5 py-1 rounded-md text-[11px] font-bold tracking-wider uppercase bg-[#CEF23A] text-[#111613]">
+                      01 · {featuredArticle.category} BREAKTHROUGH
+                    </span>
+                    <span className="text-xs text-white/50 font-medium">
+                      Source: {featuredArticle.source}
+                    </span>
                   </div>
-                  <ul className="space-y-2">
-                    {featured.keyTakeaways.slice(0, 3).map((item: string, idx: number) => (
-                      <li key={idx} className="text-sm text-zinc-700 flex items-start gap-2">
-                        <span className="text-indigo-500 font-bold shrink-0">•</span>
-                        <span>{item}</span>
-                      </li>
-                    ))}
-                  </ul>
+
+                  <Link href={`/news/${featuredArticle.id}?lang=${currentLang}`}>
+                    <h2 className="text-2xl md:text-4xl font-extrabold tracking-tight text-white group-hover:text-[#CEF23A] transition-colors leading-[1.2]">
+                      {featuredArticle.title}
+                    </h2>
+                  </Link>
+
+                  <p className="mt-4 text-sm md:text-base text-white/75 font-normal leading-relaxed line-clamp-3">
+                    {featuredArticle.summary}
+                  </p>
+
+                  <div className="mt-6 flex flex-wrap items-center gap-3">
+                    <Link
+                      href={`/news/${featuredArticle.id}?lang=${currentLang}`}
+                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#CEF23A] text-[#111613] font-bold text-xs uppercase tracking-wider hover:bg-[#d8fb48] transition-colors shadow-sm"
+                    >
+                      Read Full Analysis
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </Link>
+                    <a
+                      href={featuredArticle.originalUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-white/[0.08] hover:bg-white/[0.12] text-white/80 text-xs font-semibold tracking-wider transition-colors"
+                    >
+                      Original Source
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  </div>
                 </div>
-              )}
 
-              <div className="flex items-center justify-between pt-4 border-t border-zinc-100">
-                <Link
-                  href={`/news/${featured.id}?lang=${currentLang}`}
-                  className="inline-flex items-center gap-2 text-sm font-semibold text-indigo-600 hover:text-indigo-700"
-                >
-                  Read full analysis →
-                </Link>
-
-                <a
-                  href={featured.originalUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-600 transition-colors"
-                >
-                  Original Source <ExternalLink className="w-3.5 h-3.5" />
-                </a>
+                {/* Lead Image or Decorative Visual Container */}
+                <div className="lg:col-span-5 relative">
+                  {featuredArticle.imageUrl ? (
+                    <div className="relative aspect-[16/10] w-full rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
+                      <img
+                        src={featuredArticle.imageUrl}
+                        alt={featuredArticle.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+                  ) : (
+                    <div className="aspect-[16/10] w-full rounded-2xl bg-white/[0.04] border border-white/10 flex flex-col justify-between p-6">
+                      <div className="text-[11px] font-bold tracking-[0.15em] text-[#CEF23A] uppercase">
+                        AI DECISION LAYER
+                      </div>
+                      <div className="space-y-2">
+                        <div className="h-1.5 w-3/4 bg-white/20 rounded"></div>
+                        <div className="h-1.5 w-1/2 bg-white/10 rounded"></div>
+                      </div>
+                      <div className="flex items-center justify-between text-xs text-white/40">
+                        <span>7 Languages Verified</span>
+                        <span>Llama 3.2</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </section>
-        ) : (
-          <div className="text-center py-20 bg-white border border-[#e5e5e5] rounded-3xl mb-12">
-            <Newspaper className="w-12 h-12 text-zinc-300 mx-auto mb-3" />
-            <h3 className="text-lg font-semibold text-zinc-700">No articles in database yet</h3>
-            <p className="text-sm text-zinc-500 mt-1 mb-6">Trigger the ingestion pipeline to fetch live news from RSS & Reddit.</p>
-            <a
-              href="/api/news/sync"
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-medium transition-colors"
-            >
-              <Sparkles className="w-4 h-4" /> Trigger Pipeline Now
-            </a>
-          </div>
         )}
 
-        {/* Latest Stream Grid */}
-        <section>
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xl font-bold tracking-tight text-zinc-900 flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-indigo-600" />
-              Latest Localized Stories
-            </h2>
-            <span className="text-xs text-zinc-500">Auto-translated by Llama 3.2</span>
+        {/* Section Header: The Innovation & Field Intelligence */}
+        <div className="flex items-center justify-between border-b border-black/[0.08] pb-4 mb-8">
+          <div>
+            <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-black/40">
+              02 · THE FIELD INTELLIGENCE
+            </span>
+            <h3 className="text-xl md:text-2xl font-bold tracking-tight text-[#111613] mt-0.5">
+              Verified Technology Transmissions
+            </h3>
           </div>
+          <span className="text-xs font-semibold text-black/50">
+            {articles.length} Total Verified
+          </span>
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {listArticles.map((article: any) => (
+        {/* Minimalist Grid (PDF 4-column structured style) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {listArticles.map((article, index) => {
+            const numLabel = String(index + 2).padStart(2, '0');
+            return (
               <article
                 key={article.id}
-                className="bg-white border border-[#e5e5e5] rounded-2xl p-5 flex flex-col justify-between shadow-sm hover:shadow-md hover:border-zinc-300 transition-all group"
+                className="group relative rounded-2xl bg-white border border-black/[0.08] hover:border-black/[0.2] transition-all duration-200 overflow-hidden flex flex-col justify-between shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-md"
               >
-                <div>
-                  <div className="flex items-center justify-between text-xs text-zinc-500 mb-3">
-                    <span className="font-semibold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full text-[11px]">
-                      {article.category || 'Tech'}
-                    </span>
-                    <span>{article.source}</span>
+                {/* Article Image */}
+                {article.imageUrl && (
+                  <div className="relative aspect-[16/10] w-full bg-black/[0.03] overflow-hidden border-b border-black/[0.06]">
+                    <img
+                      src={article.imageUrl}
+                      alt={article.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute top-3 left-3">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-[#111613] text-[#CEF23A]">
+                        {article.category}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                <div className="p-6 flex-1 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between text-xs text-black/40 mb-3 font-semibold">
+                      <span>{numLabel} · {article.source}</span>
+                      <span className="text-[11px] font-mono">
+                        {article.createdAt ? new Date(article.createdAt).toLocaleDateString(currentLang, { month: 'short', day: 'numeric' }) : 'Live'}
+                      </span>
+                    </div>
+
+                    <Link href={`/news/${article.id}?lang=${currentLang}`}>
+                      <h4 className="text-lg font-bold tracking-tight text-[#111613] group-hover:text-black/75 transition-colors line-clamp-2 leading-snug">
+                        {article.title}
+                      </h4>
+                    </Link>
+
+                    <p className="mt-3 text-xs md:text-sm text-black/60 font-normal leading-relaxed line-clamp-3">
+                      {article.summary}
+                    </p>
                   </div>
 
-                  <Link href={`/news/${article.id}?lang=${currentLang}`}>
-                    <h3 className="font-bold text-base text-zinc-900 group-hover:text-indigo-600 transition-colors mb-2.5 line-clamp-2 leading-snug">
-                      {article.title}
-                    </h3>
-                  </Link>
-
-                  <p className="text-xs text-zinc-500 line-clamp-3 leading-relaxed mb-4">
-                    {article.summary}
-                  </p>
-                </div>
-
-                <div className="pt-3 border-t border-zinc-100 flex items-center justify-between text-xs">
-                  <span className="text-zinc-400">
-                    {new Date(article.createdAt).toLocaleDateString()}
-                  </span>
-                  <Link
-                    href={`/news/${article.id}?lang=${currentLang}`}
-                    className="font-medium text-indigo-600 hover:text-indigo-700"
-                  >
-                    View →
-                  </Link>
+                  {/* Takeaways snippet if available */}
+                  {article.keyTakeaways && article.keyTakeaways.length > 0 && (
+                    <div className="mt-5 pt-4 border-t border-black/[0.06] bg-[#FBFBFA] -mx-6 -mb-6 p-4 px-6">
+                      <div className="text-[10px] font-bold tracking-wider uppercase text-black/45 mb-2">
+                        Core Takeaway
+                      </div>
+                      <p className="text-xs text-black/80 font-medium line-clamp-2 leading-relaxed">
+                        • {article.keyTakeaways[0]}
+                      </p>
+                      <div className="mt-3 flex items-center justify-between text-xs font-bold">
+                        <Link
+                          href={`/news/${article.id}?lang=${currentLang}`}
+                          className="inline-flex items-center gap-1 text-[#111613] group-hover:underline"
+                        >
+                          Deep Read <ArrowRight className="w-3 h-3" />
+                        </Link>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </article>
-            ))}
-          </div>
-        </section>
+            );
+          })}
+        </div>
       </main>
+
+      {/* Minimal Footer */}
+      <footer className="border-t border-black/[0.08] mt-24 py-12 bg-white">
+        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-black/50">
+          <div className="flex items-center gap-3">
+            <span className="font-bold text-[#111613] tracking-tight">IdeaAI News Intelligence</span>
+            <span>·</span>
+            <span>Autonomous Llama 3.2 Pipeline</span>
+          </div>
+          <div className="flex items-center gap-6">
+            <a href="https://ideaai.togetlink.com" className="hover:text-black transition-colors">
+              IdeaAI Desktop
+            </a>
+            <a href="https://togetlink.com" className="hover:text-black transition-colors">
+              TogetLink
+            </a>
+            <Link href={`/news/sitemap.xml`} className="hover:text-black transition-colors">
+              Sitemap
+            </Link>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
