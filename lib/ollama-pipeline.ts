@@ -54,7 +54,7 @@ async function callOllama(prompt: string, formatJson: boolean = false): Promise<
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
-    signal: AbortSignal.timeout(60000)
+    signal: AbortSignal.timeout(300000) // 5 minutes timeout for multi-language LLM generation
   });
 
   if (!res.ok) {

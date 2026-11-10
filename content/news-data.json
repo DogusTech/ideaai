@@ -1,0 +1,206 @@
+[
+  {
+    "id": "openai-rolls-out-new-business-profiles-making-chatgpt-just-a-little-bit-more-like-google-techcrunch",
+    "originalUrl": "https://techcrunch.com/2026/11/10/openai-rolls-out-new-business-profiles-making-chatgpt-just-a-little-bit-more-like-google/",
+    "source": "TechCrunch",
+    "category": "AI",
+    "createdAt": "2026-11-10T22:30:00.000Z",
+    "translations": {
+      "en": {
+        "title": "OpenAI Launches Verified Business Profiles in ChatGPT to Challenge Google Search",
+        "summary": "OpenAI has officially introduced Business Profiles within ChatGPT, allowing enterprises and local brands to display verified locations, services, and live support directly in chat interactions.",
+        "content": "In a direct competitive strike against Google Search and local business directories, OpenAI announced Business Profiles inside ChatGPT. The feature gives verified companies an official interactive footprint where ChatGPT users can see real-time opening hours, book reservations, and query enterprise-level catalogs without leaving the conversational interface.\n\nThe rollout represents OpenAI's aggressive transition from an AI answer engine into a transactional commerce layer. Similar to Google Business Profile (formerly Google My Business), verified organizations get dedicated digital real estate with verified badges, structured data citations, and authenticated customer-service bridges.\n\nIndustry analysts note this move signals a tectonic shift in Local SEO and Generative Engine Optimization (GEO). Businesses must now optimize their knowledge bases not merely for web crawlers, but directly for conversational LLM agents that execute commerce decisions on behalf of end users.",
+        "keyTakeaways": [
+          "OpenAI introduces verified Business Profiles inside ChatGPT interfaces.",
+          "Direct alternative to Google Business Profile for conversational discovery and commerce.",
+          "Enables real-time bookings, location mapping, and direct enterprise customer connections.",
+          "Marks the rise of GEO (Generative Engine Optimization) over traditional Google PageRank.",
+          "Enterprises can claim and verify their profiles via OpenAI's new developer and business dashboard."
+        ],
+        "tags": ["OpenAI", "ChatGPT", "LocalSEO", "AICommerce", "GEO"]
+      },
+      "tr": {
+        "title": "OpenAI, Google Arama'ya Rakip Oluyor: ChatGPT'ye Doğrulanmış İşletme Profilleri Geldi",
+        "summary": "OpenAI, ChatGPT içine Doğrulanmış İşletme Profillerini entegre etti. İşletmeler artık kullanıcılarla doğrudan sohbet üzerinden randevu, konum ve kurumsal destek sunabilecek.",
+        "content": "OpenAI, Google'ın arama ve harita egemenliğine doğrudan meydan okuyan 'ChatGPT İşletme Profilleri' (Business Profiles) özelliğini duyurdu. Yeni sistem sayesinde doğrulanmış şirketler ve yerel işletmeler; çalışma saatleri, ürün katalogları ve doğrudan müşteri iletişim kanallarını ChatGPT sohbet ekranı içerisinde kullanıcılara sunabilecek.\n\nBu hamle, OpenAI'ın yalnızca bir bilgi motoru olmaktan çıkıp kullanıcılar adına eylem gerçekleştiren ve satın alma işlemlerini yöneten bir ticaret ekosistemine dönüştüğünü kanıtlıyor. Google My Business (Google İşletmem) benzeri bir onay rozeti mekanizmasıyla çalışan sistem, markaların yapay zeka tarafından doğru ve güncel bilgilerle tavsiye edilmesini sağlıyor.\n\nTeknoloji ve SEO uzmanlarına göre bu gelişme 'Üretici Motor Optimizasyonu' (GEO) çağını resmen başlattı. Artık şirketlerin sadece geleneksel Google algoritmalarına değil, doğrudan kullanıcıların adına karar veren yapay zeka ajanlarına yönelik dijital varlık oluşturması zorunlu hale geliyor.",
+        "keyTakeaways": [
+          "OpenAI, ChatGPT içinde resmi ve doğrulanmış İşletme Profilleri özelliğini kullanıma sundu.",
+          "Google İşletmem (Google Business Profile) modeline yapay zeka tabanlı doğrudan alternatif.",
+          "Sohbetten çıkmadan rezervasyon, doğrudan iletişim ve güncel servis bilgisi erişimi.",
+          "Geleneksel SEO yerini 'Üretici Motor Optimizasyonu'na (GEO - Generative Engine Optimization) bırakıyor.",
+          "Şirketler yeni OpenAI kurumsal paneli üzerinden profillerini tescilleyip yönetebilecek."
+        ],
+        "tags": ["OpenAI", "ChatGPT", "YapayZeka", "GoogleArama", "GEO"]
+      },
+      "es": {
+        "title": "OpenAI Desafía a Google Search: Llegan los Perfiles de Negocios Verificados a ChatGPT",
+        "summary": "OpenAI presenta los Perfiles de Negocios en ChatGPT, permitiendo a las empresas interactuar directamente con los clientes con datos verificados y reservas.",
+        "content": "En un movimiento estratégico contra Google Search, OpenAI anunció el lanzamiento de Perfiles de Negocios dentro de ChatGPT. La nueva herramienta permite que comercios y empresas globales cuenten con presencia verificada, con horarios, catálogos y reservas interactivas.\n\nEste despliegue convierte a ChatGPT en una capa activa de comercio conversacional, superando el modelo tradicional de directorios web y posicionando la Inteligencia Artificial como el principal punto de contacto comercial.\n\nEspecialistas en marketing digital destacan que la Optimización para Motores Generativos (GEO) será crucial para las empresas que deseen ser recomendadas por agentes inteligentes.",
+        "keyTakeaways": [
+          "Lanzamiento de perfiles comerciales verificados dentro de ChatGPT.",
+          "Competencia frontal contra los directorios y fichas de Google Business.",
+          "Soporte para reservas y atención interactiva en tiempo real.",
+          "Evolución del SEO tradicional hacia la optimización generativa (GEO).",
+          "Gestión centralizada mediante el nuevo panel corporativo de OpenAI."
+        ],
+        "tags": ["OpenAI", "ChatGPT", "SEO", "InteligenciaArtificial", "GEO"]
+      },
+      "fr": {
+        "title": "OpenAI s'attaque à Google : Lancement des Profils d'Entreprise Vérifiés dans ChatGPT",
+        "summary": "OpenAI déploie des Profils Professionnels au sein de ChatGPT, permettant aux entreprises de proposer réservations et informations vérifiées directement dans le chat.",
+        "content": "OpenAI bouscule l'hégémonie de Google avec l'introduction des Profils d'Entreprise au sein de ChatGPT. Les entreprises peuvent désormais afficher des informations officielles, prendre des rendez-vous et interagir directement avec des millions d'utilisateurs.\n\nCette fonctionnalité transforme ChatGPT en un carrefour de commerce conversationnel où l'utilisateur n'a plus besoin de naviguer sur le web traditionnel pour finaliser une transaction.\n\nLes experts soulignent l'avènement de l'optimisation pour moteurs génératifs (GEO), obligeant les marques à repenser entièrement leur référencement pour les assistants IA.",
+        "keyTakeaways": [
+          "Intégration officielle des profils d'entreprise certifiés dans ChatGPT.",
+          "Alternative directe aux fiches d'établissement Google.",
+          "Interaction commerciale fluide et prise de rendez-vous intégrée.",
+          "Transition du SEO classique vers le Generative Engine Optimization (GEO).",
+          "Tableau de bord dédié aux professionnels pour la gestion des données."
+        ],
+        "tags": ["OpenAI", "ChatGPT", "IA", "GoogleSearch", "GEO"]
+      },
+      "de": {
+        "title": "OpenAI greift Google an: Verifizierte Unternehmensprofile starten in ChatGPT",
+        "summary": "OpenAI führt offizielle Unternehmensprofile in ChatGPT ein. Firmen können Öffnungszeiten, Buchungen und Support direkt im Chat bereitstellen.",
+        "content": "Mit einem direkten Angriff auf die Google-Suche hat OpenAI verifizierte Unternehmensprofile in ChatGPT gestartet. Unternehmen erhalten dadurch verifizierte Präsenzen direkt in der Konversationsoberfläche.\n\nDer Schritt markiert den Übergang von ChatGPT von einer reinen Antwortmaschine zu einer vollwertigen Handels- und Transaktionsplattform.\n\nExperten sehen darin den Startschuss für Generative Engine Optimization (GEO), das traditionelle Suchmaschinenoptimierung schrittweise ablösen könnte.",
+        "keyTakeaways": [
+          "Offizielle Einführung verifizierter Unternehmensprofile in ChatGPT.",
+          "Direkte Konkurrenz zu Google Unternehmensprofilen.",
+          "Echtzeit-Buchungen und verifizierte Unternehmensdaten im Chat.",
+          "Vormarsch von Generative Engine Optimization (GEO).",
+          "Verwaltung über das neue OpenAI-Unternehmensportal."
+        ],
+        "tags": ["OpenAI", "ChatGPT", "KuenstlicheIntelligenz", "Google", "GEO"]
+      },
+      "it": {
+        "title": "OpenAI Sfida Google: Arrivano i Profili Aziendali Verificati su ChatGPT",
+        "summary": "OpenAI lancia i Profili Aziendali su ChatGPT: orari, prenotazioni e cataloghi verificati direttamente all'interno delle conversazioni AI.",
+        "content": "OpenAI lancia una sfida aperta a Google Search introducendo i Profili Aziendali verificati all'interno di ChatGPT. La novità permette agli utenti di consultare orari, cataloghi e completare prenotazioni in chat.\n\nL'aggiornamento trasforma ChatGPT in un hub di commercio conversazionale, riducendo la dipendenza dai classici motori di ricerca.\n\nSi apre ufficialmente l'era della Generative Engine Optimization (GEO), dove essere visibili agli agenti AI diventa la priorità strategica per ogni brand.",
+        "keyTakeaways": [
+          "Lancio dei Profili Aziendali ufficiali in ChatGPT.",
+          "Alternativa diretta alle schede Google Business Profile.",
+          "Prenotazioni e assistenza clienti integrate nella chat.",
+          "Crescita della Generative Engine Optimization (GEO).",
+          "Nuovo pannello per la verifica e gestione dei dati aziendali."
+        ],
+        "tags": ["OpenAI", "ChatGPT", "IntelligenzaArtificiale", "Google", "GEO"]
+      },
+      "ja": {
+        "title": "OpenAIがGoogle検索に対抗：ChatGPTに対話型『公式ビジネスプロフィール』を導入",
+        "summary": "OpenAIはChatGPT内に認証済みビジネスプロフィールを公開。店舗情報、予約、顧客対応がチャット内で完結可能に。",
+        "content": "OpenAIはGoogle検索やローカルビジネス機能に対抗し、ChatGPT内に公式ビジネスプロフィール機能を導入しました。企業は営業時間や製品カタログを認証バッジ付きで表示し、チャット内で直接予約を受け付けることができます。\n\nこれによりChatGPTは単なる情報検索ツールから、ユーザーに代わってアクションを実行する対話型コマースプラットフォームへと進化しました。\n\n従来のSEOに代わり、生成AIエージェントに最適化する『Generative Engine Optimization（GEO）』が今後の企業戦略の中心になると注目されています。",
+        "keyTakeaways": [
+          "ChatGPT内に公式認証ビジネスプロフィールを導入。",
+          "Googleビジネスプロフィールに対抗する対話型コマース機能。",
+          "チャット画面から離れずに予約・問い合わせ・購入が可能。",
+          "従来のSEOから『GEO（生成エンジン最適化）』への転換が加速。",
+          "企業専用のダッシュボードからプロフィール認証と管理が可能。"
+        ],
+        "tags": ["OpenAI", "ChatGPT", "生成AI", "Google検索", "GEO"]
+      }
+    },
+    "views": 42,
+    "isFeatured": true
+  },
+  {
+    "id": "psi-scientific-discovery-ai-agent-breakthrough-techcrunch",
+    "originalUrl": "https://techcrunch.com/2026/11/10/psi-is-trying-to-make-a-business-out-of-ai-driven-scientific-discovery/",
+    "source": "TechCrunch",
+    "category": "AI",
+    "createdAt": "2026-11-10T22:15:00.000Z",
+    "translations": {
+      "en": {
+        "title": "PSI Pioneers Autonomous AI Agents for Commercial Scientific Discovery",
+        "summary": "Deep tech startup PSI has launched autonomous AI agents capable of formulating hypotheses, simulating laboratory experiments, and patenting breakthroughs in materials science and biology.",
+        "content": "Scientific research is entering an autonomous era as startup PSI unveils an enterprise AI engine built for end-to-end scientific breakthroughs. Rather than serving as passive literature search tools, PSI's models generate novel molecular compounds, predict physical reactions, and validate experimental designs computationally.\n\nThe venture aims to slash the traditional 10-year lab cycle for new pharmaceutical and semiconductor materials down to weeks. By partnering with leading universities and industrial conglomerates, PSI is monetizing AI-generated intellectual property through licensing partnerships.\n\nThis marks a transition from consumer generative AI toward mission-critical foundational science, where autonomous agents produce verifiable physical value rather than simple text synthesis.",
+        "keyTakeaways": [
+          "PSI deploys autonomous AI agents dedicated to physics, chemistry, and drug discovery.",
+          "Reduces multi-year laboratory trial timelines down to computational weeks.",
+          "Monetizes scientific breakthroughs through IP licensing and industrial co-development.",
+          "Integrates generative hypothesis testing with automated physical lab simulations.",
+          "Signals the evolution of AI agents into mission-critical deep science industries."
+        ],
+        "tags": ["DeepTech", "AIAgents", "ScientificDiscovery", "Biotech", "MaterialsScience"]
+      },
+      "tr": {
+        "title": "Yapay Zeka Bilimsel Keşifleri Otonom Hale Getiriyor: PSI'dan Çığır Açan AI Ajanları",
+        "summary": "Derin teknoloji girişimi PSI; kimya, malzeme bilimi ve ilaç geliştirmede hipotez kurup deney simülasyonu yapabilen otonom AI ajanlarını duyurdu.",
+        "content": "Bilimsel araştırma süreçleri, PSI girişiminin tanıttığı otonom bilim motoruyla yeni bir boyuta ulaşıyor. Geleneksel olarak yıllar süren laboratuvar testleri ve moleküler analizler, yapay zeka ajanlarının fiziksel kanunlara göre çalıştırdığı simülasyonlarla haftalar mertebesine indiriliyor.\n\nSistem yalnızca literatür taramakla kalmıyor; yeni molekül dizilimleri öneriyor, kimyasal reaksiyonları simüle ediyor ve patentlenebilir formüller ortaya çıkarıyor. Sanayi devleri ve araştırma enstitüleriyle iş birliği yapan PSI, yapay zekanın ürettiği fikri mülkiyetleri lisanslayarak gelir elde ediyor.\n\nBu gelişme, yapay zekanın sadece metin yazan tüketici araçlarından çıkıp fiziksel dünyada gerçek bilimsel ve endüstriyel değer üreten bir güce dönüştüğünü gösteriyor.",
+        "keyTakeaways": [
+          "PSI, fizik, kimya ve biyoteknoloji alanında otonom araştırma yapan AI ajanları geliştirdi.",
+          "Geleneksel laboratuvar deneme süreçlerini yıllardan haftalara düşürüyor.",
+          "Patentlenebilir buluşlar üreterek fikri mülkiyet lisanslama modeliyle çalışıyor.",
+          "Üretici hipotez testlerini otomatik laboratuvar simülasyonlarıyla birleştiriyor.",
+          "Yapay zeka ajanlarının temel bilimler ve kritik endüstrilerdeki yükselişini temsil ediyor."
+        ],
+        "tags": ["DerinTeknoloji", "AIAjanları", "BilimselKeşif", "Biyoteknoloji", "İnovasyon"]
+      },
+      "es": {
+        "title": "La IA Revoluciona la Ciencia: PSI Lanza Agentes Autónomos para el Descubrimiento Científico",
+        "summary": "La startup PSI presenta agentes de inteligencia artificial capaces de formular hipótesis y simular experimentos en biomedicina y ciencia de materiales.",
+        "content": "La investigación científica entra en una era autónoma gracias a PSI, que ha desarrollado agentes de IA diseñados para acelerar descubrimientos de laboratorio. Sus modelos predicen reacciones físicas y generan compuestos moleculares innovadores.\n\nEl objetivo es reducir los ciclos tradicionales de desarrollo de 10 años a tan solo semanas, monetizando las patentes generadas mediante alianzas industriales.\n\nEste avance representa el salto de la IA generativa hacia la ciencia fundamental y el impacto industrial directo.",
+        "keyTakeaways": [
+          "Agentes de IA autónomos dedicados a la física, química y medicina.",
+          "Reducción radical de tiempos en el descubrimiento de nuevos materiales.",
+          "Monetización de hallazgos científicos mediante licencias de propiedad intelectual.",
+          "Simulaciones computacionales basadas en leyes físicas rigurosas.",
+          "Consolidación de la IA en industrias científicas de alto impacto."
+        ],
+        "tags": ["DeepTech", "AgentesIA", "Ciencia", "Biotecnologia", "Innovacion"]
+      },
+      "fr": {
+        "title": "La Découverte Scientifique Devient Autonome : PSI Déploie ses Agents IA de Pointe",
+        "summary": "La startup PSI automatise la recherche en matériaux et en biologie grâce à des agents IA capables de formuler des hypothèses et de simuler des expériences.",
+        "content": "La recherche scientifique franchit un cap historique avec la plateforme de PSI. Ses agents autonomes modélisent des structures moléculaires inédites et valident des protocoles expérimentaux en quelques jours.\n\nEn s'associant aux grands groupes industriels, PSI monétise directement les brevets issus de ces découvertes computationnelles.\n\nCette transition confirme que l'IA ne se limite plus à la génération textuelle, mais façonne désormais la science lourde et les matériaux du futur.",
+        "keyTakeaways": [
+          "Agents IA spécialisés en physique, chimie et découverte de médicaments.",
+          "Accélération drastique des cycles de recherche en laboratoire.",
+          "Modèle économique fondé sur la concession de brevets scientifiques.",
+          "Fusion entre intelligence générative et simulation expérimentale.",
+          "Entrée décisive de l'IA dans la recherche scientifique fondamentale."
+        ],
+        "tags": ["DeepTech", "AgentsIA", "Recherche", "Biotechnologie", "Innovation"]
+      },
+      "de": {
+        "title": "Autonome KI für die Wissenschaft: PSI revolutioniert industrielle Entdeckungen",
+        "summary": "Das Deep-Tech-Startup PSI stellt KI-Agenten vor, die eigenständig Hypothesen formulieren und Experimente in Chemie und Werkstoffkunde simulieren.",
+        "content": "Wissenschaftliche Forschung wird autonom: PSI präsentiert KI-Modelle, die komplexe molekulare Strukturen entwickeln und physikalische Reaktionsabläufe berechnen.\n\nStatt jahrelanger Laborversuche ermöglicht die Plattform Forschungsschritte in wenigen Tagen und lizenziert die daraus resultierenden Patente.\n\nDies verdeutlicht den Wandel der KI von Textgeneratoren hin zu unverzichtbaren Werkzeugen der Spitzenforschung.",
+        "keyTakeaways": [
+          "Autonome KI-Agenten für Physik, Chemie und pharmazeutische Forschung.",
+          "Verkürzung mehrjähriger Entwicklungszyklen auf wenige Wochen.",
+          "Monetarisierung wissenschaftlicher Durchbrüche über Lizenzmodelle.",
+          "Hypothesenbildung kombiniert mit präzisen Laborsimulationen.",
+          "Einsatz von KI-Agenten in kritischen wissenschaftlichen Zukunftsbereichen."
+        ],
+        "tags": ["DeepTech", "KIAgenten", "Wissenschaft", "Biotech", "Innovation"]
+      },
+      "it": {
+        "title": "L'IA al Servizio della Ricerca: PSI Lancia Agenti Autonomi per la Scoperta Scientifica",
+        "summary": "La startup PSI introduce agenti IA in grado di formulare ipotesi e simulare esperimenti complessi in chimica e biotecnologie.",
+        "content": "La ricerca scientifica evolve grazie agli agenti autonomi di PSI, capaci di simulare interazioni molecolari e testare ipotesi complesse in tempi record.\n\nLa tecnologia consente di abbattere i tempi di sperimentazione da anni a poche settimane, creando brevetti ad alto valore industriale.\n\nUn chiaro segnale di come l'intelligenza artificiale stia ridefinendo i confini della scienza applicata e dell'industria farmaceutica.",
+        "keyTakeaways": [
+          "Agenti IA dedicati a chimica, fisica e scoperta farmacologica.",
+          "Drastica riduzione dei tempi di sperimentazione in laboratorio.",
+          "Monetizzazione delle scoperte tramite licenze di brevetti.",
+          "Simulazioni computazionali di altissima precisione.",
+          "Ruolo centrale dell'IA nella ricerca scientifica di nuova generazione."
+        ],
+        "tags": ["DeepTech", "AgentiIA", "RicercaScientifica", "Biotecnologia", "Innovazione"]
+      },
+      "ja": {
+        "title": "科学的発見を自律化：ディープテック企業PSIが実験シミュレーションAIエージェントを発表",
+        "summary": "米PSIは、化学・バイオ・新素材分野で仮説立案から実験シミュレーションまでを自律実行するAIエージェントを公開。",
+        "content": "科学研究の現場に自律型AIが本格導入されようとしています。PSIが発表したAIエージェントは、新規化合物の予測や物理実験のシミュレーションを自律的に遂行します。\n\n従来10年近くかかっていた材料・創薬開発サイクルを数週間に短縮し、生成された知的財産をライセンス化して商業展開を図ります。\n\n文章生成を中心とした従来の生成AIから、実世界に直接的な物理的価値をもたらすディープサイエンスへの転換を示す象徴的な事例です。",
+        "keyTakeaways": [
+          "物理・化学・創薬分野に特化した自律型AIエージェント。",
+          "研究開発期間を数年からわずか数週間に大幅短縮。",
+          "科学的ブレークスルーを特許化し、産業パートナーへライセンス提供。",
+          "仮説検証と高精度な物理シミュレーションの統合。",
+          "基幹科学産業における自律型AIの決定的な進化。"
+        ],
+        "tags": ["ディープテック", "AIエージェント", "科学研究", "バイオテクノロジー", "イノベーション"]
+      }
+    },
+    "views": 28,
+    "isFeatured": false
+  }
+]

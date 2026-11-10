@@ -2,13 +2,41 @@ import { aggregateRawNews, scrapeArticleText, RawNewsItem } from './scraper';
 import { filterRelevance, processAndTranslate, ProcessedNewsArticle } from './ollama-pipeline';
 import { db } from './firebase';
 import { collection, doc, setDoc, getDoc, getDocs, query, orderBy, limit, updateDoc, increment } from 'firebase/firestore';
+import fs from 'fs';
+import path from 'path';
 
 const NEWS_COLLECTION = 'news';
+const LOCAL_NEWS_FILE = path.join(process.cwd(), 'content', 'news-data.json');
+
+function readLocalNews(): ProcessedNewsArticle[] {
+  try {
+    if (fs.existsSync(LOCAL_NEWS_FILE)) {
+      const raw = fs.readFileSync(LOCAL_NEWS_FILE, 'utf-8');
+      return JSON.parse(raw);
+    }
+  } catch (e) {
+    // ignore
+  }
+  return [];
+}
+
+function saveLocalNews(articles: ProcessedNewsArticle[]) {
+  try {
+    const dir = path.dirname(LOCAL_NEWS_FILE);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(LOCAL_NEWS_FILE, JSON.stringify(articles, null, 2), 'utf-8');
+  } catch (e) {
+    console.error('[saveLocalNews] error:', e);
+  }
+}
 
 /**
- * Checks if article link or id already exists in Firestore
+ * Checks if article link or id already exists in Firestore or local store
  */
 async function isAlreadyProcessed(id: string): Promise<boolean> {
+  const localList = readLocalNews();
+  if (localList.some(item => item.id === id)) return true;
+
   if (!db) return false;
   try {
     const ref = doc(db, NEWS_COLLECTION, id);
@@ -74,12 +102,24 @@ export async function runIngestionPipeline(options: { maxItems?: number } = {}) 
         isFeatured: processedCount === 0 // Mark first top item as featured
       };
 
-      // Step 4: Save to Firestore
-      if (db) {
-        await setDoc(doc(db, NEWS_COLLECTION, item.id), newsRecord);
-        console.log(`[Pipeline] ✔ Successfully saved "${newsRecord.translations.en.title}" to Firestore.`);
+      // Step 4: Save to Local Storage & Firestore
+      const currentList = readLocalNews();
+      const existingIdx = currentList.findIndex(x => x.id === newsRecord.id);
+      if (existingIdx >= 0) {
+        currentList[existingIdx] = newsRecord;
       } else {
-        console.warn(`[Pipeline] Firestore not configured, generated locally: ${newsRecord.id}`);
+        currentList.unshift(newsRecord);
+      }
+      saveLocalNews(currentList);
+      console.log(`[Pipeline] ✔ Saved to local store: "${newsRecord.translations.en.title}"`);
+
+      if (db) {
+        try {
+          await setDoc(doc(db, NEWS_COLLECTION, item.id), newsRecord);
+          console.log(`[Pipeline] ✔ Successfully synced "${newsRecord.translations.en.title}" to Firestore.`);
+        } catch (dbErr: any) {
+          console.warn(`[Pipeline] Firestore write fallback to local:`, dbErr.message);
+        }
       }
 
       processedCount++;
@@ -96,57 +136,30 @@ export async function runIngestionPipeline(options: { maxItems?: number } = {}) 
  * Retrieves latest news articles with automatic language fallback to 'en'
  */
 export async function getLatestNews(lang: string = 'en', count: number = 20): Promise<Array<any>> {
-  if (!db) return [];
+  let articles: ProcessedNewsArticle[] = [];
 
-  try {
-    const q = query(
-      collection(db, NEWS_COLLECTION),
-      orderBy('createdAt', 'desc'),
-      limit(count)
-    );
-    const snap = await getDocs(q);
-
-    return snap.docs.map(doc => {
-      const data = doc.data() as ProcessedNewsArticle;
-      const trans = data.translations[lang] || data.translations['en'] || Object.values(data.translations)[0];
-
-      return {
-        id: data.id,
-        originalUrl: data.originalUrl,
-        source: data.source,
-        category: data.category,
-        createdAt: data.createdAt,
-        views: data.views || 0,
-        isFeatured: Boolean(data.isFeatured),
-        title: trans?.title || 'Untitled',
-        summary: trans?.summary || '',
-        content: trans?.content || '',
-        keyTakeaways: trans?.keyTakeaways || [],
-        tags: trans?.tags || []
-      };
-    });
-  } catch (err: any) {
-    console.error('[getLatestNews] Firestore fetch error:', err.message);
-    return [];
+  // 1. Try Firestore first
+  if (db) {
+    try {
+      const q = query(
+        collection(db, NEWS_COLLECTION),
+        orderBy('createdAt', 'desc'),
+        limit(count)
+      );
+      const snap = await getDocs(q);
+      articles = snap.docs.map(doc => doc.data() as ProcessedNewsArticle);
+    } catch (err: any) {
+      console.warn('[getLatestNews] Firestore fetch error, falling back to local news:', err.message);
+    }
   }
-}
 
-/**
- * Retrieves a single news article by slug with language fallback
- */
-export async function getNewsArticleById(id: string, lang: string = 'en'): Promise<any | null> {
-  if (!db) return null;
+  // 2. Fallback to local store
+  if (articles.length === 0) {
+    articles = readLocalNews().slice(0, count);
+  }
 
-  try {
-    const ref = doc(db, NEWS_COLLECTION, id);
-    const snap = await getDoc(ref);
-    if (!snap.exists()) return null;
-
-    const data = snap.data() as ProcessedNewsArticle;
+  return articles.map(data => {
     const trans = data.translations[lang] || data.translations['en'] || Object.values(data.translations)[0];
-
-    // Increment view count asynchronously
-    updateDoc(ref, { views: increment(1) }).catch(() => {});
 
     return {
       id: data.id,
@@ -154,16 +167,58 @@ export async function getNewsArticleById(id: string, lang: string = 'en'): Promi
       source: data.source,
       category: data.category,
       createdAt: data.createdAt,
-      views: (data.views || 0) + 1,
+      views: data.views || 0,
       isFeatured: Boolean(data.isFeatured),
       title: trans?.title || 'Untitled',
       summary: trans?.summary || '',
       content: trans?.content || '',
       keyTakeaways: trans?.keyTakeaways || [],
-      tags: trans?.tags || [],
-      availableLanguages: Object.keys(data.translations)
+      tags: trans?.tags || []
     };
-  } catch (err) {
-    return null;
+  });
+}
+
+/**
+ * Retrieves a single news article by slug with language fallback
+ */
+export async function getNewsArticleById(id: string, lang: string = 'en'): Promise<any | null> {
+  let data: ProcessedNewsArticle | null = null;
+
+  if (db) {
+    try {
+      const ref = doc(db, NEWS_COLLECTION, id);
+      const snap = await getDoc(ref);
+      if (snap.exists()) {
+        data = snap.data() as ProcessedNewsArticle;
+        updateDoc(ref, { views: increment(1) }).catch(() => {});
+      }
+    } catch (err) {
+      // fallback
+    }
   }
+
+  if (!data) {
+    const localList = readLocalNews();
+    data = localList.find(x => x.id === id) || null;
+  }
+
+  if (!data) return null;
+
+  const trans = data.translations[lang] || data.translations['en'] || Object.values(data.translations)[0];
+
+  return {
+    id: data.id,
+    originalUrl: data.originalUrl,
+    source: data.source,
+    category: data.category,
+    createdAt: data.createdAt,
+    views: (data.views || 0) + 1,
+    isFeatured: Boolean(data.isFeatured),
+    title: trans?.title || 'Untitled',
+    summary: trans?.summary || '',
+    content: trans?.content || '',
+    keyTakeaways: trans?.keyTakeaways || [],
+    tags: trans?.tags || [],
+    availableLanguages: Object.keys(data.translations)
+  };
 }
