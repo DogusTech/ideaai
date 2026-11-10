@@ -7,9 +7,10 @@ export function middleware(request: NextRequest) {
   
   const isIdeaAiSubdomain = hostname === 'ideaai.togetlink.com' || hostname.startsWith('ideaai.localhost')
   const isOldAiSubdomain = hostname === 'ai.togetlink.com' || hostname.startsWith('ai.localhost')
+  const isNewsSubdomain = hostname === 'news.togetlink.com' || hostname.startsWith('news.localhost')
   const isAdsSubdomain = hostname === 'ads.togetlink.com' || hostname.startsWith('ads.localhost')
   const isOutrankSubdomain = hostname === 'outrank.togetlink.com' || hostname.startsWith('outrank.localhost')
-  const isMainDomain = hostname === 'www.togetlink.com' || hostname === 'togetlink.com' || (hostname.startsWith('localhost') && !isIdeaAiSubdomain && !isOldAiSubdomain && !isAdsSubdomain && !isOutrankSubdomain)
+  const isMainDomain = hostname === 'www.togetlink.com' || hostname === 'togetlink.com' || (hostname.startsWith('localhost') && !isIdeaAiSubdomain && !isOldAiSubdomain && !isNewsSubdomain && !isAdsSubdomain && !isOutrankSubdomain)
 
   const isAiPath = url.pathname === '/ai' || url.pathname.startsWith('/ai/')
   const isAiLandingPath = url.pathname === '/ai-landing-page' || url.pathname.startsWith('/ai-landing-page/')
@@ -26,6 +27,9 @@ export function middleware(request: NextRequest) {
   
   // Explicitly handle sitemap.xml for subdomains before ignoring files with extensions
   if (url.pathname === '/sitemap.xml') {
+    if (isNewsSubdomain) {
+      return NextResponse.rewrite(new URL('/news/sitemap.xml', request.url))
+    }
     if (isOutrankSubdomain) {
       return NextResponse.rewrite(new URL('/outrank/sitemap.xml', request.url))
     }
@@ -37,6 +41,19 @@ export function middleware(request: NextRequest) {
   // Exclude public files and API routes from our checks/rewrites
   if (!url.pathname.includes('.') && !url.pathname.startsWith('/api')) {
     
+    // 0. News Subdomain Routing (news.togetlink.com)
+    if (isNewsSubdomain) {
+      // Rewrite root to /news
+      if (url.pathname === '/') {
+        return NextResponse.rewrite(new URL('/news', request.url))
+      }
+      // If path doesn't already start with /news, prepend /news
+      if (!url.pathname.startsWith('/news')) {
+        return NextResponse.rewrite(new URL(`/news${url.pathname}`, request.url))
+      }
+      return NextResponse.next()
+    }
+
     // 1. Redirect old subdomain
     if (isOldAiSubdomain) {
       // Only redirect in production/staging where scheme is https
@@ -82,7 +99,6 @@ export function middleware(request: NextRequest) {
         return NextResponse.redirect(new URL(newPath, request.url))
       }
 
-
       // Allow /app to route to the app/app folder (AI Terminal/Dashboard)
       if (url.pathname === '/app' || url.pathname.startsWith('/app/')) {
         return NextResponse.rewrite(new URL(url.pathname, request.url))
@@ -92,7 +108,6 @@ export function middleware(request: NextRequest) {
       if (url.pathname === '/mac-test' || url.pathname.startsWith('/mac-test/')) {
         return NextResponse.rewrite(new URL(url.pathname, request.url))
       }
-
 
       // Allow public IdeaAI product, documentation, and content routes to use the root app folder
       if (url.pathname === '/matrix-demo' || url.pathname.startsWith('/matrix-demo/') || url.pathname === '/docs' || url.pathname.startsWith('/docs/') || url.pathname === '/security' || url.pathname.startsWith('/security/') || url.pathname.startsWith('/legal') || url.pathname.startsWith('/privacy-policy') || url.pathname.startsWith('/redeem') || url.pathname.startsWith('/blog') || url.pathname.startsWith('/use-cases') || url.pathname.startsWith('/tools') || url.pathname.startsWith('/pitch-deck')) {
