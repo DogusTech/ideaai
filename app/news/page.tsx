@@ -1,6 +1,5 @@
 import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { Newspaper, Sparkles, Globe, TrendingUp, ExternalLink, Flame, ArrowRight, Clock } from 'lucide-react';
 import { getLatestNews } from '@/lib/news-service';
 import type { Metadata } from 'next';
@@ -8,13 +7,13 @@ import type { Metadata } from 'next';
 export const dynamic = 'force-dynamic';
 
 const SUPPORTED_LANGS = [
-  { code: 'en', label: 'EN', flag: '🇺🇸', name: 'English' },
-  { code: 'tr', label: 'TR', flag: '🇹🇷', name: 'Türkçe' },
-  { code: 'es', label: 'ES', flag: '🇪🇸', name: 'Español' },
-  { code: 'fr', label: 'FR', flag: '🇫🇷', name: 'Français' },
-  { code: 'it', label: 'IT', flag: '🇮🇹', name: 'Italiano' },
-  { code: 'de', label: 'DE', flag: '🇩🇪', name: 'Deutsch' },
-  { code: 'ja', label: 'JA', flag: '🇯🇵', name: '日本語' },
+  { code: 'en', label: 'EN', name: 'English' },
+  { code: 'tr', label: 'TR', name: 'Türkçe' },
+  { code: 'es', label: 'ES', name: 'Español' },
+  { code: 'fr', label: 'FR', name: 'Français' },
+  { code: 'it', label: 'IT', name: 'Italiano' },
+  { code: 'de', label: 'DE', name: 'Deutsch' },
+  { code: 'ja', label: 'JA', name: '日本語' },
 ];
 
 interface PageProps {
@@ -48,37 +47,37 @@ export default async function NewsPlatformPage({ searchParams }: PageProps) {
   const resolved = await searchParams;
   const currentLang = resolved?.lang || 'en';
 
-  const articles = await getLatestNews(currentLang, 25);
-  const featuredArticle = articles.find(a => a.isFeatured) || articles[0];
-  const listArticles = articles.filter(a => a.id !== featuredArticle?.id);
+  const articles = await getLatestNews(currentLang, 30);
+  const heroPrimary = articles[0]; // Big Lead Story
+  const heroSecondary = articles[1]; // Secondary Sub-hero next to it
+  const topHeadlines = articles.slice(2, 6); // Top headlines sidebar
+  const latestFeed = articles.slice(1); // Grid & stream below
 
   return (
     <div className="min-h-screen bg-[#FBFBFA] text-[#111613] selection:bg-[#CEF23A] selection:text-[#111613] antialiased">
-      {/* Top Header Bar */}
-      <header className="border-b border-black/[0.08] bg-[#FBFBFA]/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="w-6 h-6 rounded bg-[#111613] text-[#CEF23A] flex items-center justify-center font-bold text-xs tracking-wider">
-              N
+      {/* Category Navigation Bar (inspired by TechCrunch 2nd/3rd screenshot) */}
+      <div className="bg-[#111613] text-white text-[11px] font-bold tracking-wider uppercase border-b border-black">
+        <div className="max-w-7xl mx-auto px-6 h-10 flex items-center justify-between overflow-x-auto">
+          <div className="flex items-center gap-6 whitespace-nowrap">
+            <span className="text-[#CEF23A] flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#CEF23A] animate-pulse"></span>
+              Live Feed
             </span>
-            <Link href={`/news?lang=${currentLang}`} className="text-[17px] font-bold tracking-tight text-[#111613]">
-              IdeaAI <span className="font-medium text-black/45">News</span>
-            </Link>
-            <span className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-semibold tracking-wider uppercase bg-[#CEF23A]/30 text-[#1f2803] border border-[#CEF23A]">
-              Autonomous Intel
-            </span>
+            <span className="text-white/80 hover:text-white cursor-pointer">AI & LLMs</span>
+            <span className="text-white/80 hover:text-white cursor-pointer">Startups</span>
+            <span className="text-white/80 hover:text-white cursor-pointer">DevTools</span>
+            <span className="text-white/80 hover:text-white cursor-pointer">Hardware</span>
+            <span className="text-white/80 hover:text-white cursor-pointer">Enterprise</span>
           </div>
-
-          {/* Minimal Language Switcher */}
-          <div className="flex items-center gap-1 bg-black/[0.04] p-1 rounded-full border border-black/[0.06]">
+          <div className="flex items-center gap-1 pl-4">
             {SUPPORTED_LANGS.map(lang => (
               <Link
                 key={lang.code}
                 href={`/news?lang=${lang.code}`}
-                className={`px-2.5 py-1 text-xs font-semibold rounded-full transition-all duration-150 ${
+                className={`px-2 py-0.5 text-[10px] font-bold rounded transition-colors ${
                   currentLang === lang.code
-                    ? 'bg-[#111613] text-white shadow-sm'
-                    : 'text-black/60 hover:text-black hover:bg-black/[0.04]'
+                    ? 'bg-[#CEF23A] text-[#111613]'
+                    : 'text-white/60 hover:text-white'
                 }`}
               >
                 {lang.label}
@@ -86,198 +85,239 @@ export default async function NewsPlatformPage({ searchParams }: PageProps) {
             ))}
           </div>
         </div>
+      </div>
+
+      {/* Main Header / Masthead */}
+      <header className="border-b border-black/[0.08] bg-[#FBFBFA]/90 backdrop-blur-md sticky top-0 z-40">
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-[#111613] text-[#CEF23A] flex items-center justify-center font-extrabold text-sm tracking-wider shadow-sm">
+              TC
+            </div>
+            <Link href={`/news?lang=${currentLang}`} className="text-2xl font-black tracking-tight text-[#111613] flex items-center gap-1">
+              IdeaAI <span className="text-[#059669]">Intelligence</span>
+            </Link>
+            <span className="ml-2 hidden md:inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[#CEF23A] text-[#111613]">
+              Autonomous Edition
+            </span>
+          </div>
+
+          <div className="text-xs text-black/50 font-medium hidden sm:block">
+            {new Date().toLocaleDateString(currentLang, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+          </div>
+        </div>
       </header>
 
-      {/* Main Content Area */}
-      <main className="max-w-6xl mx-auto px-6 py-12 md:py-16">
-        {/* Section Pill & Subhead */}
-        <div className="mb-8">
-          <div className="text-[11px] font-bold tracking-[0.2em] uppercase text-[#1f2803] flex items-center gap-2 mb-3">
-            <span className="w-2 h-2 rounded-full bg-[#CEF23A] ring-2 ring-[#CEF23A]/40 inline-block animate-pulse"></span>
-            GLOBAL TECH · SAAS · AI DISCOVERY
+      {/* Hero Showcase (Exact Layout of TechCrunch 2nd/3rd screenshots) */}
+      <section className="bg-[#059669] text-white py-8 border-b border-black/10">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-3xl md:text-5xl font-black tracking-tight">
+              Top Stories
+            </h2>
+            <span className="text-xs font-bold tracking-widest uppercase bg-black/20 text-white px-3 py-1 rounded-full">
+              Real-time Ingestion
+            </span>
           </div>
-          <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-[#111613] max-w-3xl leading-[1.12]">
-            Turn complex AI breakthroughs into actionable intelligence.
-          </h1>
-          <p className="mt-4 text-base md:text-lg text-black/65 max-w-2xl font-normal leading-relaxed">
-            Curated from leading technology research hubs, filtered by autonomous agents, and analyzed across 7 languages.
-          </p>
-        </div>
 
-        {/* Featured Top Story (Hero Card matching PDF Style) */}
-        {featuredArticle && (
-          <section className="mb-16">
-            <div className="group relative rounded-3xl bg-[#111613] text-white p-8 md:p-12 overflow-hidden shadow-xl border border-black/10">
-              {/* Background Geometric Accent (inspired by PDF cover) */}
-              <div className="absolute -right-24 -bottom-24 w-96 h-96 rounded-full bg-[#CEF23A]/15 blur-3xl pointer-events-none"></div>
-              <div className="absolute right-12 top-12 w-48 h-48 rounded-full border border-white/[0.08] pointer-events-none hidden md:block"></div>
-              <div className="absolute right-24 top-24 w-72 h-72 rounded-full border border-white/[0.04] pointer-events-none hidden md:block"></div>
-
-              <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-                <div className="lg:col-span-7">
-                  <div className="flex items-center gap-3 mb-4">
-                    <span className="px-2.5 py-1 rounded-md text-[11px] font-bold tracking-wider uppercase bg-[#CEF23A] text-[#111613]">
-                      01 · {featuredArticle.category} BREAKTHROUGH
-                    </span>
-                    <span className="text-xs text-white/50 font-medium">
-                      Source: {featuredArticle.source}
-                    </span>
-                  </div>
-
-                  <Link href={`/news/${featuredArticle.id}?lang=${currentLang}`}>
-                    <h2 className="text-2xl md:text-4xl font-extrabold tracking-tight text-white group-hover:text-[#CEF23A] transition-colors leading-[1.2]">
-                      {featuredArticle.title}
-                    </h2>
-                  </Link>
-
-                  <p className="mt-4 text-sm md:text-base text-white/75 font-normal leading-relaxed line-clamp-3">
-                    {featuredArticle.summary}
-                  </p>
-
-                  <div className="mt-6 flex flex-wrap items-center gap-3">
-                    <Link
-                      href={`/news/${featuredArticle.id}?lang=${currentLang}`}
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-[#CEF23A] text-[#111613] font-bold text-xs uppercase tracking-wider hover:bg-[#d8fb48] transition-colors shadow-sm"
-                    >
-                      Read Full Analysis
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </Link>
-                    <a
-                      href={featuredArticle.originalUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-white/[0.08] hover:bg-white/[0.12] text-white/80 text-xs font-semibold tracking-wider transition-colors"
-                    >
-                      Original Source
-                      <ExternalLink className="w-3 h-3" />
-                    </a>
-                  </div>
-                </div>
-
-                {/* Lead Image or Decorative Visual Container */}
-                <div className="lg:col-span-5 relative">
-                  {featuredArticle.imageUrl ? (
-                    <div className="relative aspect-[16/10] w-full rounded-2xl overflow-hidden border border-white/10 shadow-2xl">
-                      <img
-                        src={featuredArticle.imageUrl}
-                        alt={featuredArticle.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                    </div>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* Main Featured Big Story (Left) */}
+            {heroPrimary && (
+              <div className="lg:col-span-8 group">
+                <div className="relative aspect-[16/10] w-full rounded-2xl overflow-hidden bg-black/20 mb-4 shadow-xl border border-white/10">
+                  {heroPrimary.imageUrl ? (
+                    <img
+                      src={heroPrimary.imageUrl}
+                      alt={heroPrimary.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
                   ) : (
-                    <div className="aspect-[16/10] w-full rounded-2xl bg-white/[0.04] border border-white/10 flex flex-col justify-between p-6">
-                      <div className="text-[11px] font-bold tracking-[0.15em] text-[#CEF23A] uppercase">
-                        AI DECISION LAYER
-                      </div>
-                      <div className="space-y-2">
-                        <div className="h-1.5 w-3/4 bg-white/20 rounded"></div>
-                        <div className="h-1.5 w-1/2 bg-white/10 rounded"></div>
-                      </div>
-                      <div className="flex items-center justify-between text-xs text-white/40">
-                        <span>7 Languages Verified</span>
-                        <span>Llama 3.2</span>
-                      </div>
+                    <div className="w-full h-full bg-[#111613] flex items-center justify-center">
+                      <span className="text-[#CEF23A] font-bold text-lg">IdeaAI Intelligence</span>
                     </div>
                   )}
+                  <div className="absolute top-4 left-4">
+                    <span className="px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider bg-[#111613] text-[#CEF23A] shadow-md">
+                      {heroPrimary.category}
+                    </span>
+                  </div>
                 </div>
+
+                <div className="flex items-center gap-3 text-xs text-white/80 font-semibold mb-2">
+                  <span>Source: {heroPrimary.source}</span>
+                  <span>•</span>
+                  <span>{heroPrimary.createdAt ? new Date(heroPrimary.createdAt).toLocaleTimeString(currentLang, { hour: '2-digit', minute: '2-digit' }) : 'Just now'}</span>
+                </div>
+
+                <Link href={`/news/${heroPrimary.id}?lang=${currentLang}`}>
+                  <h3 className="text-2xl md:text-4xl font-extrabold text-white hover:text-[#CEF23A] transition-colors leading-[1.2]">
+                    {heroPrimary.title}
+                  </h3>
+                </Link>
+                <p className="mt-3 text-sm md:text-base text-white/90 font-normal leading-relaxed line-clamp-2 max-w-3xl">
+                  {heroPrimary.summary}
+                </p>
               </div>
-            </div>
-          </section>
-        )}
+            )}
 
-        {/* Section Header: The Innovation & Field Intelligence */}
-        <div className="flex items-center justify-between border-b border-black/[0.08] pb-4 mb-8">
-          <div>
-            <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-black/40">
-              02 · THE FIELD INTELLIGENCE
-            </span>
-            <h3 className="text-xl md:text-2xl font-bold tracking-tight text-[#111613] mt-0.5">
-              Verified Technology Transmissions
-            </h3>
-          </div>
-          <span className="text-xs font-semibold text-black/50">
-            {articles.length} Total Verified
-          </span>
-        </div>
+            {/* Right Sidebar: Top Headlines List (Matches TechCrunch 2nd/3rd screenshot sidebar) */}
+            <div className="lg:col-span-4 bg-[#047857]/40 rounded-2xl p-6 border border-white/10 backdrop-blur-sm">
+              <h4 className="text-lg font-black tracking-tight text-white mb-4 pb-2 border-b border-white/20 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-[#CEF23A]"></span>
+                Top Headlines
+              </h4>
 
-        {/* Minimalist Grid (PDF 4-column structured style) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {listArticles.map((article, index) => {
-            const numLabel = String(index + 2).padStart(2, '0');
-            return (
-              <article
-                key={article.id}
-                className="group relative rounded-2xl bg-white border border-black/[0.08] hover:border-black/[0.2] transition-all duration-200 overflow-hidden flex flex-col justify-between shadow-[0_2px_8px_rgba(0,0,0,0.02)] hover:shadow-md"
-              >
-                {/* Article Image */}
-                {article.imageUrl && (
-                  <div className="relative aspect-[16/10] w-full bg-black/[0.03] overflow-hidden border-b border-black/[0.06]">
-                    <img
-                      src={article.imageUrl}
-                      alt={article.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                    <div className="absolute top-3 left-3">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-[#111613] text-[#CEF23A]">
-                        {article.category}
-                      </span>
+              <div className="space-y-5">
+                {topHeadlines.map((item, idx) => (
+                  <div key={item.id} className="group/item flex items-start gap-3">
+                    <span className="w-2 h-2 rounded-sm bg-[#CEF23A] mt-1.5 flex-shrink-0"></span>
+                    <div>
+                      <Link href={`/news/${item.id}?lang=${currentLang}`}>
+                        <h5 className="text-sm font-bold text-white hover:text-[#CEF23A] transition-colors leading-snug">
+                          {item.title}
+                        </h5>
+                      </Link>
+                      <div className="mt-1 text-[11px] text-white/70 flex items-center gap-2">
+                        <span>{item.source}</span>
+                        <span>•</span>
+                        <span className="text-[#CEF23A] font-semibold">{item.category}</span>
+                      </div>
                     </div>
                   </div>
-                )}
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-                <div className="p-6 flex-1 flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center justify-between text-xs text-black/40 mb-3 font-semibold">
-                      <span>{numLabel} · {article.source}</span>
-                      <span className="text-[11px] font-mono">
-                        {article.createdAt ? new Date(article.createdAt).toLocaleDateString(currentLang, { month: 'short', day: 'numeric' }) : 'Live'}
-                      </span>
+      {/* Section 2: Latest News Stream (Matches TechCrunch 3rd & 4th screenshot with left images) */}
+      <main className="max-w-7xl mx-auto px-6 py-12 md:py-16">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+          {/* Main Articles Stream (Left 8 Columns) */}
+          <div className="lg:col-span-8">
+            <div className="flex items-center justify-between pb-4 mb-8 border-b-2 border-black">
+              <h3 className="text-3xl font-black tracking-tight text-[#111613]">
+                Latest News
+              </h3>
+              <span className="text-xs font-bold text-black/50">
+                {articles.length} Stories Ingested
+              </span>
+            </div>
+
+            <div className="space-y-8 divide-y divide-black/[0.08]">
+              {latestFeed.map((article) => (
+                <article key={article.id} className="pt-8 first:pt-0 group flex flex-col sm:flex-row gap-6 items-start">
+                  {/* Article Thumbnail */}
+                  <div className="w-full sm:w-56 aspect-[16/10] sm:aspect-[4/3] rounded-xl overflow-hidden bg-black/[0.04] flex-shrink-0 border border-black/[0.08] relative">
+                    {article.imageUrl ? (
+                      <img
+                        src={article.imageUrl}
+                        alt={article.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-[#111613] text-[#CEF23A] flex items-center justify-center font-bold text-xs p-4 text-center">
+                        IdeaAI Wire
+                      </div>
+                    )}
+                    <span className="absolute top-2 left-2 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[#111613] text-[#CEF23A]">
+                      {article.category}
+                    </span>
+                  </div>
+
+                  {/* Article Content */}
+                  <div className="flex-1">
+                    <div className="text-[11px] font-bold tracking-wider uppercase text-black/40 mb-1 flex items-center gap-2">
+                      <span className="text-[#059669]">{article.category}</span>
+                      <span>•</span>
+                      <span>{article.source}</span>
+                      <span>•</span>
+                      <span>{article.createdAt ? new Date(article.createdAt).toLocaleDateString(currentLang, { month: 'short', day: 'numeric' }) : 'Today'}</span>
                     </div>
 
                     <Link href={`/news/${article.id}?lang=${currentLang}`}>
-                      <h4 className="text-lg font-bold tracking-tight text-[#111613] group-hover:text-black/75 transition-colors line-clamp-2 leading-snug">
+                      <h4 className="text-xl font-extrabold text-[#111613] group-hover:text-[#059669] transition-colors leading-snug">
                         {article.title}
                       </h4>
                     </Link>
 
-                    <p className="mt-3 text-xs md:text-sm text-black/60 font-normal leading-relaxed line-clamp-3">
+                    <p className="mt-2 text-sm text-black/65 font-normal leading-relaxed line-clamp-2">
                       {article.summary}
                     </p>
-                  </div>
 
-                  {/* Takeaways snippet if available */}
-                  {article.keyTakeaways && article.keyTakeaways.length > 0 && (
-                    <div className="mt-5 pt-4 border-t border-black/[0.06] bg-[#FBFBFA] -mx-6 -mb-6 p-4 px-6">
-                      <div className="text-[10px] font-bold tracking-wider uppercase text-black/45 mb-2">
-                        Core Takeaway
+                    {article.keyTakeaways && article.keyTakeaways.length > 0 && (
+                      <div className="mt-3 p-3 bg-white rounded-lg border border-black/[0.06] text-xs text-black/75">
+                        <span className="font-bold text-[#111613] mr-1.5">Key Insight:</span>
+                        {article.keyTakeaways[0]}
                       </div>
-                      <p className="text-xs text-black/80 font-medium line-clamp-2 leading-relaxed">
-                        • {article.keyTakeaways[0]}
-                      </p>
-                      <div className="mt-3 flex items-center justify-between text-xs font-bold">
-                        <Link
-                          href={`/news/${article.id}?lang=${currentLang}`}
-                          className="inline-flex items-center gap-1 text-[#111613] group-hover:underline"
-                        >
-                          Deep Read <ArrowRight className="w-3 h-3" />
-                        </Link>
+                    )}
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+
+          {/* Right Sidebar: Most Popular (Exact Match to 4th screenshot Purple/Lime card) */}
+          <aside className="lg:col-span-4 space-y-8">
+            <div className="bg-[#4338CA] text-white rounded-2xl p-6 shadow-xl border border-black/10">
+              <div className="flex items-center justify-between mb-6 pb-4 border-b border-white/20">
+                <h4 className="text-2xl font-black tracking-tight text-white">
+                  Most Popular
+                </h4>
+                <div className="w-10 h-10 rounded-lg bg-[#CEF23A] text-[#111613] flex items-center justify-center font-bold text-lg">
+                  ↗
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                {articles.map((item, idx) => (
+                  <div key={item.id} className="group/pop flex items-start gap-3">
+                    <span className="w-2 h-2 rounded-sm bg-[#CEF23A] mt-2 flex-shrink-0"></span>
+                    <div>
+                      <Link href={`/news/${item.id}?lang=${currentLang}`}>
+                        <h5 className="text-sm font-bold text-white group-hover/pop:text-[#CEF23A] transition-colors leading-snug">
+                          {item.title}
+                        </h5>
+                      </Link>
+                      <div className="text-[11px] text-white/60 mt-1">
+                        {item.views} readers · {item.source}
                       </div>
                     </div>
-                  )}
-                </div>
-              </article>
-            );
-          })}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Newsletter / RSS Automation Box */}
+            <div className="bg-white rounded-2xl p-6 border border-black/[0.08] shadow-sm">
+              <span className="text-[11px] font-bold tracking-widest uppercase text-[#059669]">
+                Continuous Autonomous Ingestion
+              </span>
+              <h5 className="text-lg font-bold text-[#111613] mt-1 mb-2">
+                Powered by IdeaAI & Local Llama 3.2
+              </h5>
+              <p className="text-xs text-black/60 leading-relaxed mb-4">
+                Articles are scraped directly from TechCrunch, Hacker News, and VentureBeat with verified source imagery and translated into 7 languages.
+              </p>
+              <Link
+                href="/news/sitemap.xml"
+                className="inline-flex items-center justify-center w-full py-2.5 rounded-lg bg-[#111613] text-[#CEF23A] text-xs font-bold uppercase tracking-wider hover:bg-black transition-colors"
+              >
+                Access XML Feed
+              </Link>
+            </div>
+          </aside>
         </div>
       </main>
 
       {/* Minimal Footer */}
       <footer className="border-t border-black/[0.08] mt-24 py-12 bg-white">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-black/50">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6 text-xs text-black/50">
           <div className="flex items-center gap-3">
             <span className="font-bold text-[#111613] tracking-tight">IdeaAI News Intelligence</span>
             <span>·</span>
-            <span>Autonomous Llama 3.2 Pipeline</span>
+            <span>Live RSS & Original Editorial Imagery Engine</span>
           </div>
           <div className="flex items-center gap-6">
             <a href="https://ideaai.togetlink.com" className="hover:text-black transition-colors">

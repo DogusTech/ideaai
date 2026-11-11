@@ -1,11 +1,11 @@
 [
   {
-    "id": "openai-rolls-out-new-business-profiles-making-chatgpt-just-a-little-bit-more-like-google-techcrunch",
+    "id": "openai-rolls-out-new-business-profiles-making-chatgpt-just-a-little-bit-more-like-google",
     "originalUrl": "https://techcrunch.com/2026/11/10/openai-rolls-out-new-business-profiles-making-chatgpt-just-a-little-bit-more-like-google/",
     "source": "TechCrunch",
     "category": "AI",
     "createdAt": "2026-11-10T22:30:00.000Z",
-    "imageUrl": "https://techcrunch.com/wp-content/uploads/2024/10/GettyImages-2178229871.jpg?w=1200",
+    "imageUrl": "https://techcrunch.com/wp-content/uploads/2026/11/Screenshot-2026-11-10-at-8.46.19-AM.png?resize=1200,677",
     "translations": {
       "en": {
         "title": "OpenAI Launches Verified Business Profiles in ChatGPT to Challenge Google Search",
@@ -28,7 +28,7 @@
           "OpenAI, ChatGPT içinde resmi ve doğrulanmış İşletme Profilleri özelliğini kullanıma sundu.",
           "Google İşletmem (Google Business Profile) modeline yapay zeka tabanlı doğrudan alternatif.",
           "Sohbetten çıkmadan rezervasyon, doğrudan iletişim ve güncel servis bilgisi erişimi.",
-          "Geleneksel SEO yerini 'Üretici Motor Optimizasyonu'na (GEO - Generative Engine Optimization) bırakıyor.",
+          "Geleneksel SEO yerini 'Üretici Motor Optimizasyonu'na (GEO) bırakıyor.",
           "Şirketler yeni OpenAI kurumsal paneli üzerinden profillerini tescilleyip yönetebilecek."
         ],
         "tags": ["OpenAI", "ChatGPT", "YapayZeka", "GoogleArama", "GEO"]
@@ -36,7 +36,7 @@
       "es": {
         "title": "OpenAI Desafía a Google Search: Llegan los Perfiles de Negocios Verificados a ChatGPT",
         "summary": "OpenAI presenta los Perfiles de Negocios en ChatGPT, permitiendo a las empresas interactuar directamente con los clientes con datos verificados y reservas.",
-        "content": "En un movimiento estratégico contra Google Search, OpenAI anunció el lanzamiento de Perfiles de Negocios dentro de ChatGPT. La nueva herramienta permite que comercios y empresas globales cuenten con presencia verificada, con horarios, catálogos y reservas interactivas.\n\nEste despliegue convierte a ChatGPT en una capa activa de comercio conversacional, superando el modelo tradicional de directorios web y posicionando la Inteligencia Artificial como el principal punto de contacto comercial.\n\nEspecialistas en marketing digital destacan que la Optimización para Motores Generativos (GEO) será crucial para las empresas que deseen ser recomendadas por agentes inteligentes.",
+        "content": "En un movimiento estratégico contra Google Search, OpenAI anunció el lanzamiento de Perfiles de Negocios dentro de ChatGPT. La nueva herramienta permite que comercios y empresas globales cuenten con presencia verificada, con horarios, catlogos y reservas interactivas.\n\nEste despliegue convierte a ChatGPT en una capa activa de comercio conversacional, superando el modelo tradicional de directorios web y posicionando la Inteligencia Artificial como el principal punto de contacto comercial.\n\nEspecialistas en marketing digital destacan que la Optimización para Motores Generativos (GEO) será crucial para las empresas que deseen ser recomendadas por agentes inteligentes.",
         "keyTakeaways": [
           "Lanzamiento de perfiles comerciales verificados dentro de ChatGPT.",
           "Competencia frontal contra los directorios y fichas de Google Business.",
@@ -99,16 +99,389 @@
         "tags": ["OpenAI", "ChatGPT", "生成AI", "Google検索", "GEO"]
       }
     },
-    "views": 42,
+    "views": 182,
     "isFeatured": true
   },
   {
-    "id": "psi-scientific-discovery-ai-agent-breakthrough-techcrunch",
+    "id": "nvidias-crisis-has-corporate-governance-experts-reaching-for-the-popcorn",
+    "originalUrl": "https://techcrunch.com/2026/11/10/nvidias-crisis-has-corporate-governance-experts-reaching-for-the-popcorn/",
+    "source": "TechCrunch",
+    "category": "AI",
+    "createdAt": "2026-11-10T21:40:00.000Z",
+    "imageUrl": "https://techcrunch.com/wp-content/uploads/2019/05/GettyImages-503116193.jpeg?resize=1200,800",
+    "translations": {
+      "en": {
+        "title": "Nvidia’s Crisis Has Corporate Governance Experts Reaching for the Popcorn",
+        "summary": "Corporate governance analysts and Wall Street regulators are scrutinizing Nvidia's internal leadership oversight amid mounting supply chain pressure and geopolitical tensions.",
+        "content": "As Nvidia maintains its dominant position in the artificial intelligence compute ecosystem, governance experts are raising critical concerns regarding board independence, high-velocity leadership demands, and risk disclosures. The unprecedented concentration of market value in a single semiconductor architect has magnified every executive move into a systemic market event.\n\nRegulatory bodies across the United States and Europe are actively reviewing how large AI hardware monopolies manage international distribution protocols and state-level compliance. With supply constraints continuing to shape enterprise AI software roadmaps, the margin for operational error has shrunk to near zero.\n\nInstitutional investors are demanding enhanced transparency protocols, urging the semiconductor giant to institutionalize its risk architecture beyond charismatic executive direction and ensure resilient corporate governance across its global supply footprint.",
+        "keyTakeaways": [
+          "Corporate governance watchdogs scrutinize Nvidia's executive oversight structures.",
+          "Market value concentration in AI compute creates heightened systemic risk.",
+          "International regulators intensify oversight on global AI chip distribution.",
+          "Supply chain bottlenecks directly impact enterprise software deployment schedules.",
+          "Institutional investors demand institutionalized compliance beyond charismatic executive leadership."
+        ],
+        "tags": ["Nvidia", "CorporateGovernance", "AIHardware", "Semiconductors", "Regulation"]
+      },
+      "tr": {
+        "title": "Nvidia'da Yönetişim Krizi: Kurumsal Uzmanlar ve Wall Street Alarmda",
+        "summary": "Yapay zeka çip pazarını domine eden Nvidia, tedarik zinciri baskısı ve uluslararası düzenleyici denetimler sebebiyle kurumsal yönetişim uzmanlarının merceği altına girdi.",
+        "content": "Yapay zeka hesaplama altyapısının mutlak lideri Nvidia, pazar değerinin tek bir yarı iletken devinde toplanmasının getirdiği sistemik riskler nedeniyle kurumsal yönetişim otoriteleri tarafından sıkı takibe alındı. Yönetim kurulu bağımsızlığı, liderlik baskıları ve küresel dağıtım riskleri her geçen gün daha fazla tartışılıyor.\n\nAmerika Birleşik Devletleri ve Avrupa'daki düzenleyici kurumlar, yapay zeka çiplerinin küresel tedarik protokollerini ve uluslararası uyumluluk standartlarını mercek altına almış durumda. Kurumsal yazılım şirketlerinin büyüme planlarının doğrudan donanım teslimatlarına bağlı olması, operasyonel hata payını sıfıra indiriyor.\n\nKurumsal yatırımcılar, şirketin kriz yönetim mimarisini yalnızca karizmatik liderlik ekseninden çıkarıp şeffaf ve kurumsallaşmış risk yönetim standartlarına bağlamasını talep ediyor.",
+        "keyTakeaways": [
+          "Kurumsal yönetişim uzmanları Nvidia'nın liderlik ve denetim mekanizmalarını inceliyor.",
+          "Yapay zeka çip pazarındaki aşırı sermaye yoğunlaşması sistemik risk yaratıyor.",
+          "Uluslararası regülatörler çip tedarik protokolleri üzerindeki denetimlerini artırıyor.",
+          "Donanım tedarik zincirindeki aksamalar kurumsal yapay zeka yol haritalarını etkiliyor.",
+          "Yatırımcılar, lider odaklı yapı yerine kurumsallaşmış şeffaflık standartları talep ediyor."
+        ],
+        "tags": ["Nvidia", "YapayZeka", "KurumsalYönetim", "Donanım", "Yatırım"]
+      },
+      "es": {
+        "title": "La Crisis de Gobernanza en Nvidia Despierta la Alerta en Wall Street",
+        "summary": "Expertos en gobernanza corporativa y reguladores examinan la estructura de liderazgo de Nvidia ante la presión en la cadena de suministro de chips de IA.",
+        "content": "Con Nvidia liderando la infraestructura computacional de la IA global, analistas alertan sobre la dependencia extrema del mercado en un solo fabricante. Las tensiones geopolíticas y la alta demanda de GPUs exigen una gobernanza corporativa mucho más robusta y transparente.",
+        "keyTakeaways": [
+          "Supervisión reforzada sobre el directorio y las decisiones estratégicas de Nvidia.",
+          "Riesgo sistémico por concentración de mercado en infraestructura de IA.",
+          "Presión de inversores institucionales por mayor transparencia operativa."
+        ],
+        "tags": ["Nvidia", "Gobernanza", "InteligenciaArtificial", "Chips", "Mercados"]
+      },
+      "fr": {
+        "title": "Crise de Gouvernance chez Nvidia : Les Experts et Wall Street sous Tension",
+        "summary": "Les analystes de gouvernance d'entreprise scrutent le leadership de Nvidia face aux pressions géopolitiques et industrielles sur les puces d'IA.",
+        "content": "La position quasi monopolistique de Nvidia dans les accélérateurs d'intelligence artificielle attire une surveillance accrue des régulateurs mondiaux.",
+        "keyTakeaways": [
+          "Examen approfondi de la gouvernance interne de Nvidia.",
+          "Risque systémique accru pour l'écosystème technologique mondial.",
+          "Exigence de transparence accrue de la part des investisseurs."
+        ],
+        "tags": ["Nvidia", "Gouvernance", "IA", "Semiconducteurs"]
+      },
+      "de": {
+        "title": "Governance-Krise bei Nvidia: Experten und Aufsichtsbehörden schlagen Alarm",
+        "summary": "Analysten für Corporate Governance untersuchen Führungsstrukturen bei Nvidia im Zuge wachsender Lieferketten- und Regulierungsanforderungen.",
+        "content": "Die beispiellose Konzentration von Marktwert und Rechenleistung bei Nvidia rückt Governance- und Kontrollmechanismen in den Fokus internationaler Regulierungsbehörden.",
+        "keyTakeaways": [
+          "Wachsender Druck auf Vorstand und Kontrollgremien bei Nvidia.",
+          "Systemische Risiken durch Konzentration des KI-Hardwaremarktes.",
+          "Forderungen nach institutionalisierten Risiko- und Compliance-Prozessen."
+        ],
+        "tags": ["Nvidia", "Governance", "KI", "Hardware", "Wirtschaft"]
+      },
+      "it": {
+        "title": "Crisi di Governance per Nvidia: Sotto Lente la Leadership del Colosso dei Chip AI",
+        "summary": "Autorità di regolamentazione e investitori analizzano da vicino la struttura decisionale di Nvidia nel pieno del boom dell'IA.",
+        "content": "Il ruolo cruciale di Nvidia nell'infrastruttura dell'intelligenza artificiale porta a un monitoraggio senza precedenti sulla trasparenza e la resilienza aziendale.",
+        "keyTakeaways": [
+          "Ispezione sui processi decisionali interni di Nvidia.",
+          "Rischi sistemici per il settore tech legati alla fornitura di chip.",
+          "Richiesta di maggiore trasparenza e audit indipendenti."
+        ],
+        "tags": ["Nvidia", "Governance", "IntelligenzaArtificiale", "Chip"]
+      },
+      "ja": {
+        "title": "Nvidiaのガバナンス危機：企業統治の専門家が経営体制に警鐘",
+        "summary": "AI半導体市場を牽引するNvidiaに対し、サプライチェーンの逼迫と地政学的リスクに伴うコーポレートガバナンスの懸念が高まる。",
+        "content": "AIインフラの中心的存在であるNvidiaの企業統治体制に対し、規制当局や機関投資家からの透明性要求が急速に強まっています。",
+        "keyTakeaways": [
+          "Nvidiaの取締役会およびリスク管理体制への監督強化。",
+          "AIチップ供給の集中が招く市場のシステミックリスク。",
+          "持続可能なガバナンス基準の確立を求める機関投資家の動き。"
+        ],
+        "tags": ["Nvidia", "コーポレートガバナンス", "AI半導体", "市場動向"]
+      }
+    },
+    "views": 142,
+    "isFeatured": false
+  },
+  {
+    "id": "openai-acquires-odessia-travel-startup-created-by-sonder-founder",
+    "originalUrl": "https://techcrunch.com/2026/11/10/openai-acquires-odessia-travel-startup-created-by-sonder-founder/",
+    "source": "TechCrunch",
+    "category": "Startups",
+    "createdAt": "2026-11-10T21:10:00.000Z",
+    "imageUrl": "https://techcrunch.com/wp-content/uploads/2025/04/GettyImages-2207801992.jpg?resize=1200,801",
+    "translations": {
+      "en": {
+        "title": "OpenAI Acquires Odessia, the AI Travel Agent Platform Founded by Sonder's Creator",
+        "summary": "OpenAI has acquired Odessia to integrate autonomous itinerary generation, live booking mechanics, and spatial travel planning directly into ChatGPT.",
+        "content": "Expanding its push into agentic vertical commerce, OpenAI has acquired Odessia, the travel intelligence startup launched by Sonder's founder. Odessia specialized in multi-modal itinerary optimization, live hospitality APIs, and dynamic re-routing algorithms.\n\nThe strategic acquisition equips OpenAI with proprietary transaction pipes and travel provider integrations, positioning ChatGPT to execute full-journey reservations rather than offering static recommendations.\n\nWith travel technology representing one of the largest consumer transaction categories, the move puts OpenAI in direct collision with Expedia, Booking.com, and Google Travel.",
+        "keyTakeaways": [
+          "OpenAI completes strategic acquisition of travel intelligence platform Odessia.",
+          "Enables ChatGPT to execute real-time flight, lodging, and itinerary bookings.",
+          "Accelerates OpenAI's evolution from answer bot into autonomous transaction agent.",
+          "Direct threat to legacy online travel agencies (OTAs) including Expedia and Booking.",
+          "Odessia's engineering team transitions to OpenAI's consumer product division."
+        ],
+        "tags": ["OpenAI", "M&A", "AIAgents", "TravelTech", "ChatGPT"]
+      },
+      "tr": {
+        "title": "OpenAI'dan Dev Satın Alma: Yapay Zeka Seyahat Girişimi Odessia'yı Bünyesine Kattı",
+        "summary": "OpenAI, Sonder'ın kurucusu tarafından hayata geçirilen yapay zeka seyahat ve rezervasyon platformu Odessia'yı satın aldığını duyurdu.",
+        "content": "Yapay zeka ajanlarını doğrudan ticaret ve işlem yapabilen platformlara dönüştürmeyi hedefleyen OpenAI, Odessia'yı satın aldı. Odessia'nın geliştirdiği seyahat zekası; dinamik rota optimizasyonu, otel ve uçuş API entegrasyonları ile anlık rezervasyon motorunu ChatGPT ekosistemine taşıyor.\n\nKullanıcılar artık ChatGPT'ye sadece tatil planı sormayacak; bilet alımından otel rezervasyonuna ve takvim senkronizasyonuna kadar tüm süreci tek bir komutla tamamlayabilecek.\n\nBu hamle OpenAI'ı Expedia, Booking.com ve Google Travel gibi köklü seyahat devleriyle doğrudan kafa kafaya getiriyor.",
+        "keyTakeaways": [
+          "OpenAI, yapay zeka tabanlı seyahat platformu Odessia'yı satın aldı.",
+          "ChatGPT üzerinden uçuş ve konaklama rezervasyonları anlık olarak yapılabilecek.",
+          "OpenAI, statik cevap motorundan otonom işlem ve satın alma ajanına dönüşüyor.",
+          "Booking.com ve Expedia gibi geleneksel platformlar için doğrudan pazar tehdidi.",
+          "Odessia'nın mühendislik kadrosu OpenAI tüketici ürünleri ekibine katıldı."
+        ],
+        "tags": ["OpenAI", "SatınAlma", "YapayZeka", "SeyahatTeknolojisi", "Girişimcilik"]
+      },
+      "es": {
+        "title": "OpenAI Adquiere Odessia para Transformar ChatGPT en una Agencia de Viajes Autónoma",
+        "summary": "OpenAI compra la startup de viajes Odessia, permitiendo que ChatGPT gestione reservas completas de vuelos y hoteles.",
+        "content": "La adquisición de Odessia otorga a OpenAI la capacidad de ejecutar transacciones turísticas complejas en tiempo real, compitiendo directamente con gigantes como Booking.com y Expedia.",
+        "keyTakeaways": [
+          "Integración de reservas automáticas de viajes en ChatGPT.",
+          "Evolución hacia agentes de compra y comercio conversacional.",
+          "Disrupción frontal en la industria de agencias de viajes online."
+        ],
+        "tags": ["OpenAI", "Adquisicion", "AgentesIA", "TravelTech"]
+      },
+      "fr": {
+        "title": "OpenAI Rapproche ChatGPT du Voyage avec le Rachat d'Odessia",
+        "summary": "OpenAI acquiert Odessia pour intégrer la réservation de voyages et d'hôtels directement au sein de ses assistants IA.",
+        "content": "Avec cette acquisition, OpenAI s'attaque directement au marché de la réservation touristique en transformant ses modèles en véritables agents transactionnels.",
+        "keyTakeaways": [
+          "Rachat stratégique de la plateforme Odessia par OpenAI.",
+          "Réservation en temps réel de voyages directement dans le chat.",
+          "Concurrence directe avec Booking.com et Google Travel."
+        ],
+        "tags": ["OpenAI", "Voyage", "IA", "Tech"]
+      },
+      "de": {
+        "title": "OpenAI übernimmt Reise-Startup Odessia: ChatGPT wird zum Reisebüro",
+        "summary": "OpenAI akquiriert das Startup Odessia, um automatisierte Reisebuchungen und Hotelreservierungen in ChatGPT zu integrieren.",
+        "content": "Der Schritt untermauert OpenAI's Strategie, autonome Transaktionsagenten zu etablieren, die Buchungen eigenständig abwickeln.",
+        "keyTakeaways": [
+          "Übernahme der Reiseplattform Odessia durch OpenAI.",
+          "Echtzeit-Buchungsfunktionen für Flüge und Hotels im Chat.",
+          "Angriff auf etablierte Plattformen wie Booking.com und Expedia."
+        ],
+        "tags": ["OpenAI", "ReiseTech", "KI", "Startups"]
+      },
+      "it": {
+        "title": "OpenAI Acquisisce Odessia: ChatGPT Diventa un'Agenzia di Viaggi Autonoma",
+        "summary": "OpenAI rileva la startup Odessia per consentire prenotazioni complete di viaggi e hotel direttamente dalle conversazioni.",
+        "content": "Grazie alla tecnologia di Odessia, ChatGPT potrà effettuare transazioni alberghiere e aeree in tempo reale, sfidando i colossi del settore OTA.",
+        "keyTakeaways": [
+          "OpenAI acquista la piattaforma turistica Odessia.",
+          "Prenotazioni dirette e itinerari dinamici con l'AI.",
+          "Sfida aperta ai portali come Booking ed Expedia."
+        ],
+        "tags": ["OpenAI", "TravelTech", "IntelligenzaArtificiale", "Startups"]
+      },
+      "ja": {
+        "title": "OpenAIがAI旅行スタートアップOdessiaを買収：ChatGPTで旅行予約が完結へ",
+        "summary": "OpenAIは旅行計画・予約スタートアップOdessiaを買収。ChatGPTに対話型フライト・ホテル即時予約機能を統合。",
+        "content": "静的な情報提供から自律的な決済・予約エージェントへの転換を進めるOpenAIは、Odessiaの買収により旅行市場への参入を決定づけました。",
+        "keyTakeaways": [
+          "旅行AIプラットフォームOdessiaをOpenAIが電撃買収。",
+          "ChatGPT上でのホテル・フライトのリアルタイム予約を実現。",
+          "ExpediaやBooking.comなど既存OTA市場への直接的な挑戦。"
+        ],
+        "tags": ["OpenAI", "買収", "旅行テック", "AIエージェント", "スタートアップ"]
+      }
+    },
+    "views": 115,
+    "isFeatured": false
+  },
+  {
+    "id": "anthropic-launches-claude-meetings-to-turn-workplace-discussions-into-plans-and-tasks",
+    "originalUrl": "https://techcrunch.com/2026/11/10/anthropic-launches-claude-meetings-to-turn-workplace-discussions-into-plans-and-tasks/",
+    "source": "TechCrunch",
+    "category": "DevTools",
+    "createdAt": "2026-11-10T20:30:00.000Z",
+    "imageUrl": "https://techcrunch.com/wp-content/uploads/2026/11/Claude-Meetings.png?resize=1200,675",
+    "translations": {
+      "en": {
+        "title": "Anthropic Launches Claude Meetings to Transform Workplace Discussions into Actionable Code & Tasks",
+        "summary": "Anthropic has released Claude Meetings, an enterprise tool that listens to engineering scrums and syncs, automatically generating PR plans, Linear tasks, and codebase pull requests.",
+        "content": "Targeting the friction between software planning and implementation, Anthropic unveiled 'Claude Meetings'. The platform transcribes technical voice discussions, extracts architectural decisions, and links directly with developer tools like GitHub, Linear, and Jira.\n\nRather than outputting simple meeting minutes, Claude Meetings synthesizes precise technical specifications, drafts initial pull requests, and assigns dependencies across engineering teams.\n\nEnterprise IT organizations view this as a major step toward ambient engineering, where developer meetings immediately generate executable engineering tickets without manual administrative overhead.",
+        "keyTakeaways": [
+          "Anthropic debuts Claude Meetings for technical teams and software engineers.",
+          "Automatically converts meeting audio into GitHub PR drafts and Linear tickets.",
+          "Preserves architectural decisions and maps dependencies across repositories.",
+          "Integrates enterprise security protocols with zero training on customer data.",
+          "Direct enterprise competitor to Microsoft Teams AI Copilot and Zoom AI Companion."
+        ],
+        "tags": ["Anthropic", "Claude", "DevTools", "WorkplaceAI", "Engineering"]
+      },
+      "tr": {
+        "title": "Anthropic'ten Claude Meetings: Toplantıları Otonom Kod Planlarına ve Görevlere Dönüştürüyor",
+        "summary": "Anthropic, mühendislik ve ürün toplantılarını analiz edip doğrudan GitHub PR taslaklarına ve Linear görevlerine dönüştüren 'Claude Meetings' aracını duyurdu.",
+        "content": "Anthropic, yazılım ekiplerinin toplantılarda aldığı teknik kararları doğrudan çalışan kod planlarına çeviren 'Claude Meetings' sistemini tanıttı. Sistem, sesli tartışmaları dinleyerek mimari gereksinimleri ayıklıyor ve doğrudan GitHub, Linear ve Jira ile senkronize ediyor.\n\nBasit bir toplantı özeti çıkarmak yerine; teknik şartnameleri oluşturuyor, bağımlılıkları haritalıyor ve geliştiriciler için hazır Pull Request taslakları üretiyor.\n\nBu araç, mühendislik ekiplerinin saatler süren dokümantasyon ve görev açma yükünü ortadan kaldırarak otonom yazılım geliştirme sürecini hızlandırıyor.",
+        "keyTakeaways": [
+          "Anthropic, yazılım ve ürün ekipleri için Claude Meetings'i kullanıma sundu.",
+          "Ses kayıtlarını anında GitHub PR taslaklarına ve Linear görevlerine dönüştürüyor.",
+          "Toplantıdaki teknik kararları mimari bağımlılıklarla eşleştiriyor.",
+          "Müşteri verileri üzerinde model eğitimi yapılmayan kurumsal güvenlik yapısı.",
+          "Microsoft Copilot ve Zoom AI Companion'a karşı doğrudan geliştirici odaklı alternatif."
+        ],
+        "tags": ["Anthropic", "Claude", "GeliştiriciAraçları", "YazılımMühendisliği", "Verimlilik"]
+      },
+      "es": {
+        "title": "Anthropic Lanza Claude Meetings: Convierte Reuniones en Tareas de Código y GitHub PRs",
+        "summary": "Claude Meetings transforma debates técnicos y llamadas de ingeniería en tickets ejecutables y solicitudes de extracción.",
+        "content": "Diseñado específicamente para desarrolladores, Claude Meetings conecta las discusiones de voz con repositorios de GitHub y herramientas de gestión de proyectos.",
+        "keyTakeaways": [
+          "Generación automática de PRs y especificaciones técnicas desde audio.",
+          "Integración nativa con GitHub, Linear y Jira.",
+          "Enfoque empresarial con estricta privacidad de datos."
+        ],
+        "tags": ["Anthropic", "Claude", "DevTools", "Productividad"]
+      },
+      "fr": {
+        "title": "Anthropic Dévoile Claude Meetings : Transformez vos Réunions en Tâches et Code",
+        "summary": "Claude Meetings écoute les échanges techniques pour produire automatiquement des plans de développement et tickets GitHub.",
+        "content": "Anthropic cible les équipes d'ingénieurs en traduisant les discussions d'architecture logicielle en actions exécutables sans effort manuel.",
+        "keyTakeaways": [
+          "Création de pull requests et tickets à partir de réunions vocales.",
+          "Gain de temps substantiel sur la documentation technique.",
+          "Alternative puissante aux solutions généralistes comme Teams Copilot."
+        ],
+        "tags": ["Anthropic", "Claude", "DevTools", "Ingenierie"]
+      },
+      "de": {
+        "title": "Anthropic stellt Claude Meetings vor: Meetings werden zu GitHub-PRs und Aufgaben",
+        "summary": "Claude Meetings transkribiert technische Diskussionen und generiert automatisch GitHub Pull Requests sowie Projekt-Tickets.",
+        "content": "Entwicklerteams können technische Besprechungen nun nahtlos in Code-Spezifikationen und Aufgaben überführen, ohne manuelle Dokumentation verfassen zu müssen.",
+        "keyTakeaways": [
+          "Automatisierte PR-Entwürfe und Linear-Tickets aus Meeting-Audio.",
+          "Tiefe Integration in Entwicklungs-Workflows.",
+          "Höchste Datenschutzstandards für Unternehmenssoftware."
+        ],
+        "tags": ["Anthropic", "Claude", "DevTools", "SoftwareEntwicklung"]
+      },
+      "it": {
+        "title": "Anthropic Presenta Claude Meetings: Le Riunioni Diventano Codice e Task su GitHub",
+        "summary": "Claude Meetings converte le discussioni dei team di sviluppo in specifiche tecniche, PR su GitHub e task su Linear.",
+        "content": "La nuova piattaforma di Anthropic elimina il divario tra pianificazione vocale ed esecuzione software, accelerando il ciclo di vita dei progetti.",
+        "keyTakeaways": [
+          "Conversione intelligente di meeting vocali in PR di codice.",
+          "Sincronizzazione immediata con Jira, Linear e GitHub.",
+          "Sicurezza enterprise e privacy totale sui dati aziendali."
+        ],
+        "tags": ["Anthropic", "Claude", "DevTools", "IngegneriaSoftware"]
+      },
+      "ja": {
+        "title": "Anthropicが『Claude Meetings』を発表：会議の音声からGitHub PRとタスクを自動生成",
+        "summary": "Anthropicはエンジニアリング会議をリアルタイム解析し、GitHubのPRドラフトやLinearタスクを自動起票するClaude Meetingsを公開。",
+        "content": "技術的な打ち合わせの内容からアーキテクチャ設計書をまとめ、自動的にGitHubやJiraに連携することで、開発者の事務的負担をゼロに近づけます。",
+        "keyTakeaways": [
+          "技術ミーティングの音声からGitHub PRドラフトを自動生成。",
+          "Linear、Jira、GitHubとのシームレスな双方向連携。",
+          "顧客データを学習に使用しない厳格なエンタープライズセキュリティ。",
+          "Microsoft Teams CopilotやZoomに対抗するエンジニア特化型AI。"
+        ],
+        "tags": ["Anthropic", "Claude", "開発ツール", "エンジニアリング", "業務効率化"]
+      }
+    },
+    "views": 98,
+    "isFeatured": false
+  },
+  {
+    "id": "all-7-anthropic-founders-will-each-cash-out-about-250m-in-ipo",
+    "originalUrl": "https://techcrunch.com/2026/11/10/all-7-anthropic-founders-will-each-cash-out-about-250m-in-ipo/",
+    "source": "TechCrunch",
+    "category": "Startups",
+    "createdAt": "2026-11-10T19:50:00.000Z",
+    "imageUrl": "https://techcrunch.com/wp-content/uploads/2025/04/Jared-Kaplan_headshot2.jpg?resize=900,1200",
+    "translations": {
+      "en": {
+        "title": "Anthropic IPO Filings Reveal $250M Cash-Out Per Founder in Historic AI Listing",
+        "summary": "Regulatory filings for Anthropic's anticipated public listing indicate all seven co-founders could each realize roughly $250 million in liquid secondary sales.",
+        "content": "As Anthropic readies what could become one of the most consequential tech IPOs of the decade, confidential regulatory disclosures reveal a liquidity provision that would grant each of its seven original founders an estimated $250 million payout.\n\nThe provisions reflect unprecedented institutional confidence in the AI lab's enterprise revenue trajectory, buoyed by multi-billion-dollar enterprise commitments from AWS, Google Cloud, and global corporate cohorts.\n\nMarket observers note that structured secondary liquidity for founding teams before or during an IPO has become standard practice among premier foundation model labs, balancing retention with intense talent competition.",
+        "keyTakeaways": [
+          "Anthropic IPO structuring includes ~$250M liquidity per co-founder.",
+          "Signifies institutional backing for enterprise-first foundation model labs.",
+          "AWS and Google Cloud enterprise cloud partnerships fuel record revenue milestones.",
+          "Sets a valuation benchmark for upcoming generative AI public offerings.",
+          "Leadership remains tied to long-term equity vesting and multi-year governance commitments."
+        ],
+        "tags": ["Anthropic", "IPO", "Startups", "Finance", "VentureCapital"]
+      },
+      "tr": {
+        "title": "Anthropic Halka Arzı Netleşiyor: 7 Kurucu Ortağın Her Biri Yaklaşık 250M$ Nakit Alacak",
+        "summary": "Anthropic'in beklenen halka arz (IPO) başvuru belgeleri, şirketin yedi kurucu ortağının her birine yaklaşık 250 milyon dolarlık nakit çıkış imkanı tanıyacağını ortaya koydu.",
+        "content": "Yapay zeka ekosisteminin en büyük halka arzlarından birine hazırlanan Anthropic, kurucu ekibin nakit çıkışına olanak tanıyan özel bir yapılandırmayla piyasaya açılıyor. Belgeler, şirketin 7 kurucu ortağının her birinin yaklaşık 250 milyon dolar elde edebileceğini gösteriyor.\n\nAWS ve Google Cloud ile yapılan milyarlarca dolarlık bulut anlaşmaları ve kurumsal abone sayısındaki patlama, yatırımcıların şirketin gelir büyümesine olan güvenini pekiştiriyor.\n\nUzmanlar, yapay zeka sektöründeki aşırı yetenek rekabeti nedeniyle kuruculara halka arz öncesinde veya sırasında likidite sağlanmasının artık silikon vadisinde yeni bir standart haline geldiğini vurguluyor.",
+        "keyTakeaways": [
+          "Anthropic halka arzında kurucu ortak başına yaklaşık 250 milyon dolarlık likidite planlanıyor.",
+          "Kurumsal AI pazarındaki rekor büyüme Wall Street güvenini artırıyor.",
+          "AWS ve Google Cloud ortaklıkları şirketin gelirlerini tarihi seviyelere taşıdı.",
+          "Yapay zeka şirketlerinin halka açılma süreçleri için yeni bir değerleme çıtası oluşturuyor.",
+          "Kurucu ekip uzun vadeli hisse hak ediş takvimleriyle şirkete bağlı kalmaya devam edecek."
+        ],
+        "tags": ["Anthropic", "HalkaArz", "Finans", "Girişimcilik", "YapayZeka"]
+      },
+      "es": {
+        "title": "Salida a Bolsa de Anthropic: Los 7 Fundadores Obtendrán 250M$ Cada Uno",
+        "summary": "Los documentos de la IPO de Anthropic revelan que cada uno de sus fundadores podrá liquidar cerca de 250 millones de dólares.",
+        "content": "La operación refleja el respaldo financiero masivo a los modelos de lenguaje empresariales y marca un hito histórico para la industria de la IA.",
+        "keyTakeaways": [
+          "Liquidación prevista de 250M$ por cofundador en la IPO de Anthropic.",
+          "Crecimiento explosivo de ingresos respaldado por AWS y Google Cloud.",
+          "Nuevo estándar de valoración para las empresas de inteligencia artificial."
+        ],
+        "tags": ["Anthropic", "IPO", "Finanzas", "Startups"]
+      },
+      "fr": {
+        "title": "Introduction en Bourse d'Anthropic : 250M$ pour Chacun des 7 Fondateurs",
+        "summary": "L'entrée en bourse très attendue d'Anthropic permettra à chacun de ses cofondateurs de toucher environ 250 millions de dollars.",
+        "content": "Cette opération consacre la maturité financière d'Anthropic sur le marché des modèles d'IA pour entreprises.",
+        "keyTakeaways": [
+          "Liquidité de 250 millions de dollars par fondateur lors de l'IPO.",
+          "Soutien massif des géants du cloud AWS et Google.",
+          "Événement financier majeur pour le secteur de l'intelligence artificielle."
+        ],
+        "tags": ["Anthropic", "IPO", "Finance", "IA"]
+      },
+      "de": {
+        "title": "Anthropic-Börsengang: 250 Millionen Dollar für jeden der 7 Gründer",
+        "summary": "Die IPO-Unterlagen von Anthropic zeigen, dass die sieben Gründer jeweils rund 250 Millionen Dollar erlösen können.",
+        "content": "Der geplante Börsengang unterstreicht das immense Vertrauen der Finanzmärkte in die langfristige Profitabilität führender KI-Labore.",
+        "keyTakeaways": [
+          "Rund 250 Millionen Dollar Erlös pro Mitgründer im Rahmen des IPO.",
+          "Starkes Umsatzwachstum durch Cloud-Partnerschaften mit AWS und Google.",
+          "Historischer Meilenstein für die Kommerzialisierung von KI-Modellen."
+        ],
+        "tags": ["Anthropic", "Boersengang", "Finanzen", "Startups"]
+      },
+      "it": {
+        "title": "IPO di Anthropic: Ciascuno dei 7 Fondatori Incasserà circa 250 Milioni di Dollari",
+        "summary": "I documenti per la quotazione in borsa di Anthropic rivelano uscite di liquidità da 250M$ per ciascun fondatore.",
+        "content": "Un segnale forte della fiducia degli investitori nella roadmap di Anthropic e nella solidità dei ricavi generati dalle soluzioni aziendali.",
+        "keyTakeaways": [
+          "Liquidità di circa 250 milioni di dollari a testa per i fondatori.",
+          "Fatturato record trainato dalle partnership con Google e Amazon.",
+          "Punto di riferimento per le future quotazioni nel settore dell'IA."
+        ],
+        "tags": ["Anthropic", "IPO", "Finanza", "Startups"]
+      },
+      "ja": {
+        "title": "Anthropicの歴史的IPO：7人の創業者がそれぞれ約2億5000万ドルを獲得へ",
+        "summary": "上場申請書類により、Anthropicの共同創業者7名がIPOに伴いそれぞれ約2億5000万ドルの現金化を行う計画が判明。",
+        "content": "AWSやGoogle Cloudとの大型提携による急激な収益拡大を背景に、生成AI企業として最大級のIPOが進行しています。",
+        "keyTakeaways": [
+          "AnthropicのIPOで創業者1人あたり約2億5000万ドルの現金化を予定。",
+          "エンタープライズ市場における圧倒的な売上成長を証明。",
+          "生成AIスタートアップの公開市場における新たな評価指標を確立。"
+        ],
+        "tags": ["Anthropic", "IPO", "資金調達", "AIスタートアップ", "金融"]
+      }
+    },
+    "views": 85,
+    "isFeatured": false
+  },
+  {
+    "id": "psi-is-trying-to-make-a-business-out-of-ai-driven-scientific-discovery",
     "originalUrl": "https://techcrunch.com/2026/11/10/psi-is-trying-to-make-a-business-out-of-ai-driven-scientific-discovery/",
     "source": "TechCrunch",
     "category": "AI",
-    "createdAt": "2026-11-10T22:15:00.000Z",
-    "imageUrl": "https://techcrunch.com/wp-content/uploads/2024/09/GettyImages-1488424097.jpg?w=1200",
+    "createdAt": "2026-11-10T18:20:00.000Z",
+    "imageUrl": "https://techcrunch.com/wp-content/uploads/2026/11/Screenshot-2026-11-10-at-10.00.33-AM.png?w=683",
     "translations": {
       "en": {
         "title": "PSI Pioneers Autonomous AI Agents for Commercial Scientific Discovery",
@@ -139,70 +512,60 @@
       "es": {
         "title": "La IA Revoluciona la Ciencia: PSI Lanza Agentes Autónomos para el Descubrimiento Científico",
         "summary": "La startup PSI presenta agentes de inteligencia artificial capaces de formular hipótesis y simular experimentos en biomedicina y ciencia de materiales.",
-        "content": "La investigación científica entra en una era autónoma gracias a PSI, que ha desarrollado agentes de IA diseñados para acelerar descubrimientos de laboratorio. Sus modelos predicen reacciones físicas y generan compuestos moleculares innovadores.\n\nEl objetivo es reducir los ciclos tradicionales de desarrollo de 10 años a tan solo semanas, monetizando las patentes generadas mediante alianzas industriales.\n\nEste avance representa el salto de la IA generativa hacia la ciencia fundamental y el impacto industrial directo.",
+        "content": "La investigación científica entra en una era autónoma gracias a PSI, que ha desarrollado agentes de IA diseñados para acelerar descubrimientos de laboratorio.",
         "keyTakeaways": [
           "Agentes de IA autónomos dedicados a la física, química y medicina.",
           "Reducción radical de tiempos en el descubrimiento de nuevos materiales.",
-          "Monetización de hallazgos científicos mediante licencias de propiedad intelectual.",
-          "Simulaciones computacionales basadas en leyes físicas rigurosas.",
-          "Consolidación de la IA en industrias científicas de alto impacto."
+          "Monetización de hallazgos científicos mediante licencias de propiedad intelectual."
         ],
-        "tags": ["DeepTech", "AgentesIA", "Ciencia", "Biotecnologia", "Innovacion"]
+        "tags": ["DeepTech", "AgentesIA", "Ciencia", "Innovacion"]
       },
       "fr": {
         "title": "La Découverte Scientifique Devient Autonome : PSI Déploie ses Agents IA de Pointe",
         "summary": "La startup PSI automatise la recherche en matériaux et en biologie grâce à des agents IA capables de formuler des hypothèses et de simuler des expériences.",
-        "content": "La recherche scientifique franchit un cap historique avec la plateforme de PSI. Ses agents autonomes modélisent des structures moléculaires inédites et valident des protocoles expérimentaux en quelques jours.\n\nEn s'associant aux grands groupes industriels, PSI monétise directement les brevets issus de ces découvertes computationnelles.\n\nCette transition confirme que l'IA ne se limite plus à la génération textuelle, mais façonne désormais la science lourde et les matériaux du futur.",
+        "content": "La recherche scientifique franchit un cap historique avec la plateforme de PSI. Ses agents autonomes modélisent des structures moléculaires inédites.",
         "keyTakeaways": [
           "Agents IA spécialisés en physique, chimie et découverte de médicaments.",
           "Accélération drastique des cycles de recherche en laboratoire.",
-          "Modèle économique fondé sur la concession de brevets scientifiques.",
-          "Fusion entre intelligence générative et simulation expérimentale.",
-          "Entrée décisive de l'IA dans la recherche scientifique fondamentale."
+          "Modèle économique fondé sur la concession de brevets scientifiques."
         ],
-        "tags": ["DeepTech", "AgentsIA", "Recherche", "Biotechnologie", "Innovation"]
+        "tags": ["DeepTech", "AgentsIA", "Recherche", "Innovation"]
       },
       "de": {
         "title": "Autonome KI für die Wissenschaft: PSI revolutioniert industrielle Entdeckungen",
         "summary": "Das Deep-Tech-Startup PSI stellt KI-Agenten vor, die eigenständig Hypothesen formulieren und Experimente in Chemie und Werkstoffkunde simulieren.",
-        "content": "Wissenschaftliche Forschung wird autonom: PSI präsentiert KI-Modelle, die komplexe molekulare Strukturen entwickeln und physikalische Reaktionsabläufe berechnen.\n\nStatt jahrelanger Laborversuche ermöglicht die Plattform Forschungsschritte in wenigen Tagen und lizenziert die daraus resultierenden Patente.\n\nDies verdeutlicht den Wandel der KI von Textgeneratoren hin zu unverzichtbaren Werkzeugen der Spitzenforschung.",
+        "content": "Wissenschaftliche Forschung wird autonom: PSI präsentiert KI-Modelle, die komplexe molekulare Strukturen entwickeln und physikalische Reaktionsabläufe berechnen.",
         "keyTakeaways": [
           "Autonome KI-Agenten für Physik, Chemie und pharmazeutische Forschung.",
           "Verkürzung mehrjähriger Entwicklungszyklen auf wenige Wochen.",
-          "Monetarisierung wissenschaftlicher Durchbrüche über Lizenzmodelle.",
-          "Hypothesenbildung kombiniert mit präzisen Laborsimulationen.",
-          "Einsatz von KI-Agenten in kritischen wissenschaftlichen Zukunftsbereichen."
+          "Monetarisierung wissenschaftlicher Durchbrüche über Lizenzmodelle."
         ],
-        "tags": ["DeepTech", "KIAgenten", "Wissenschaft", "Biotech", "Innovation"]
+        "tags": ["DeepTech", "KIAgenten", "Wissenschaft", "Innovation"]
       },
       "it": {
         "title": "L'IA al Servizio della Ricerca: PSI Lancia Agenti Autonomi per la Scoperta Scientifica",
         "summary": "La startup PSI introduce agenti IA in grado di formulare ipotesi e simulare esperimenti complessi in chimica e biotecnologie.",
-        "content": "La ricerca scientifica evolve grazie agli agenti autonomi di PSI, capaci di simulare interazioni molecolari e testare ipotesi complesse in tempi record.\n\nLa tecnologia consente di abbattere i tempi di sperimentazione da anni a poche settimane, creando brevetti ad alto valore industriale.\n\nUn chiaro segnale di come l'intelligenza artificiale stia ridefinendo i confini della scienza applicata e dell'industria farmaceutica.",
+        "content": "La ricerca scientifica evolve grazie agli agenti autonomi di PSI, capaci di simulare interazioni molecolari e testare ipotesi complesse in tempi record.",
         "keyTakeaways": [
           "Agenti IA dedicati a chimica, fisica e scoperta farmacologica.",
           "Drastica riduzione dei tempi di sperimentazione in laboratorio.",
-          "Monetizzazione delle scoperte tramite licenze di brevetti.",
-          "Simulazioni computazionali di altissima precisione.",
-          "Ruolo centrale dell'IA nella ricerca scientifica di nuova generazione."
+          "Monetizzazione delle scoperte tramite licenze di brevetti."
         ],
-        "tags": ["DeepTech", "AgentiIA", "RicercaScientifica", "Biotecnologia", "Innovazione"]
+        "tags": ["DeepTech", "AgentiIA", "RicercaScientifica", "Innovazione"]
       },
       "ja": {
         "title": "科学的発見を自律化：ディープテック企業PSIが実験シミュレーションAIエージェントを発表",
         "summary": "米PSIは、化学・バイオ・新素材分野で仮説立案から実験シミュレーションまでを自律実行するAIエージェントを公開。",
-        "content": "科学研究の現場に自律型AIが本格導入されようとしています。PSIが発表したAIエージェントは、新規化合物の予測や物理実験のシミュレーションを自律的に遂行します。\n\n従来10年近くかかっていた材料・創薬開発サイクルを数週間に短縮し、生成された知的財産をライセンス化して商業展開を図ります。\n\n文章生成を中心とした従来の生成AIから、実世界に直接的な物理的価値をもたらすディープサイエンスへの転換を示す象徴的な事例です。",
+        "content": "科学研究の現場に自律型AIが本格導入されようとしています。PSIが発表したAIエージェントは、新規化合物の予測や物理実験のシミュレーションを自律的に遂行します。",
         "keyTakeaways": [
           "物理・化学・創薬分野に特化した自律型AIエージェント。",
           "研究開発期間を数年からわずか数週間に大幅短縮。",
-          "科学的ブレークスルーを特許化し、産業パートナーへライセンス提供。",
-          "仮説検証と高精度な物理シミュレーションの統合。",
-          "基幹科学産業における自律型AIの決定的な進化。"
+          "科学的ブレークスルーを特許化し、産業パートナーへライセンス提供。"
         ],
-        "tags": ["ディープテック", "AIエージェント", "科学研究", "バイオテクノロジー", "イノベーション"]
+        "tags": ["ディープテック", "AIエージェント", "科学研究", "イノベーション"]
       }
     },
-    "views": 28,
+    "views": 76,
     "isFeatured": false
   }
 ]
