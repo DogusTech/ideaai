@@ -1,20 +1,12 @@
-import React from 'react';
 import Link from 'next/link';
-import { Newspaper, Sparkles, Globe, TrendingUp, ExternalLink, Flame, ArrowRight, Clock } from 'lucide-react';
-import { getLatestNews } from '@/lib/news-service';
+import { getNewsPage } from '@/lib/news-service';
+import { NewsCover, NewsFeed } from './news-feed';
 import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
 
-const SUPPORTED_LANGS = [
-  { code: 'en', label: 'EN', name: 'English' },
-  { code: 'tr', label: 'TR', name: 'Türkçe' },
-  { code: 'es', label: 'ES', name: 'Español' },
-  { code: 'fr', label: 'FR', name: 'Français' },
-  { code: 'it', label: 'IT', name: 'Italiano' },
-  { code: 'de', label: 'DE', name: 'Deutsch' },
-  { code: 'ja', label: 'JA', name: '日本語' },
-];
+const NEWS_LANGUAGES = new Set(['en', 'tr', 'es', 'fr', 'it', 'ja', 'de']);
+const resolveNewsLanguage = (lang?: string) => lang && NEWS_LANGUAGES.has(lang) ? lang : 'en';
 
 interface PageProps {
   searchParams: Promise<{ lang?: string }>;
@@ -22,7 +14,7 @@ interface PageProps {
 
 export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
   const resolved = await searchParams;
-  const lang = resolved?.lang || 'en';
+  const lang = resolveNewsLanguage(resolved?.lang);
 
   const titles: Record<string, string> = {
     en: 'IdeaAI News | Global Tech, SaaS & AI Intelligence',
@@ -45,69 +37,14 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
 
 export default async function NewsPlatformPage({ searchParams }: PageProps) {
   const resolved = await searchParams;
-  const currentLang = resolved?.lang || 'en';
+  const currentLang = resolveNewsLanguage(resolved?.lang);
 
-  const articles = await getLatestNews(currentLang, 30);
+  const { articles, nextCursor } = await getNewsPage(currentLang, 13);
   const heroPrimary = articles[0]; // Big Lead Story
-  const heroSecondary = articles[1]; // Secondary Sub-hero next to it
   const topHeadlines = articles.slice(2, 6); // Top headlines sidebar
-  const latestFeed = articles.slice(1); // Grid & stream below
 
   return (
     <div className="min-h-screen bg-[#FBFBFA] text-[#111613] selection:bg-[#CEF23A] selection:text-[#111613] antialiased">
-      {/* Category Navigation Bar (inspired by TechCrunch 2nd/3rd screenshot) */}
-      <div className="bg-[#111613] text-white text-[11px] font-bold tracking-wider uppercase border-b border-black">
-        <div className="max-w-7xl mx-auto px-6 h-10 flex items-center justify-between overflow-x-auto">
-          <div className="flex items-center gap-6 whitespace-nowrap">
-            <span className="text-[#CEF23A] flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#CEF23A] animate-pulse"></span>
-              Live Feed
-            </span>
-            <span className="text-white/80 hover:text-white cursor-pointer">AI & LLMs</span>
-            <span className="text-white/80 hover:text-white cursor-pointer">Startups</span>
-            <span className="text-white/80 hover:text-white cursor-pointer">DevTools</span>
-            <span className="text-white/80 hover:text-white cursor-pointer">Hardware</span>
-            <span className="text-white/80 hover:text-white cursor-pointer">Enterprise</span>
-          </div>
-          <div className="flex items-center gap-1 pl-4">
-            {SUPPORTED_LANGS.map(lang => (
-              <Link
-                key={lang.code}
-                href={`/news?lang=${lang.code}`}
-                className={`px-2 py-0.5 text-[10px] font-bold rounded transition-colors ${
-                  currentLang === lang.code
-                    ? 'bg-[#CEF23A] text-[#111613]'
-                    : 'text-white/60 hover:text-white'
-                }`}
-              >
-                {lang.label}
-              </Link>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Main Header / Masthead */}
-      <header className="border-b border-black/[0.08] bg-[#FBFBFA]/90 backdrop-blur-md sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-[#111613] text-[#CEF23A] flex items-center justify-center font-extrabold text-sm tracking-wider shadow-sm">
-              TC
-            </div>
-            <Link href={`/news?lang=${currentLang}`} className="text-2xl font-black tracking-tight text-[#111613] flex items-center gap-1">
-              IdeaAI <span className="text-[#059669]">Intelligence</span>
-            </Link>
-            <span className="ml-2 hidden md:inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[#CEF23A] text-[#111613]">
-              Autonomous Edition
-            </span>
-          </div>
-
-          <div className="text-xs text-black/50 font-medium hidden sm:block">
-            {new Date().toLocaleDateString(currentLang, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-          </div>
-        </div>
-      </header>
-
       {/* Hero Showcase (Exact Layout of TechCrunch 2nd/3rd screenshots) */}
       <section className="bg-[#059669] text-white py-8 border-b border-black/10">
         <div className="max-w-7xl mx-auto px-6">
@@ -125,17 +62,7 @@ export default async function NewsPlatformPage({ searchParams }: PageProps) {
             {heroPrimary && (
               <div className="lg:col-span-8 group">
                 <div className="relative aspect-[16/10] w-full rounded-2xl overflow-hidden bg-black/20 mb-4 shadow-xl border border-white/10">
-                  {heroPrimary.imageUrl ? (
-                    <img
-                      src={heroPrimary.imageUrl}
-                      alt={heroPrimary.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-[#111613] flex items-center justify-center">
-                      <span className="text-[#CEF23A] font-bold text-lg">IdeaAI Intelligence</span>
-                    </div>
-                  )}
+                  <NewsCover imageUrl={heroPrimary.imageUrl} title={heroPrimary.title} category={heroPrimary.category} className="group-hover:scale-105 transition-transform duration-500" />
                   <div className="absolute top-4 left-4">
                     <span className="px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wider bg-[#111613] text-[#CEF23A] shadow-md">
                       {heroPrimary.category}
@@ -201,61 +128,11 @@ export default async function NewsPlatformPage({ searchParams }: PageProps) {
                 Latest News
               </h3>
               <span className="text-xs font-bold text-black/50">
-                {articles.length} Stories Ingested
+                Latest headlines
               </span>
             </div>
 
-            <div className="space-y-8 divide-y divide-black/[0.08]">
-              {latestFeed.map((article) => (
-                <article key={article.id} className="pt-8 first:pt-0 group flex flex-col sm:flex-row gap-6 items-start">
-                  {/* Article Thumbnail */}
-                  <div className="w-full sm:w-56 aspect-[16/10] sm:aspect-[4/3] rounded-xl overflow-hidden bg-black/[0.04] flex-shrink-0 border border-black/[0.08] relative">
-                    {article.imageUrl ? (
-                      <img
-                        src={article.imageUrl}
-                        alt={article.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-[#111613] text-[#CEF23A] flex items-center justify-center font-bold text-xs p-4 text-center">
-                        IdeaAI Wire
-                      </div>
-                    )}
-                    <span className="absolute top-2 left-2 px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[#111613] text-[#CEF23A]">
-                      {article.category}
-                    </span>
-                  </div>
-
-                  {/* Article Content */}
-                  <div className="flex-1">
-                    <div className="text-[11px] font-bold tracking-wider uppercase text-black/40 mb-1 flex items-center gap-2">
-                      <span className="text-[#059669]">{article.category}</span>
-                      <span>•</span>
-                      <span>{article.source}</span>
-                      <span>•</span>
-                      <span>{article.createdAt ? new Date(article.createdAt).toLocaleDateString(currentLang, { month: 'short', day: 'numeric' }) : 'Today'}</span>
-                    </div>
-
-                    <Link href={`/news/${article.id}?lang=${currentLang}`}>
-                      <h4 className="text-xl font-extrabold text-[#111613] group-hover:text-[#059669] transition-colors leading-snug">
-                        {article.title}
-                      </h4>
-                    </Link>
-
-                    <p className="mt-2 text-sm text-black/65 font-normal leading-relaxed line-clamp-2">
-                      {article.summary}
-                    </p>
-
-                    {article.keyTakeaways && article.keyTakeaways.length > 0 && (
-                      <div className="mt-3 p-3 bg-white rounded-lg border border-black/[0.06] text-xs text-black/75">
-                        <span className="font-bold text-[#111613] mr-1.5">Key Insight:</span>
-                        {article.keyTakeaways[0]}
-                      </div>
-                    )}
-                  </div>
-                </article>
-              ))}
-            </div>
+            <NewsFeed initialArticles={articles.slice(1)} initialCursor={nextCursor} lang={currentLang} />
           </div>
 
           {/* Right Sidebar: Most Popular (Exact Match to 4th screenshot Purple/Lime card) */}

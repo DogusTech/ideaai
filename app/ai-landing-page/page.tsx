@@ -131,10 +131,12 @@ const InteractiveParticles = () => {
 };
 
 // Yapay Zeka Dinamik Yazma (Typing) Efekti
-const AIFastTyping = ({ text, className, delay = 0, style }: { text: string, className?: string, delay?: number, style?: React.CSSProperties }) => {
+const AIFastTyping = ({ text, className, delay = 0, style, as = "div" }: { text: string, className?: string, delay?: number, style?: React.CSSProperties, as?: "div" | "h1" }) => {
   const words = text.split(" ");
+  const MotionElement = as === "h1" ? motion.h1 : motion.div;
+
   return (
-    <motion.div
+    <MotionElement
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: "-50px" }}
@@ -160,7 +162,7 @@ const AIFastTyping = ({ text, className, delay = 0, style }: { text: string, cla
           {word}
         </motion.span>
       ))}
-    </motion.div>
+    </MotionElement>
   );
 };
 
@@ -212,10 +214,11 @@ export default function IdeaAILanding() {
 
           {/* Dinamik Daktilo - Ana Slogan (Gerçek H1 büyüklüğünde) */}
           <AIFastTyping 
-            text="Experience liftoff with the next-gen agent platform" 
+            text="The Autonomous Desktop Engineer That Ships While You Sleep." 
             className="text-5xl md:text-6xl lg:text-[76px] text-zinc-900 mb-8 leading-[1.05] max-w-5xl mx-auto tracking-tight"
             style={{ fontVariationSettings: '"wght" 450' }}
             delay={0.3}
+            as="h1"
           />
 
           <motion.p 

@@ -162,6 +162,11 @@ type ChatSession = {
   updatedAt: number
 }
 
+type WorkspaceToolResult = {
+  path: string
+  content: string
+}
+
 const CHAT_HISTORY_KEY = "ideaai_chat_history"
 const CURRENT_CHAT_KEY = "ideaai_current_chat"
 
@@ -223,6 +228,114 @@ export function IdeaAIInterfaceMac() {
   const [error, setError] = useState<Error | null>(null)
   const abortControllerRef = useRef<AbortController | null>(null)
   const thinkingStartedAtRef = useRef<number | null>(null)
+
+  const runAgentWithTools = async (
+    workspaceRoot: string,
+    initialMessages: ChatMessage[],
+    requestModel: (conversation: any[]) => Promise<string>
+  ) => {
+    const workspace = await AgentBridge.inspectWorkspace(workspaceRoot)
+    if (!workspace.success) throw new Error(workspace.error || "Workspace could not be inspected")
+
+    const entries = Array.isArray(workspace.content) ? workspace.content : []
+    const tree = entries.map((entry: any) => `${entry.isDirectory ? "[DIR] " : "[FILE] "}${entry.path}`).join("\n")
+    const systemPrompt = {
+      role: "system",
+      content: `You are IdeaAI, an autonomous coding agent running on the user's computer.
+WORKSPACE ROOT: ${workspaceRoot}
+You can inspect and modify files only inside this workspace root.
+
+Available tools are represented as XML and must be used exactly:
+<read_file path="relative/path"> to request a file, then wait for the tool result.
+<write_file path="relative/path">file contents</write_file> to create or replace a file.
+<run_command>command</run_command> to run a command with this workspace as cwd.
+
+Never invent file contents or command output. Use read_file before editing an existing file.
+Do not claim that a file was created or changed unless you emitted a <write_file> block.
+The <write_file> block must contain the complete file contents, not a summary.
+After tool results, continue the task and finish with a concise explanation. Do not use absolute paths.
+
+WORKSPACE TREE:
+${tree.slice(0, 50000)}`
+    }
+
+    let conversation: any[] = [systemPrompt, ...initialMessages]
+    let finalText = ""
+    const applied: string[] = []
+
+    for (let round = 0; round < 4; round += 1) {
+      finalText = await requestModel(conversation)
+
+      const reads = Array.from(finalText.matchAll(/<read_file\s+path=["']([^"']+)["']\s*\/?>/gi))
+      const writes = Array.from(finalText.matchAll(/<write_file\s+path=["']([^"']+)["']>([\s\S]*?)<\/write_file>/gi))
+      const commands = Array.from(finalText.matchAll(/<run_command>([\s\S]*?)<\/run_command>/gi))
+      const fencedWrites = Array.from(finalText.matchAll(/\[(?:NEW|MODIFY)\]\s+([^\r\n]+?)(?:\s+\(\+\d+\s+-\d+\))?\s*\r?\n+```[^\r\n]*\r?\n([\s\S]*?)```/gi))
+      if (!reads.length && !writes.length && !commands.length && !fencedWrites.length) break
+
+      const toolResults: WorkspaceToolResult[] = []
+      for (const match of reads) {
+        const relativePath = match[1].trim()
+        const readResult = await AgentBridge.readFileInWorkspace(workspaceRoot, relativePath)
+        toolResults.push({ path: relativePath, content: readResult.success ? String(readResult.content || "") : `ERROR: ${readResult.error}` })
+      }
+      for (const match of writes) {
+        const relativePath = match[1].trim()
+        const writeResult = await AgentBridge.writeFileInWorkspace(workspaceRoot, relativePath, match[2])
+        if (!writeResult.success) throw new Error(writeResult.error || `Could not write ${relativePath}`)
+        applied.push(`[WRITE] ${relativePath}`)
+      }
+      for (const match of fencedWrites) {
+        const relativePath = match[1].trim()
+        if (writes.some((write) => write[1].trim() === relativePath)) continue
+        const writeResult = await AgentBridge.writeFileInWorkspace(workspaceRoot, relativePath, match[2])
+        if (!writeResult.success) throw new Error(writeResult.error || `Could not write ${relativePath}`)
+        applied.push(`[WRITE] ${relativePath}`)
+      }
+      for (const match of commands) {
+        const command = match[1].trim()
+        const commandResult = await AgentBridge.runCommandInWorkspace(workspaceRoot, command)
+        toolResults.push({
+          path: `command: ${command}`,
+          content: `exit=${commandResult.success ? "0" : "1"}\nstdout:\n${commandResult.stdout || ""}\nstderr:\n${commandResult.stderr || commandResult.error || ""}`
+        })
+        applied.push(`[COMMAND] ${command}`)
+      }
+
+      conversation = [
+        ...conversation,
+        { role: "assistant", content: finalText },
+        { role: "user", content: `TOOL RESULTS:\n${toolResults.map(result => `<tool_result path="${result.path}">\n${result.content}\n</tool_result>`).join("\n")}\nContinue the task. Do not repeat completed tool calls.` }
+      ]
+    }
+
+    return { text: finalText, applied }
+  }
+
+  const runLocalAgent = (workspaceRoot: string, initialMessages: ChatMessage[]) =>
+    runAgentWithTools(workspaceRoot, initialMessages, async (conversation) => {
+      const result = await AgentBridge.askLocalAI(conversation)
+      if (!result.success) throw new Error(result.error || "Local Ollama request failed")
+      return String(result.text || result.content || "")
+    })
+
+  const runAzureAgent = (workspaceRoot: string, initialMessages: ChatMessage[], apiKey: string) =>
+    runAgentWithTools(workspaceRoot, initialMessages, async (conversation) => {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-API-Key': apiKey,
+        },
+        body: JSON.stringify({
+          messages: conversation,
+          model: "Azure Enterprise Cloud (Llama 3.2)",
+        }),
+        signal: abortControllerRef.current?.signal,
+      })
+      const data = await response.json().catch(() => ({}))
+      if (!response.ok) throw new Error(data.error || `Azure responded with ${response.status}`)
+      return String(data.response || "")
+    })
 
   useEffect(() => {
     const storedActiveChatId = localStorage.getItem("ideaai_active_chat") || `chat-${Date.now()}`
@@ -364,34 +477,45 @@ export function IdeaAIInterfaceMac() {
       // Local Electron Engine
       if (selectedModel === "Local Engine (Ollama)" && AgentBridge.isElectron()) {
         const currentProject = projects.find(p => p.name === selectedProject)
-        const currentPath = currentProject && currentProject.files.length > 0 ? currentProject.files[0] : "Unknown"
-
-        const systemPrompt = {
-          role: "system",
-          content: `You are IdeaAI, an autonomous senior engineering agent executing locally.
-CURRENT WORKSPACE PATH: ${currentPath}
-
-To create or modify files, output inside this exact XML format:
-<write_file path="${currentPath !== "Unknown" ? currentPath : "C:/absolute/path"}/filename.extension">
-your code here
-</write_file>`
-        }
+        const currentPath = currentProject?.files[0]
+        if (!currentPath) throw new Error("Önce bir çalışma klasörü seçin.")
 
         setTerminalOutput("➜  ~ Analyzing codebase architecture...")
-        const localResult = await AgentBridge.askLocalAI([systemPrompt, ...newMessages])
+        const localResult = await runLocalAgent(currentPath, newMessages)
 
-        if (localResult.success) {
-          let responseText = localResult.text
-          const duration = Math.max(1, Math.round((Date.now() - (thinkingStartedAtRef.current || Date.now())) / 1000))
-          responseText = `Thought for ${duration}s\n${responseText}`
-          setMessages(prev => [...prev, { id: Date.now().toString(), role: 'assistant', content: responseText }])
-          setStatus('ready')
-          setTerminalOutput("✔ Local task finished.")
-          if (localStorage.getItem("ideaai_desktop_notifications") === "enabled" && "Notification" in window && Notification.permission === "granted") {
-            new Notification("IdeaAI task complete", { body: "Your local engineering task has finished." })
-          }
-          return
+        let responseText = localResult.text
+        if (localResult.applied.length) responseText += `\n\n${localResult.applied.join("\n")}`
+        const duration = Math.max(1, Math.round((Date.now() - (thinkingStartedAtRef.current || Date.now())) / 1000))
+        responseText = `Thought for ${duration}s\n${responseText}`
+        setMessages(prev => [...prev, { id: Date.now().toString(), role: 'assistant', content: responseText }])
+        setStatus('ready')
+        setTerminalOutput("✔ Local task finished.")
+        if (localStorage.getItem("ideaai_desktop_notifications") === "enabled" && "Notification" in window && Notification.permission === "granted") {
+          new Notification("IdeaAI task complete", { body: "Your local engineering task has finished." })
         }
+        return
+      }
+
+      // Azure can reason remotely, but file and terminal tools execute locally.
+      const isAzureModel = selectedModel === "Azure Enterprise Cloud (Llama 3.2)" || selectedModel === "IdeaAI Hybrid Engine (Pro)"
+      if (isAzureModel && AgentBridge.isElectron()) {
+        const currentProject = projects.find(p => p.name === selectedProject)
+        const currentPath = currentProject?.files[0]
+        if (!currentPath) throw new Error("Önce bir çalışma klasörü seçin.")
+
+        setTerminalOutput("➜  ~ Connecting Azure reasoning to local workspace...")
+        const azureResult = await runAzureAgent(currentPath, newMessages, storedApiKey)
+        let responseText = azureResult.text
+        if (azureResult.applied.length) responseText += `\n\n${azureResult.applied.join("\n")}`
+        const duration = Math.max(1, Math.round((Date.now() - (thinkingStartedAtRef.current || Date.now())) / 1000))
+        setMessages(prev => [...prev, {
+          id: Date.now().toString(),
+          role: 'assistant',
+          content: `Thought for ${duration}s\n${responseText}`
+        }])
+        setStatus('ready')
+        setTerminalOutput("✔ Azure task finished locally.")
+        return
       }
 
       // Cloud Azure or Fallback API

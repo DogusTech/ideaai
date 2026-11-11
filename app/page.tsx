@@ -6,17 +6,16 @@ import { AboutSection } from "@/components/sections/about-section"
 import { PricingSection } from "@/components/sections/pricing-section"
 import { FAQSection } from "@/components/sections/faq-section"
 import { SiteFooter } from "@/components/site/site-footer"
-import { VoiceAIButton } from "@/components/hero/voice-ai-button"
 import Script from "next/script"
 
 const webpageSchema = {
   "@context": "https://schema.org",
   "@type": "WebPage",
   "name": "TogetLink - Build together, meet nearby",
-  "description": "Where local builders build together and meet nearby. Discover professional hubs across USA and Turkey to find collaborators and ship faster.",
-  "url": "https://www.togetlink.com",
+  "description": "TogetLink connects you with builders, designers, and founders right around the corner. Discover local professional hubs in USA and Turkey.",
+  "url": "https://togetlink.com",
   "publisher": {
-    "@id": "https://www.togetlink.com/#organization"
+    "@id": "https://togetlink.com/#organization"
   }
 }
 
@@ -79,7 +78,7 @@ export default function Page() {
         <FAQSection />
       </main>
       <SiteFooter />
-      <VoiceAIButton />
     </div>
   )
 }
+

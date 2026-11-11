@@ -1,37 +1,45 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { runIngestionPipeline } from '@/lib/news-service';
+import { timingSafeEqual } from 'node:crypto'
+import { NextRequest, NextResponse } from 'next/server'
+import { runIngestionPipeline } from '@/lib/news-service'
 
-export const dynamic = 'force-dynamic';
-export const maxDuration = 300; // Allow sufficient time for local Ollama analysis
+export const dynamic = 'force-dynamic'
+export const maxDuration = 300
 
-export async function GET(req: NextRequest) {
+function isAuthorized(request: NextRequest) {
+  const configuredSecret = process.env.CRON_SECRET
+  if (!configuredSecret?.trim()) return false
+
+  const { searchParams } = new URL(request.url)
+  const bearer = request.headers.get('authorization')?.replace(/^Bearer\s+/i, '')
+  const providedSecret = searchParams.get('secret')?.trim() || bearer?.trim() || ''
+  const expected = Buffer.from(configuredSecret.trim())
+  const actual = Buffer.from(providedSecret)
+  return expected.length === actual.length && timingSafeEqual(expected, actual)
+}
+
+export async function GET(request: NextRequest) {
+  if (!isAuthorized(request)) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
   try {
-    const { searchParams } = new URL(req.url);
-    const secret = searchParams.get('secret');
-    const cronSecret = process.env.CRON_SECRET || 'ideaai_news_cron_secret';
-
-    // Optional lightweight secret check for cron triggers
-    if (secret && secret !== cronSecret) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
-    const limitParam = Number(searchParams.get('limit')) || 3;
-    const result = await runIngestionPipeline({ maxItems: limitParam });
-
-    return NextResponse.json({
-      success: true,
-      timestamp: new Date().toISOString(),
-      ...result
-    });
-  } catch (error: any) {
-    console.error('Error in news sync API:', error);
-    return NextResponse.json(
-      { success: false, error: error.message || 'Internal pipeline error' },
-      { status: 500 }
-    );
+    const { searchParams } = new URL(request.url)
+    const fast = searchParams.get('fast')?.toLowerCase() === 'true'
+    const configuredBatch = Number.parseInt(process.env.NEWS_INGEST_BATCH_SIZE || '50', 10)
+    const configuredMax = Number.parseInt(process.env.NEWS_INGEST_MAX_ITEMS || '50', 10)
+    const maxAllowed = fast ? 1_000 : Number.isFinite(configuredMax) ? Math.min(Math.max(configuredMax, 1), 50) : 50
+    const defaultLimit = fast
+      ? 1_000
+      : Number.isFinite(configuredBatch) ? Math.min(Math.max(configuredBatch, 1), maxAllowed) : maxAllowed
+    const requestedLimit = Number(searchParams.get('limit') || defaultLimit)
+    const limit = Number.isFinite(requestedLimit) ? Math.min(Math.max(Math.floor(requestedLimit), 1), maxAllowed) : defaultLimit
+    const result = await runIngestionPipeline({ maxItems: limit, fast })
+    return NextResponse.json({ success: true, timestamp: new Date().toISOString(), ...result })
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Internal pipeline error'
+    console.error('[News Sync] Pipeline failed:', error)
+    return NextResponse.json({ success: false, error: message }, { status: 500 })
   }
 }
 
-export async function POST(req: NextRequest) {
-  return GET(req);
+export async function POST(request: NextRequest) {
+  return GET(request)
 }

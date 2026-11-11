@@ -1,3 +1,4 @@
+import 'server-only'
 import Parser from 'rss-parser';
 import * as cheerio from 'cheerio';
 
@@ -20,7 +21,9 @@ const parser = new Parser({
   }
 });
 
-const RSS_FEEDS = [
+export interface RssFeedConfig { name: string; url: string }
+
+const RSS_FEEDS: RssFeedConfig[] = [
   { name: 'TechCrunch', url: 'https://techcrunch.com/feed/' },
   { name: 'VentureBeat', url: 'https://venturebeat.com/feed/' },
   { name: 'The Verge', url: 'https://www.theverge.com/rss/index.xml' },
@@ -95,42 +98,36 @@ export async function scrapeArticleText(url: string): Promise<string> {
   return res.text;
 }
 
-/**
- * Ingests latest posts from all RSS Feeds
- */
-export async function fetchRssFeeds(): Promise<RawNewsItem[]> {
+/** Fetches a bounded number of recent entries from each configured RSS feed. */
+export async function fetchRssFeeds(feeds: RssFeedConfig[] = RSS_FEEDS, itemsPerFeed = 4): Promise<RawNewsItem[]> {
+  const perFeedLimit = Math.min(Math.max(Math.floor(itemsPerFeed), 1), 100);
+  const results = await Promise.allSettled(feeds.map(async (feed) => {
+    const feedData = await parser.parseURL(feed.url);
+    return (feedData.items || []).slice(0, perFeedLimit).flatMap((entry): RawNewsItem[] => {
+      if (!entry.title || !entry.link) return [];
+      const entryAny = entry as any;
+      const imageUrl = entryAny.enclosure?.url ||
+        entryAny['media:content']?.['$']?.url ||
+        entryAny['media:thumbnail']?.['$']?.url;
+      return [{
+        id: generateSlug(entry.title),
+        title: entry.title.trim(),
+        link: entry.link.trim(),
+        pubDate: entry.pubDate || new Date().toISOString(),
+        contentSnippet: entry.contentSnippet || entry.summary || '',
+        source: feed.name,
+        imageUrl: imageUrl || undefined,
+      }];
+    });
+  }));
+
   const items: RawNewsItem[] = [];
-
-  for (const feed of RSS_FEEDS) {
-    try {
-      const feedData = await parser.parseURL(feed.url);
-      const topEntries = (feedData.items || []).slice(0, 4);
-
-      for (const entry of topEntries) {
-        if (!entry.title || !entry.link) continue;
-        const entryAny = entry as any;
-        const imageUrl = entryAny.enclosure?.url || 
-          entryAny['media:content']?.['$']?.url ||
-          entryAny['media:thumbnail']?.['$']?.url;
-
-        items.push({
-          id: generateSlug(entry.title),
-          title: entry.title.trim(),
-          link: entry.link.trim(),
-          pubDate: entry.pubDate || new Date().toISOString(),
-          contentSnippet: entry.contentSnippet || entry.summary || '',
-          source: feed.name,
-          imageUrl: imageUrl || undefined
-        });
-      }
-    } catch (err: any) {
-      console.warn(`[Ingestion] Failed to parse RSS feed ${feed.name}:`, err.message);
-    }
-  }
-
+  results.forEach((result, index) => {
+    if (result.status === 'fulfilled') items.push(...result.value);
+    else console.warn(`[Ingestion] Failed to parse RSS feed ${feeds[index].name}:`, result.reason);
+  });
   return items;
 }
-
 /**
  * Ingests latest relevant discussions from Reddit JSON endpoints
  */

@@ -1,6 +1,6 @@
 /**
  * Standalone Automation Script for news.togetlink.com
- * Fetches RSS/Reddit feeds, filters SaaS/AI/Tech stories, generates
+ * Fetches RSS, Google News, NewsAPI, Hacker News, and Reddit, filters SaaS/AI/Tech stories, generates
  * 7-language structured content via local Ollama (Llama 3.2),
  * and persists them into the Firestore 'news' collection.
  *

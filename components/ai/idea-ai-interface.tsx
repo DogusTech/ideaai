@@ -48,7 +48,7 @@ type Project = {
 
 export function IdeaAIInterface() {
   const [selectedDept, setSelectedDept] = useState("Software")
-  const [projects, setProjects] = useState<Project[]>(typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('ideaai_projects') || '[]') : [])
+  const [projects, setProjects] = useState<Project[]>([])
   const [selectedProject, setSelectedProject] = useState<string | null>(null)
   const [userEmail, setUserEmail] = useState<string | null>(null)
   
@@ -71,16 +71,35 @@ export function IdeaAIInterface() {
   
   const body = React.useMemo(() => ({ department: selectedDept, project: selectedProject, model: selectedModel }), [selectedDept, selectedProject, selectedModel])
 
-  const [messages, setMessages] = useState<any[]>(typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('ideaai_current_chat') || '[]') : []);
+  const [messages, setMessages] = useState<any[]>([]);
+  const [hasLoadedLocalState, setHasLoadedLocalState] = useState(false);
   const [status, setStatus] = useState<'ready' | 'submitted' | 'streaming' | 'error'>('ready');
   const [error, setError] = useState<Error | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
-    useEffect(() => {
-      if (typeof window !== 'undefined') localStorage.setItem('ideaai_projects', JSON.stringify(projects));
-    }, [projects]);
-    useEffect(() => {
-      if (typeof window !== 'undefined') localStorage.setItem('ideaai_current_chat', JSON.stringify(messages));
-    }, [messages]);
+  useEffect(() => {
+    const readStoredArray = <T,>(key: string): T[] => {
+      try {
+        const value: unknown = JSON.parse(window.localStorage.getItem(key) || '[]');
+        return Array.isArray(value) ? value as T[] : [];
+      } catch {
+        return [];
+      }
+    };
+
+    setProjects(readStoredArray<Project>('ideaai_projects'));
+    setMessages(readStoredArray<any>('ideaai_current_chat'));
+    setHasLoadedLocalState(true);
+  }, []);
+
+  useEffect(() => {
+    if (!hasLoadedLocalState) return;
+    window.localStorage.setItem('ideaai_projects', JSON.stringify(projects));
+  }, [projects, hasLoadedLocalState]);
+
+  useEffect(() => {
+    if (!hasLoadedLocalState) return;
+    window.localStorage.setItem('ideaai_current_chat', JSON.stringify(messages));
+  }, [messages, hasLoadedLocalState]);
 
 
   const stop = () => {
@@ -870,6 +889,3 @@ function ProjectItem({ label, time, active = false, onClick }: { label: string, 
     </button>
   )
 }
-
-
-

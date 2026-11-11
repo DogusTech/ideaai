@@ -6,6 +6,83 @@ const isDev = !app.isPackaged;
 
 let mainWindow;
 
+function resolveInsideWorkspace(rootPath, requestedPath) {
+  const root = path.resolve(rootPath);
+  const candidate = path.resolve(root, requestedPath);
+  if (candidate !== root && !candidate.startsWith(`${root}${path.sep}`)) {
+    throw new Error('Path is outside the selected workspace');
+  }
+  return candidate;
+}
+
+const IGNORED_WORKSPACE_ENTRIES = new Set([
+  '.git', 'node_modules', '.next', 'dist', 'build', 'release', 'coverage'
+]);
+
+async function collectWorkspaceEntries(rootPath, currentPath, entries, depth) {
+  if (depth > 8 || entries.length >= 1000) return;
+  const children = await fs.readdir(currentPath, { withFileTypes: true });
+  for (const child of children) {
+    if (IGNORED_WORKSPACE_ENTRIES.has(child.name)) continue;
+    const absolutePath = path.join(currentPath, child.name);
+    const relativePath = path.relative(rootPath, absolutePath) || child.name;
+    if (child.isDirectory()) {
+      entries.push({ path: relativePath, isDirectory: true });
+      await collectWorkspaceEntries(rootPath, absolutePath, entries, depth + 1);
+    } else {
+      const stat = await fs.stat(absolutePath);
+      entries.push({ path: relativePath, isDirectory: false, size: stat.size });
+    }
+    if (entries.length >= 1000) return;
+  }
+}
+
+ipcMain.handle('inspect-workspace', async (event, rootPath) => {
+  try {
+    const resolvedRoot = path.resolve(rootPath);
+    const entries = [];
+    await collectWorkspaceEntries(resolvedRoot, resolvedRoot, entries, 0);
+    return { success: true, content: entries };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('read-file-in-workspace', async (event, rootPath, filePath) => {
+  try {
+    const resolvedPath = resolveInsideWorkspace(rootPath, filePath);
+    const content = await fs.readFile(resolvedPath, 'utf-8');
+    return { success: true, content };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('write-file-in-workspace', async (event, rootPath, filePath, content) => {
+  try {
+    const resolvedPath = resolveInsideWorkspace(rootPath, filePath);
+    await fs.mkdir(path.dirname(resolvedPath), { recursive: true });
+    await fs.writeFile(resolvedPath, content, 'utf-8');
+    return { success: true, content: path.relative(path.resolve(rootPath), resolvedPath) };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('run-command-in-workspace', async (event, rootPath, command) => {
+  return new Promise((resolve) => {
+    const resolvedRoot = path.resolve(rootPath);
+    exec(command, { cwd: resolvedRoot, windowsHide: true }, (error, stdout, stderr) => {
+      resolve({
+        success: !error,
+        stdout,
+        stderr,
+        error: error ? error.message : null
+      });
+    });
+  });
+});
+
 // --- AI Agent IPC Handlers ---
 ipcMain.handle('read-file', async (event, filePath) => {
   try {

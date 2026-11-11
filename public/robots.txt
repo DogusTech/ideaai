@@ -1,5 +1,12 @@
 User-agent: *
 Allow: /
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /network
+Disallow: /chat
+Disallow: /settings
+Disallow: /notifications
+Disallow: /api/
 
 # AI Agent Allowances
 User-agent: GPTBot
@@ -12,6 +19,11 @@ User-agent: PerplexityBot
 Allow: /
 User-agent: ClaudeBot
 Allow: /
+User-agent: Applebot-Extended
+Allow: /
+
+# News pages are public and included in the news sitemap.
+Allow: /news/
 
 # Content Signals for AI (RFC Draft)
 # ai-train=no : Do not use our site content to train foundational AI models.
@@ -20,3 +32,4 @@ Allow: /
 Content-Signal: ai-train=no, search=yes, ai-input=yes
 
 Sitemap: https://ideaai.togetlink.com/sitemap.xml
+Sitemap: https://news.togetlink.com/news/sitemap.xml

@@ -4,7 +4,14 @@ export interface AgentBridgeResponse<T = any> {
   files?: Array<{ name: string; isDirectory: boolean }>;
   stdout?: string;
   stderr?: string;
+  text?: string;
   error?: string;
+}
+
+export interface WorkspaceEntry {
+  path: string;
+  isDirectory: boolean;
+  size?: number;
 }
 
 export class AgentBridge {
@@ -30,6 +37,12 @@ export class AgentBridge {
     return await ipcRenderer.invoke('read-file', filePath);
   }
 
+  static async readFileInWorkspace(rootPath: string, filePath: string): Promise<AgentBridgeResponse<string>> {
+    const ipcRenderer = this.getIpcRenderer();
+    if (!ipcRenderer) return { success: false, error: 'Not running in Electron' };
+    return await ipcRenderer.invoke('read-file-in-workspace', rootPath, filePath);
+  }
+
   static async askLocalAI(messages: any[]): Promise<AgentBridgeResponse<string>> {
     const ipcRenderer = this.getIpcRenderer();
     if (!ipcRenderer) return { success: false, error: 'Not running in Electron' };
@@ -46,6 +59,24 @@ export class AgentBridge {
     const ipcRenderer = this.getIpcRenderer();
     if (!ipcRenderer) return { success: false, error: 'Not running in Electron' };
     return await ipcRenderer.invoke('list-dir', dirPath);
+  }
+
+  static async inspectWorkspace(rootPath: string): Promise<AgentBridgeResponse<WorkspaceEntry[]>> {
+    const ipcRenderer = this.getIpcRenderer();
+    if (!ipcRenderer) return { success: false, error: 'Not running in Electron' };
+    return await ipcRenderer.invoke('inspect-workspace', rootPath);
+  }
+
+  static async writeFileInWorkspace(rootPath: string, filePath: string, content: string): Promise<AgentBridgeResponse> {
+    const ipcRenderer = this.getIpcRenderer();
+    if (!ipcRenderer) return { success: false, error: 'Not running in Electron' };
+    return await ipcRenderer.invoke('write-file-in-workspace', rootPath, filePath, content);
+  }
+
+  static async runCommandInWorkspace(rootPath: string, command: string): Promise<AgentBridgeResponse> {
+    const ipcRenderer = this.getIpcRenderer();
+    if (!ipcRenderer) return { success: false, error: 'Not running in Electron' };
+    return await ipcRenderer.invoke('run-command-in-workspace', rootPath, command);
   }
 
   static async runCommand(command: string, cwd: string): Promise<AgentBridgeResponse> {

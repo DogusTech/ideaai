@@ -6,6 +6,8 @@ import { ArrowLeft, Globe, Sparkles, ExternalLink, Calendar, Eye, Tag, ArrowRigh
 import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
+const NEWS_BASE_URL = (process.env.NEXT_PUBLIC_NEWS_DOMAIN || 'https://news.togetlink.com').replace(/\/$/, '');
+const FALLBACK_IMAGE = `${NEWS_BASE_URL}/ideaai-logo.png`;
 
 const SUPPORTED_LANGS = [
   { code: 'en', label: 'EN', flag: '🇺🇸', name: 'English' },
@@ -25,39 +27,52 @@ interface ArticlePageProps {
 export async function generateMetadata({ params, searchParams }: ArticlePageProps): Promise<Metadata> {
   const resolvedParams = await params;
   const resolvedQuery = await searchParams;
-  const lang = resolvedQuery?.lang || 'en';
+  const lang = SUPPORTED_LANGS.some((item) => item.code === resolvedQuery?.lang) ? resolvedQuery.lang! : 'en';
 
   const article = await getNewsArticleById(resolvedParams.id, lang);
   if (!article) return { title: 'Article Not Found | IdeaAI News' };
 
+  const canonical = `${NEWS_BASE_URL}/news/${resolvedParams.id}?lang=${lang}`;
+  const image = article.imageUrl || FALLBACK_IMAGE;
   return {
     title: `${article.title} | IdeaAI News`,
     description: article.summary,
     alternates: {
-      canonical: `https://news.togetlink.com/news/${resolvedParams.id}?lang=${lang}`,
+      canonical,
       languages: {
-        'en': `https://news.togetlink.com/news/${resolvedParams.id}?lang=en`,
-        'tr': `https://news.togetlink.com/news/${resolvedParams.id}?lang=tr`,
-        'es': `https://news.togetlink.com/news/${resolvedParams.id}?lang=es`,
-        'fr': `https://news.togetlink.com/news/${resolvedParams.id}?lang=fr`,
-        'it': `https://news.togetlink.com/news/${resolvedParams.id}?lang=it`,
-        'de': `https://news.togetlink.com/news/${resolvedParams.id}?lang=de`,
-        'ja': `https://news.togetlink.com/news/${resolvedParams.id}?lang=ja`,
+        'en': `${NEWS_BASE_URL}/news/${resolvedParams.id}?lang=en`,
+        'tr': `${NEWS_BASE_URL}/news/${resolvedParams.id}?lang=tr`,
+        'es': `${NEWS_BASE_URL}/news/${resolvedParams.id}?lang=es`,
+        'fr': `${NEWS_BASE_URL}/news/${resolvedParams.id}?lang=fr`,
+        'it': `${NEWS_BASE_URL}/news/${resolvedParams.id}?lang=it`,
+        'de': `${NEWS_BASE_URL}/news/${resolvedParams.id}?lang=de`,
+        'ja': `${NEWS_BASE_URL}/news/${resolvedParams.id}?lang=ja`,
       }
     },
     openGraph: {
+      type: 'article',
       title: article.title,
       description: article.summary,
-      url: `https://news.togetlink.com/news/${resolvedParams.id}?lang=${lang}`,
-      images: article.imageUrl ? [{ url: article.imageUrl }] : undefined,
-    }
+      url: canonical,
+      publishedTime: article.createdAt,
+      modifiedTime: article.modifiedAt || article.createdAt,
+      section: article.category,
+      tags: article.tags,
+      images: [{ url: image, alt: article.title }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: article.title,
+      description: article.summary,
+      images: [image],
+    },
   };
 }
 
 export default async function NewsArticleDetailPage({ params, searchParams }: ArticlePageProps) {
   const resolvedParams = await params;
   const resolvedQuery = await searchParams;
-  const lang = resolvedQuery?.lang || 'en';
+  const lang = SUPPORTED_LANGS.some((item) => item.code === resolvedQuery?.lang) ? resolvedQuery.lang! : 'en';
 
   const article = await getNewsArticleById(resolvedParams.id, lang);
   if (!article) notFound();
@@ -66,6 +81,29 @@ export default async function NewsArticleDetailPage({ params, searchParams }: Ar
   const paragraphs = article.content
     ? article.content.split(/\n\s*\n/).filter((p: string) => p.trim().length > 0)
     : [article.summary];
+  const articleUrl = `${NEWS_BASE_URL}/news/${article.id}?lang=${lang}`;
+  const schema = {
+    '@context': 'https://schema.org',
+    '@type': 'NewsArticle',
+    mainEntityOfPage: { '@type': 'WebPage', '@id': articleUrl },
+    headline: article.title,
+    description: article.summary,
+    image: [article.imageUrl || FALLBACK_IMAGE],
+    datePublished: article.createdAt,
+    dateModified: article.modifiedAt || article.createdAt,
+    author: { '@type': 'Organization', name: 'Aeternexus AI', alternateName: 'TogetLink Tech' },
+    publisher: {
+      '@type': 'Organization',
+      name: 'TogetLink News',
+      logo: { '@type': 'ImageObject', url: FALLBACK_IMAGE },
+    },
+    articleSection: article.category,
+    keywords: article.tags,
+    inLanguage: lang,
+    articleBody: article.content,
+    isAccessibleForFree: true,
+  };
+  const safeSchema = JSON.stringify(schema).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026');
 
   return (
     <div className="min-h-screen bg-[#FBFBFA] text-[#111613] selection:bg-[#CEF23A] selection:text-[#111613] antialiased">
@@ -100,6 +138,7 @@ export default async function NewsArticleDetailPage({ params, searchParams }: Ar
       </header>
 
       {/* Main Article Container */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: safeSchema }} />
       <article className="max-w-4xl mx-auto px-6 py-12 md:py-16">
         {/* Header Breadcrumbs / Tags */}
         <div className="flex flex-wrap items-center gap-2 text-[11px] font-bold tracking-[0.18em] uppercase text-black/45 mb-4">

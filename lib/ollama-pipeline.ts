@@ -12,6 +12,8 @@ export interface ProcessedNewsArticle {
   source: string;
   category: 'AI' | 'SaaS' | 'DevTools' | 'Startups' | 'Tech';
   createdAt: string;
+  modifiedAt?: string;
+  sourcePublishedAt?: string;
   imageUrl?: string;
   translations: {
     en: NewsTranslation;
@@ -36,7 +38,7 @@ const OLLAMA_MODEL = process.env.OLLAMA_NEWS_MODEL || 'llama3.2';
 /**
  * Calls local Ollama Llama 3.2 without streaming or external tokens
  */
-async function callOllama(prompt: string, formatJson: boolean = false): Promise<string> {
+async function callOllama(prompt: string, formatJson: boolean = false, timeoutMs = 180_000): Promise<string> {
   const payload: any = {
     model: OLLAMA_MODEL,
     prompt: prompt,
@@ -51,12 +53,13 @@ async function callOllama(prompt: string, formatJson: boolean = false): Promise<
     payload.format = 'json';
   }
 
-  const res = await fetch(OLLAMA_ENDPOINT, {
+  const request: RequestInit = {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload),
-    signal: AbortSignal.timeout(300000) // 5 minutes timeout for multi-language LLM generation
-  });
+  };
+  if (timeoutMs > 0) request.signal = AbortSignal.timeout(Math.max(1_000, timeoutMs));
+  const res = await fetch(OLLAMA_ENDPOINT, request);
 
   if (!res.ok) {
     throw new Error(`Ollama request failed with status: ${res.status} (${res.statusText})`);
@@ -69,7 +72,7 @@ async function callOllama(prompt: string, formatJson: boolean = false): Promise<
 /**
  * 1. Content Filtering: Checks if the article is relevant to SaaS, AI, Software, or Startups
  */
-export async function filterRelevance(title: string, snippet: string): Promise<{ isRelevant: boolean; category: ProcessedNewsArticle['category'] }> {
+export async function filterRelevance(title: string, snippet: string, timeoutMs = 30_000): Promise<{ isRelevant: boolean; category: ProcessedNewsArticle['category'] }> {
   const prompt = `You are an editorial AI filter for a premier Tech, SaaS, and AI media publication.
 Evaluate whether this news article is genuinely relevant to SaaS, Artificial Intelligence, Software Engineering, Developer Tools, or Tech Startups.
 
@@ -83,11 +86,11 @@ Respond ONLY with valid JSON in this exact structure:
 }`;
 
   try {
-    const raw = await callOllama(prompt, true);
+    const raw = await callOllama(prompt, true, timeoutMs);
     const parsed = JSON.parse(raw);
     return {
       isRelevant: Boolean(parsed.isRelevant),
-      category: parsed.category || 'Tech'
+      category: ['AI', 'SaaS', 'DevTools', 'Startups', 'Tech'].includes(parsed.category) ? parsed.category : 'Tech'
     };
   } catch (err) {
     // Fallback simple keyword heuristic if Ollama is warming up
@@ -106,7 +109,8 @@ Respond ONLY with valid JSON in this exact structure:
 export async function processAndTranslate(
   title: string,
   rawContent: string,
-  category: ProcessedNewsArticle['category']
+  category: ProcessedNewsArticle['category'],
+  timeoutMs = 180_000
 ): Promise<ProcessedNewsArticle['translations']> {
   const prompt = `You are a high-level Tech Journalist and SEO Editor.
 Transform the following raw news article into an authoritative, engaging, and professional publication format.
@@ -147,7 +151,7 @@ Respond ONLY with a valid JSON object matching this schema without any markdown 
   "de": { ... }
 }`;
 
-  const raw = await callOllama(prompt, true);
+  const raw = await callOllama(prompt, true, timeoutMs);
   const parsed = JSON.parse(raw);
 
   // Validate that English exists as default fallback
