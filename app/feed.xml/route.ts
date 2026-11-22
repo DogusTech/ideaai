@@ -3,7 +3,9 @@ import path from 'path'
 
 export const dynamic = 'force-static'
 
-function parseFrontmatter(content: string) {
+type ParsedFrontmatter = { body: string; slug?: string; title?: string; publishedAt?: string }
+
+function parseFrontmatter(content: string): ParsedFrontmatter {
   const parts = content.split('---')
   const values: Record<string, string> = {}
   if (parts.length >= 3) {

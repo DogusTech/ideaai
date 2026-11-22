@@ -4,13 +4,14 @@ import { NextResponse } from 'next/server'
 export async function POST(request: Request) {
   try {
     const { idToken } = await request.json()
+    const cookieStore = await cookies()
     
     // In a full production setup with firebase-admin, you would verify the idToken 
     // and mint a session cookie here. For lightweight middleware protection, 
     // we simply store the idToken (or a flag) in a secure HttpOnly cookie.
     
     // Set cookie
-    cookies().set('__session', idToken, {
+    cookieStore.set('__session', idToken, {
       maxAge: 60 * 60 * 24 * 5, // 5 days
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -25,6 +26,7 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE() {
-  cookies().delete('__session')
+  const cookieStore = await cookies()
+  cookieStore.delete('__session')
   return NextResponse.json({ status: 'success' }, { status: 200 })
 }

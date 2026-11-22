@@ -13,7 +13,8 @@ const InteractiveParticles = () => {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext('2d');
+    const drawingCanvas = canvas;
+    const ctx = drawingCanvas.getContext('2d');
     if (!ctx) return;
     
     let animationFrameId: number;
@@ -22,19 +23,19 @@ const InteractiveParticles = () => {
     const colorPalette = ['#f59e0b', '#ec4899', '#d946ef', '#8b5cf6', '#4f46e5', '#3b82f6'];
 
     const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight * 1.2;
+      drawingCanvas.width = window.innerWidth;
+      drawingCanvas.height = window.innerHeight * 1.2;
       // İlk açılışta galaksiyi merkeze koy
       if (globe.current.x === -1000) {
-        globe.current = { x: canvas.width / 2, y: canvas.height / 2 };
-        mouse.current = { x: canvas.width / 2, y: canvas.height / 2 };
+        globe.current = { x: drawingCanvas.width / 2, y: drawingCanvas.height / 2 };
+        mouse.current = { x: drawingCanvas.width / 2, y: drawingCanvas.height / 2 };
       }
     };
     window.addEventListener('resize', resize);
     resize();
 
     const onMouseMove = (e: MouseEvent) => {
-      const rect = canvas.getBoundingClientRect();
+      const rect = drawingCanvas.getBoundingClientRect();
       mouse.current = {
         x: e.clientX - rect.left,
         y: e.clientY - rect.top
@@ -49,7 +50,7 @@ const InteractiveParticles = () => {
       constructor() {
         this.angle = Math.random() * Math.PI * 2;
         // Küre/Galaksi içinde dağılım (Dışa doğru seyrekleşen)
-        this.distance = Math.pow(Math.random(), 0.6) * (Math.min(canvas.width, canvas.height) * 0.7); 
+        this.distance = Math.pow(Math.random(), 0.6) * (Math.min(drawingCanvas.width, drawingCanvas.height) * 0.7); 
         
         // 2. ekran görüntüsündeki gibi minik çizgiler (dash)
         this.length = Math.random() * 8 + 4;
@@ -105,7 +106,7 @@ const InteractiveParticles = () => {
     for (let i = 0; i < 400; i++) particles.push(new DashParticle());
 
     const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(0, 0, drawingCanvas.width, drawingCanvas.height);
       
       // GSAP "Ease-Out" tarzı, galaksinin merkezinin fareyi pürüzsüz takip etmesi
       globe.current.x += (mouse.current.x - globe.current.x) * 0.04;

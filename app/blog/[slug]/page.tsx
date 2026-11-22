@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { notFound } from 'next/navigation';
@@ -353,8 +354,9 @@ export default async function BlogPost({ params }: { params: Promise<{ slug: str
                   return <h3 id={id} className="text-[22px] font-medium mt-10 mb-4 text-[#1f1f1f] tracking-tight scroll-mt-24" {...props}>{children}</h3>
                 },
                 p: ({node, children, ...props}) => {
-                  if (children && children.length === 1 && typeof children[0] === 'string') {
-                     const text = children[0].replace(/^[#\*\s]+|[#\*\s]+$/g, '');
+                  const childNodes = React.Children.toArray(children)
+                  if (childNodes.length === 1 && typeof childNodes[0] === 'string') {
+                     const text = childNodes[0].replace(/^[#\*\s]+|[#\*\s]+$/g, '');
                      if (text === realTitle || text === excerpt) {
                         return null; // Skip rendering title and excerpt inside body
                      }

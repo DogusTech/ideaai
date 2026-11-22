@@ -59,7 +59,7 @@ export function DashboardTopNav() {
   const isActive = useCallback(
     (href: string) => {
       if (href === "/dashboard") return pathname === "/dashboard"
-      return pathname.startsWith(href)
+      return Boolean(pathname?.startsWith(href))
     },
     [pathname],
   )

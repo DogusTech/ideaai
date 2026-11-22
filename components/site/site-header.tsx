@@ -39,7 +39,7 @@ export function SiteHeader() {
             const active =
               link.href === "/"
                 ? pathname === "/"
-                : pathname.startsWith(link.href)
+                : Boolean(pathname?.startsWith(link.href))
             return (
               <li key={link.href}>
                 <Link

@@ -121,7 +121,7 @@ export function DashboardHubCard({
                     <a href={a.uri} target="_blank" rel="noreferrer noopener" className="underline hover:text-white/80 transition-colors">
                       {a.displayName ?? "Google Maps contributor"}
                     </a>
-                    {i < hub.photo!.attributions.length - 1 && ", "}
+                    {i < (hub.photo?.attributions?.length ?? 0) - 1 && ", "}
                   </span>
                 ) : (
                   <span key={a.displayName}>{a.displayName ?? "Google Maps contributor"}</span>

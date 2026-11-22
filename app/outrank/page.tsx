@@ -15,7 +15,7 @@ export default function OutrankPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [elapsed, setElapsed] = useState(0)
   
-  const timerRef = useRef<NodeJS.Timeout | null>(null)
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

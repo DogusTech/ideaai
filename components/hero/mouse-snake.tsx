@@ -14,7 +14,7 @@ export function MouseSnake() {
 
   useEffect(() => {
     setIsClient(true)
-    let idleTimer: NodeJS.Timeout
+    let idleTimer: ReturnType<typeof setTimeout>
 
     const handleMouseMove = (e: MouseEvent) => {
       // Fareye göre konumu ortalamak için hafif bir ofset veriyoruz (-10)

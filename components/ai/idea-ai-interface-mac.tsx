@@ -314,7 +314,7 @@ export function IdeaAIInterfaceMac() {
       if (result?.success && Array.isArray(result.models)) {
         setInstalledLocalModels(result.models)
         if (result.models.length > 0 && provider === "Local (Ollama)") {
-          const match = result.models.find((m) => m.name === selectedModel)
+          const match = result.models.find((m: InstalledOllamaModel) => m.name === selectedModel)
           if (!match) {
             setSelectedModel(result.models[0].name)
           }

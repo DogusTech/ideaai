@@ -32,8 +32,12 @@ export interface HubPhoto {
   name?: string
   /** Resolved URL — only set after server-side Places API call */
   url?: string
+  photoUri?: string
+  source?: string
+  expiresAt?: string
   /** Required attribution string from Google Places API */
   attribution?: string
+  attributions?: Array<{ displayName?: string; uri?: string; photoUri?: string }>
 }
 
 export interface HubCheckIn {
@@ -73,6 +77,9 @@ export interface TogetlinkHub {
   rating?: number
   userRatingCount?: number
   photo?: HubPhoto
+  photos?: HubPhoto[]
+  cardPhoto?: { name: string; widthPx?: number; heightPx?: number }
+  heroPhoto?: { name: string; widthPx?: number; heightPx?: number }
   /** Short summary of current professional activity */
   currentIntentSummary: string
   checkedInCount: number

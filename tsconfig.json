@@ -56,6 +56,13 @@
     "components/ui/Input.tsx",
     "components/ui/Layout.tsx",
     "components/ui/Login.tsx",
-    "components/ui/Typography.tsx"
+    "components/ui/Typography.tsx",
+    "ui-main",
+    ".next/types/**/*.ts",
+    "app/api/ai.tsx",
+    "app/api/ai.test.tsx",
+    "app/api/createDocument.ts",
+    "app/api/createDocument.tsx",
+    "pages/_app.tsx"
   ]
 }

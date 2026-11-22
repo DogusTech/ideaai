@@ -9,14 +9,14 @@ import { auth } from "@/lib/firebase"
 const MOCK_CONVERSATIONS: Conversation[] = [
   {
     id: "conv-1",
-    otherUser: { id: "u-1", name: "Alex Rivera", headline: "Frontend Developer" },
+    otherUser: { uid: "u-1", name: "Alex Rivera", headline: "Frontend Developer" },
     lastMessage: "Working on some Next.js animations. Come say hi!",
     lastMessageAt: new Date(Date.now() - 1000 * 60 * 2).toISOString(),
     unreadCount: 2
   },
   {
     id: "conv-2",
-    otherUser: { id: "u-2", name: "Sarah Chen", headline: "Startup Founder" },
+    otherUser: { uid: "u-2", name: "Sarah Chen", headline: "Startup Founder" },
     lastMessage: "I'll be at Kolektif House tomorrow. Let's grab coffee.",
     lastMessageAt: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
     unreadCount: 0

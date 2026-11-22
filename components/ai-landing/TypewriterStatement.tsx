@@ -20,15 +20,16 @@ export function TypewriterStatement() {
   useGSAP(() => {
     if (!containerRef.current) return
     const cursor = containerRef.current.querySelector("[data-cursor-container]") as HTMLElement
-    const chars = containerRef.current.querySelectorAll(".char")
+    const chars = containerRef.current.querySelectorAll<HTMLElement>(".char")
     
     gsap.set(cursor, { opacity: 0 })
     gsap.set(chars, { opacity: 0 })
 
     const updateCursor = (charElem: HTMLElement) => {
       if (charElem && charElem.offsetParent) {
-        cursor.style.setProperty("--cursor-pos-x", `${charElem.offsetParent.offsetLeft + charElem.offsetLeft + charElem.offsetWidth + 2}px`)
-        cursor.style.setProperty("--cursor-pos-y", `${charElem.offsetParent.offsetTop + charElem.offsetTop}px`)
+        const parent = charElem.offsetParent as HTMLElement
+        cursor.style.setProperty("--cursor-pos-x", `${parent.offsetLeft + charElem.offsetLeft + charElem.offsetWidth + 2}px`)
+        cursor.style.setProperty("--cursor-pos-y", `${parent.offsetTop + charElem.offsetTop}px`)
       }
     }
 
@@ -52,7 +53,7 @@ export function TypewriterStatement() {
       stagger: {
         each: 0.02,
         onStart: function() {
-          const target = this.targets()[0] as HTMLElement
+          const target = ((this as unknown as { targets: () => HTMLElement[] }).targets())[0]
           updateCursor(target)
         }
       },

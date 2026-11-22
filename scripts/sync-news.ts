@@ -3,7 +3,9 @@ import dotenv from 'dotenv';
 dotenv.config({ path: '.env.local' });
 dotenv.config();
 
-const { runIngestionPipeline } = await import('../lib/news-service');
+async function loadPipeline() {
+  return import('../lib/news-service');
+}
 
 function parseLimit(args: string[]) {
   const equalsArg = args.find((arg) => arg.startsWith('--limit='));
@@ -26,6 +28,7 @@ async function main() {
   console.log(`[NEWS SYNC] Ollama URL: ${process.env.OLLAMA_BASE_URL || 'http://localhost:11434'}`);
 
   try {
+    const { runIngestionPipeline } = await loadPipeline();
     const result = await runIngestionPipeline({ maxItems: limit, fast, noTimeout: true });
     console.log(`[NEWS SYNC] Completed in ${((Date.now() - start) / 1_000).toFixed(1)}s.`);
     console.log(JSON.stringify(result, null, 2));
