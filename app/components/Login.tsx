@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/Button';
 <!-- Define the Login component -->
 function Login() {
   return (
-    <div className='max-w-md mx-auto p-8 bg-white/10 backdrop-blur rounded-lg shadow-md'>
+    <div className='max-w-md mx-auto p-8 bg-[var(--card)]/10 backdrop-blur rounded-lg shadow-md'>
       <h2 className='text-3xl font-bold mb-4'>Login</h2>
       <form className='space-y-6'>
         <div className='relative z-0 mb-4 group'>

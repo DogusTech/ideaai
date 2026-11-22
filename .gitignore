@@ -74,3 +74,5 @@ Thumbs.db
 *.mov
 *.avi
 ui_dataset.jsonl
+
+.ideaai/

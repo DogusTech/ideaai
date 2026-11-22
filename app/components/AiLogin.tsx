@@ -20,7 +20,7 @@ const AiLogin: NextPage = () => {
   }
 
   return (
-    <div className="flex justify-center items-center h-screen bg-white/10 backdrop-blur-sm">
+    <div className="flex justify-center items-center h-screen bg-[var(--card)]/10 backdrop-blur-sm">
       <h1 className="text-4xl font-bold text-gray-900">AI Login</h1>
       <form onSubmit={handleSubmit}>
         <input

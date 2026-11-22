@@ -20,7 +20,7 @@ const MOCK_MARKETING_HUBS: any[] = [
     photo: { photoUri: "https://images.unsplash.com/photo-1527192491265-7e15c55b1ed2?w=800&q=80" },
     location: { lat: 41.028, lng: 28.974 },
     slug: "soho-house",
-    broadAreas: ["Beyoğlu", "Creative Hub"]
+    broadAreas: ["Beyoglu", "Creative Hub"]
   },
   {
     id: "mock-kolektif",

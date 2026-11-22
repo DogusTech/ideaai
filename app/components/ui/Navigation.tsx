@@ -5,7 +5,7 @@ import { AiOutlineRobot } from 'react-icons/ai';
 
 const Navigation = () => {
   return (
-    <nav className="flex justify-between items-center p-4 bg-white/10 backdrop-blur-sm">
+    <nav className="flex justify-between items-center p-4 bg-[var(--card)]/10 backdrop-blur-sm">
       <ul className="flex items-center space-x-4">
         <li><AiOutlineHome /></li>
         <li><AiOutlineLogin /></li>

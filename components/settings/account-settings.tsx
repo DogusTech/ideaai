@@ -17,7 +17,7 @@ export function AccountSettings() {
   const [saveKeyStatus, setSaveKeyStatus] = useState<"idle" | "saving" | "success">("idle")
 
   useEffect(() => {
-    // Component yüklendiğinde var olan API key'i getir
+    // Load the existing API key when the component mounts.
     const storedKey = localStorage.getItem("ideaai_api_key")
     if (storedKey) {
       setApiKey(storedKey)
@@ -92,7 +92,7 @@ export function AccountSettings() {
           <h3 className="text-lg font-medium text-foreground">API Integrations (BYOK)</h3>
         </div>
         <p className="mb-4 text-sm text-muted-foreground leading-relaxed">
-          IdeaAI operates on a Bring Your Own Key (BYOK) model. Enter your OpenAI or Google Gemini API key below to power the autonomous engine. Your key is stored securely and locally on your device.
+          Turaen operates on a Bring Your Own Key (BYOK) model. Enter your OpenAI or Google Gemini API key below to power the autonomous engine. Your key is stored securely and locally on your device.
         </p>
         
         <div className="flex gap-3">
@@ -145,7 +145,7 @@ export function AccountSettings() {
       <div>
         <h3 className="text-lg font-medium text-destructive">Danger Zone</h3>
         <p className="mb-4 text-sm text-muted-foreground">
-          Permanently delete your account and all associated data from TogetLink.
+          Permanently delete your account and all associated data from Turaen.
         </p>
         <button
           onClick={handleDeleteAccount}

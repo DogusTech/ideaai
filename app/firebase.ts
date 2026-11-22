@@ -1,21 +1,17 @@
-import { Firebase } from './firebase';
+import { initializeApp } from 'firebase/app';
+import { getAuth, signInAnonymously } from 'firebase/auth';
 
-export class Firebase {
-  private auth: any;
+const firebaseConfig = {
+  apiKey: 'AIzaSyCAnqZAPEA6-PAQNyd3IYEc39da3dU460M',
+  authDomain: 'togetlink-7beaf.firebaseapp.com',
+  projectId: 'togetlink-7beaf',
+  // …other fields
+};
 
-  constructor() {
-    this.auth = firebase.initializeApp({
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_AUTH_DOMAIN",
-      projectId: "YOUR_PROJECT_ID",
-    });
-  }
+const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
 
-  signInWithEmailAndPassword(email: string, password: string) {
-    return this.auth.signInWithEmailAndPassword(email, password);
-  }
-
-  createUserWithEmailAndPassword(email: string, password: string) {
-    return this.auth.createUserWithEmailAndPassword(email, password);
-  }
-}
+// Helper for guest sign‑in
+export const signInGuest = async () => {
+  await signInAnonymously(auth);
+};

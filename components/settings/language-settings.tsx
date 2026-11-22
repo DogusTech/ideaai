@@ -5,10 +5,6 @@ import { Check, Globe } from "lucide-react"
 
 const LANGUAGES = [
   { code: "en", name: "English", region: "US" },
-  { code: "tr", name: "Türkçe", region: "Turkey" },
-  { code: "es", name: "Español", region: "Spain" },
-  { code: "fr", name: "Français", region: "France" },
-  { code: "de", name: "Deutsch", region: "Germany" },
 ]
 
 export function LanguageSettings() {
@@ -34,7 +30,7 @@ export function LanguageSettings() {
           Language Preferences
         </h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Select the language you want to use for the TogetLink interface.
+          Select the language you want to use for the Turaen interface.
         </p>
       </div>
 

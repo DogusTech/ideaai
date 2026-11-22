@@ -1,4 +1,5 @@
-import { IdeaAIInterfaceMac } from "../../../public/matrix-demo/app/idea-ai-interface-mac"
+import { IdeaAIInterfaceMac } from "@/components/ai/idea-ai-interface-mac"
+import { AuthProvider } from "@/lib/auth/context"
 
 export const metadata = {
   title: "IdeaAI Workspace",
@@ -6,5 +7,5 @@ export const metadata = {
 }
 
 export default function MatrixDemoAppPage() {
-  return <IdeaAIInterfaceMac />
+  return <AuthProvider anonymousForDesktop><IdeaAIInterfaceMac /></AuthProvider>
 }

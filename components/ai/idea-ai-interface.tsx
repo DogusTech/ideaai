@@ -131,9 +131,9 @@ export function IdeaAIInterface() {
       });
         
         if (!res.ok) {
-          let errText = "Bilinmeyen hata oluştu.";
+          let errText = "An unknown error occurred.";
           if (res.status === 504) {
-            errText = "Sunucu (Modal GPU) şu anda uykudan uyanıyor (Cold Start). Lütfen 1 dakika bekleyip tekrar deneyin.";
+            errText = "The server is waking from a cold start. Wait about one minute, then try again.";
           } else {
             try { 
               const j = await res.json(); 
@@ -555,7 +555,7 @@ export function IdeaAIInterface() {
                           const parsed = JSON.parse(error.message);
                           return parsed.error || error.message;
                         } catch {
-                          return error.message || "Bilinmeyen bir hata oluştu. Lütfen tekrar deneyin.";
+                          return error.message || "An unknown error occurred. Please try again.";
                         }
                       })()}
                     </div>

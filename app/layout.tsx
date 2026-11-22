@@ -1,13 +1,10 @@
-import { Analytics } from '@vercel/analytics/next'
-import type { Metadata, Viewport } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
-import './globals.css'
+import { Analytics } from '@vercel/analytics/next';
+import type { Metadata, Viewport } from 'next';
+import './globals.css';
+import 'xterm/css/xterm.css';
+import { satoshi } from '@/lib/fonts';
+import Script from 'next/script';
 
-const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-})
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://ideaai.togetlink.com'),
@@ -22,14 +19,13 @@ export const metadata: Metadata = {
     template: '%s | IdeaAI',
   },
   description:
-    'IdeaAI is a Windows desktop autonomous AI coding agent and engineering workspace with local Ollama, terminal automation, and workspace-scoped file operations.',
+    'IdeaAI is a Windows desktop autonomous AI coding agent and engineering workspace with local Ollama, terminal automation, and workspace‑scoped file operations.',
   keywords: [
     'local AI coding agent',
     'Windows AI coding assistant',
     'Ollama coding',
     'offline coding assistant',
-    'terminal automation',
-    'IdeaAI'
+    'IdeaAI',
   ],
   authors: [{ name: 'DogusTech' }],
   creator: 'Aeternexus, Inc.',
@@ -71,7 +67,7 @@ export const metadata: Metadata = {
     shortcut: '/matrix-demo/Gemini_Generated_Image_dpurc9dpurc9dpur.jpg',
     apple: '/matrix-demo/Gemini_Generated_Image_dpurc9dpurc9dpur.jpg',
   },
-}
+};
 
 export const viewport: Viewport = {
   colorScheme: 'light dark',
@@ -79,10 +75,7 @@ export const viewport: Viewport = {
     { media: '(prefers-color-scheme: light)', color: 'white' },
     { media: '(prefers-color-scheme: dark)', color: 'black' },
   ],
-}
-
-import { AuthProvider } from '@/lib/auth/context'
-import Script from 'next/script'
+};
 
 const globalSchema = {
   "@context": "https://schema.org",
@@ -104,41 +97,24 @@ const globalSchema = {
       "@id": "https://ideaai.togetlink.com/#website",
       "url": "https://ideaai.togetlink.com",
       "name": "IdeaAI",
-      "publisher": {
-        "@id": "https://ideaai.togetlink.com/#organization"
-      }
+      "publisher": { "@id": "https://ideaai.togetlink.com/#organization" }
     }
   ]
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+import RootLayoutClient from './RootLayoutClient';
+
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html
-      lang="en"
-      translate="no"
-      suppressHydrationWarning
-      className={`light bg-background ${geistSans.variable} ${geistMono.variable}`}
-    >
+    <html lang="en" translate="no" suppressHydrationWarning>
       <head>
         <meta name="google" content="notranslate" />
         <meta name="impact-site-verification" content="77c85579-a9bf-40eb-b03c-b9bcf5b8426b" />
-        <meta name="impact-site-verification" value="77c85579-a9bf-40eb-b03c-b9bcf5b8426b" />
-        <Script
-          id="global-schema"
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(globalSchema) }}
-        />
+        <Script id="global-schema" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(globalSchema) }} />
       </head>
-      <body className="font-sans antialiased">
-        <AuthProvider>
-          {children}
-          {process.env.NODE_ENV === 'production' && <Analytics />}
-        </AuthProvider>
+      <body className={`${satoshi.variable} font-sans antialiased`}>
+        <RootLayoutClient>{children}</RootLayoutClient>
       </body>
     </html>
-  )
+  );
 }

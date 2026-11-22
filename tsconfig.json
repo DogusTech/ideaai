@@ -36,6 +36,26 @@
     ".next/dev/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    ".next/dev/types/**/*.ts",
+    "app/ai-landing-page.tsx",
+    "app/ai-landing-page/firebaseConfig.ts",
+    "app/ai-landing-page/firebaseConfig.tsx",
+    "app/ai-login/**/*",
+    "app/api/[id].ts",
+    "app/api/main.ts",
+    "app/app/firebaseConfig.ts",
+    "app/components/**/*",
+    "app/pages/**/*",
+    "app/user/**/*",
+    "components/Header.tsx",
+    "components/MenuItemLink*.tsx",
+    "components/ui/AiLandingPage.tsx",
+    "components/ui/Button.tsx",
+    "components/ui/container.tsx",
+    "components/ui/Input.tsx",
+    "components/ui/Layout.tsx",
+    "components/ui/Login.tsx",
+    "components/ui/Typography.tsx"
   ]
 }

@@ -7,7 +7,7 @@ const CustomButton = () => {
     <motion.button
       initial={{ scale: 0.5 }}
       whileHover={{ scale: 1 }}
-      className='bg-white/10 backdrop-blur hover:bg-white/20'
+      className='bg-[var(--card)]/10 backdrop-blur hover:bg-[var(--card)]/20'
     >
       Click me!
     </motion.button>

@@ -1,4 +1,5 @@
-import { IdeaAIInterface } from "@/components/ai/idea-ai-interface"
+import { IdeaAIInterfaceMac } from "@/components/ai/idea-ai-interface-mac"
+import { AuthProvider } from "@/lib/auth/context"
 
 export const metadata = {
   title: "IdeaAI - The Developer Brainstorming Engine",
@@ -6,5 +7,5 @@ export const metadata = {
 }
 
 export default function IdeaAIPage() {
-  return <IdeaAIInterface />
+  return <AuthProvider anonymousForDesktop><IdeaAIInterfaceMac /></AuthProvider>
 }

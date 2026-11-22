@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from "react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
+import { Check, Clipboard, FilePlus2 } from "lucide-react"
 
 type ChunkType = 'text' | 'think' | 'modify' | 'new' | 'delete'
 
@@ -80,7 +81,7 @@ function parseActivities(text: string): Activity[] {
     const line = rawLine.trim()
     if (!line) continue
 
-    const thought = line.match(/^(?:Thought for|Düşündü)\s+(.+)$/i)
+    const thought = line.match(/^Thought for\s+(.+)$/i)
     if (thought) {
       activities.push({ kind: "thought", label: "Thought", duration: thought[1] })
       continue
@@ -167,7 +168,7 @@ function parseAntigravityText(text: string): ParsedChunk[] {
     "[$1] $2 (+$3 -0)"
   );
   text = text.replace(
-    /(?:^|\n)Code\s*\n[\s\S]*?(?=\n(?:Mentor(?:'s)? Summary|Summary|Özet)\s*:|$)/gi,
+    /(?:^|\n)Code\s*\n[\s\S]*?(?=\n(?:Mentor(?:'s)? Summary|Summary)\s*:|$)/gi,
     "\n"
   );
   text = text.replace(/```[\s\S]*?```/g, "\n");
@@ -188,7 +189,7 @@ function parseAntigravityText(text: string): ParsedChunk[] {
     const line = lines[i]
 
     if (hidingGeneratedCode) {
-      if (/^(?:Mentor(?:'s)? Summary|Summary|Özet)\s*:/i.test(line.trim())) {
+      if (/^(?:Mentor(?:'s)? Summary|Summary)\s*:/i.test(line.trim())) {
         hidingGeneratedCode = false
       } else {
         continue
@@ -256,7 +257,7 @@ function parseAntigravityText(text: string): ParsedChunk[] {
     }
 
     if (
-      /^(?:View|Viewed|Edit|Edited|Search|Searched|Thought for|Düşündü)\s+/i.test(line)
+      /^(?:View|Viewed|Edit|Edited|Search|Searched|Thought for)\s+/i.test(line)
     ) {
       continue
     }
@@ -302,24 +303,28 @@ function ThinkBlock({ content, isStreaming }: { content: string, isStreaming?: b
   )
 }
 
-function CodeBlock({ node, inline, className, children, ...props }: any) {
+function CodeBlock({ node, inline, className, children, onApplyToFile, ...props }: any) {
   const match = /language-(\w+)/.exec(className || '')
+  const [copied, setCopied] = useState(false)
   
   // In react-markdown v9, inline is sometimes undefined. We can guess it's inline if no language class is present and no newlines exist.
   const isInline = inline || (!match && typeof children === 'string' && !children.includes('\n'))
   
   if (isInline) {
     return (
-      <code className="bg-[#f0f0f0] text-[#cf222e] px-1.5 py-0.5 rounded-md text-[13px] font-mono" {...props}>
+      <code className="rounded-md bg-[#f0f0f0] px-1.5 py-0.5 text-[13px] font-mono text-[#cf222e] dark:bg-[#2a2a2a] dark:text-[#F5F5F5]" {...props}>
         {children}
       </code>
     )
   }
 
-  return null
+  const code = String(children).replace(/\n$/, "")
+  const language = match?.[1]?.toUpperCase() || "CODE"
+  const copy = async () => { await navigator.clipboard?.writeText(code); setCopied(true); window.setTimeout(() => setCopied(false), 1200) }
+  return <div className="my-3 overflow-hidden rounded-[14px] border border-[#303030] bg-[#191919] text-[#f5f5f5] shadow-sm transition-colors hover:border-[#3d3d3d]"><div className="flex items-center justify-between border-b border-[#2a2a2a] px-3 py-2"><span className="rounded-md bg-[#2a2a2a] px-2 py-0.5 text-[10px] font-semibold tracking-wide text-[#bdbdbd]">{language}</span><div className="flex items-center gap-1"><button type="button" onClick={() => void copy()} className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[10px] text-[#aaa] hover:bg-[#2a2a2a] hover:text-white">{copied ? <Check size={12} /> : <Clipboard size={12} />}{copied ? "Copied" : "Copy"}</button>{onApplyToFile && <button type="button" onClick={() => onApplyToFile(code)} className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-[10px] text-[#aaa] hover:bg-[#2a2a2a] hover:text-white"><FilePlus2 size={12} />Apply to File</button>}</div></div><pre className="overflow-x-auto p-4 text-[12px] leading-5" {...props}><code>{code}</code></pre></div>
 }
 
-export function AntigravityMarkdown({ content }: { content: string }) {
+export function AntigravityMarkdown({ content, onApplyToFile }: { content: string; onApplyToFile?: (code: string) => void }) {
   const chunks = useMemo(() => parseAntigravityText(content), [content])
 
   return (
@@ -334,12 +339,13 @@ export function AntigravityMarkdown({ content }: { content: string }) {
         }
         
         // It's just text
+        const isError = chunk.content.includes("**Execution Error:**")
         return (
-          <div key={i} className="prose prose-sm max-w-none text-[#171717] prose-p:leading-relaxed">
+          <div key={i} className={`prose prose-sm max-w-none prose-p:leading-relaxed text-zinc-900 dark:text-[#F5F5F5] prose-headings:text-zinc-900 dark:prose-headings:text-[#F5F5F5] prose-p:text-zinc-900 dark:prose-p:text-[#F5F5F5] prose-li:text-zinc-900 dark:prose-li:text-[#F5F5F5] prose-strong:text-zinc-900 dark:prose-strong:text-[#F5F5F5] ${isError ? "rounded-xl border border-red-300 bg-red-50 px-3 py-2 dark:border-red-800/60 dark:bg-red-950/40 dark:text-red-200 prose-p:text-red-700 dark:prose-p:text-red-200" : ""}`}>
             <ReactMarkdown 
               remarkPlugins={[remarkGfm]}
               components={{
-                code: CodeBlock
+                code: (props: any) => <CodeBlock {...props} onApplyToFile={onApplyToFile} />
               }}
             >
               {chunk.content}

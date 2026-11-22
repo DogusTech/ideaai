@@ -1,689 +1,327 @@
-import React, { useState, useEffect } from "react"
-import { X, User, Settings, Palette, Zap, Puzzle, Globe, Laptop, HelpCircle, ChevronDown, Check } from "lucide-react"
-import { motion, AnimatePresence } from "framer-motion"
+"use client"
 
+import { useEffect, useState } from "react"
+import { EmailAuthProvider, GoogleAuthProvider, linkWithCredential, linkWithPopup } from "firebase/auth"
+import { auth } from "@/lib/firebase"
+import { LocalModelsSettings } from "@/components/settings/local-models-settings"
+import { getStoredSkills, saveStoredSkills, type AgentSkill } from "./skills-modal"
+import { Check, Copy } from "lucide-react"
+import { AgentBridge } from "@/app/utils/agent-bridge"
+import { TuraenLogo } from "@/components/brand/turaen-logo"
+import { STRIPE_PAYMENT_LINK_URL, type PlanState, isPro, savePlanState } from "@/lib/plan-entitlements"
+
+type SettingsTab = "general" | "skills" | "provider-local" | "provider-account" | "provider-byok" | "agent" | "terminal" | "keybindings" | "about"
 type SettingsModalProps = {
   isOpen: boolean
   onClose: () => void
   initialTab?: string
   userEmail?: string | null
+  onUseModel?: (modelName: string) => void
+  plan?: PlanState
+  onPlanChange?: (next: PlanState) => void
 }
 
-const TABS = [
+const NAV: Array<{ id: SettingsTab; label: string }> = [
   { id: "general", label: "General" },
-  { id: "account", label: "Account" },
-  { id: "appearance", label: "Appearance" },
-  { id: "models", label: "AI Brain & Engine" },
-  { id: "integrations", label: "Integrations & CI/CD" },
-  { id: "customizations", label: "Customizations" },
-  { id: "browser", label: "Browser" },
-  { id: "app", label: "App" },
+  { id: "skills", label: "Skills (Customizations)" },
+  { id: "provider-local", label: "Local Models" },
+  { id: "provider-account", label: "Account & Billing" },
+  { id: "provider-byok", label: "BYOK (Cloud APIs)" },
+  { id: "agent", label: "Agent & Autonomy" },
+  { id: "terminal", label: "Terminal & Shell" },
+  { id: "keybindings", label: "Keybindings" },
+  { id: "about", label: "About" },
 ]
 
-export function SettingsModal({ isOpen, onClose, initialTab = "general", userEmail }: SettingsModalProps) {
-  const [activeTab, setActiveTab] = useState(initialTab)
-  const [selectedAvatar, setSelectedAvatar] = useState(0)
-  const [localProjects, setLocalProjects] = useState<string[]>([])
-  const [activeEngine, setActiveEngine] = useState("hybrid")
-  const [keySaved, setKeySaved] = useState(false)
-  const [railwayToken, setRailwayToken] = useState("")
-  const [railwayTokenType, setRailwayTokenType] = useState<"account" | "workspace" | "project">("workspace")
-  const [railwayConnected, setRailwayConnected] = useState(false)
-  const [railwayStatus, setRailwayStatus] = useState("")
-  const [railwayLoading, setRailwayLoading] = useState(false)
-  const [desktopNotifications, setDesktopNotifications] = useState(false)
-  const [browserPreference, setBrowserPreference] = useState<"Google" | "Microsoft Edge">("Google")
-  const [codeGeneration, setCodeGeneration] = useState(true)
-  const [webResearch, setWebResearch] = useState(true)
-  const [systemPrompt, setSystemPrompt] = useState("")
-  const [conversations, setConversations] = useState<Array<{ title: string; updatedAt?: number }>>([])
+function resolveTab(tab: string): SettingsTab {
+  if (tab === "local-models") return "provider-local"
+  if (tab === "account") return "provider-account"
+  if (tab === "skills" || tab === "customizations") return "skills"
+  return NAV.some((item) => item.id === tab) ? (tab as SettingsTab) : "general"
+}
+
+export function SettingsModal({ isOpen, onClose, initialTab = "general", userEmail, onUseModel, plan = { tier: "free", devPreview: false }, onPlanChange }: SettingsModalProps) {
+  const [activeTab, setActiveTab] = useState<SettingsTab>(resolveTab(initialTab))
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [accountMessage, setAccountMessage] = useState("")
+  const [accountBusy, setAccountBusy] = useState(false)
+  const [preference, setPreference] = useState<Record<string, string>>({})
+  const [keyTest, setKeyTest] = useState<Record<string, string>>({})
+  const [skillsList, setSkillsList] = useState<AgentSkill[]>([])
+  const [copiedSkillId, setCopiedSkillId] = useState<string | null>(null)
+  const [githubToken, setGithubToken] = useState("")
+  const [githubAuth, setGithubAuth] = useState<{ configured?: boolean; authenticated?: boolean; account?: string; source?: string } | null>(null)
+  const [githubMessage, setGithubMessage] = useState("")
+  const [githubBusy, setGithubBusy] = useState(false)
 
   useEffect(() => {
     if (isOpen) {
-      setActiveTab(initialTab)
-      fetch("/api/integrations/railway")
-        .then((response) => response.json())
-        .then((data) => setRailwayConnected(data.connected === true))
-        .catch(() => setRailwayConnected(false))
-      setLocalProjects(JSON.parse(localStorage.getItem("ideaai_projects") || "[]").map((project: { name?: string }) => project.name || "").filter(Boolean))
-      setDesktopNotifications(localStorage.getItem("ideaai_desktop_notifications") === "enabled")
-      setBrowserPreference(localStorage.getItem("ideaai_browser_preference") === "edge" ? "Microsoft Edge" : "Google")
-      setCodeGeneration(localStorage.getItem("ideaai_skill_code_generation") !== "disabled")
-      setWebResearch(localStorage.getItem("ideaai_skill_web_research") !== "disabled")
-      setSystemPrompt(localStorage.getItem("ideaai_global_system_prompt") || "")
-      setConversations(JSON.parse(localStorage.getItem("ideaai_chat_history") || "[]").map((item: { title?: string; updatedAt?: number }) => ({ title: item.title || "Untitled conversation", updatedAt: item.updatedAt })).slice(0, 30))
+      setActiveTab(resolveTab(initialTab))
+      setSkillsList(getStoredSkills())
+      void AgentBridge.getGitHubAuth().then((result) => {
+        if (result?.success) setGithubAuth(result)
+      })
     }
-  }, [isOpen, initialTab])
+  }, [initialTab, isOpen])
+
+  useEffect(() => {
+    if (!isOpen) return
+    const keys = ["theme", "language", "startup", "typography", "fontScale", "autosave", "approval", "worktree", "systemRules", "shell", "terminalFontSize", "liveStreaming", "cloudSync"]
+    const stored = Object.fromEntries(keys.map((key) => [key, localStorage.getItem(`ideaai_${key}`) || ""]))
+    setPreference(stored)
+    applyPreference("theme", stored.theme || "System")
+    applyPreference("typography", stored.typography || "OpenAI Sans")
+    applyPreference("fontScale", stored.fontScale || "Default")
+  }, [isOpen])
+
+  const applyPreference = (key: string, value: string) => {
+    if (key === "theme") {
+      let isDark = false
+      if (value === "Dark") {
+        isDark = true
+      } else if (value === "Light") {
+        isDark = false
+      } else {
+        isDark = window.matchMedia("(prefers-color-scheme: dark)").matches
+      }
+
+      if (isDark) {
+        document.documentElement.classList.add("dark")
+        document.documentElement.classList.remove("light")
+        document.body.classList.add("dark")
+        document.body.classList.remove("light")
+      } else {
+        document.documentElement.classList.remove("dark")
+        document.documentElement.classList.add("light")
+        document.body.classList.remove("dark")
+        document.body.classList.add("light")
+      }
+      document.documentElement.dataset.ideaaiTheme = isDark ? "dark" : "light"
+      document.documentElement.style.colorScheme = isDark ? "dark" : "light"
+
+      const bridge = (window as Window & { electronAPI?: { invoke: (name: string, ...args: any[]) => Promise<unknown> } }).electronAPI
+      if (bridge) {
+        void bridge.invoke("theme:set", isDark ? "dark" : "light").catch(() => undefined)
+      }
+    }
+    if (key === "typography") {
+      document.documentElement.style.setProperty("--font-sans", `'${value}', 'OpenAI Sans', 'Satoshi', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif`)
+    }
+    if (key === "fontScale") {
+      document.documentElement.style.setProperty("--ideaai-font-scale", value === "Compact" ? "0.94" : value === "Comfortable" ? "1.06" : "1")
+    }
+  }
+
+  const savePreference = (key: string, value: string) => {
+    setPreference((current) => ({ ...current, [key]: value }))
+    localStorage.setItem(`ideaai_${key}`, value)
+    applyPreference(key, value)
+  }
+
+  const handleToggleSkill = (id: string) => {
+    setSkillsList((prev) => {
+      const next = prev.map((s) => (s.id === id ? { ...s, enabled: !s.enabled } : s))
+      saveStoredSkills(next)
+      return next
+    })
+  }
+
+  const handleCopySkill = (skill: AgentSkill) => {
+    navigator.clipboard.writeText(`# Skill: ${skill.name}\n${skill.description}\n\nExecution:\n${skill.definition}`)
+    setCopiedSkillId(skill.id)
+    setTimeout(() => setCopiedSkillId(null), 1800)
+  }
+
+  const testProviderKey = async (label: string, storageKey: string, url: string, makeHeaders: (key: string) => Record<string, string>, queryKey = false) => {
+    const key = localStorage.getItem(storageKey)?.trim()
+    if (!key) { setKeyTest((current) => ({ ...current, [label]: "Add an API key first" })); return }
+    setKeyTest((current) => ({ ...current, [label]: "Checking…" }))
+    try {
+      const response = await fetch(queryKey ? `${url}${encodeURIComponent(key)}` : url, { headers: makeHeaders(key) })
+      setKeyTest((current) => ({ ...current, [label]: response.ok ? "Connected" : `Provider returned ${response.status}` }))
+    } catch { setKeyTest((current) => ({ ...current, [label]: "Could not reach provider" })) }
+  }
 
   if (!isOpen) return null
 
-  const abstractAvatars = [
-    "bg-gradient-to-br from-[#4f46e5] to-[#818cf8]", // Primary Indigo
-    "bg-gradient-to-br from-[#059669] to-[#34d399]", // Emerald
-    "bg-gradient-to-br from-[#dc2626] to-[#f87171]", // Rose
-    "bg-gradient-to-br from-[#d97706] to-[#fbbf24]", // Amber
-    "bg-[#171717]", // Solid Dark
-    "bg-gradient-to-br from-[#c026d3] to-[#f472b6]", // Fuchsia
-  ]
+  const currentUser = auth.currentUser
+  const isGuest = currentUser?.isAnonymous ?? !userEmail
+
+  const linkGoogle = async () => {
+    if (!auth.currentUser) return
+    setAccountBusy(true)
+    setAccountMessage("")
+    try {
+      await linkWithPopup(auth.currentUser, new GoogleAuthProvider())
+      setAccountMessage("Google account linked.")
+    } catch (error) {
+      setAccountMessage(error instanceof Error ? error.message : "Could not link Google account.")
+    } finally { setAccountBusy(false) }
+  }
+
+  const linkEmail = async () => {
+    if (!auth.currentUser) return
+    setAccountBusy(true)
+    setAccountMessage("")
+    try {
+      if (!email.trim() || password.length < 6) throw new Error("Enter a valid email and a password with at least 6 characters.")
+      await linkWithCredential(auth.currentUser, EmailAuthProvider.credential(email.trim(), password))
+      setAccountMessage("Email account linked.")
+      setPassword("")
+    } catch (error) {
+      setAccountMessage(error instanceof Error ? error.message : "Could not link email account.")
+    } finally { setAccountBusy(false) }
+  }
+
+  const saveGithubPat = async () => {
+    setGithubBusy(true)
+    setGithubMessage("")
+    const result = await AgentBridge.setGitHubToken(githubToken)
+    setGithubBusy(false)
+    if (result?.success) {
+      setGithubToken("")
+      setGithubMessage(githubToken.trim() ? "GitHub PAT encrypted and saved on this device." : "GitHub PAT removed.")
+      setGithubAuth((current) => ({ ...current, configured: Boolean(githubToken.trim()), authenticated: Boolean(githubToken.trim()), source: githubToken.trim() ? "pat" : "none" }))
+    } else setGithubMessage(result?.error || "Could not save GitHub PAT.")
+  }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/20 backdrop-blur-sm">
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.98 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.98 }}
-        className="w-[900px] h-[700px] max-h-[90vh] bg-[#f9f9f9] rounded-[16px] shadow-2xl flex overflow-hidden border border-[#e5e5e5]"
-      >
-        {/* Left Sidebar */}
-        <div className="w-[240px] bg-[#f4f4f4] border-r border-[#e5e5e5] flex flex-col pt-8 pb-4 shrink-0">
-          <div className="px-4 text-[13px] font-semibold text-[#171717] mb-4">Settings</div>
-          
-          <div className="flex-1 overflow-y-auto px-2 space-y-[2px]">
-            {TABS.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`w-full text-left px-3 py-1.5 rounded-md text-[13px] transition-colors ${
-                  activeTab === tab.id 
-                    ? "bg-[#e5e5e5] text-[#171717] font-medium" 
-                    : "text-[#525252] hover:bg-[#ebebeb]"
-                }`}
-              >
-                {tab.label}
-              </button>
+    <div data-research-lab className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-3 backdrop-blur-sm sm:p-6">
+      <section role="dialog" aria-modal="true" aria-labelledby="settings-title" className="flex h-[min(800px,92vh)] w-full max-w-6xl min-w-0 overflow-hidden rounded-[24px] border border-[#e0e0e0] dark:border-[#333333] bg-white dark:bg-[#111111] text-[#000000] dark:text-[#ffffff] shadow-[0px_4px_24px_rgba(0,0,0,0.06)] dark:shadow-[0px_4px_32px_rgba(0,0,0,0.4)]">
+        <aside className="flex w-52 shrink-0 flex-col border-r border-[#e0e0e0] dark:border-[#222222] bg-[#fafafa] dark:bg-[#161616] p-3 sm:w-64 sm:p-5">
+          <div className="mb-5 flex items-center gap-2 px-2">
+            <TuraenLogo className="h-5 w-5 text-[#0A0A0A] dark:text-[#FAFAFA]" />
+            <h2 id="settings-title" className="headline-md text-base font-semibold tracking-tight">Settings</h2>
+          </div>
+          <nav className="min-h-0 flex-1 space-y-1 overflow-y-auto" aria-label="Settings sections">
+            <button type="button" onClick={() => setActiveTab("general")} className={`w-full rounded-full px-3 py-2 text-left text-sm transition-colors ${activeTab === "general" ? "bg-[#f1f1f1] dark:bg-[#262626] font-medium text-[#000000] dark:text-[#ffffff]" : "text-[#666666] dark:text-[#999999] hover:bg-black/5 dark:hover:bg-white/5"}`}>General</button>
+            <button type="button" onClick={() => setActiveTab("skills")} className={`w-full rounded-full px-3 py-2 text-left text-sm transition-colors ${activeTab === "skills" ? "bg-[#f1f1f1] dark:bg-[#262626] font-medium text-[#000000] dark:text-[#ffffff]" : "text-[#666666] dark:text-[#999999] hover:bg-black/5 dark:hover:bg-white/5"}`}>Skills (Local)</button>
+            <div className="px-3 pb-1 pt-4 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#888888] dark:text-[#777777]">Providers</div>
+            {NAV.slice(2, 5).map((item) => (
+              <button key={item.id} type="button" onClick={() => setActiveTab(item.id)} className={`w-full rounded-full px-3 py-2 pl-5 text-left text-sm transition-colors ${activeTab === item.id ? "bg-[#f1f1f1] dark:bg-[#262626] font-medium text-[#000000] dark:text-[#ffffff]" : "text-[#666666] dark:text-[#999999] hover:bg-black/5 dark:hover:bg-white/5"}`}>{item.label}</button>
             ))}
-
-            <div className="mt-8 mb-2 px-2 text-[11px] font-semibold text-[#a3a3a3] uppercase tracking-wider">
-              Projects
-            </div>
-            
-            {localProjects.map((proj, idx) => (
-              <button 
-                key={idx}
-                onClick={() => setActiveTab("projects")}
-                className={`w-full text-left px-3 py-1.5 rounded-md text-[13px] truncate transition-colors ${activeTab === "projects" ? "bg-[#e5e5e5] text-[#171717] font-medium" : "text-[#525252] hover:bg-[#ebebeb]"}`}
-                title={proj}
-              >
-                {proj.split('\\').pop() || proj}
-              </button>
+            <div className="my-3 border-t border-[#e0e0e0] dark:border-[#262626]" />
+            {NAV.slice(5).map((item) => (
+              <button key={item.id} type="button" onClick={() => setActiveTab(item.id)} className={`w-full rounded-full px-3 py-2 text-left text-sm transition-colors ${activeTab === item.id ? "bg-[#f1f1f1] dark:bg-[#262626] font-medium text-[#000000] dark:text-[#ffffff]" : "text-[#666666] dark:text-[#999999] hover:bg-black/5 dark:hover:bg-white/5"}`}>{item.label}</button>
             ))}
+          </nav>
+          <button type="button" onClick={onClose} className="mt-4 rounded-full border border-[#e0e0e0] dark:border-[#333333] px-3 py-2 text-sm text-[#666666] dark:text-[#999999] hover:bg-black/5 dark:hover:bg-white/5 transition-colors">Close settings</button>
+        </aside>
 
-            <button 
-              onClick={() => setActiveTab("projects")}
-              className="w-full text-left px-3 py-1.5 text-[13px] text-[#737373] hover:text-[#171717] transition-colors"
-            >
-              Manage Projects...
-            </button>
+        <main className="relative min-w-0 flex-1 overflow-y-auto bg-white dark:bg-[#111111] p-5 sm:p-8">
+          {activeTab === "provider-local" && <LocalModelsSettings onUseModel={onUseModel} />}
 
-            <div className="mt-4">
-              <button 
-                onClick={() => setActiveTab("projects")}
-                className={`w-full text-left px-3 py-1.5 rounded-md text-[13px] transition-colors ${activeTab === "projects" ? "bg-[#e5e5e5] text-[#171717] font-medium" : "text-[#525252] hover:bg-[#ebebeb]"}`}
-              >
-                Not in Project
-              </button>
-              <button 
-                onClick={() => setActiveTab("conversations")}
-                className={`w-full text-left px-3 py-1.5 rounded-md text-[13px] transition-colors ${activeTab === "conversations" ? "bg-[#e5e5e5] text-[#171717] font-medium" : "text-[#525252] hover:bg-[#ebebeb]"}`}
-              >
-                Conversations
-              </button>
-            </div>
-          </div>
-
-          <div className="px-2 mt-auto pt-4 border-t border-[#e5e5e5]">
-            <button 
-              onClick={() => setActiveTab("shortcuts")}
-              className={`w-full text-left px-3 py-1.5 rounded-md text-[13px] transition-colors ${activeTab === "shortcuts" ? "bg-[#e5e5e5] text-[#171717] font-medium" : "text-[#525252] hover:bg-[#ebebeb]"}`}
-            >
-              Shortcuts
-            </button>
-            <button 
-              onClick={() => setActiveTab("feedback")}
-              className={`w-full text-left px-3 py-1.5 rounded-md text-[13px] transition-colors ${activeTab === "feedback" ? "bg-[#e5e5e5] text-[#171717] font-medium" : "text-[#525252] hover:bg-[#ebebeb]"}`}
-            >
-              Provide Feedback
-            </button>
-          </div>
-        </div>
-
-        {/* Right Content */}
-        <div className="flex-1 flex flex-col bg-white overflow-hidden relative">
-          <div className="absolute top-4 right-4 z-10">
-            <button onClick={onClose} className="p-1.5 rounded-md text-[#737373] hover:bg-[#f4f4f4] hover:text-[#171717] transition-colors">
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-
-          <div className="flex-1 overflow-y-auto px-10 py-10">
-            
-            {/* GENERAL TAB */}
-            {activeTab === "general" && (
-              <div className="max-w-[600px] animate-in fade-in duration-300">
-                <h2 className="text-[22px] font-semibold text-[#171717] mb-1">General</h2>
-                <p className="text-[14px] text-[#737373] mb-8">Configure agent execution, queued message delivery, and permissions.</p>
-
-                <div className="space-y-8">
-                  {/* Execution */}
-                  <div>
-                    <h3 className="text-[14px] font-semibold text-[#171717] mb-3">Execution</h3>
-                    <div className="flex items-center justify-between p-4 bg-[#f4f4f4] rounded-lg border border-[#e5e5e5]">
-                      <div>
-                        <div className="text-[14px] text-[#171717] font-medium">Queued Messages</div>
-                        <div className="text-[13px] text-[#737373]">Configure when follow-up messages are sent.</div>
-                        <div className="text-[12px] text-[#a3a3a3] flex items-center gap-1 mt-0.5">Keyboard shortcuts <HelpCircle className="w-3 h-3" /></div>
-                      </div>
-                      <button className="flex items-center gap-2 px-3 py-1.5 bg-[#ebebeb] hover:bg-[#e5e5e5] rounded-md text-[13px] text-[#525252] transition-colors">
-                        Queue After Turn <ChevronDown className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Agent Settings */}
-                  <div>
-                    <h3 className="text-[14px] font-semibold text-[#171717] mb-3">Agent Settings</h3>
-                    <div className="flex items-center justify-between p-4 bg-[#f4f4f4] rounded-lg border border-[#e5e5e5]">
-                      <div className="max-w-[70%]">
-                        <div className="text-[14px] text-[#171717] font-medium">Security Preset</div>
-                        <div className="text-[13px] text-[#737373] leading-snug mt-0.5">Choose a predefined security preset for the agent. This controls terminal auto-execution policy, and file access policy.</div>
-                        <div className="text-[12px] text-[#a3a3a3] flex items-center gap-1 mt-1">Learn more about Default <HelpCircle className="w-3 h-3" /></div>
-                      </div>
-                      <button className="flex items-center gap-2 px-3 py-1.5 bg-[#ebebeb] hover:bg-[#e5e5e5] rounded-md text-[13px] text-[#525252] transition-colors">
-                        Default <ChevronDown className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Agent Behavior */}
-                  <div>
-                    <h3 className="text-[14px] font-semibold text-[#171717] mb-3">Agent Behavior</h3>
-                    <div className="flex items-center justify-between p-4 bg-[#f4f4f4] rounded-lg border border-[#e5e5e5]">
-                      <div className="max-w-[70%]">
-                        <div className="text-[14px] text-[#171717] font-medium">Artifact Review Policy</div>
-                        <div className="text-[13px] text-[#737373] leading-snug mt-0.5">Specifies Agent's behavior when asking for review on artifacts, which are documents it creates to enable a richer conversation experience.</div>
-                      </div>
-                      <button className="flex items-center gap-2 px-3 py-1.5 bg-[#ebebeb] hover:bg-[#e5e5e5] rounded-md text-[13px] text-[#525252] transition-colors">
-                        Always Ask <ChevronDown className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* File Permissions */}
-                  <div>
-                    <h3 className="text-[14px] font-semibold text-[#171717] mb-3">File Permissions</h3>
-                    <div className="flex items-center justify-between p-4 bg-[#f4f4f4] rounded-lg border border-[#e5e5e5]">
-                      <div>
-                        <div className="text-[14px] text-[#171717] font-medium">File Access Rules</div>
-                        <div className="text-[13px] text-[#737373] mt-0.5">Configure allowed and denied paths for file reads and writes.</div>
-                      </div>
-                      <button className="px-4 py-1.5 bg-[#ebebeb] hover:bg-[#e5e5e5] rounded-md text-[13px] font-medium text-[#171717] transition-colors">
-                        Open
-                      </button>
-                    </div>
-                  </div>
+          {activeTab === "skills" && (
+            <section className="max-w-2xl space-y-6">
+              <header>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-2xl font-semibold tracking-tight">Local Skills</h3>
+                  <span className="rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 text-[11px] font-medium">100% Zero-Egress</span>
                 </div>
-              </div>
-            )}
+                <p className="mt-2 text-sm text-[#666666] dark:text-[#999999]">
+                  Modular local agent skills executing directly on your machine with no external telemetry.
+                </p>
+              </header>
 
-            {/* ACCOUNT TAB */}
-            {activeTab === "account" && (
-              <div className="max-w-[600px] animate-in fade-in duration-300">
-                <h2 className="text-[22px] font-semibold text-[#171717] mb-1">Account & Usage</h2>
-                <p className="text-[14px] text-[#737373] mb-8">Manage your profile, and account details.</p>
-
-                
-
-                <div className="space-y-8">
-                  {/* Avatar Selection */}
-                  <div>
-                    <h3 className="text-[14px] font-semibold text-[#171717] mb-3">Profile Avatar</h3>
-                    <div className="p-4 bg-[#f4f4f4] rounded-lg border border-[#e5e5e5]">
-                      <div className="text-[13px] text-[#737373] mb-4">Choose a modern abstract avatar for your workspace identicon.</div>
-                      <div className="flex items-center gap-3">
-                        {abstractAvatars.map((bg, index) => (
-                          <button 
-                            key={index}
-                            onClick={() => setSelectedAvatar(index)}
-                            className={`relative w-12 h-12 rounded-full border-[3px] transition-all ${bg} ${
-                              selectedAvatar === index ? "border-white shadow-[0_0_0_2px_#171717]" : "border-transparent hover:scale-105"
-                            }`}
-                          >
-                            {selectedAvatar === index && (
-                              <div className="absolute inset-0 flex items-center justify-center">
-                                <Check className="w-5 h-5 text-white drop-shadow-md" strokeWidth={3} />
-                              </div>
-                            )}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Account Details */}
-                  <div>
-                    <h3 className="text-[14px] font-semibold text-[#171717] mb-3">Account Details</h3>
-                    <div className="p-4 bg-[#f4f4f4] rounded-lg border border-[#e5e5e5] space-y-4">
-                      <div className="flex justify-between items-center">
-                        <span className="text-[13px] text-[#737373]">Email Address</span>
-                        <span className="text-[14px] font-medium text-[#171717]">{userEmail || "user@togetlink.com"}</span>
-                      </div>
-                      <div className="flex justify-between items-center pt-4 border-t border-[#e5e5e5]">
-                        <span className="text-[13px] text-[#737373]">Current Balance</span>
-                        <span className="text-[14px] font-semibold text-[#171717]">$0.00</span>
-                      </div>
-                      <div className="flex justify-between items-center pt-4 border-t border-[#e5e5e5]">
-                        <span className="text-[13px] text-[#737373]">Account Status</span>
-                        <span className="text-[13px] font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">Active</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            )}
-            
-            {/* APPEARANCE TAB */}
-            {activeTab === "appearance" && (
-              <div className="max-w-[600px] animate-in fade-in duration-300">
-                <h2 className="text-[22px] font-semibold text-[#171717] mb-1">Appearance</h2>
-                <p className="text-[14px] text-[#737373] mb-8">Customize the look and feel of the platform.</p>
-                
-                <h3 className="text-[14px] font-semibold text-[#171717] mb-3">Theme Preferences</h3>
-                <div className="flex gap-4 mb-8">
-                  <button className="flex-1 flex flex-col items-center gap-3 p-4 rounded-xl border-2 border-[#171717] bg-[#f4f4f4]">
-                    <div className="w-full h-24 rounded-lg bg-white border border-[#e5e5e5] shadow-sm flex flex-col p-2 gap-2">
-                       <div className="w-1/2 h-3 bg-[#f0f0f0] rounded-sm"></div>
-                       <div className="w-3/4 h-3 bg-[#f0f0f0] rounded-sm"></div>
-                    </div>
-                    <span className="text-[13px] font-medium text-[#171717]">Light Mode</span>
-                  </button>
-                  <button className="flex-1 flex flex-col items-center gap-3 p-4 rounded-xl border border-[#e5e5e5] hover:border-[#a3a3a3] transition-colors bg-[#f4f4f4] opacity-70 cursor-not-allowed">
-                    <div className="w-full h-24 rounded-lg bg-[#171717] border border-[#262626] shadow-sm flex flex-col p-2 gap-2">
-                       <div className="w-1/2 h-3 bg-[#262626] rounded-sm"></div>
-                       <div className="w-3/4 h-3 bg-[#262626] rounded-sm"></div>
-                    </div>
-                    <span className="text-[13px] font-medium text-[#737373]">Dark Mode (Soon)</span>
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* MODELS TAB */}
-            {activeTab === "models" && (
-              <div className="max-w-[600px] animate-in fade-in duration-300">
-                <h2 className="text-[22px] font-semibold text-[#171717] mb-1">AI Brain & Engine</h2>
-                <p className="text-[14px] text-[#737373] mb-8">Select the computational engine that powers IdeaAI's autonomy.</p>
-                
-                <div className="space-y-4 mb-8">
-                  {/* Option 1: Azure Enterprise Cloud */}
-                  <label 
-                    onClick={() => setActiveEngine("hybrid")}
-                    className={`flex flex-col p-4 bg-white border-2 rounded-xl cursor-pointer shadow-sm relative overflow-hidden transition-colors ${activeEngine === "hybrid" ? "border-[#171717]" : "border-[#e5e5e5] hover:border-[#d4d4d4]"}`}
-                  >
-                    <div className="flex items-center justify-between mb-2">
+              <div className="space-y-3">
+                {skillsList.map((skill) => (
+                  <div key={skill.id} className="rounded-[20px] border border-[#e0e0e0] dark:border-[#262626] bg-[#fcfcfc] dark:bg-[#181818] p-4 flex flex-col gap-2">
+                    <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center text-white text-xs font-bold">
-                          ☁️
-                        </div>
-                        <div className="text-[15px] font-semibold text-[#171717]">Azure Enterprise Cloud (Llama 3.2)</div>
+                        <span className="font-mono text-xs font-semibold">{skill.name}</span>
+                        <span className="rounded-full bg-black/5 dark:bg-white/10 px-2 py-0.5 text-[10px]">{skill.badge}</span>
                       </div>
-                      <div className={`w-5 h-5 rounded-full ${activeEngine === "hybrid" ? "border-[5px] border-[#171717]" : "border-2 border-[#d4d4d4]"}`}></div>
-                    </div>
-                    <p className="text-[13px] text-[#525252] leading-relaxed mb-3">
-                      Powered by high-performance Microsoft Azure E-series Compute (4 vCPU, 32GB RAM). 
-                      Runs deterministic cloud execution and overnight GitHub CI/CD agents while you sleep.
-                    </p>
-                    <div className="flex items-center gap-2">
-                      <span className="px-2 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded text-[10px] font-semibold uppercase tracking-wide">
-                        Azure E-Class (32GB)
-                      </span>
-                      <span className="px-2 py-1 bg-green-50 text-green-700 border border-green-200 rounded text-[10px] font-semibold uppercase tracking-wide">
-                        Cloud Worker Live
-                      </span>
-                    </div>
-                  </label>
-
-                  {/* Option 2: BYOK */}
-                  <div 
-                    onClick={() => setActiveEngine("byok")}
-                    className={`flex flex-col p-4 border rounded-xl transition-colors cursor-pointer ${activeEngine === "byok" ? "bg-[#f4f4f4] border-[#171717] border-2" : "bg-[#f4f4f4] border-[#e5e5e5] hover:border-[#d4d4d4]"}`}
-                  >
-                    <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded bg-[#e5e5e5] flex items-center justify-center text-[#737373] text-xs font-bold">
-                          🔑
-                        </div>
-                        <div className="text-[15px] font-semibold text-[#171717]">Bring Your Own Key (BYOK)</div>
-                      </div>
-                      <div className={`w-5 h-5 rounded-full bg-white ${activeEngine === "byok" ? "border-[5px] border-[#171717]" : "border-2 border-[#d4d4d4]"}`}></div>
-                    </div>
-                    <p className="text-[13px] text-[#737373] mb-4">
-                      Connect your own OpenAI or Anthropic keys. <span className="font-semibold text-[#171717]">100% Free during Early Stage.</span>
-                    </p>
-                    <div className="relative" onClick={(e) => e.stopPropagation()}>
-                      <input 
-                        type="password" 
-                        placeholder="sk-proj-... or sk-ant-..." 
-                        className="w-full p-2.5 rounded-lg border border-[#d4d4d4] text-[13px] focus:outline-none focus:border-[#171717] bg-white shadow-sm"
-                        defaultValue={typeof window !== 'undefined' ? localStorage.getItem('ideaai_api_key') || '' : ''}
-                        onChange={(e) => {
-                          if (typeof window !== 'undefined') {
-                            localStorage.setItem('ideaai_api_key', e.target.value.trim());
-                            setKeySaved(false);
-                          }
-                        }}
-                      />
-                      <button 
-                        onClick={() => {
-                          setKeySaved(true);
-                          setActiveEngine("byok");
-                          setTimeout(() => setKeySaved(false), 2000);
-                        }}
-                        className={`absolute right-2 top-1.5 px-3 py-1 rounded text-[11px] font-medium transition-colors ${keySaved ? "bg-green-500 hover:bg-green-600 text-white" : "bg-[#171717] hover:bg-[#262626] text-white"}`}
-                      >
-                        {keySaved ? "Saved!" : "Save Key"}
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Option 3: Local Engine */}
-                  <label 
-                    onClick={() => setActiveEngine("local")}
-                    className={`flex flex-col p-4 bg-white border rounded-xl cursor-pointer transition-colors ${activeEngine === "local" ? "border-[#171717] border-2" : "border-[#e5e5e5] hover:border-[#d4d4d4]"}`}
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <div className="w-6 h-6 rounded bg-[#171717] flex items-center justify-center text-white text-xs font-bold">
-                          🖥️
-                        </div>
-                        <div className="text-[15px] font-semibold text-[#171717]">Local Engine (Ollama)</div>
-                      </div>
-                      <div className={`w-5 h-5 rounded-full ${activeEngine === "local" ? "border-[5px] border-[#171717]" : "border-2 border-[#d4d4d4]"}`}></div>
-                    </div>
-                    <p className="text-[13px] text-[#737373]">
-                      Run open-source models completely offline on your own hardware. Maximum privacy, zero latency. Requires 16GB+ RAM.
-                    </p>
-                  </label>
-                </div>
-              </div>
-            )}
-
-            {/* INTEGRATIONS TAB */}
-            {activeTab === "integrations" && (
-              <div className="max-w-[600px] animate-in fade-in duration-300">
-                <h2 className="text-[22px] font-semibold text-[#171717] mb-1">Integrations & CI/CD</h2>
-                <p className="text-[14px] text-[#737373] mb-8">Connect external services to enable autonomous overnight execution.</p>
-                
-                {/* GitHub App */}
-                <div className="flex flex-col p-4 bg-white border border-[#e5e5e5] rounded-xl mb-4">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-[#171717] flex items-center justify-center overflow-hidden">
-                        <img src="/matrix-demo/app/png-transparent-github-social-media-computer-icons-logo-android-github-logo-computer-wallpaper-banner.png" alt="GitHub" className="h-full w-full object-cover" />
-                      </div>
-                      <div>
-                        <div className="text-[15px] font-semibold text-[#171717]">GitHub Repository Access</div>
-                        <div className="text-[13px] text-[#737373]">Required for overnight push & PR automation</div>
-                      </div>
-                    </div>
-                    <a href="/api/github/auth" className="px-4 py-2 bg-[#171717] hover:bg-[#262626] text-white rounded-lg text-[13px] font-medium transition-colors">
-                      Connect GitHub
-                    </a>
-                  </div>
-                  <div className="p-3 bg-blue-50/50 border border-blue-100 rounded-lg">
-                    <p className="text-[12px] text-blue-800">
-                      <strong>Status:</strong> Not connected. IdeaAI cannot push code or monitor failing GitHub Actions overnight until you authorize access.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Railway */}
-                <div className="flex flex-col p-4 bg-white border border-[#e5e5e5] rounded-xl mb-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-[#e5e5e5] flex items-center justify-center overflow-hidden">
-                      <img src="/matrix-demo/app/9253400_imgwebp-removebg-preview.png" alt="Railway" className="h-full w-full object-contain p-1" />
-                      </div>
-                      <div>
-                        <div className="text-[15px] font-semibold text-[#171717]">Railway Cloud Execution</div>
-                        <div className="text-[13px] text-[#737373]">Run an overnight worker while your computer is offline</div>
-                      </div>
-                    </div>
-                    <span className={`px-3 py-1.5 rounded-lg text-[12px] font-medium ${railwayConnected ? "bg-emerald-100 text-emerald-700" : "bg-[#f4f4f4] text-[#737373]"}`}>
-                      {railwayConnected ? "Connected" : "Not connected"}
-                    </span>
-                  </div>
-                  <p className="mt-3 text-[12px] leading-5 text-[#737373]">
-                    Railway is optional. It provides cloud compute for overnight jobs; GitHub access is still required for repository checkout and pull requests.
-                  </p>
-                  {!railwayConnected && (
-                    <div className="mt-4 space-y-3">
-                      <div className="flex gap-2">
-                        <select value={railwayTokenType} onChange={(event) => setRailwayTokenType(event.target.value as typeof railwayTokenType)} className="rounded-lg border border-[#d4d4d4] bg-white px-3 py-2 text-[13px] text-[#171717]">
-                          <option value="workspace">Workspace token</option>
-                          <option value="project">Project token</option>
-                          <option value="account">Account token</option>
-                        </select>
-                        <input type="password" value={railwayToken} onChange={(event) => setRailwayToken(event.target.value)} placeholder="Railway token" className="min-w-0 flex-1 rounded-lg border border-[#d4d4d4] px-3 py-2 text-[13px] text-[#171717] focus:outline-none focus:border-[#171717]" />
-                      </div>
-                      <button
-                        type="button"
-                        disabled={railwayLoading}
-                        onClick={async () => {
-                          setRailwayLoading(true)
-                          setRailwayStatus("")
-                          try {
-                            const response = await fetch("/api/integrations/railway", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token: railwayToken, tokenType: railwayTokenType }) })
-                            const data = await response.json()
-                            if (!response.ok) throw new Error(data.error || "Railway connection failed.")
-                            setRailwayConnected(true)
-                            setRailwayToken("")
-                            setRailwayStatus("Railway connection verified and stored securely.")
-                          } catch (error) {
-                            setRailwayStatus(error instanceof Error ? error.message : "Railway connection failed.")
-                          } finally {
-                            setRailwayLoading(false)
-                          }
-                        }}
-                        className="rounded-lg bg-[#171717] px-4 py-2 text-[13px] font-medium text-white hover:bg-[#262626] disabled:opacity-50"
-                      >
-                        {railwayLoading ? "Verifying..." : "Connect Railway"}
-                      </button>
-                    </div>
-                  )}
-                  {railwayConnected && (
-                    <button type="button" onClick={async () => { await fetch("/api/integrations/railway", { method: "DELETE" }); setRailwayConnected(false); setRailwayStatus("Railway disconnected.") }} className="mt-3 self-start text-[12px] text-red-600 hover:underline">
-                      Disconnect Railway
-                    </button>
-                  )}
-                  {railwayStatus && <p className="mt-3 text-[12px] text-[#525252]">{railwayStatus}</p>}
-                  <div className="mt-4 rounded-lg border border-amber-100 bg-amber-50 p-3 text-[12px] leading-5 text-amber-800">
-                    Official Railway API: <code>backboard.railway.com/graphql/v2</code>. Use a scoped workspace or project token for production.
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* CUSTOMIZATIONS TAB */}
-            {activeTab === "customizations" && (
-              <div className="max-w-[600px] animate-in fade-in duration-300">
-                <h2 className="text-[22px] font-semibold text-[#171717] mb-1">Customizations</h2>
-                <p className="text-[14px] text-[#737373] mb-8">Set system prompts and activate specialized skills.</p>
-                
-                <h3 className="text-[14px] font-semibold text-[#171717] mb-3">Global System Prompt</h3>
-                <textarea 
-                  className="w-full h-32 p-3 bg-[#f4f4f4] border border-[#e5e5e5] rounded-lg text-[13px] text-[#171717] focus:outline-none focus:border-[#171717] mb-8 resize-none"
-                  value={systemPrompt}
-                  onChange={(event) => { setSystemPrompt(event.target.value); localStorage.setItem("ideaai_global_system_prompt", event.target.value) }}
-                  placeholder="Add optional instructions for IdeaAI..."
-                />
-
-                <h3 className="text-[14px] font-semibold text-[#171717] mb-3">Active Skills</h3>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between p-3 bg-white border border-[#e5e5e5] rounded-lg">
-                    <div className="text-[13px] font-medium text-[#171717]">Code Generation</div>
-                    <button type="button" aria-pressed={codeGeneration} onClick={() => { const next = !codeGeneration; setCodeGeneration(next); localStorage.setItem("ideaai_skill_code_generation", next ? "enabled" : "disabled") }} className={`w-10 h-6 rounded-full relative ${codeGeneration ? "bg-[#4f46e5]" : "bg-[#d4d4d4]"}`}><div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${codeGeneration ? "right-1" : "left-1"}`}></div></button>
-                  </div>
-                  <div className="flex items-center justify-between p-3 bg-white border border-[#e5e5e5] rounded-lg">
-                    <div className="text-[13px] font-medium text-[#171717]">Web Research</div>
-                    <button type="button" aria-pressed={webResearch} onClick={() => { const next = !webResearch; setWebResearch(next); localStorage.setItem("ideaai_skill_web_research", next ? "enabled" : "disabled") }} className={`w-10 h-6 rounded-full relative ${webResearch ? "bg-[#4f46e5]" : "bg-[#d4d4d4]"}`}><div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${webResearch ? "right-1" : "left-1"}`}></div></button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* BROWSER TAB */}
-            {activeTab === "browser" && (
-              <div className="max-w-[600px] animate-in fade-in duration-300">
-                <h2 className="text-[22px] font-semibold text-[#171717] mb-1">Browser Tool</h2>
-                <p className="text-[14px] text-[#737373] mb-8">Manage how the AI interacts with the internet.</p>
-                
-                <div className="flex items-center justify-between p-4 bg-[#f4f4f4] rounded-lg border border-[#e5e5e5]">
-                  <div>
-                    <div className="text-[14px] text-[#171717] font-medium">Search Engine Preference</div>
-                    <div className="text-[13px] text-[#737373]">Which engine the agent uses to look up live facts.</div>
-                  </div>
-                  <select value={browserPreference} onChange={(event) => { const next = event.target.value as typeof browserPreference; setBrowserPreference(next); localStorage.setItem("ideaai_browser_preference", next === "Microsoft Edge" ? "edge" : "google") }} className="px-3 py-1.5 bg-[#ebebeb] rounded-md text-[13px] text-[#525252]">
-                    <option>Google</option>
-                    <option>Microsoft Edge</option>
-                  </select>
-                </div>
-              </div>
-            )}
-
-            {/* APP TAB */}
-            {activeTab === "app" && (
-              <div className="max-w-[600px] animate-in fade-in duration-300">
-                <h2 className="text-[22px] font-semibold text-[#171717] mb-1">App Settings</h2>
-                <p className="text-[14px] text-[#737373] mb-8">Manage notifications and language preferences.</p>
-                
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 bg-[#f4f4f4] rounded-lg border border-[#e5e5e5]">
-                    <div>
-                      <div className="text-[14px] text-[#171717] font-medium">Language</div>
-                    </div>
-                    <span className="px-3 py-1.5 bg-[#ebebeb] rounded-md text-[13px] text-[#525252]">English (US)</span>
-                  </div>
-                  <div className="flex items-center justify-between p-4 bg-[#f4f4f4] rounded-lg border border-[#e5e5e5]">
-                    <div>
-                      <div className="text-[14px] text-[#171717] font-medium">Desktop Notifications</div>
-                      <div className="text-[13px] text-[#737373]">Receive an alert when an agent finishes a long task.</div>
-                    </div>
-                    <button type="button" aria-pressed={desktopNotifications} onClick={() => { const next = !desktopNotifications; setDesktopNotifications(next); localStorage.setItem("ideaai_desktop_notifications", next ? "enabled" : "disabled"); if (next && "Notification" in window && Notification.permission === "default") void Notification.requestPermission() }} className={`w-10 h-6 rounded-full relative ${desktopNotifications ? "bg-[#4f46e5]" : "bg-[#e5e5e5]"}`}><div className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow-sm transition-all ${desktopNotifications ? "right-1" : "left-1"}`}></div></button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* PROJECTS TAB */}
-            {activeTab === "projects" && (
-              <div className="max-w-[600px] animate-in fade-in duration-300">
-                <h2 className="text-[22px] font-semibold text-[#171717] mb-1">Projects</h2>
-                <p className="text-[14px] text-[#737373] mb-8">Manage your recent and active local projects.</p>
-                
-                {localProjects.length > 0 ? (
-                  <div className="space-y-3">
-                    {localProjects.map((proj, i) => (
-                      <div key={i} className="flex items-center justify-between p-4 bg-[#f4f4f4] rounded-lg border border-[#e5e5e5]">
-                        <div className="flex flex-col">
-                          <span className="text-[14px] font-medium text-[#171717] truncate max-w-[300px]" title={proj}>{proj}</span>
-                          <span className="text-[12px] text-[#737373] mt-0.5">Last opened recently</span>
-                        </div>
-                        <button className="px-3 py-1.5 bg-[#ebebeb] hover:bg-[#e5e5e5] rounded-md text-[13px] text-[#525252] transition-colors">
-                          Open Project
+                        <button type="button" onClick={() => handleCopySkill(skill)} className="grid h-7 w-7 place-items-center rounded-full border border-[#e0e0e0] dark:border-[#333333] hover:bg-black/5 dark:hover:bg-white/5 text-xs">
+                          {copiedSkillId === skill.id ? <Check size={12} /> : <Copy size={12} />}
                         </button>
+                        <input type="checkbox" checked={skill.enabled} onChange={() => handleToggleSkill(skill.id)} className="h-4 w-4 rounded accent-black dark:accent-white cursor-pointer" />
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center py-12 text-center bg-[#f4f4f4] border border-[#e5e5e5] border-dashed rounded-xl">
-                    <div className="w-12 h-12 bg-[#ebebeb] text-[#a3a3a3] rounded-full flex items-center justify-center mb-3">
-                      <Globe className="w-6 h-6" />
                     </div>
-                    <h3 className="text-[15px] font-medium text-[#171717] mb-1">No recent projects</h3>
-                    <p className="text-[13px] text-[#737373] mb-4">You haven't opened any projects in IdeaAI yet.</p>
-                    <button className="px-4 py-2 bg-[#171717] text-white hover:bg-[#262626] rounded-md text-[13px] transition-colors font-medium">
-                      Open Folder...
-                    </button>
+                    <p className="text-xs text-[#666666] dark:text-[#999999]">{skill.description}</p>
                   </div>
-                )}
+                ))}
               </div>
-            )}
+            </section>
+          )}
 
-            {/* CONVERSATIONS TAB */}
-            {activeTab === "conversations" && (
-              <div className="max-w-[600px] animate-in fade-in duration-300">
-                <h2 className="text-[22px] font-semibold text-[#171717] mb-1">Conversations</h2>
-                <p className="text-[14px] text-[#737373] mb-8">View your chat history and previous interactions.</p>
-                {conversations.length > 0 ? <div className="space-y-2">{conversations.map((conversation) => <div key={`${conversation.title}-${conversation.updatedAt}`} className="flex items-center justify-between rounded-lg border border-[#e5e5e5] bg-[#f4f4f4] px-4 py-3"><span className="truncate text-[13px] text-[#171717]">{conversation.title}</span><span className="ml-3 shrink-0 text-[11px] text-[#737373]">{conversation.updatedAt ? new Date(conversation.updatedAt).toLocaleDateString("en-US") : ""}</span></div>)}</div> : <div className="flex flex-col items-center justify-center py-12 text-center bg-[#f4f4f4] border border-[#e5e5e5] border-dashed rounded-xl">
-                  <div className="w-12 h-12 bg-[#ebebeb] text-[#a3a3a3] rounded-full flex items-center justify-center mb-3">
-                    <HelpCircle className="w-6 h-6" />
-                  </div>
-                  <h3 className="text-[15px] font-medium text-[#171717] mb-1">No recent conversations</h3>
-                  <p className="text-[13px] text-[#737373]">Your chat history will appear here once you start interacting.</p>
-                </div>}
+          {activeTab === "provider-account" && <section className="max-w-xl space-y-5">
+            <header><h3 className="text-2xl font-semibold tracking-tight">Account & Billing</h3><p className="mt-2 text-sm text-[#666666] dark:text-[#999999]">Manage your workspace identity, plan, and Stripe-ready Pro access.</p></header>
+            <div className="rounded-[20px] border border-[#dcdcdc] bg-[#fafafa] p-4 dark:border-[#303030] dark:bg-[#181818]"><div className="flex items-start justify-between gap-4"><div><p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#777]">Current plan</p><p className="mt-2 text-lg font-semibold">{isPro(plan) ? "Turaen Pro" : "Turaen Free"}</p><p className="mt-1 text-xs text-[#777] dark:text-[#aaa]">{isPro(plan) ? "Full local and autonomous engineering access." : "Lightweight local models and focused workspace limits."}</p></div><span className="rounded-full bg-black px-2.5 py-1 text-[10px] font-semibold text-white dark:bg-white dark:text-black">{isPro(plan) ? "PRO" : "FREE"}</span></div><div className="mt-4 flex flex-wrap gap-2"><a href={STRIPE_PAYMENT_LINK_URL} target="_blank" rel="noreferrer" className="inline-flex h-9 items-center rounded-full bg-black px-4 text-xs font-medium text-white dark:bg-white dark:text-black">Upgrade with Stripe</a><button type="button" onClick={async () => { const next = await savePlanState({ tier: isPro(plan) ? "free" : "pro", devPreview: !isPro(plan) }); onPlanChange?.(next) }} className="h-9 rounded-full border border-[#d8d8d8] px-4 text-xs font-medium hover:bg-black/5 dark:border-[#3a3a3a] dark:hover:bg-white/10">{isPro(plan) ? "Disable dev preview" : "Enable Pro dev preview"}</button></div><p className="mt-3 text-[11px] text-[#888]">Dev preview is local-only and lets you test both tiers before connecting Stripe webhooks.</p></div>
+            <div className="rounded-[20px] border border-[#e0e0e0] dark:border-[#262626] p-4"><p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#666666] dark:text-[#999999]">Current account</p><p className="mt-2 text-sm font-medium">{userEmail || currentUser?.email || (isGuest ? "Guest session" : "Signed in")}</p><p className="mt-1 text-xs text-[#666666] dark:text-[#999999]">{isGuest ? "Your guest session stays available on this device." : "Account linked to Turaen."}</p></div>
+            {isGuest && <div className="space-y-3">
+              <button type="button" onClick={() => void linkGoogle()} disabled={accountBusy || !currentUser} className="h-[36px] px-5 rounded-[40px] border border-[#e0e0e0] dark:border-[#333333] text-sm hover:bg-[#f5f5f5] dark:hover:bg-[#202020] disabled:opacity-50">Link Google account</button>
+              <div className="flex min-w-0 flex-wrap gap-2">
+                <input type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="Email address" className="min-w-40 flex-1 h-[36px] rounded-full border border-[#e0e0e0] dark:border-[#333333] bg-transparent px-4 text-sm outline-none focus:border-black dark:focus:border-white" />
+                <input type="password" autoComplete="new-password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder="Password" className="min-w-36 flex-1 h-[36px] rounded-full border border-[#e0e0e0] dark:border-[#333333] bg-transparent px-4 text-sm outline-none focus:border-black dark:focus:border-white" />
+                <button type="button" onClick={() => void linkEmail()} disabled={accountBusy || !currentUser} className="h-[36px] px-5 rounded-[40px] border border-[#e0e0e0] dark:border-[#333333] text-sm hover:bg-[#f5f5f5] dark:hover:bg-[#202020] disabled:opacity-50">Link email</button>
               </div>
-            )}
+            </div>}
+            {accountMessage && <p role="status" className="break-words text-xs text-[#666666] dark:text-[#999999]">{accountMessage}</p>}
+            <div className="rounded-[20px] border border-[#e0e0e0] dark:border-[#262626] bg-[#fcfcfc] dark:bg-[#181818] p-4">
+              <div className="flex items-start justify-between gap-4"><div><p className="text-sm font-semibold">GitHub integration</p><p className="mt-1 text-xs text-[#666666] dark:text-[#999999]">{githubAuth?.authenticated ? `Connected${githubAuth.account ? ` as ${githubAuth.account}` : ""} via ${githubAuth.source || "GitHub"}.` : "Connect GitHub to let the agent push branches and open Pull Requests."}</p></div><span className={`rounded-full px-2 py-1 text-[10px] font-medium ${githubAuth?.authenticated ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-black/5 text-[#777] dark:bg-white/10 dark:text-[#aaa]"}`}>{githubAuth?.authenticated ? "Connected" : "Not connected"}</span></div>
+              <label className="mt-4 block text-xs font-medium">GitHub Personal Access Token (PAT)<input type="password" autoComplete="new-password" value={githubToken} onChange={(event) => setGithubToken(event.target.value)} placeholder="github_pat_…" className="mt-2 w-full rounded-[14px] border border-[#e0e0e0] dark:border-[#333333] bg-white dark:bg-[#121212] px-3 py-2.5 font-normal outline-none focus:border-black dark:focus:border-white" /></label>
+              <div className="mt-3 flex items-center justify-between gap-3"><span className="text-[11px] text-[#777]">Stored with OS encrypted app storage.</span><button type="button" onClick={() => void saveGithubPat()} disabled={githubBusy || !githubToken.trim()} className="h-[32px] rounded-full border border-[#e0e0e0] dark:border-[#333333] px-4 text-xs hover:bg-[#f5f5f5] dark:hover:bg-[#202020] disabled:opacity-50">{githubBusy ? "Saving…" : "Save PAT"}</button></div>
+              {githubAuth?.configured && <button type="button" onClick={() => { void AgentBridge.setGitHubToken("").then(() => { setGithubToken(""); setGithubAuth((current) => ({ ...current, configured: false, authenticated: false, source: "none" })); setGithubMessage("GitHub PAT removed.") }) }} className="mt-3 text-xs text-[#777] underline underline-offset-2">Remove saved PAT</button>}
+              {githubMessage && <p role="status" className="mt-2 text-xs text-[#666666] dark:text-[#999999]">{githubMessage}</p>}
+            </div>
+            <label className="flex items-center justify-between rounded-[20px] border border-[#e0e0e0] dark:border-[#262626] bg-[#fcfcfc] dark:bg-[#181818] px-4 py-3 text-sm">Cloud sync<input type="checkbox" checked={preference.cloudSync === "true"} onChange={(event) => savePreference("cloudSync", String(event.target.checked))} className="accent-black dark:accent-white" /></label>
+            <div className="rounded-[20px] border border-[#e0e0e0] dark:border-[#262626] bg-[#fcfcfc] dark:bg-[#181818] p-4"><p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#92959c]">Usage</p><p className="mt-2 text-sm">Local model requests are private to this device.</p><p className="mt-1 text-xs text-[#858990]">Cloud usage is managed by your linked Turaen account.</p></div>
+          </section>}
 
-            {/* SHORTCUTS TAB */}
-            {activeTab === "shortcuts" && (
-              <div className="max-w-[600px] animate-in fade-in duration-300">
-                <h2 className="text-[22px] font-semibold text-[#171717] mb-1">Keyboard Shortcuts</h2>
-                <p className="text-[14px] text-[#737373] mb-8">Boost your productivity with these quick actions.</p>
-                
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between p-3 border-b border-[#e5e5e5]">
-                    <span className="text-[13px] text-[#525252]">Open AI Terminal</span>
-                    <div className="flex gap-1"><kbd className="px-2 py-1 bg-[#f4f4f4] border border-[#e5e5e5] rounded text-[11px] font-mono">Ctrl</kbd><kbd className="px-2 py-1 bg-[#f4f4f4] border border-[#e5e5e5] rounded text-[11px] font-mono">K</kbd></div>
-                  </div>
-                  <div className="flex items-center justify-between p-3 border-b border-[#e5e5e5]">
-                    <span className="text-[13px] text-[#525252]">Submit Message</span>
-                    <div className="flex gap-1"><kbd className="px-2 py-1 bg-[#f4f4f4] border border-[#e5e5e5] rounded text-[11px] font-mono">Enter</kbd></div>
-                  </div>
-                  <div className="flex items-center justify-between p-3 border-b border-[#e5e5e5]">
-                    <span className="text-[13px] text-[#525252]">New Line</span>
-                    <div className="flex gap-1"><kbd className="px-2 py-1 bg-[#f4f4f4] border border-[#e5e5e5] rounded text-[11px] font-mono">Shift</kbd><kbd className="px-2 py-1 bg-[#f4f4f4] border border-[#e5e5e5] rounded text-[11px] font-mono">Enter</kbd></div>
-                  </div>
-                  <div className="flex items-center justify-between p-3 border-b border-[#e5e5e5]">
-                    <span className="text-[13px] text-[#525252]">Toggle Settings</span>
-                    <div className="flex gap-1"><kbd className="px-2 py-1 bg-[#f4f4f4] border border-[#e5e5e5] rounded text-[11px] font-mono">Ctrl</kbd><kbd className="px-2 py-1 bg-[#f4f4f4] border border-[#e5e5e5] rounded text-[11px] font-mono">,</kbd></div>
-                  </div>
-                </div>
-              </div>
-            )}
+          {activeTab === "provider-byok" && <section className="max-w-2xl space-y-6">
+            <header><h3 className="text-2xl font-semibold tracking-tight">Bring your own keys</h3><p className="mt-2 text-sm text-[#666666] dark:text-[#999999]">Keys stay in this app profile. Test a key to check that the provider accepts it.</p></header>
+            {[
+              { label: "OpenAI", key: "ideaai_openai_api_key", url: "https://api.openai.com/v1/models", headers: (value: string) => ({ Authorization: `Bearer ${value}` }) },
+              { label: "Anthropic", key: "ideaai_anthropic_api_key", url: "https://api.anthropic.com/v1/models", headers: (value: string) => ({ "x-api-key": value, "anthropic-version": "2023-06-01" }) },
+              { label: "Google Gemini", key: "ideaai_google_api_key", url: "https://generativelanguage.googleapis.com/v1beta/models?key=", headers: (_value: string) => ({}), queryKey: true },
+              { label: "OpenRouter", key: "ideaai_openrouter_api_key", url: "https://openrouter.ai/api/v1/models", headers: (value: string) => ({ Authorization: `Bearer ${value}` }) },
+            ].map((prov) => <div key={prov.key} className="rounded-[20px] border border-[#e0e0e0] dark:border-[#262626] bg-[#fcfcfc] dark:bg-[#181818] p-4"><label className="block text-sm font-medium">{prov.label}<input type="password" autoComplete="off" placeholder="Paste API key" defaultValue={typeof window !== "undefined" ? localStorage.getItem(prov.key) || "" : ""} onChange={(event) => localStorage.setItem(prov.key, event.target.value)} className="mt-2 w-full rounded-[14px] border border-[#e0e0e0] dark:border-[#333333] bg-white dark:bg-[#121212] px-3 py-2.5 font-normal outline-none focus:border-black dark:focus:border-white" /></label><div className="mt-3 flex items-center justify-between gap-3"><button type="button" onClick={() => void testProviderKey(prov.label, prov.key, prov.url, prov.headers, "queryKey" in prov && prov.queryKey)} className="h-[32px] px-4 rounded-full border border-[#e0e0e0] dark:border-[#333333] text-xs hover:bg-[#f5f5f5] dark:hover:bg-[#202020]">Test connection</button><span role="status" className="text-[11px] text-[#777]">{keyTest[prov.label] || "Stored on this device"}</span></div></div>)}
+          </section>}
 
-            {/* FEEDBACK TAB */}
-            {activeTab === "feedback" && (
-              <div className="max-w-[600px] animate-in fade-in duration-300">
-                <h2 className="text-[22px] font-semibold text-[#171717] mb-1">Provide Feedback</h2>
-                <p className="text-[14px] text-[#737373] mb-8">Help us improve IdeaAI by sharing your thoughts or reporting issues.</p>
-                
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-[13px] font-medium text-[#171717] mb-1.5">What would you like to tell us?</label>
-                    <textarea 
-                      className="w-full h-32 px-3 py-2 bg-white border border-[#e5e5e5] rounded-md text-[14px] outline-none focus:border-[#a3a3a3] transition-colors resize-none"
-                      placeholder="I love the product! Or... I found a bug when trying to..."
-                    ></textarea>
-                  </div>
-                  <button 
-                    onClick={() => {
-                      window.location.href = "mailto:support@togetlink.com?subject=IdeaAI Feedback";
-                    }}
-                    className="w-full bg-[#171717] hover:bg-[#262626] text-white px-4 py-2.5 rounded-md text-[14px] font-medium transition-colors"
-                  >
-                    Send via Email
-                  </button>
-                  <p className="text-center text-[12px] text-[#a3a3a3] mt-4">
-                    Or directly email us at <a href="mailto:support@togetlink.com" className="text-[#525252] hover:underline">support@togetlink.com</a>
-                  </p>
-                </div>
-              </div>
-            )}
+          {activeTab === "general" && <section className="max-w-2xl space-y-5">
+            <header><h3 className="text-2xl font-semibold tracking-tight">General</h3><p className="mt-2 text-sm text-[#666666] dark:text-[#999999]">Tune the workspace to your preferred environment.</p></header>
+            {[
+              { key: "theme", label: "Appearance", values: ["System", "Light", "Dark"] },
+              { key: "language", label: "Language", values: ["English"] },
+              { key: "startup", label: "On startup", values: ["Restore last workspace", "Open workspace picker", "Choose each time"] },
+              { key: "typography", label: "Interface font", values: ["OpenAI Sans", "Inter", "Satoshi", "Plus Jakarta Sans"] },
+              { key: "fontScale", label: "Typography scale", values: ["Compact", "Default", "Comfortable"] }
+            ].map((item) => (
+              <label key={item.key} className="flex items-center justify-between gap-5 rounded-[20px] border border-[#e0e0e0] dark:border-[#262626] bg-[#fcfcfc] dark:bg-[#181818] px-4 py-3 text-sm">
+                <span>{item.label}</span>
+                <select value={preference[item.key] || item.values[0]} onChange={(event) => savePreference(item.key, event.target.value)} className="max-w-[56%] rounded-full border border-[#e0e0e0] dark:border-[#333333] bg-white dark:bg-[#121212] px-3 py-1.5 text-xs text-[#000000] dark:text-[#ffffff] outline-none">
+                  {item.values.map((value) => <option key={value} value={value}>{value}</option>)}
+                </select>
+              </label>
+            ))}
+            <label className="flex items-center justify-between rounded-[20px] border border-[#e0e0e0] dark:border-[#262626] bg-[#fcfcfc] dark:bg-[#181818] px-4 py-3 text-sm">Auto-save drafts<input type="checkbox" checked={preference.autosave !== "false"} onChange={(event) => savePreference("autosave", String(event.target.checked))} className="accent-black dark:accent-white" /></label>
+          </section>}
 
-          </div>
-        </div>
-      </motion.div>
+          {activeTab === "agent" && <section className="max-w-2xl space-y-5">
+            <header><h3 className="text-2xl font-semibold tracking-tight">Agent & Autonomy</h3><p className="mt-2 text-sm text-[#666666] dark:text-[#999999]">Choose how much control Turaen has while working.</p></header>
+            <label className="flex items-center justify-between gap-5 rounded-[20px] border border-[#e0e0e0] dark:border-[#262626] bg-[#fcfcfc] dark:bg-[#181818] px-4 py-3 text-sm"><span>Approval mode</span><select value={preference.approval || "Ask before edits"} onChange={(event) => savePreference("approval", event.target.value)} className="rounded-full border border-[#e0e0e0] dark:border-[#333333] bg-white dark:bg-[#121212] px-3 py-1.5 text-xs outline-none">{["Ask before edits", "Auto-approve file edits", "Full auto"].map((item) => <option key={item}>{item}</option>)}</select></label>
+            <label className="flex items-center justify-between rounded-[20px] border border-[#e0e0e0] dark:border-[#262626] bg-[#fcfcfc] dark:bg-[#181818] px-4 py-3 text-sm">Git worktree isolation<input type="checkbox" checked={preference.worktree === "true"} onChange={(event) => savePreference("worktree", String(event.target.checked))} className="accent-black dark:accent-white" /></label>
+            <label className="block rounded-[20px] border border-[#e0e0e0] dark:border-[#262626] bg-[#fcfcfc] dark:bg-[#181818] p-4 text-sm">Custom system rules (.ideaairules)<textarea value={preference.systemRules || ""} onChange={(event) => savePreference("systemRules", event.target.value)} placeholder="Add project-specific guidance…" className="mt-3 min-h-32 w-full resize-y rounded-[14px] border border-[#e0e0e0] dark:border-[#333333] bg-white dark:bg-[#121212] p-3 text-xs outline-none focus:border-black dark:focus:border-white" /></label>
+          </section>}
+
+          {activeTab === "terminal" && <section className="max-w-2xl space-y-5">
+            <header><h3 className="text-2xl font-semibold tracking-tight">Terminal & Shell</h3><p className="mt-2 text-sm text-[#666666] dark:text-[#999999]">Configure the integrated project terminal.</p></header>
+            {[
+              { key: "shell", label: "Default shell", values: ["PowerShell", "CMD", "Git Bash", "WSL"] },
+              { key: "terminalFontSize", label: "Font size", values: ["11", "12", "13", "14", "16"] }
+            ].map((item) => (
+              <label key={item.key} className="flex items-center justify-between rounded-[20px] border border-[#e0e0e0] dark:border-[#262626] bg-[#fcfcfc] dark:bg-[#181818] px-4 py-3 text-sm">{item.label}<select value={preference[item.key] || (item.key === "shell" ? "PowerShell" : "13")} onChange={(event) => savePreference(item.key, event.target.value)} className="rounded-full border border-[#e0e0e0] dark:border-[#333333] bg-white dark:bg-[#121212] px-3 py-1.5 text-xs outline-none">{item.values.map((value) => <option key={value}>{value}</option>)}</select></label>
+            ))}
+            <label className="flex items-center justify-between rounded-[20px] border border-[#e0e0e0] dark:border-[#262626] bg-[#fcfcfc] dark:bg-[#181818] px-4 py-3 text-sm">Stream agent commands in terminal<input type="checkbox" checked={preference.liveStreaming !== "false"} onChange={(event) => savePreference("liveStreaming", String(event.target.checked))} className="accent-black dark:accent-white" /></label>
+          </section>}
+
+          {activeTab === "keybindings" && <section className="max-w-xl space-y-5"><header><h3 className="text-2xl font-semibold tracking-tight">Keybindings</h3><p className="mt-2 text-sm text-[#666666] dark:text-[#999999]">Workspace shortcuts.</p></header><div className="rounded-[16px] border border-[#e0e0e0] dark:border-[#262626] p-4 text-sm">Enter sends · Shift + Enter inserts a line break</div></section>}
+
+          {activeTab === "about" && <section className="max-w-xl space-y-5"><header><TuraenLogo className="mb-4 h-12 w-12 text-[#0A0A0A] dark:text-[#FAFAFA]" /><h3 className="text-2xl font-semibold tracking-tight">About Turaen</h3><p className="mt-2 text-sm text-[#666666] dark:text-[#999999]">A local-first engineering workspace with optional cloud providers.</p></header><p className="text-sm">Version 0.2.0 (2026–2027 Standard)</p><a href="https://turaen.com" target="_blank" rel="noreferrer" className="text-sm underline underline-offset-2">turaen.com</a></section>}
+        </main>
+      </section>
     </div>
   )
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { AgentBridge } from "@/app/utils/agent-bridge";
 
 export default function IdeaAILocalChat() {
   const [prompt, setPrompt] = useState("");
@@ -11,9 +12,7 @@ export default function IdeaAILocalChat() {
 
   useEffect(() => {
     // Sadece Electron ortaminda calistigimizdan emin olalim
-    if (typeof window !== "undefined" && window.require) {
-      setIsElectron(true);
-    }
+    setIsElectron(AgentBridge.isElectron());
   }, []);
 
   const handleAsk = async () => {
@@ -28,20 +27,17 @@ export default function IdeaAILocalChat() {
         throw new Error("Bu bilesen sadece Electron.js masaustu uygulamasinda calisabilir (Tarayicida degil).");
       }
 
-      // window.require kullanarak Electron'un ipcRenderer'ini cekiyoruz
-      const { ipcRenderer } = window.require("electron");
-      
       // main.js'de olusturdugumuz 'ask-local-ai' kanalina gonderiyoruz
-      const result = await ipcRenderer.invoke("ask-local-ai", prompt);
+      const result = await AgentBridge.askLocalAI([{ role: "user", content: prompt }]);
       
       if (result.success) {
-        setResponse(result.text);
+        setResponse(result.text || "");
       } else {
-        setError(result.error);
+        setError(result.error || "Local model request failed.");
       }
     } catch (err) {
       console.error(err);
-      setError(err.message || "Bilinmeyen bir hata olustu.");
+      setError(err instanceof Error ? err.message : "Bilinmeyen bir hata olustu.");
     } finally {
       setLoading(false);
     }
