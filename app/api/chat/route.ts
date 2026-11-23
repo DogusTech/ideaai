@@ -1,8 +1,22 @@
 export const maxDuration = 60;
 import { NextResponse } from 'next/server';
+import {
+  LOCAL_OLLAMA_LARGE_NUM_CTX,
+  LOCAL_OLLAMA_NUM_CTX,
+  packLocalConversation,
+} from '@/lib/local-context';
 
 const OLLAMA_REQUEST_TIMEOUT_MS = 60000;
 const LOCAL_OLLAMA_URL = 'http://127.0.0.1:11434';
+
+const LOCAL_OLLAMA_OPTIONS = {
+  num_ctx: LOCAL_OLLAMA_NUM_CTX,
+  keep_alive: '15m',
+  temperature: 0.2,
+  top_p: 0.9,
+} as const;
+
+const CONTEXT_OVERFLOW_PATTERN = /context|token|length|too long|prompt/i;
 
 function normalizeEndpoint(value: string | undefined) {
   return value?.trim().replace(/\/+$/, '');
@@ -80,31 +94,60 @@ Follow that profile consistently. Never invent tool results, file changes, tests
         }))
       ];
 
-      let lastError = null;
+      const packedMessages = packLocalConversation(formattedMessages, {
+        contextWindow: LOCAL_OLLAMA_NUM_CTX,
+        reserveTokens: 1280,
+        systemBudgetRatio: 0.62,
+        maxMessages: 24,
+      });
+
+      let lastError: Error | null = null;
 
       for (const targetUrl of uniqueUrls) {
-        let timeoutId: ReturnType<typeof setTimeout> | undefined;
-        try {
+        const requestLocalOllama = async (requestMessages: typeof packedMessages) => {
           const controller = new AbortController();
-          timeoutId = setTimeout(() => controller.abort(), OLLAMA_REQUEST_TIMEOUT_MS);
+          const timeoutId = setTimeout(() => controller.abort(), OLLAMA_REQUEST_TIMEOUT_MS);
+          try {
+            return await fetch(`${targetUrl}/api/chat`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                model: 'llama3.2',
+                messages: requestMessages,
+                stream: false,
+                options: LOCAL_OLLAMA_OPTIONS,
+              }),
+              signal: controller.signal,
+            });
+          } finally {
+            clearTimeout(timeoutId);
+          }
+        };
 
-          const res = await fetch(`${targetUrl}/api/chat`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              model: 'llama3.2',
-              messages: formattedMessages,
-              stream: false
-            }),
-            signal: controller.signal
-          });
-          clearTimeout(timeoutId);
-          timeoutId = undefined;
+        try {
+          let res = await requestLocalOllama(packedMessages);
+          let failureText = '';
+
+          // Some Ollama builds still reject an over-long prompt before honoring
+          // num_ctx. Retry once with half the conversation budget.
+          if (!res.ok && res.status === 400) {
+            failureText = await res.text();
+            if (CONTEXT_OVERFLOW_PATTERN.test(failureText)) {
+              const reducedMessages = packLocalConversation(formattedMessages, {
+                contextWindow: Math.max(2048, Math.floor(LOCAL_OLLAMA_NUM_CTX / 2)),
+                reserveTokens: 512,
+                systemBudgetRatio: 0.55,
+                maxMessages: 12,
+              });
+              res = await requestLocalOllama(reducedMessages);
+              failureText = '';
+            }
+          }
 
           if (!res.ok) {
-            const errData = await res.text();
+            const errData = failureText || await res.text();
             lastError = new Error(`HTTP ${res.status}: ${errData}`);
             continue;
           }
@@ -114,15 +157,18 @@ Follow that profile consistently. Never invent tool results, file changes, tests
           return NextResponse.json({ response: assistantMessage });
 
         } catch (err: any) {
-          if (timeoutId) clearTimeout(timeoutId);
-          lastError = err;
+          lastError = err instanceof Error ? err : new Error(String(err));
         }
       }
 
       const targetName = 'Local Ollama (localhost:11434)';
-      return NextResponse.json({ 
-        error: `${targetName} sunucusuna bağlanılamadı. Ollama'nın localhost:11434 üzerinde çalıştığından emin olun. Detay: ${lastError?.name === 'AbortError' ? 'Bağlantı zaman aşımına uğradı' : lastError?.message || 'Bilinmeyen bağlantı hatası'}` 
-      }, { status: 504 });
+      const failureMessage = lastError?.message || 'Bilinmeyen bağlantı hatası';
+      const contextOverflow = CONTEXT_OVERFLOW_PATTERN.test(failureMessage);
+      return NextResponse.json({
+        error: contextOverflow
+          ? 'The local model context window was still too small after trimming history. Remove some attached files or start a new session.'
+          : `${targetName} sunucusuna bağlanılamadı. Ollama'nın localhost:11434 üzerinde çalıştığından emin olun. Detay: ${lastError?.name === 'AbortError' ? 'Bağlantı zaman aşımına uğradı' : failureMessage}`
+      }, { status: contextOverflow ? 422 : 504 });
     }
 
     // ==========================================
@@ -160,6 +206,12 @@ Follow that profile consistently. Never invent tool results, file changes, tests
           content: m.content
         }))
       ];
+      const packedAzureMessages = packLocalConversation(azureMessages, {
+        contextWindow: LOCAL_OLLAMA_LARGE_NUM_CTX,
+        reserveTokens: 2048,
+        systemBudgetRatio: 0.55,
+        maxMessages: 32,
+      });
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), OLLAMA_REQUEST_TIMEOUT_MS);
       let azureResponse: Response;
@@ -171,8 +223,14 @@ Follow that profile consistently. Never invent tool results, file changes, tests
           },
           body: JSON.stringify({
             model: azureModel,
-            messages: azureMessages,
-            stream: false
+            messages: packedAzureMessages,
+            stream: false,
+            options: {
+              num_ctx: LOCAL_OLLAMA_LARGE_NUM_CTX,
+              keep_alive: '15m',
+              temperature: 0.2,
+              top_p: 0.9,
+            }
           }),
           signal: controller.signal
         });

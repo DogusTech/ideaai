@@ -28,7 +28,7 @@ export default function SupportPage() {
   return (
     <main className="min-h-screen bg-white px-6 py-12 text-zinc-900">
       <div className="mx-auto max-w-3xl">
-        <Link href="/matrix-demo/app/login" className="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-900">
+        <Link href="/login" className="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-900">
           <ArrowLeft size={16} /> Back to sign in
         </Link>
         <div className="mt-16 max-w-2xl">

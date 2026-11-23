@@ -5,6 +5,12 @@ import { promisify } from 'util';
 import { GitSandboxService } from './git-sandbox.service';
 import { HardwareProfilerService } from './hardware-profiler.service';
 import {
+  LOCAL_OLLAMA_LARGE_NUM_CTX,
+  LOCAL_OLLAMA_NUM_CTX,
+  packLocalConversation,
+  truncateLocalText,
+} from '../local-context';
+import {
   OvernightRunCheckpoint,
   OvernightRunOptions,
   OvernightRunStatus,
@@ -127,32 +133,54 @@ export class OvernightRunnerService {
     const baseUrl = (process.env.OLLAMA_BASE_URL || 'http://127.0.0.1:11434').replace(/\/$/, '');
     const url = `${baseUrl}/api/chat`;
 
-    let numCtx = 8192;
+    let numCtx = LOCAL_OLLAMA_NUM_CTX;
     try {
       const profile = await HardwareProfilerService.getInstance().getProfile();
-      numCtx = profile.recommendedNumCtx;
+      numCtx = Math.min(LOCAL_OLLAMA_LARGE_NUM_CTX, Math.max(LOCAL_OLLAMA_NUM_CTX, profile.recommendedNumCtx));
     } catch {
-      numCtx = 8192;
+      numCtx = LOCAL_OLLAMA_NUM_CTX;
     }
+
+    const packedMessages = packLocalConversation(messages, {
+      contextWindow: numCtx,
+      reserveTokens: 1024,
+      systemBudgetRatio: 0.6,
+      maxMessages: 24,
+    });
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 90_000);
+    const requestChat = (requestMessages: typeof packedMessages) => fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: this.checkpoint.ollamaModel,
+        messages: requestMessages,
+        stream: false,
+        options: {
+          temperature: 0.2,
+          num_ctx: numCtx,
+          keep_alive: '15m',
+          top_p: 0.9,
+        },
+      }),
+      signal: controller.signal,
+    });
 
     try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: this.checkpoint.ollamaModel,
-          messages,
-          stream: false,
-          options: {
-            temperature: 0.2, // Low temperature for deterministic code execution
-            num_ctx: numCtx,  // Hardware-adaptive context window preventing OOM
-          },
-        }),
-        signal: controller.signal,
-      });
+      let response = await requestChat(packedMessages);
+      if (response.status === 400) {
+        const errorText = await response.text();
+        if (/context|token|length|too long|prompt/i.test(errorText)) {
+          const reducedMessages = packLocalConversation(messages, {
+            contextWindow: Math.max(2048, Math.floor(numCtx / 2)),
+            reserveTokens: 512,
+            systemBudgetRatio: 0.55,
+            maxMessages: 12,
+          });
+          response = await requestChat(reducedMessages);
+        }
+      }
 
       if (!response.ok) {
         throw new Error(`Ollama returned status ${response.status}: ${response.statusText}`);
@@ -277,10 +305,13 @@ Do not output markdown code blocks or conversational text. Output pure JSON only
 
     let existingFileContents = '';
     for (const relPath of subtask.targetFiles) {
+      if (existingFileContents.length >= 12_000) break;
       try {
         const fullPath = path.resolve(this.options.workspaceRoot, relPath);
         const data = await fs.readFile(fullPath, 'utf-8');
-        existingFileContents += `\n--- File: ${relPath} ---\n${data}\n`;
+        // Keep the whole prompt inside the local context window.
+        const remainingBudget = Math.max(0, 12_000 - existingFileContents.length);
+        existingFileContents += `\n--- File: ${relPath} ---\n${truncateLocalText(data, Math.min(1600, Math.floor(remainingBudget / 3)))}\n`;
       } catch {
         // File may be new
         existingFileContents += `\n--- File: ${relPath} (New file) ---\n`;
@@ -299,7 +330,7 @@ Output ONLY a JSON array of files to write or update, formatted as:
 No conversation or markdown outside JSON.`;
 
     const promptMessage = isHealing
-      ? `Subtask: "${subtask.title}"\nDescription: "${subtask.description}"\n\nPREVIOUS VERIFICATION FAILED:\n${errorContext}\n\nExisting files:\n${existingFileContents}\nFix the error and produce the corrected file contents.`
+      ? `Subtask: "${subtask.title}"\nDescription: "${subtask.description}"\n\nPREVIOUS VERIFICATION FAILED:\n${truncateLocalText(String(errorContext || ''), 1200)}\n\nExisting files:\n${existingFileContents}\nFix the error and produce the corrected file contents.`
       : `Subtask: "${subtask.title}"\nDescription: "${subtask.description}"\n\nExisting files:\n${existingFileContents}\nProduce the files to accomplish this subtask.`;
 
     const rawResponse = await this.queryOllama([

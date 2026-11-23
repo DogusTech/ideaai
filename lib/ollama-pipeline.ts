@@ -44,6 +44,7 @@ async function callOllama(prompt: string, formatJson: boolean = false, timeoutMs
     prompt: prompt,
     stream: false,
     options: {
+      num_ctx: 8192,
       temperature: 0.2,
       top_p: 0.9
     }

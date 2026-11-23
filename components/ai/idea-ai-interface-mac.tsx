@@ -1,9 +1,9 @@
 "use client"
 
-import React, { useState, useEffect, useRef, useCallback } from "react"
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { AntigravityMarkdown } from "./antigravity-markdown"
-import { AgentBridge } from "@/app/utils/agent-bridge"
+import { AgentBridge, type WorkspaceEntry } from "@/app/utils/agent-bridge"
 import { onAuthStateChanged } from "firebase/auth"
 import { auth } from "@/lib/firebase"
 import { SettingsModal } from "./settings-modal"
@@ -11,7 +11,7 @@ import { SkillsModal } from "./skills-modal"
 import { FeedbackModal } from "./feedback-modal"
 import { IntegratedTerminalPanel } from "./integrated-terminal-panel"
 import { localModelsBridge, type InstalledOllamaModel } from "@/app/utils/local-models-bridge"
-import { BookOpenText, Check, Code2, FolderOpen, GitBranch as GitBranchIcon, History, House, MessageSquare, Moon, Plus, Settings2, Sparkles, Workflow, Wrench, FileText, GitPullRequest, TestTube2, Eraser } from "lucide-react"
+import { BookOpenText, Check, CheckCircle2, Code2, FolderOpen, GitBranch as GitBranchIcon, History, House, MessageSquare, Moon, Plus, Settings2, Sparkles, Workflow, Wrench, FileText, GitPullRequest, TestTube2, Eraser, Hand, ShieldCheck, ShieldAlert, ThumbsUp, ThumbsDown, Clipboard, Search, Pencil, BriefcaseBusiness } from "lucide-react"
 import { DesktopTitlebar } from "./desktop-titlebar"
 import { ProviderModelPicker, type ModelChoice } from "./provider-model-picker"
 import { WorkspaceInspector, type PlanStep, type WorkspaceChange } from "./workspace-inspector"
@@ -19,7 +19,10 @@ import { NightShiftPanel } from "./night-shift-panel"
 import { TuraenLogo } from "@/components/brand/turaen-logo"
 import { CommandPalette } from "./command-palette"
 import { UpgradeModal } from "./upgrade-modal"
-import { canAttachFiles, getPlanState, isPro, requiresProForModel, requiresProForSlashCommand, type PlanState } from "@/lib/plan-entitlements"
+import { canAttachFiles, getPlanState, hasUnlimitedQuota, isPro, nextPlanName, requiresProForModel, requiresProForSlashCommand, savePlanState, type PlanState } from "@/lib/plan-entitlements"
+import { LOCAL_OLLAMA_LARGE_NUM_CTX, LOCAL_OLLAMA_NUM_CTX, packLocalConversation, truncateLocalText } from "@/lib/local-context"
+import { formatAgentReplyForChat, planActiveIndex, sanitizeAgentChatContent, toAgentModelReply, type AgentModelReply, type ParsedAgentReply } from "@/lib/agent-reply"
+import { startStripeCheckout } from "@/lib/stripe-billing"
 
 // ==========================================
 // BESPOKE MINIMALIST SVG ICONS
@@ -58,7 +61,12 @@ type ChatMessage = {
   id: string
   role: string
   content: string
+  model?: string
+  durationSeconds?: number
+  tokensPerSecond?: number
 }
+
+type FeedbackRating = "like" | "unlike"
 
 type ChatSession = {
   id: string
@@ -66,6 +74,18 @@ type ChatSession = {
   messages: ChatMessage[]
   updatedAt: number
   workspacePath?: string
+}
+
+const APPROVAL_MANUAL = "Manual Review"
+const APPROVAL_GUARD = "Smart Guard"
+const APPROVAL_AUTONOMY = "Full Autonomy"
+
+/** Keep legacy saved values working after the execution modes were renamed. */
+function normalizeApprovalMode(value: string | null | undefined) {
+  const normalized = String(value || "").trim().toLowerCase()
+  if (["full auto", "turbo mode", "full autonomy"].includes(normalized)) return APPROVAL_AUTONOMY
+  if (["auto-approve file edits", "auto approve file edits", "smart guard", "benim için onayla"].includes(normalized)) return APPROVAL_GUARD
+  return APPROVAL_MANUAL
 }
 
 let messageIdCounter = 0
@@ -76,16 +96,35 @@ function createMessageId() {
 
 function normalizeMessages(messages: ChatMessage[]) {
   const seen = new Set<string>()
-  return messages.map((message) => {
+  const result: ChatMessage[] = []
+  for (const message of messages) {
+    // Empty assistant turns were written by an older streaming race.
+    if (message.role === "assistant" && !String(message.content || "").trim()) continue
+    const previous = result[result.length - 1]
+    if (
+      previous &&
+      message.role === "assistant" &&
+      previous.role === "assistant" &&
+      previous.content === message.content
+    ) continue
     const id = message.id && !seen.has(message.id) ? message.id : createMessageId()
     seen.add(id)
-    return id === message.id ? message : { ...message, id }
-  })
+    result.push(id === message.id ? message : { ...message, id })
+  }
+  return result
 }
 
 type WorkspaceToolResult = {
   path: string
   content: string
+}
+
+type AgentRunResult = {
+  text: string
+  applied: string[]
+  phaseSummaries: string[]
+  changes: WorkspaceChange[]
+  reply?: ParsedAgentReply
 }
 
 type WorkspaceMention = {
@@ -145,7 +184,25 @@ function makePlan(prompt: string): PlanStep[] {
   return steps.map((title, index) => ({ id: `${Date.now()}-${index}`, title, state: index === 0 ? "running" : "pending" }))
 }
 
+function updatePlanProgress(steps: PlanStep[], activeIndex: number): PlanStep[] {
+  const active = Math.max(0, Math.min(activeIndex, steps.length - 1))
+  return steps.map((step, index) => ({
+    ...step,
+    state: index < active ? "completed" : index === active ? "running" : "pending",
+  }))
+}
+
 const ATTACHED_FILE_CONTEXT_LIMIT = 4000
+
+// Local models run with a fixed num_ctx. Keep the system prompt, project rules,
+// workspace tree and tool output inside a predictable token budget so Ollama
+// never answers with a context-length / token overflow error.
+const LOCAL_AGENTS_RULES_TOKEN_BUDGET = 1800
+const LOCAL_WORKSPACE_TREE_TOKEN_BUDGET = 1400
+const LOCAL_USER_INTENT_TOKEN_BUDGET = 400
+const LOCAL_TOOL_RESULT_CHAR_LIMIT = 3000
+const LOCAL_TOOL_RESULTS_TOTAL_CHARS = 7000
+const LOCAL_VERIFICATION_CHAR_LIMIT = 3000
 
 const AMERICAN_ENGLISH_INSTRUCTION = "Always respond in clear, concise American English unless the user explicitly requests another language."
 
@@ -218,6 +275,14 @@ function focusAttachedFileContext(content: string, userIntent: string) {
   )
 }
 
+function compactWorkspaceTree(entries: WorkspaceEntry[]) {
+  return entries
+    .filter((entry) => entry.path.split(/[\\/]/).length <= 3)
+    .slice(0, 180)
+    .map((entry) => `${entry.isDirectory ? "[DIR] " : "[FILE] "}${entry.path}`)
+    .join("\n")
+}
+
 function shouldUseLocalFastPath(messages: ChatMessage[]) {
   const latest = [...messages].reverse().find((message) => message.role === "user")
   if (!latest) return false
@@ -246,6 +311,13 @@ export function IdeaAIInterfaceMac() {
   const [plan, setPlan] = useState<PlanState>({ tier: "free", devPreview: false })
   const [lastTelemetry, setLastTelemetry] = useState<{ seconds: number; tokPerSecond: number; hardware: string } | null>(null)
   const [startingOllama, setStartingOllama] = useState(false)
+  const [upgradeSuccess, setUpgradeSuccess] = useState(false)
+  const [activeBrand, setActiveBrand] = useState("Turaen")
+  const [activeTurnId, setActiveTurnId] = useState<string | null>(null)
+  const [approvalMenuOpen, setApprovalMenuOpen] = useState(false)
+  const [approvalMode, setApprovalMode] = useState(APPROVAL_MANUAL)
+  const [feedbackByMessage, setFeedbackByMessage] = useState<Record<string, FeedbackRating>>({})
+  const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null)
   const [installingOllama, setInstallingOllama] = useState(false)
 
   const [nightShiftOpen, setNightShiftOpen] = useState(false)
@@ -278,6 +350,8 @@ export function IdeaAIInterfaceMac() {
   const textareaRef = useRef<HTMLTextAreaElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const attachmentInputRef = useRef<HTMLInputElement>(null)
+  const chatViewportRef = useRef<HTMLDivElement>(null)
+  const messageRefs = useRef<Record<string, HTMLDivElement | null>>({})
 
   const [localInput, setLocalInput] = useState("")
   const [chatSessions, setChatSessions] = useState<ChatSession[]>([])
@@ -292,13 +366,81 @@ export function IdeaAIInterfaceMac() {
   const localStreamBufferRef = useRef("")
   const localStreamFrameRef = useRef<number | null>(null)
   const localStreamMessageIdRef = useRef<string | null>(null)
+  const localStreamClosedRef = useRef(true)
+  const lastScrolledMessageIdRef = useRef<string | null>(null)
+  const prevStatusRef = useRef<"ready" | "submitted" | "streaming" | "error">("ready")
   const activeProject = projects.find((project) => project.name === selectedProject)
   const workspaceRoot = activeProject?.files[0] || ""
 
-  const requestUpgrade = useCallback((reason: string) => setUpgradeReason(reason), [])
+  useEffect(() => {
+    setApprovalMode(normalizeApprovalMode(localStorage.getItem("ideaai_approval")))
+  }, [])
+
+  useEffect(() => {
+    if (!workspaceRoot) { setActiveBrand("Turaen"); return }
+    let cancelled = false
+    const detectBrand = async () => {
+      const packageResult = await AgentBridge.readFileInWorkspace(workspaceRoot, "package.json")
+      if (packageResult.success) {
+        try {
+          const name = JSON.parse(String(packageResult.content || "")).name
+          if (typeof name === "string" && name.trim() && !cancelled) { setActiveBrand(name.trim()); return }
+        } catch { /* Fall through to AGENTS.md. */ }
+      }
+      const agentsResult = await AgentBridge.readFileInWorkspace(workspaceRoot, "AGENTS.md")
+      const heading = String(agentsResult.content || "").match(/^#\s+(.+)$/m)?.[1]?.trim()
+      const folder = workspaceRoot.split(/[\\/]/).filter(Boolean).pop()
+      if (!cancelled) setActiveBrand(heading || folder || "Turaen")
+    }
+    void detectBrand()
+    return () => { cancelled = true }
+  }, [workspaceRoot])
+
+  useEffect(() => {
+    const viewport = chatViewportRef.current
+    if (!viewport || messages.length === 0) return
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0]
+      if (visible) setActiveTurnId(visible.target.getAttribute("data-turn-id"))
+    }, { root: viewport, threshold: [0.25, 0.6, 0.9] })
+    Object.values(messageRefs.current).forEach((node) => { if (node) observer.observe(node) })
+    return () => observer.disconnect()
+  }, [messages.length])
+
+  const requestUpgrade = useCallback((reason: string) => {
+    // Local development already has the highest tier with unlimited quotas.
+    if (hasUnlimitedQuota(plan)) return
+    setUpgradeReason(`Upgrade to ${nextPlanName(plan)}: ${reason}`)
+  }, [plan])
   const updatePlan = useCallback((next: PlanState) => setPlan(next), [])
 
-  useEffect(() => { void getPlanState().then(setPlan) }, [])
+  useEffect(() => {
+    let isMounted = true
+    void getPlanState().then((state) => {
+      if (isMounted) setPlan(state)
+    })
+    return () => { isMounted = false }
+  }, [])
+  useEffect(() => {
+    let isMounted = true
+    const params = new URLSearchParams(window.location.search)
+    if (params.get("upgrade") !== "success" || !params.get("session_id")) return
+    void fetch(`/api/billing/confirm?session_id=${encodeURIComponent(params.get("session_id") || "")}`, { cache: "no-store" })
+      .then((response) => response.json())
+      .then(async (result) => {
+        if (!result?.success) throw new Error(result?.error || "Payment confirmation failed.")
+        const next = await savePlanState({ tier: "pro", devPreview: false })
+        if (isMounted) {
+          setPlan(next)
+          setUpgradeSuccess(true)
+        }
+        window.history.replaceState({}, "", window.location.pathname)
+      })
+      .catch((confirmationError) => {
+        if (isMounted) setError(new Error(confirmationError instanceof Error ? confirmationError.message : "Payment confirmation failed."))
+      })
+    return () => { isMounted = false }
+  }, [])
   useEffect(() => {
     const handleShortcut = (event: KeyboardEvent) => {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") { event.preventDefault(); setCommandPaletteOpen(true) }
@@ -308,9 +450,16 @@ export function IdeaAIInterfaceMac() {
   }, [])
 
   // --- Automatic local open-source model discovery ---
+  const isMountedRef = useRef(true)
+  useEffect(() => {
+    isMountedRef.current = true
+    return () => { isMountedRef.current = false }
+  }, [])
+
   const scanLocalModels = useCallback(() => {
     if (!localModelsBridge.available()) return
     void localModelsBridge.list().then((result) => {
+      if (!isMountedRef.current) return
       if (result?.success && Array.isArray(result.models)) {
         setInstalledLocalModels(result.models)
         if (result.models.length > 0 && provider === "Local (Ollama)") {
@@ -396,6 +545,20 @@ export function IdeaAIInterfaceMac() {
     setPendingApproval(null)
   }
 
+  const setExecutionMode = (mode: string) => {
+    const normalized = normalizeApprovalMode(mode)
+    setApprovalMode(normalized)
+    localStorage.setItem("ideaai_approval", normalized)
+    setApprovalMenuOpen(false)
+  }
+
+  const needsApproval = (kind: "file" | "command", detail: string) => {
+    if (approvalMode === APPROVAL_AUTONOMY) return false
+    if (approvalMode === APPROVAL_MANUAL) return true
+    if (kind === "file") return false
+    return /\b(rm|rmdir|del|erase|format|shutdown|restart|sudo|chmod|chown|git\s+(reset|clean|push|force))\b/i.test(detail)
+  }
+
   const handleImagePaste = (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
     const images = Array.from(event.clipboardData.items)
       .filter((item) => item.type.startsWith("image/"))
@@ -449,19 +612,17 @@ export function IdeaAIInterfaceMac() {
   const runAgentWithTools = async (
     workspaceRoot: string,
     initialMessages: ChatMessage[],
-    requestModel: (conversation: any[]) => Promise<string>
-  ) => {
+    requestModel: (conversation: any[]) => Promise<AgentModelReply>,
+    contextWindowTokens: number = LOCAL_OLLAMA_NUM_CTX
+  ): Promise<AgentRunResult> => {
     const workspace = await AgentBridge.inspectWorkspace(workspaceRoot)
     if (!workspace.success) throw new Error(workspace.error || "Workspace could not be inspected")
-    setPlanSteps((current) =>
-      current.map((step, index) => ({
-        ...step,
-        state: index === 0 ? "completed" : index === 1 ? "running" : "pending",
-      }))
-    )
+    setPlanSteps((current) => updatePlanProgress(current, 0))
 
-    const entries = Array.isArray(workspace.content) ? workspace.content : []
-    const tree = entries.map((entry: any) => `${entry.isDirectory ? "[DIR] " : "[FILE] "}${entry.path}`).join("\n")
+    const entries = Array.isArray(workspace.content) ? workspace.content as WorkspaceEntry[] : []
+    const agentsRules = await AgentBridge.readFileInWorkspace(workspaceRoot, "AGENTS.md")
+    const fallbackAgents = agentsRules.success ? agentsRules : await AgentBridge.readFile("AGENTS.md")
+    const tree = compactWorkspaceTree(entries)
     const latestUserMessage = [...initialMessages].reverse().find((message) => message.role === "user")
     const userIntent = latestUserMessage ? extractUserIntent(latestUserMessage.content) : ""
     const preparedMessages = initialMessages.map((message) =>
@@ -475,9 +636,12 @@ export function IdeaAIInterfaceMac() {
 WORKSPACE ROOT: ${workspaceRoot}
 You can inspect and modify files only inside this workspace root.
 ${AMERICAN_ENGLISH_INSTRUCTION}
+PROJECT BRAND: ${activeBrand}
+PROJECT RULES:
+${fallbackAgents.success ? truncateLocalText(String(fallbackAgents.content || ""), LOCAL_AGENTS_RULES_TOKEN_BUDGET) : "No AGENTS.md file was found."}
 
 USER INTENT:
-${userIntent || "Follow the user's latest request exactly."}
+${truncateLocalText(userIntent || "Follow the user's latest request exactly.", LOCAL_USER_INTENT_TOKEN_BUDGET)}
 
 When the user attaches files with @, answer the user's specific question or execute the requested edit directly. Do not produce a generic file summary such as "Key Features", "State Management", or "Rendering" unless the user explicitly asks for a summary. Use the focused attached-file context first; request a targeted read_file only when the relevant code is missing.
 
@@ -491,27 +655,30 @@ Never invent file contents or command output. Use read_file before editing an ex
 Do not claim that a file was created or changed unless you emitted a <write_file> block.
 The <write_file> block must contain the complete file contents, not a summary.
 After tool results, continue the task and finish with a concise explanation. Do not use absolute paths.
+For each turn, return one structured JSON step with thought, brand_context, plan_steps, action, and message. Use the action fields for exactly one read_file, write_file, patch_file, run_terminal, verify, or final_answer operation. Keep thought concise and never invent tool output.
 
 WORKSPACE TREE (use focused reads; do not request entire large files):
-${tree.slice(0, 12000)}`,
+${truncateLocalText(tree, LOCAL_WORKSPACE_TREE_TOKEN_BUDGET)}`,
     }
 
     let conversation: any[] = [systemPrompt, ...preparedMessages]
     let finalText = ""
+    let lastReply: ParsedAgentReply | null = null
     const applied: string[] = []
+    const phaseLog: string[] = []
     const changes: WorkspaceChange[] = []
     let verificationResults: WorkspaceToolResult[] = []
     const writeAgentFile = async (relativePath: string, content: string) => {
       const previous = await AgentBridge.readFileInWorkspace(workspaceRoot, relativePath)
       const before = previous.success ? String(previous.content || "") : null
-      const approvalMode = localStorage.getItem("ideaai_approval") || "Ask before edits"
-      if (approvalMode === "Ask before edits" && !(await requestApproval("Approve file change", relativePath))) {
+      if (needsApproval("file", relativePath) && !(await requestApproval("Approve file change", relativePath))) {
         applied.push(`[SKIPPED] ${relativePath} — approval declined`)
+        phaseLog.push(`Skipped ${relativePath} — approval declined`)
         return
       }
       const result = await AgentBridge.writeFileInWorkspace(workspaceRoot, relativePath, content)
       if (!result.success) throw new Error(result.error || `Could not write ${relativePath}`)
-      setPlanSteps((current) => current.map((step, index) => ({ ...step, state: index < 2 ? "completed" : "running" })))
+      setPlanSteps((current) => updatePlanProgress(current, current.length - 1))
       const oldLines = before?.split("\n") || []
       const newLines = content.split("\n")
       const change = {
@@ -526,6 +693,7 @@ ${tree.slice(0, 12000)}`,
       setInspectorOpen(true)
       setInspectorTab("changes")
       applied.push(`[WRITE] ${relativePath}`)
+      phaseLog.push(`Updated ${relativePath}`)
       const extension = relativePath.toLowerCase().split(".").pop() || ""
       const verificationCommand = ["js", "mjs", "cjs"].includes(extension)
         ? `node --check "${relativePath}"`
@@ -538,12 +706,34 @@ ${tree.slice(0, 12000)}`,
         const verification = await AgentBridge.runCommandInWorkspace(workspaceRoot, verificationCommand)
         verificationResults.push({ path: `verification: ${relativePath}`, content: `${verificationCommand}\nexit=${verification.success ? "0" : "1"}\n${verification.stdout || ""}\n${verification.stderr || verification.error || ""}` })
         applied.push(verification.success ? `[VERIFY] ${relativePath}` : `[VERIFY FAILED] ${relativePath}`)
+        phaseLog.push(verification.success ? `Verified ${relativePath}` : `Verification failed: ${relativePath}`)
       }
     }
 
-    for (let round = 0; round < 5; round += 1) {
+    for (let round = 0; round < 6; round += 1) {
       verificationResults = []
-      finalText = await requestModel(conversation)
+      const packedConversation = packLocalConversation(conversation, {
+        contextWindow: contextWindowTokens,
+        reserveTokens: 1280,
+        systemBudgetRatio: 0.62,
+        maxMessages: 24,
+      })
+      const modelReply = await requestModel(packedConversation)
+      finalText = modelReply.loopText
+      lastReply = modelReply.parsed
+
+      // The model's own plan_steps become the roadmap shown next to the chat.
+      if (modelReply.parsed.planSteps.length > 0) {
+        const active = planActiveIndex(modelReply.parsed.action, modelReply.parsed.planSteps.length)
+        const planDone = modelReply.parsed.action === "final_answer" || active >= modelReply.parsed.planSteps.length
+        setPlanSteps((current) =>
+          modelReply.parsed.planSteps.map((title, index) => ({
+            id: current[index]?.id || `agent-${Date.now()}-${index}`,
+            title,
+            state: planDone || index < active ? "completed" : index === active ? "running" : "pending",
+          }))
+        )
+      }
 
       const reads = Array.from(finalText.matchAll(/<read_file\s+path=["']([^"']+)["']\s*\/?>/gi))
       const writes = Array.from(finalText.matchAll(/<write_file\s+path=["']([^"']+)["']>([\s\S]*?)<\/write_file>/gi))
@@ -558,13 +748,16 @@ ${tree.slice(0, 12000)}`,
       if (!reads.length && !writes.length && !commands.length && !fencedWrites.length && !patches.length && !verificationResults.length) break
 
       const toolResults: WorkspaceToolResult[] = []
-      for (const match of reads) {
+      let remainingToolChars = LOCAL_TOOL_RESULTS_TOTAL_CHARS
+      for (const match of reads.slice(0, 4)) {
         const relativePath = match[1].trim()
         const readResult = await AgentBridge.readFileInWorkspace(workspaceRoot, relativePath)
-        toolResults.push({
-          path: relativePath,
-          content: readResult.success ? extractPrecisionWindow(String(readResult.content || ""), userIntent) : `ERROR: ${readResult.error}`,
-        })
+        const perFileBudget = Math.max(400, Math.min(LOCAL_TOOL_RESULT_CHAR_LIMIT, remainingToolChars))
+        const content = readResult.success
+          ? extractPrecisionWindow(String(readResult.content || ""), userIntent, perFileBudget)
+          : `ERROR: ${readResult.error}`
+        remainingToolChars = Math.max(0, remainingToolChars - content.length)
+        toolResults.push({ path: relativePath, content })
       }
       for (const match of writes) {
         const relativePath = match[1].trim()
@@ -586,34 +779,59 @@ ${tree.slice(0, 12000)}`,
       }
       for (const match of commands) {
         const command = match[1].trim()
-        const approvalMode = localStorage.getItem("ideaai_approval") || "Ask before edits"
-        if (approvalMode !== "Full auto" && !(await requestApproval("Approve terminal command", command))) {
+        if (needsApproval("command", command) && !(await requestApproval("Approve terminal command", command))) {
           toolResults.push({ path: `command: ${command}`, content: "Not run: approval declined." })
           continue
         }
         const commandResult = await AgentBridge.runCommandInWorkspace(workspaceRoot, command)
-        setPlanSteps((current) => current.map((step, index) => ({ ...step, state: index < 2 ? "completed" : "running" })))
+        setPlanSteps((current) => updatePlanProgress(current, current.length - 1))
         toolResults.push({
           path: `command: ${command}`,
-          content: `exit=${commandResult.success ? "0" : "1"}\nstdout:\n${commandResult.stdout || ""}\nstderr:\n${commandResult.stderr || commandResult.error || ""}`,
+          content: `exit=${commandResult.success ? "0" : "1"}\nstdout:\n${String(commandResult.stdout || "").slice(-LOCAL_VERIFICATION_CHAR_LIMIT)}\nstderr:\n${String(commandResult.stderr || commandResult.error || "").slice(-LOCAL_VERIFICATION_CHAR_LIMIT)}`,
         })
         applied.push(`[COMMAND] ${command}`)
+        phaseLog.push(`Ran ${command}`)
       }
 
+      if (writes.length || fencedWrites.length || patches.length) {
+        const verify = await AgentBridge.runCommandInWorkspace(workspaceRoot, "npx tsc --noEmit --pretty false")
+        const verificationText = `npx tsc --noEmit --pretty false\nexit=${verify.success ? "0" : "1"}\n${String(verify.stdout || "").slice(-LOCAL_VERIFICATION_CHAR_LIMIT)}\n${String(verify.stderr || verify.error || "").slice(-LOCAL_VERIFICATION_CHAR_LIMIT)}`
+        verificationResults.push({ path: "verification: workspace", content: verificationText })
+        applied.push(verify.success ? "[VERIFY] workspace" : "[VERIFY FAILED] workspace")
+        phaseLog.push(verify.success ? `Verified workspace (npx tsc --noEmit)` : `Workspace verification failed`)
+      }
+
+      const combinedToolResults = [...toolResults, ...verificationResults]
+        .map((result) => `<tool_result path="${result.path}">\n${result.content}\n</tool_result>`)
+        .join("\n")
       conversation = [
         ...conversation,
         { role: "assistant", content: finalText },
         {
           role: "user",
-          content: `TOOL RESULTS:\n${[...toolResults, ...verificationResults].map((result) => `<tool_result path="${result.path}">\n${result.content}\n</tool_result>`).join("\n")}\nContinue the task. If verification failed, repair the exact error with at most two focused self-healing passes. Do not repeat completed tool calls.`,
+          content: `TOOL RESULTS:\n${truncateLocalText(combinedToolResults, 2200)}\nContinue the task. If verification failed, repair the exact error with at most two focused self-healing passes. Do not repeat completed tool calls.`,
         },
       ]
     }
 
-    return { text: finalText, applied, changes }
+    // Compact phase summaries: count-based instead of per-file line dumps.
+    const updatedFiles = phaseLog.filter((line) => line.startsWith("Updated ")).length
+    const skippedFiles = phaseLog.filter((line) => line.startsWith("Skipped ")).length
+    const ranCommands = phaseLog.filter((line) => line.startsWith("Ran ")).length
+    const verifiedItems = phaseLog.filter((line) => line.startsWith("Verified ")).length
+    const failedVerifications = phaseLog.filter((line) => line.startsWith("Verification failed")).length
+
+    const phaseSummaries: string[] = []
+    if (updatedFiles > 0) phaseSummaries.push(`Updated ${updatedFiles} file${updatedFiles > 1 ? "s" : ""}`)
+    if (skippedFiles > 0) phaseSummaries.push(`Skipped ${skippedFiles} file${skippedFiles > 1 ? "s" : ""} (approval declined)`)
+    if (ranCommands > 0) phaseSummaries.push(`Ran ${ranCommands} command${ranCommands > 1 ? "s" : ""}`)
+    if (verifiedItems > 0) phaseSummaries.push(`Verified ${verifiedItems} item${verifiedItems > 1 ? "s" : ""}`)
+    if (failedVerifications > 0) phaseSummaries.push(`${failedVerifications} verification${failedVerifications > 1 ? "s" : ""} failed`)
+
+    return { text: finalText, applied, phaseSummaries, changes, reply: lastReply ?? undefined }
   }
 
-  const runLocalAgent = async (workspaceRoot: string, initialMessages: ChatMessage[]) => {
+  const runLocalAgent = async (workspaceRoot: string, initialMessages: ChatMessage[]): Promise<AgentRunResult> => {
     if (shouldUseLocalFastPath(initialMessages)) {
       const latest = [...initialMessages].reverse().find((message) => message.role === "user")
       const result = await AgentBridge.askLocalAI([
@@ -621,13 +839,13 @@ ${tree.slice(0, 12000)}`,
         latest,
       ], { fastPath: true })
       if (!result.success) throw new Error(result.error || "Local Ollama request failed")
-      return { text: String(result.text || result.content || ""), applied: [], changes: [] }
+      return { text: String(result.text || result.content || ""), applied: [], phaseSummaries: [], changes: [] }
     }
     return runAgentWithTools(workspaceRoot, initialMessages, async (conversation) => {
-      const result = await AgentBridge.askLocalAI(conversation)
+      const result = await AgentBridge.askLocalAI(conversation, { structured: true })
       if (!result.success) throw new Error(result.error || "Local Ollama request failed")
-      return String(result.text || result.content || "")
-    })
+      return toAgentModelReply(String(result.text || result.content || ""))
+    }, LOCAL_OLLAMA_NUM_CTX)
   }
 
   const runAzureAgent = (workspaceRoot: string, initialMessages: ChatMessage[], apiKey: string) =>
@@ -646,8 +864,8 @@ ${tree.slice(0, 12000)}`,
       })
       const data = await response.json().catch(() => ({}))
       if (!response.ok) throw new Error(data.error || `Azure responded with ${response.status}`)
-      return String(data.response || "")
-    })
+      return toAgentModelReply(String(data.response || ""))
+    }, LOCAL_OLLAMA_LARGE_NUM_CTX)
 
   // --- Dynamic System-Synced Theme Engine ---
   const syncAppTheme = useCallback((forcedTheme?: string) => {
@@ -741,8 +959,19 @@ ${tree.slice(0, 12000)}`,
       localStorage.setItem(CURRENT_CHAT_KEY, JSON.stringify(messages))
       localStorage.setItem("ideaai_active_chat", activeChatId)
     }
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }, [messages, activeChatId, hasHydrated])
+
+    const lastMessage = messages[messages.length - 1]
+    const isNewUserTurn = lastMessage && lastMessage.role === "user" && lastMessage.id !== lastScrolledMessageIdRef.current
+    const streamingJustEnded = prevStatusRef.current !== "ready" && status === "ready"
+    const shouldScroll = isNewUserTurn || streamingJustEnded
+
+    if (shouldScroll && messagesEndRef.current) {
+      lastScrolledMessageIdRef.current = lastMessage?.id ?? null
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth", block: "end" })
+    }
+
+    prevStatusRef.current = status
+  }, [messages, activeChatId, hasHydrated, status])
 
   useEffect(() => {
     if (status !== "submitted") return
@@ -818,37 +1047,96 @@ ${tree.slice(0, 12000)}`,
     }
   }, [workspaceRoot])
 
+  /** Flush buffered Ollama tokens into the single live assistant message. */
+  const flushLocalStream = useCallback(() => {
+    if (localStreamFrameRef.current !== null) {
+      cancelAnimationFrame(localStreamFrameRef.current)
+      localStreamFrameRef.current = null
+    }
+    const chunk = localStreamBufferRef.current
+    localStreamBufferRef.current = ""
+    if (!chunk || localStreamClosedRef.current) return
+    const messageId = localStreamMessageIdRef.current || createMessageId()
+    localStreamMessageIdRef.current = messageId
+    setMessages((current) => {
+      const existing = current.find((message) => message.id === messageId)
+      if (existing) return current.map((message) => message.id === messageId ? { ...message, content: message.content + chunk } : message)
+      return [...current, { id: messageId, role: "assistant", content: chunk }]
+    })
+  }, [])
+
+  /**
+   * Replace the live stream message in place. Reusing the same message id is
+   * what keeps one prompt from producing a streamed reply plus a second final
+   * reply, and prevents a late token flush from creating an empty trailing turn.
+   */
+  const finalizeAssistantMessage = useCallback((content: string, meta?: { model?: string; durationSeconds?: number; tokensPerSecond?: number }) => {
+    if (localStreamFrameRef.current !== null) {
+      cancelAnimationFrame(localStreamFrameRef.current)
+      localStreamFrameRef.current = null
+    }
+    localStreamBufferRef.current = ""
+    localStreamClosedRef.current = true
+    const streamId = localStreamMessageIdRef.current
+    localStreamMessageIdRef.current = null
+    const messageId = streamId || createMessageId()
+    setMessages((current) => {
+      const cleaned = current.filter((message) => message.id === messageId || message.role !== "assistant" || message.content.trim())
+      const existingIndex = cleaned.findIndex((message) => message.id === messageId)
+      if (existingIndex >= 0) {
+        const next = [...cleaned]
+        next[existingIndex] = { ...next[existingIndex], content, ...meta }
+        return next
+      }
+      return [...cleaned, { id: messageId, role: "assistant", content, ...meta }]
+    })
+  }, [])
+
   useEffect(() => {
     const unsubscribe = AgentBridge.onLocalToken(({ token, done }) => {
-      if (done) return
-      localStreamBufferRef.current += token
+      if (localStreamClosedRef.current) return
+      if (token) localStreamBufferRef.current += token
+      if (done) {
+        // Flush the final tokens before the promise resolves; never leave a
+        // delayed animation frame that appends a second assistant bubble.
+        flushLocalStream()
+        return
+      }
       setStatus("streaming")
       if (localStreamFrameRef.current !== null) return
       localStreamFrameRef.current = requestAnimationFrame(() => {
-        window.setTimeout(() => {
-          const chunk = localStreamBufferRef.current
-          localStreamBufferRef.current = ""
-          localStreamFrameRef.current = null
-          if (!chunk) return
-          const messageId = localStreamMessageIdRef.current || createMessageId()
-          localStreamMessageIdRef.current = messageId
-          setMessages((current) => {
-            const existing = current.find((message) => message.id === messageId)
-            if (existing) return current.map((message) => message.id === messageId ? { ...message, content: message.content + chunk } : message)
-            return [...current, { id: messageId, role: "assistant", content: chunk }]
-          })
-        }, 30)
+        window.setTimeout(() => flushLocalStream(), 30)
       })
     })
     return () => {
       unsubscribe()
-      if (localStreamFrameRef.current !== null) cancelAnimationFrame(localStreamFrameRef.current)
+      if (localStreamFrameRef.current !== null) {
+        cancelAnimationFrame(localStreamFrameRef.current)
+        localStreamFrameRef.current = null
+      }
     }
-  }, [])
+  }, [flushLocalStream])
 
   const stop = () => {
     abortControllerRef.current?.abort()
+    localStreamClosedRef.current = true
+    if (localStreamFrameRef.current !== null) {
+      cancelAnimationFrame(localStreamFrameRef.current)
+      localStreamFrameRef.current = null
+    }
+    localStreamBufferRef.current = ""
     setStatus("ready")
+  }
+
+  // Only the structured `message` (plus plan/thought metadata) is persisted;
+  // raw model JSON is never written into a chat bubble.
+  const buildAssistantResponse = (result: AgentRunResult, duration: number) => {
+    const formatted = result.reply
+      ? formatAgentReplyForChat(result.reply, { done: true })
+      : String(result.text || "").trim()
+    const body = formatted || (result.phaseSummaries.length ? result.phaseSummaries.join(" ") : "Step complete.")
+    const summary = result.phaseSummaries.length ? `\n${result.phaseSummaries.join("\n")}` : ""
+    return [`Thought for ${duration}s`, body].filter(Boolean).join("\n") + summary
   }
 
   const sendMessage = async (message: any) => {
@@ -858,8 +1146,14 @@ ${tree.slice(0, 12000)}`,
     thinkingStartedAtRef.current = Date.now()
     setThinkingSeconds(0)
     setError(null)
+    setLastTelemetry(null)
+    localStreamClosedRef.current = false
     localStreamBufferRef.current = ""
     localStreamMessageIdRef.current = null
+    if (localStreamFrameRef.current !== null) {
+      cancelAnimationFrame(localStreamFrameRef.current)
+      localStreamFrameRef.current = null
+    }
     setPlanSteps((current) => current.map((step, index) => ({ ...step, state: index === 0 ? "running" : "pending" })))
 
     abortControllerRef.current = new AbortController()
@@ -891,17 +1185,12 @@ ${tree.slice(0, 12000)}`,
           ...current.filter((item) => !localResult.changes.some((next) => next.path === item.path)),
         ])
 
-        let responseText = localResult.text
-        if (localResult.applied.length) responseText += `\n\n${localResult.applied.join("\n")}`
         const duration = Math.max(1, Math.round((Date.now() - (thinkingStartedAtRef.current || Date.now())) / 1000))
-        responseText = `Thought for ${duration}s\n${responseText}`
-        setMessages((prev) => [
-          ...prev.filter((message) => message.id !== localStreamMessageIdRef.current),
-          { id: createMessageId(), role: "assistant", content: responseText },
-        ])
-        localStreamMessageIdRef.current = null
+        const responseText = buildAssistantResponse(localResult, duration)
         const seconds = Math.max(0.1, (Date.now() - (thinkingStartedAtRef.current || Date.now())) / 1000)
-        setLastTelemetry({ seconds, tokPerSecond: Math.max(1, Math.round((responseText.length / 4) / seconds)), hardware: "local" })
+        const tokPerSecond = Math.max(1, Math.round((responseText.length / 4) / seconds))
+        finalizeAssistantMessage(responseText, { model: selectedModel, durationSeconds: duration, tokensPerSecond: tokPerSecond })
+        setLastTelemetry({ seconds, tokPerSecond, hardware: "local" })
         setStatus("ready")
         setPlanSteps((current) => current.map((step) => ({ ...step, state: "completed" })))
         return
@@ -923,19 +1212,12 @@ ${tree.slice(0, 12000)}`,
           ...azureResult.changes,
           ...current.filter((item) => !azureResult.changes.some((next) => next.path === item.path)),
         ])
-        let responseText = azureResult.text
-        if (azureResult.applied.length) responseText += `\n\n${azureResult.applied.join("\n")}`
         const duration = Math.max(1, Math.round((Date.now() - (thinkingStartedAtRef.current || Date.now())) / 1000))
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: createMessageId(),
-            role: "assistant",
-            content: `Thought for ${duration}s\n${responseText}`,
-          },
-        ])
+        const responseText = buildAssistantResponse(azureResult, duration)
         const seconds = Math.max(0.1, (Date.now() - (thinkingStartedAtRef.current || Date.now())) / 1000)
-        setLastTelemetry({ seconds, tokPerSecond: Math.max(1, Math.round((responseText.length / 4) / seconds)), hardware: "cloud" })
+        const tokPerSecond = Math.max(1, Math.round((responseText.length / 4) / seconds))
+        finalizeAssistantMessage(responseText, { model: selectedModel, durationSeconds: duration, tokensPerSecond: tokPerSecond })
+        setLastTelemetry({ seconds, tokPerSecond, hardware: "cloud" })
         setStatus("ready")
         setPlanSteps((current) => current.map((step) => ({ ...step, state: "completed" })))
         return
@@ -962,34 +1244,27 @@ ${tree.slice(0, 12000)}`,
 
       const data = await res.json()
       const duration = Math.max(1, Math.round((Date.now() - (thinkingStartedAtRef.current || Date.now())) / 1000))
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: createMessageId(),
-          role: "assistant",
-          content: `Thought for ${duration}s\n${data.response}`,
-        },
-      ])
+      const cloudReply = toAgentModelReply(String(data.response || ""))
+      const responseText = buildAssistantResponse(
+        { text: String(data.response || ""), applied: [], phaseSummaries: [], changes: [], reply: cloudReply.parsed },
+        duration,
+      )
       const seconds = Math.max(0.1, (Date.now() - (thinkingStartedAtRef.current || Date.now())) / 1000)
-      setLastTelemetry({ seconds, tokPerSecond: Math.max(1, Math.round((String(data.response || "").length / 4) / seconds)), hardware: "cloud" })
+      const tokPerSecond = Math.max(1, Math.round((String(data.response || "").length / 4) / seconds))
+      finalizeAssistantMessage(responseText, { model: selectedModel, durationSeconds: duration, tokensPerSecond: tokPerSecond })
+      setLastTelemetry({ seconds, tokPerSecond, hardware: "cloud" })
       setStatus("ready")
       setPlanSteps((current) => current.map((step) => ({ ...step, state: "completed" })))
     } catch (err: any) {
       if (err.name === "AbortError") {
+        localStreamClosedRef.current = true
         setStatus("ready")
         return
       }
       setError(err)
       setStatus("error")
       setPlanSteps((current) => current.map((step, index) => ({ ...step, state: index === 0 ? "completed" : "pending" })))
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: createMessageId(),
-          role: "assistant",
-          content: `**Execution Error:** ${err.message}`,
-        },
-      ])
+      finalizeAssistantMessage(`**Execution Error:** ${err.message}`, { model: selectedModel })
     }
   }
 
@@ -1300,6 +1575,37 @@ ${tree.slice(0, 12000)}`,
     if (nextProvider === "Local (Ollama)") void localModelsBridge.load(nextModel)
   }
 
+  const copyResponse = async (message: ChatMessage) => {
+    const clean = message.role === "assistant" ? sanitizeAgentChatContent(message.content).content : message.content
+    await navigator.clipboard.writeText(clean)
+    setCopiedMessageId(message.id)
+    window.setTimeout(() => setCopiedMessageId((current) => current === message.id ? null : current), 1600)
+  }
+
+  const recordFeedback = async (message: ChatMessage, rating: FeedbackRating, messageIndex: number) => {
+    setFeedbackByMessage((current) => ({ ...current, [message.id]: rating }))
+    const prompt = [...messages.slice(0, messageIndex)].reverse().find((item) => item.role === "user")
+    try {
+      await fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messageId: message.id,
+          conversationId: activeChatId,
+          rating,
+          model: selectedModel,
+          brandContext: activeBrand,
+          promptSnippet: String(prompt?.content || "").slice(0, 500),
+          responseSnippet: (message.role === "assistant" ? sanitizeAgentChatContent(message.content).content : message.content).slice(0, 1000),
+          timestamp: new Date().toISOString(),
+        }),
+      })
+    } catch { /* Feedback remains visually selected if the network is offline. */ }
+  }
+
+  const userTurns = messages.filter((message) => message.role === "user")
+  const scrollToTurn = (messageId: string) => messageRefs.current[messageId]?.scrollIntoView({ behavior: "smooth", block: "center" })
+
   // Grouped Projects Tree with Sessions
   const groupedWorkspaces = projects.map((p) => ({
     project: p,
@@ -1448,8 +1754,21 @@ ${tree.slice(0, 12000)}`,
             <span className="max-w-36 truncate rounded-full bg-[#f1f1f1] dark:bg-[#262626] px-3 py-1 text-[11px] font-medium text-[#666666] dark:text-[#999999]">
               {status === "ready" ? "Ready" : status === "error" ? "Needs attention" : "Working"}
             </span>
+            <div className="relative">
+              <button type="button" onClick={() => setApprovalMenuOpen((open) => !open)} aria-expanded={approvalMenuOpen} className={`inline-flex h-7 items-center gap-1.5 rounded-full border px-2.5 text-[10px] font-medium transition-colors ${approvalMode === APPROVAL_AUTONOMY ? "border-amber-400/40 text-amber-600 dark:text-amber-400" : "border-[#e0e0e0] text-[#777] hover:bg-black/5 dark:border-[#303030] dark:text-[#aaa] dark:hover:bg-white/10"}`}>
+                {approvalMode === APPROVAL_MANUAL ? <Hand size={12} /> : approvalMode === APPROVAL_AUTONOMY ? <ShieldAlert size={12} /> : <ShieldCheck size={12} />}
+                <span>{approvalMode}</span>
+              </button>
+              {approvalMenuOpen && <div className="absolute bottom-9 left-0 z-40 w-72 overflow-hidden rounded-2xl border border-[#e0e0e0] bg-white p-1.5 shadow-2xl dark:border-[#333] dark:bg-[#171717]">
+                {[
+                  { mode: APPROVAL_MANUAL, icon: Hand, label: APPROVAL_MANUAL, detail: "Ask before editing files or running terminal commands" },
+                  { mode: APPROVAL_GUARD, icon: ShieldCheck, label: APPROVAL_GUARD, detail: "Auto-approve safe workspace actions; ask only for high-impact operations" },
+                  { mode: APPROVAL_AUTONOMY, icon: ShieldAlert, label: APPROVAL_AUTONOMY, detail: "Direct terminal and file execution without confirmation prompts" },
+                ].map((item) => { const Icon = item.icon; return <button key={item.mode} type="button" onClick={() => setExecutionMode(item.mode)} className={`flex w-full items-start gap-3 rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-black/5 dark:hover:bg-white/10 ${approvalMode === item.mode ? "bg-black/[0.04] dark:bg-white/[0.06]" : ""}`}><Icon size={16} className={`mt-0.5 shrink-0 ${item.mode === APPROVAL_AUTONOMY ? "text-amber-500" : "text-[#666] dark:text-[#aaa]"}`} /><span><span className={`block text-xs font-medium ${item.mode === APPROVAL_AUTONOMY ? "text-amber-600 dark:text-amber-400" : "text-[#222] dark:text-[#eee]"}`}>{item.label}</span><span className="mt-0.5 block text-[10px] leading-4 text-[#777] dark:text-[#999]">{item.detail}</span></span></button> })}
+              </div>}
+            </div>
             <button type="button" onClick={() => setCommandPaletteOpen(true)} className="hidden h-7 items-center gap-1 rounded-full border border-[#e0e0e0] px-2 text-[10px] text-[#888] hover:bg-black/5 dark:border-[#303030] dark:hover:bg-white/10 sm:inline-flex" title="Command palette"><span>⌘K</span></button>
-            <span className="rounded-full border border-[#e0e0e0] px-2.5 py-1 text-[10px] font-semibold tracking-wide dark:border-[#303030]">{isPro(plan) ? "PRO" : "FREE"}</span>
+            <span title={plan.localEntitlement ? "Local development entitlement · unlimited usage" : undefined} className="rounded-full border border-[#e0e0e0] px-2.5 py-1 text-[10px] font-semibold tracking-wide dark:border-[#303030]">{isPro(plan) ? (plan.localEntitlement ? "PRO · LOCAL" : "PRO") : "FREE"}</span>
             {lastTelemetry && <span className="hidden truncate text-[10px] text-[#888] md:inline">{lastTelemetry.seconds.toFixed(1)}s · {lastTelemetry.tokPerSecond} tok/s · {lastTelemetry.hardware}</span>}
           </div>
 
@@ -1487,6 +1806,12 @@ ${tree.slice(0, 12000)}`,
         </div>
       </div>
     </>
+  )
+
+  // Never render an empty assistant turn (created by an older stream race).
+  const renderedMessages = useMemo(
+    () => messages.filter((message) => message.role !== "assistant" || sanitizeAgentChatContent(message.content).content.replace(/<think>[\s\S]*?<\/think>/gi, "").trim().length > 0),
+    [messages],
   )
 
   return (
@@ -1596,6 +1921,9 @@ ${tree.slice(0, 12000)}`,
                     Turaen
                   </span>
                 </button>
+                <button type="button" onClick={() => { setSettingsTab("provider-account"); setIsSettingsOpen(true) }} className="relative grid h-8 w-8 place-items-center rounded-full border border-black/10 text-xs font-semibold text-[#555] transition hover:bg-black/5 dark:border-white/15 dark:text-[#ccc] dark:hover:bg-white/10" aria-label="Open profile and billing">
+                  {(userName || userEmail || "U").slice(0, 1).toUpperCase()}{isPro(plan) && <span title={plan.localEntitlement ? "Local development entitlement · unlimited usage" : "Pro plan active"} aria-hidden="true" className="absolute -right-1 -top-1 grid h-4 w-4 place-items-center rounded-full bg-emerald-500 text-[10px] font-bold text-white">+</span>}
+                </button>
               </div>
 
               {/* Primary Nav Actions (References 6 & 7) */}
@@ -1609,6 +1937,7 @@ ${tree.slice(0, 12000)}`,
                   <PlusIcon className="h-4 w-4" />
                   <span>New Session</span>
                 </button>
+                <button type="button" onClick={() => { setSettingsTab("provider-account"); setIsSettingsOpen(true) }} title={plan.localEntitlement ? "Local development entitlement · unlimited usage" : undefined} className="flex h-[36px] w-full items-center justify-between rounded-full border border-black/[0.06] bg-black/[0.025] px-3 text-sm font-medium text-[#444] transition-colors hover:bg-black/[0.07] dark:border-white/[0.08] dark:bg-white/[0.04] dark:text-[#ccc] dark:hover:bg-white/[0.09]"><span>See plans</span><span className="rounded-full bg-black/10 px-2 py-0.5 text-[10px] dark:bg-white/10">{isPro(plan) ? "Pro" : "Free"}</span></button>
 
                 {/* Night Shift in primary sidebar */}
                 <button
@@ -1829,18 +2158,22 @@ ${tree.slice(0, 12000)}`,
               <div className="mx-auto w-full max-w-3xl shrink-0 px-4 pb-6 sm:px-6">{renderComposer()}</div>
             </section>
           ) : (
-            <section className="flex min-h-0 flex-1 flex-col overflow-hidden">
-              <div className="min-h-0 flex-1 overflow-y-auto px-4 py-6 sm:px-8">
+            <section className="relative flex min-h-0 flex-1 flex-col overflow-hidden">
+              <div ref={chatViewportRef} className="min-h-0 flex-1 overflow-y-auto px-4 py-6 sm:px-8">
+                {userTurns.length > 0 && <nav aria-label="Conversation turns" className="absolute left-0 top-1/2 z-20 hidden w-3 -translate-y-1/2 flex-col items-center gap-1.5 md:flex">{userTurns.map((turn, turnIndex) => <button key={turn.id} type="button" onClick={() => scrollToTurn(turn.id)} title={turn.content.slice(0, 120)} aria-label={`Jump to turn ${turnIndex + 1}`} className={`group relative h-0.5 rounded-full transition-all ${activeTurnId === turn.id ? "w-3 bg-[#0A0A0A] dark:bg-[#FAFAFA]" : "w-2 bg-[#c4c4c4] hover:w-3 hover:bg-[#777] dark:bg-[#555] dark:hover:bg-[#aaa]"}`}><span className="pointer-events-none absolute left-4 top-1/2 hidden w-52 -translate-y-1/2 rounded-lg border border-[#e0e0e0] bg-white px-2.5 py-2 text-left text-[10px] leading-4 text-[#444] shadow-xl group-hover:block dark:border-[#333] dark:bg-[#202020] dark:text-[#ddd]">{turn.content.slice(0, 140)}{turn.content.length > 140 ? "…" : ""}</span></button>)}</nav>}
                 <div className="mx-auto w-full max-w-3xl space-y-6 pb-6">
-                  {messages.map((message, index) => (
+                  {renderedMessages.map((message, index) => (
                     <motion.div
                       key={`${message.id || "message"}-${index}`}
+                      ref={(node) => { messageRefs.current[message.id] = node }}
+                      data-message-id={message.id}
+                      data-turn-id={renderedMessages.slice(0, index + 1).reverse().find((item) => item.role === "user")?.id || message.id}
                       initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
                       className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
                     >
                       <div
-                        className={`min-w-0 max-w-[90%] break-words text-sm leading-6 ${
+                        className={`ideaai-message-content min-w-0 max-w-[90%] break-words select-text text-sm leading-6 ${
                           message.role === "user"
                             ? "rounded-[18px] border border-[#e0e0e0] bg-zinc-100 px-4 py-3 text-zinc-900 dark:border-[#3D3D3D] dark:bg-[#2A2A2A] dark:text-[#F5F5F5]"
                             : "text-zinc-900 dark:text-[#F5F5F5]"
@@ -1848,15 +2181,31 @@ ${tree.slice(0, 12000)}`,
                       >
                         <div className="flex items-start gap-2">
                           {message.role === "assistant" && <TuraenLogo className="mt-1 h-4 w-4 shrink-0 text-[#0A0A0A] dark:text-[#FAFAFA]" />}
-                          <AntigravityMarkdown content={message.content} onApplyToFile={applyCodeToFile} />
+                          <AntigravityMarkdown
+                            content={message.content}
+                            onApplyToFile={applyCodeToFile}
+                            sanitize={message.role === "assistant"}
+                            elapsedSeconds={(status === "submitted" || status === "streaming") && index === renderedMessages.length - 1 ? thinkingSeconds : undefined}
+                            meta={message.role === "assistant" ? {
+                              model: message.model || (index === renderedMessages.length - 1 && (status === "submitted" || status === "streaming") ? selectedModel : undefined),
+                              durationSeconds: message.durationSeconds ?? (index === renderedMessages.length - 1 && (status === "submitted" || status === "streaming") ? thinkingSeconds : undefined),
+                              tokensPerSecond: message.tokensPerSecond ?? (index === renderedMessages.length - 1 ? lastTelemetry?.tokPerSecond : undefined),
+                            } : undefined}
+                          />
                         </div>
+                        {message.role === "assistant" && <div className="mt-2 flex items-center gap-1 border-t border-black/[0.06] pt-2 text-[#888] dark:border-white/[0.08] dark:text-[#999]">
+                          <button type="button" onClick={() => void copyResponse(message)} title="Copy full response" aria-label="Copy full response" className="inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-[10px] hover:bg-black/5 dark:hover:bg-white/10">{copiedMessageId === message.id ? <Check size={12} /> : <Clipboard size={12} />}<span>{copiedMessageId === message.id ? "Copied" : "Copy"}</span></button>
+                          <button type="button" onClick={() => void recordFeedback(message, "like", messages.findIndex((item) => item.id === message.id))} title="Good response" aria-label="Good response" className={`inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-[10px] hover:bg-black/5 dark:hover:bg-white/10 ${feedbackByMessage[message.id] === "like" ? "text-emerald-600 dark:text-emerald-400" : ""}`}><ThumbsUp size={12} /><span>Good response</span></button>
+                          <button type="button" onClick={() => void recordFeedback(message, "unlike", messages.findIndex((item) => item.id === message.id))} title="Bad response" aria-label="Bad response" className={`inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-[10px] hover:bg-black/5 dark:hover:bg-white/10 ${feedbackByMessage[message.id] === "unlike" ? "text-red-600 dark:text-red-400" : ""}`}><ThumbsDown size={12} /><span>Bad response</span></button>
+                        </div>}
                       </div>
                     </motion.div>
                   ))}
                   {status === "submitted" && (
                     <div className="flex items-center gap-2 px-1 py-2 text-xs text-[#666666] dark:text-[#999999]">
                       <IdeaAILogo className="h-4 w-4 opacity-50 grayscale" />
-                      Working… {Math.max(1, thinkingSeconds)}s
+                      <span className="rounded-full border border-black/[0.08] px-2 py-0.5 font-medium dark:border-white/[0.1]">{activeBrand}</span>
+                      <span>Working… {Math.max(1, thinkingSeconds)}s</span>
                     </div>
                   )}
                   <div ref={messagesEndRef} />
@@ -2068,7 +2417,8 @@ ${tree.slice(0, 12000)}`,
         onSwitchModel={() => { setSettingsTab("provider-local"); setIsSettingsOpen(true) }}
         onRunCommand={(command) => { if (requiresProForSlashCommand(command, plan)) { requestUpgrade(`${command} is included with Turaen Pro.`); return } setLocalInput(`${command} `); textareaRef.current?.focus() }}
       />
-      <UpgradeModal isOpen={Boolean(upgradeReason)} reason={upgradeReason || undefined} onClose={() => setUpgradeReason(null)} />
+      <UpgradeModal isOpen={Boolean(upgradeReason)} reason={upgradeReason || undefined} plan={plan} onClose={() => setUpgradeReason(null)} />
+      {upgradeSuccess && <div className="fixed inset-0 z-50 grid place-items-center bg-emerald-600/95 p-6 text-white"><div className="flex max-w-md flex-col items-center text-center"><motion.div initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", stiffness: 260, damping: 16 }} className="grid h-24 w-24 place-items-center rounded-full border-4 border-white/80 bg-white text-emerald-600 shadow-2xl"><CheckCircle2 className="h-14 w-14" strokeWidth={2.5} /></motion.div><h2 className="mt-7 text-3xl font-semibold tracking-tight">Turaen Pro is active</h2><p className="mt-3 text-sm text-white/85">Your workspace has been upgraded. Full local models, cloud providers, and Night Shift automation are now available.</p><button type="button" onClick={() => setUpgradeSuccess(false)} className="mt-8 rounded-full bg-white px-6 py-3 text-sm font-medium text-emerald-700 transition hover:bg-emerald-50">Continue to workspace</button></div></div>}
     </div>
   )
 }

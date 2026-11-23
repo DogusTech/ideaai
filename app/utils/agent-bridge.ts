@@ -43,7 +43,7 @@ export class AgentBridge {
     return await ipcRenderer.invoke('read-file-in-workspace', rootPath, filePath);
   }
 
-  static async askLocalAI(messages: any[], options?: { fastPath?: boolean }): Promise<AgentBridgeResponse<string>> {
+  static async askLocalAI(messages: any[], options?: { fastPath?: boolean; structured?: boolean }): Promise<AgentBridgeResponse<string>> {
     const ipcRenderer = this.getIpcRenderer();
     if (!ipcRenderer) return { success: false, error: 'Not running in Electron' };
     return await ipcRenderer.invoke('ask-local-ai', messages, options || {});

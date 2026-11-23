@@ -140,6 +140,12 @@
 .ideaai-panel { background: var(--workspace-panel); color: var(--workspace-text); border-color: var(--workspace-border); }
 .ideaai-panel-muted { background: var(--workspace-panel-muted); border-color: var(--workspace-border-subtle); }
 .ideaai-composer { background: var(--workspace-input); border: 1px solid var(--workspace-border); }
+
+.ideaai-message-content,
+.ideaai-message-content * {
+  user-select: text;
+  -webkit-user-select: text;
+}
 .ideaai-control { background: var(--workspace-control); color: var(--workspace-text); border-color: var(--workspace-border-subtle); }
 .ideaai-control:hover { background: var(--workspace-control-hover); }
 .ideaai-primary-action { background: #000000; color: #ffffff; border: 1px solid #000000; }

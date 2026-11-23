@@ -37,6 +37,7 @@ export function registerAutonomousIpcHandlers(): void {
   });
 
   // --- 0.1 In-App Open-Source Model Hub Channels ---
+  ipcMain.removeHandler('models:get-hub-catalog');
   ipcMain.handle('models:get-hub-catalog', async () => {
     try {
       const catalog = await modelHub.getCatalog();

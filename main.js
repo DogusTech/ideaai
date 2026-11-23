@@ -338,10 +338,64 @@ async function getMachineSnapshot() {
     cpuCores,
     tier,
     tierLabel: tier === 'low' ? 'Low' : tier === 'high' ? 'High' : 'Medium',
-    recommendedNumCtx: tier === 'low' ? 2048 : tier === 'high' ? 8192 : 4096,
+    recommendedNumCtx: tier === 'high' ? LOCAL_OLLAMA_LARGE_NUM_CTX : LOCAL_OLLAMA_MIN_NUM_CTX,
     platform: `${os.type()} ${os.release()}`,
     modelDirectory: getOllamaModelsDirectory(),
   };
+}
+
+const LOCAL_OLLAMA_MIN_NUM_CTX = 8192;
+const LOCAL_OLLAMA_LARGE_NUM_CTX = 16384;
+const LOCAL_OLLAMA_OUTPUT_RESERVE_TOKENS = 1280;
+const LOCAL_CONTEXT_TRUNCATION_MARKER = '… [earlier conversation truncated to fit the local model context window]';
+
+// Conservative estimate: Turkish/code text can sit near 2-3 chars per token.
+function estimateOllamaTokens(value) {
+  const text = String(value || '');
+  return text ? Math.ceil(text.length / 2.5) : 0;
+}
+
+function truncateOllamaText(value, maxTokens, marker = '\n… [context truncated to fit the local model]') {
+  const text = String(value || '');
+  if (maxTokens <= 0) return '';
+  if (estimateOllamaTokens(text) <= maxTokens) return text;
+  const maxChars = Math.max(0, Math.floor(maxTokens * 2.5) - marker.length - 1);
+  return `${text.slice(0, maxChars)}${marker}`;
+}
+
+function packOllamaMessages(messages, contextWindow, reserveTokens = LOCAL_OLLAMA_OUTPUT_RESERVE_TOKENS) {
+  const windowSize = Math.max(1024, Math.floor(Number(contextWindow) || LOCAL_OLLAMA_MIN_NUM_CTX));
+  const contentBudget = Math.max(768, windowSize - Math.max(0, reserveTokens) - estimateOllamaTokens(LOCAL_CONTEXT_TRUNCATION_MARKER) - 8);
+  const normalized = (Array.isArray(messages) ? messages : [])
+    .filter((message) => message && typeof message.content === 'string')
+    .map((message) => ({ role: String(message.role || 'user'), content: message.content }));
+  if (!normalized.length) return [];
+
+  const systemContent = truncateOllamaText(
+    normalized.filter((message) => message.role === 'system').map((message) => message.content).join('\n\n'),
+    Math.max(256, Math.floor(contentBudget * 0.6))
+  );
+  const conversational = normalized.filter((message) => message.role !== 'system');
+  let remaining = Math.max(256, contentBudget - estimateOllamaTokens(systemContent));
+  const selected = [];
+  for (const message of [...conversational].reverse()) {
+    if (selected.length >= 23 || remaining <= 24) break;
+    const tokens = estimateOllamaTokens(message.content);
+    if (tokens <= remaining) {
+      selected.push(message);
+      remaining -= tokens;
+      continue;
+    }
+    const truncated = truncateOllamaText(message.content, Math.max(64, remaining - 8));
+    if (truncated) selected.push({ ...message, content: truncated });
+    break;
+  }
+  selected.reverse();
+  const droppedHistory = selected.length < conversational.length;
+  const packed = [];
+  if (systemContent) packed.push({ role: 'system', content: droppedHistory ? `${systemContent}\n\n${LOCAL_CONTEXT_TRUNCATION_MARKER}` : systemContent });
+  else if (droppedHistory) packed.push({ role: 'system', content: LOCAL_CONTEXT_TRUNCATION_MARKER });
+  return [...packed, ...selected];
 }
 
 function getOllamaRuntimeOptions(machine, fastPath = false) {
@@ -350,7 +404,8 @@ function getOllamaRuntimeOptions(machine, fastPath = false) {
   const gpuVramGb = Number(machine?.gpuVramBytes || 0) / (1024 ** 3);
   const integratedGpu = /integrated|uhd|iris|radeon graphics|vega graphics|microsoft basic/i.test(machine?.gpuName || '') || gpuVramGb < 1;
   return {
-    num_ctx: fastPath ? 2048 : tier === 'low' ? 2048 : tier === 'high' ? 8192 : 4096,
+    // Never come back with a 2k/4k window: the agent prompt alone is larger.
+    num_ctx: !fastPath && tier === 'high' ? LOCAL_OLLAMA_LARGE_NUM_CTX : LOCAL_OLLAMA_MIN_NUM_CTX,
     num_gpu: integratedGpu ? 0 : tier === 'high' ? 999 : Math.max(8, Math.floor(gpuVramGb * 8)),
     num_thread: tier === 'low' ? Math.max(2, cpuCores - 1) : Math.max(2, Math.min(cpuCores, tier === 'high' ? 12 : 8)),
     keep_alive: '15m',
@@ -558,6 +613,7 @@ ipcMain.handle('subscription:set', async (event, state = {}) => {
   catch (error) { return { success: false, error: error.message || 'Could not save subscription state.' }; }
 });
 
+ipcMain.removeHandler('models:get-hub-catalog');
 ipcMain.handle('models:get-hub-catalog', async (event) => {
   if (!isTrustedModelRenderer(event)) return { success: false, error: 'Untrusted renderer.' };
   const machine = await getMachineSnapshot();
@@ -1206,6 +1262,22 @@ ipcMain.handle('select-directory', async () => {
 });
 
 // --- LOCAL AI ENGINE (OLLAMA) ROUTER ---
+const LOCAL_AGENT_STEP_SCHEMA = {
+  type: 'object',
+  additionalProperties: false,
+  required: ['thought', 'brand_context', 'plan_steps', 'action', 'message'],
+  properties: {
+    thought: { type: 'string' },
+    brand_context: { type: 'string' },
+    plan_steps: { type: 'array', items: { type: 'string' } },
+    action: { type: 'string', enum: ['read_file', 'write_file', 'patch_file', 'run_terminal', 'verify', 'final_answer'] },
+    target_path: { type: 'string' },
+    file_content: { type: 'string' },
+    command: { type: 'string' },
+    message: { type: 'string' },
+  },
+};
+
 ipcMain.handle('ask-local-ai', async (event, messages, options = {}) => {
   try {
     const ready = await ensureOllamaReady();
@@ -1216,16 +1288,30 @@ ipcMain.handle('ask-local-ai', async (event, messages, options = {}) => {
     const model = activeOllamaModel;
     const promptMessages = [{ role: 'system', content: 'Always respond in clear, concise American English unless the user explicitly requests another language.' }, ...(Array.isArray(messages) ? messages : [])];
     const runtimeOptions = getOllamaRuntimeOptions(machine, fastPath);
-    const basePayload = { model, messages: promptMessages, stream: true, options: runtimeOptions };
+    const contextWindow = Number(runtimeOptions.num_ctx) || LOCAL_OLLAMA_MIN_NUM_CTX;
+    const packedMessages = packOllamaMessages(promptMessages, contextWindow);
+    const basePayload = { model, messages: packedMessages, stream: true, options: runtimeOptions };
+    const structured = Boolean(options?.structured) && !fastPath;
     const supportsThinking = /(^|[-:])(deepseek-r1|qwen3|qwq)(?=[:\-]|$)/i.test(model);
-    const requestPayload = supportsThinking ? { ...basePayload, think: false } : basePayload;
+    const requestPayload = {
+      ...basePayload,
+      ...(structured ? { format: LOCAL_AGENT_STEP_SCHEMA } : {}),
+      ...(supportsThinking ? { think: false } : {}),
+    };
     const requestChat = (payload) => fetch(`${ollamaBaseUrl()}/api/chat`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     let response = await requestChat(requestPayload);
+    let retryMessages = packedMessages;
     if (response.status === 400) {
       let body = {};
       try { body = await response.json(); } catch {}
       const firstError = String(body.error || 'Ollama rejected the chat request.');
-      response = await requestChat(basePayload);
+      // Some Ollama builds reject an over-long prompt before honoring num_ctx.
+      if (/context|token|length|too long|prompt/i.test(firstError)) {
+        retryMessages = packOllamaMessages(promptMessages, Math.max(2048, Math.floor(contextWindow * 0.5)), 512);
+        response = await requestChat({ ...requestPayload, messages: retryMessages });
+      }
+      if (!response.ok && structured) response = await requestChat({ ...requestPayload, messages: retryMessages, format: 'json' });
+      if (!response.ok) response = await requestChat({ ...basePayload, messages: retryMessages });
       if (!response.ok) {
         let retryBody = {};
         try { retryBody = await response.json(); } catch {}
@@ -1273,11 +1359,14 @@ ipcMain.handle('ask-local-ai', async (event, messages, options = {}) => {
     console.error("Local AI error:", error);
     const message = error?.message || 'Could not connect to Ollama at 127.0.0.1:11434.';
     const unreachable = /ECONNREFUSED|ETIMEDOUT|timed out|fetch failed|could not connect|did not become ready/i.test(message);
+    const contextOverflow = /context|token|length|too long|prompt/i.test(message);
     return {
-      success: false, 
-      error: message,
-      code: unreachable ? 'OLLAMA_UNREACHABLE' : 'OLLAMA_API_ERROR',
-      action: unreachable ? 'start' : /not found|pull/i.test(message) ? 'pull' : 'retry',
+      success: false,
+      error: contextOverflow
+        ? 'The local model context window was still too small after trimming history. Remove some attached files or start a new session.'
+        : message,
+      code: unreachable ? 'OLLAMA_UNREACHABLE' : contextOverflow ? 'OLLAMA_CONTEXT_OVERFLOW' : 'OLLAMA_API_ERROR',
+      action: contextOverflow ? 'reduce_context' : unreachable ? 'start' : /not found|pull/i.test(message) ? 'pull' : 'retry',
     };
   }
 });
@@ -1329,8 +1418,8 @@ function createWindow() {
       console.warn('[electron] Next dev server not reachable after wait, proceeding anyway');
     }
     const startUrl = isDev
-      ? 'http://localhost:3000/matrix-demo/app'
-      : (process.env.TURAEN_WEB_APP_URL || process.env.IDEAAI_WEB_APP_URL || 'https://turaen.com/matrix-demo/app');
+      ? (process.env.TURAEN_ELECTRON_URL || 'http://localhost:3000/mac-test')
+      : (process.env.TURAEN_WEB_APP_URL || process.env.IDEAAI_WEB_APP_URL || 'https://turaen.com/mac-test');
     mainWindow.loadURL(startUrl);
   })();
 

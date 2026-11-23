@@ -40,3 +40,11 @@ IdeaAI, basit bir chatbot değil; masaüstünde çalışan, dosya ve terminal ye
 - Sürekli "Bu ürün çalışıyor mu?" diyen yatırımcı dilinden ziyade, teknik doğrulanabilir mimari sun (Örn: Webhook-driven Sentry/GitHub entegrasyonları).
 
 > Bu dosya, IdeaAI kod tabanının kalbidir. Sistemin vizyonu, tasarım standartları ve ürünün ruhu bu kurallara dayanmaktadır. Kodlarken, içerik üretirken ve plan yaparken daima bu kuralları hatırla.
+
+## Turaen repository contract
+
+Turaen uses the Next.js App Router as its web architecture. Route handlers live under `app/api/**/route.ts`, pages live under `app/**/page.tsx`, and reusable UI belongs in the top-level `components/` and `lib/` directories. The removed legacy `pages/`, `matrix-demo/`, and vendored `ui-main/` trees must not be recreated. Do not commit generated build output, including `*.tsbuildinfo`, `.next/`, `out/`, or release bundles.
+
+The public product surfaces are `turaen.com` and `pay.turaen.com`. Keep the interface quiet and premium: use `#fafafa` for light surfaces, `#0a0a0a` for dark surfaces, `#64748B` for muted text where a semantic token is not available, and the existing CSS variables for borders, foregrounds, and secondary actions. Prefer SF Pro, Google Sans Flex, and the existing project font stack. Preserve generous whitespace, thin borders, restrained motion, and clear keyboard focus states.
+
+Subscription state is centralized in `lib/plan-entitlements.ts`. The client may use the local dev-preview toggle, but paid access must be granted only after server-side Stripe confirmation. Upgrade CTAs create a Stripe Checkout Session through an App Router route, use Stripe's automatic payment methods so Link can appear, and return through a verified session confirmation route before persisting the user's tier. Every quota guard should identify the next tier and launch the corresponding checkout flow; never show a generic limit message without an upgrade action. Local development (`next dev` or a loopback host) resolves to the highest tier with unlimited quotas and skips Stripe checkout; non-local production hosts keep full Stripe verification and enforcement.

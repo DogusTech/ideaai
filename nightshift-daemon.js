@@ -11,6 +11,51 @@ const { execFile, spawn } = require('child_process');
 const { promisify } = require('util');
 const execFileAsync = promisify(execFile);
 
+const LOCAL_OLLAMA_NUM_CTX = 8192;
+const LOCAL_OLLAMA_OUTPUT_RESERVE_TOKENS = 1280;
+const LOCAL_CONTEXT_TRUNCATION_MARKER = '… [earlier conversation truncated to fit the local model context window]';
+
+function estimateOllamaTokens(value) {
+  const text = String(value || '');
+  return text ? Math.ceil(text.length / 2.5) : 0;
+}
+
+function truncateOllamaText(value, maxTokens, marker = '\n… [context truncated to fit the local model]') {
+  const text = String(value || '');
+  if (maxTokens <= 0) return '';
+  if (estimateOllamaTokens(text) <= maxTokens) return text;
+  return `${text.slice(0, Math.max(0, Math.floor(maxTokens * 2.5) - marker.length - 1))}${marker}`;
+}
+
+function packOllamaMessages(messages, contextWindow, reserveTokens = LOCAL_OLLAMA_OUTPUT_RESERVE_TOKENS) {
+  const contentBudget = Math.max(768, Math.max(1024, contextWindow) - Math.max(0, reserveTokens) - estimateOllamaTokens(LOCAL_CONTEXT_TRUNCATION_MARKER) - 8);
+  const normalized = (Array.isArray(messages) ? messages : [])
+    .filter((message) => message && typeof message.content === 'string')
+    .map((message) => ({ role: String(message.role || 'user'), content: message.content }));
+  if (!normalized.length) return [];
+  const systemContent = truncateOllamaText(
+    normalized.filter((message) => message.role === 'system').map((message) => message.content).join('\n\n'),
+    Math.max(256, Math.floor(contentBudget * 0.6))
+  );
+  const conversational = normalized.filter((message) => message.role !== 'system');
+  let remaining = Math.max(256, contentBudget - estimateOllamaTokens(systemContent));
+  const selected = [];
+  for (const message of [...conversational].reverse()) {
+    if (selected.length >= 23 || remaining <= 24) break;
+    const tokens = estimateOllamaTokens(message.content);
+    if (tokens <= remaining) { selected.push(message); remaining -= tokens; continue; }
+    const truncated = truncateOllamaText(message.content, Math.max(64, remaining - 8));
+    if (truncated) selected.push({ ...message, content: truncated });
+    break;
+  }
+  selected.reverse();
+  const droppedHistory = selected.length < conversational.length;
+  const packed = [];
+  if (systemContent) packed.push({ role: 'system', content: droppedHistory ? `${systemContent}\n\n${LOCAL_CONTEXT_TRUNCATION_MARKER}` : systemContent });
+  else if (droppedHistory) packed.push({ role: 'system', content: LOCAL_CONTEXT_TRUNCATION_MARKER });
+  return [...packed, ...selected];
+}
+
 const args = process.argv.slice(2);
 const arg = (name, fallback = '') => {
   const index = args.indexOf(name);
@@ -105,13 +150,18 @@ async function askOllama(model, prompt, onToken) {
   }
   const activeModel = model || process.env.OLLAMA_MODEL || 'qwen2.5-coder:3b';
   const messages = [{ role: 'system', content: 'Always respond in clear, concise American English unless the user explicitly requests another language. You are Night Shift, a local coding worker. Make focused edits only. Prefer exact SEARCH / REPLACE patches inside <patch_file path="relative/path"> markers; use complete <write_file> blocks only when necessary. Do not use absolute paths.' }, { role: 'user', content: prompt }];
-  const payload = { model: activeModel, stream: true, options: { num_ctx: 2048, keep_alive: '15m', temperature: 0.1, top_p: 0.9, repeat_penalty: 1.05 }, messages };
+  const options = { num_ctx: LOCAL_OLLAMA_NUM_CTX, keep_alive: '15m', temperature: 0.1, top_p: 0.9, repeat_penalty: 1.05 };
+  const packedMessages = packOllamaMessages(messages, LOCAL_OLLAMA_NUM_CTX);
+  const payload = { model: activeModel, stream: true, options, messages: packedMessages };
   if (/(^|[-:])(deepseek-r1|qwen3|qwq)(?=[:\-]|$)/i.test(activeModel)) payload.think = false;
   let response = await fetch(`${base}/api/chat`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
   if (response.status === 400) {
     let firstBody = {}; try { firstBody = await response.json(); } catch {}
     const firstError = String(firstBody.error || 'Ollama rejected the chat request.');
-    response = await fetch(`${base}/api/chat`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: activeModel, messages, stream: true, options: payload.options }) });
+    const retryMessages = /context|token|length|too long|prompt/i.test(firstError)
+      ? packOllamaMessages(messages, Math.max(2048, Math.floor(LOCAL_OLLAMA_NUM_CTX / 2)), 512)
+      : packedMessages;
+    response = await fetch(`${base}/api/chat`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: activeModel, messages: retryMessages, stream: true, options }) });
     if (!response.ok) { let retryBody = {}; try { retryBody = await response.json(); } catch {} throw new Error(String(retryBody.error || firstError)); }
   }
   if (!response.ok || !response.body) throw new Error(`Ollama returned ${response.status}.`);

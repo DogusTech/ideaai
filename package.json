@@ -4,13 +4,16 @@
   "private": true,
   "packageManager": "pnpm@9.15.4",
   "scripts": {
-    "dev": "next dev -p 3000",
+    "dev": "next dev --webpack -p 3000",
+    "dev:turbopack": "next dev -p 3000",
+    "dev:webpack": "next dev --webpack -p 3000",
     "build": "next build",
+    "clean": "node -e \"require('fs').rmSync('.next', { recursive: true, force: true })\"",
     "sync-icons": "node scripts/sync-icons.js",
     "start": "next start",
     "sync-news": "tsx scripts/sync-news.ts",
     "lint": "eslint .",
-    "dev:electron": "pnpm dlx concurrently -k \"pnpm run dev\" \"pnpm dlx wait-on http://localhost:3000 && pnpm dlx electron .\"",
+    "dev:electron": "pnpm dlx concurrently -k \"pnpm run dev\" \"pnpm dlx wait-on --interval 500 http-get://localhost:3000 && pnpm dlx electron .\"",
     "build:electron": "electron-builder",
     "cli": "node bin/ideaai"
   },

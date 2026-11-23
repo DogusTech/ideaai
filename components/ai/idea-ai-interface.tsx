@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect, useRef } from "react"
+import React, { useState, useEffect, useRef, useCallback } from "react"
 import { motion } from "framer-motion"
 import { 
   Search, 
@@ -25,7 +25,13 @@ import {
   ArrowRight,
   ChevronRight,
   Code2,
-  Terminal
+  Terminal,
+  Paperclip,
+  Folder as FolderIcon,
+  Triangle,
+  X,
+  FileCode,
+  FileSpreadsheet
 } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
@@ -36,6 +42,75 @@ import { auth } from "@/lib/firebase"
 
 import { SettingsModal } from "./settings-modal"
 import { TeamModal } from "./team-modal"
+
+export type AttachmentItem = {
+  id: string
+  name: string
+  typeBadge: string // 'TXT', 'TSX', 'PNG', 'DIR', etc.
+  category: 'file' | 'folder' | 'image' | 'link'
+  content?: string // text content for code/text files
+  base64?: string // data URL for images
+  path?: string // original path if available
+  url?: string
+}
+
+function getFileTypeBadge(name: string, isDirectory?: boolean): string {
+  if (isDirectory) return 'DIR'
+  const ext = name.split('.').pop()?.toUpperCase()
+  if (!ext || ext === name.toUpperCase()) return 'FILE'
+  return ext.length > 5 ? ext.slice(0, 5) : ext
+}
+
+async function readFileAsAttachment(file: File): Promise<AttachmentItem> {
+  const isImage = file.type.startsWith('image/')
+  const extBadge = getFileTypeBadge(file.name)
+  
+  if (isImage) {
+    return new Promise((resolve) => {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        resolve({
+          id: `att-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+          name: file.name,
+          typeBadge: extBadge || 'PNG',
+          category: 'image',
+          base64: e.target?.result as string,
+        })
+      }
+      reader.onerror = () => {
+        resolve({
+          id: `att-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+          name: file.name,
+          typeBadge: extBadge || 'PNG',
+          category: 'image',
+        })
+      }
+      reader.readAsDataURL(file)
+    })
+  }
+
+  return new Promise((resolve) => {
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      resolve({
+        id: `att-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+        name: file.name,
+        typeBadge: extBadge,
+        category: 'file',
+        content: typeof e.target?.result === 'string' ? e.target.result : '',
+      })
+    }
+    reader.onerror = () => {
+      resolve({
+        id: `att-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+        name: file.name,
+        typeBadge: extBadge,
+        category: 'file',
+      })
+    }
+    reader.readAsText(file)
+  })
+}
 
 type Project = {
   id: string
@@ -60,14 +135,22 @@ export function IdeaAIInterface() {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [settingsTab, setSettingsTab] = useState("general")
   const [isTeamModalOpen, setIsTeamModalOpen] = useState(false)
+
+  // Attachment states
+  const [attachments, setAttachments] = useState<AttachmentItem[]>([])
+  const [isDragging, setIsDragging] = useState(false)
+  const [isDriveSetupOpen, setIsDriveSetupOpen] = useState(false)
+  const dragCounterRef = useRef(0)
   
   const folderInputRef = useRef<HTMLInputElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const directoryInputRef = useRef<HTMLInputElement>(null)
   const addMenuRef = useRef<HTMLDivElement>(null)
   const addBtnRef = useRef<HTMLButtonElement>(null)
   const modelMenuRef = useRef<HTMLDivElement>(null)
   const modelBtnRef = useRef<HTMLButtonElement>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const composerContainerRef = useRef<HTMLDivElement>(null)
   
   const body = React.useMemo(() => ({ department: selectedDept, project: selectedProject, model: selectedModel }), [selectedDept, selectedProject, selectedModel])
 
@@ -185,11 +268,51 @@ export function IdeaAIInterface() {
 
   const handleCustomSubmit = (e?: React.FormEvent) => {
     e?.preventDefault();
-    if (!localInput.trim() || isLoading) return;
+    if ((!localInput.trim() && attachments.length === 0) || isLoading) return;
     
+    // Check if any local text-only model is selected
+    const isTextOnlyLocalModel = selectedModel.toLowerCase().includes("local") || selectedModel.toLowerCase().includes("llama");
+    const hasImages = attachments.some(a => a.category === 'image');
+    
+    // Prepare prompt with attachments
+    let finalPrompt = localInput.trim();
+    if (attachments.length > 0) {
+      const parts: string[] = [];
+      if (finalPrompt) {
+        parts.push(finalPrompt);
+      }
+      
+      const textFiles = attachments.filter(a => a.category === 'file' || a.category === 'folder' || a.category === 'link');
+      if (textFiles.length > 0) {
+        parts.push("\n\n--- Attached Context & Files ---");
+        textFiles.forEach(file => {
+          if (file.content) {
+            parts.push(`\n[${file.typeBadge}] ${file.name}:\n\`\`\`\n${file.content.slice(0, 4000)}\n\`\`\``);
+          } else {
+            parts.push(`\n[${file.typeBadge}] ${file.name}`);
+          }
+        });
+      }
+
+      if (hasImages) {
+        if (isTextOnlyLocalModel) {
+          parts.push("\n\n[Note: Local text-only model is active. Image attached as metadata. Use a multimodal/vision model for visual processing.]");
+        } else {
+          parts.push(`\n\n[${attachments.filter(a => a.category === 'image').length} image/screenshot(s) attached]`);
+        }
+      }
+
+      finalPrompt = parts.join("\n");
+    }
+
     // In @ai-sdk/react 4.x, the method is sendMessage, not append.
-    sendMessage({ id: Date.now().toString(), role: 'user', content: localInput });
+    sendMessage({ 
+      id: Date.now().toString(), 
+      role: 'user', 
+      content: finalPrompt || (attachments.length > 0 ? `Attached: ${attachments.map(a => a.name).join(', ')}` : '')
+    });
     setLocalInput("");
+    setAttachments([]);
     textareaRef.current?.focus();
   };
 
@@ -238,6 +361,190 @@ export function IdeaAIInterface() {
 
 
 
+  // Helper to add attachments safely
+  const addAttachmentItems = useCallback((newItems: AttachmentItem[]) => {
+    setAttachments(prev => {
+      const existingIds = new Set(prev.map(item => `${item.name}-${item.typeBadge}`));
+      const filtered = newItems.filter(item => !existingIds.has(`${item.name}-${item.typeBadge}`));
+      return [...prev, ...filtered];
+    });
+  }, []);
+
+  const removeAttachment = useCallback((id: string) => {
+    setAttachments(prev => prev.filter(item => item.id !== id));
+  }, []);
+
+  // Multi-file attachment handler
+  const handleFilesChosen = async (files: FileList | File[]) => {
+    const list = Array.from(files);
+    if (!list.length) return;
+    const items = await Promise.all(list.map(f => readFileAsAttachment(f)));
+    addAttachmentItems(items);
+  };
+
+  // Directory picker handler
+  const handleDirectoryChosen = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      // Pick first file relative path or webkitRelativePath
+      const firstPath = files[0].webkitRelativePath || files[0].name;
+      const folderName = firstPath.split('/')[0] || 'Selected Folder';
+      const dirItem: AttachmentItem = {
+        id: `dir-${Date.now()}`,
+        name: folderName,
+        typeBadge: 'DIR',
+        category: 'folder',
+        content: `Folder context: ${folderName} containing ${files.length} files.`
+      };
+      addAttachmentItems([dirItem]);
+      // Also update selected project
+      setSelectedProject(folderName);
+    }
+  };
+
+  // Folder select via Electron dialog or window.showDirectoryPicker
+  const handleFolderPicker = async () => {
+    setShowAddMenu(false);
+    try {
+      const electronAPI = (window as any).electronAPI;
+      if (electronAPI?.invoke) {
+        const result = await electronAPI.invoke('select-directory');
+        if (result && result.success && result.path) {
+          const folderPath: string = result.path;
+          const folderName = folderPath.split(/[/\\]/).pop() || folderPath;
+          addAttachmentItems([{
+            id: `dir-${Date.now()}`,
+            name: folderName,
+            typeBadge: 'DIR',
+            category: 'folder',
+            path: folderPath,
+            content: `Attached workspace directory: ${folderPath}`
+          }]);
+          setSelectedProject(folderName);
+          return;
+        }
+      }
+      if ('showDirectoryPicker' in window) {
+        const directoryHandle = await (window as any).showDirectoryPicker({ mode: 'read' });
+        const folderName = directoryHandle.name;
+        addAttachmentItems([{
+          id: `dir-${Date.now()}`,
+          name: folderName,
+          typeBadge: 'DIR',
+          category: 'folder',
+          content: `Attached directory: ${folderName}`
+        }]);
+        setSelectedProject(folderName);
+        return;
+      }
+      directoryInputRef.current?.click();
+    } catch (err) {
+      console.log('Folder selection cancelled or failed', err);
+    }
+  };
+
+  // Browser tab attachment
+  const handleAttachBrowser = () => {
+    setShowAddMenu(false);
+    const activeUrl = typeof window !== 'undefined' ? window.location.href : 'https://ideai.dev';
+    const title = typeof document !== 'undefined' ? document.title || 'Active Tab' : 'Active Tab';
+    addAttachmentItems([{
+      id: `url-${Date.now()}`,
+      name: title.length > 24 ? title.slice(0, 24) + '…' : title,
+      typeBadge: 'URL',
+      category: 'link',
+      url: activeUrl,
+      content: `Web Context: ${title} (${activeUrl})`
+    }]);
+  };
+
+  // Drive setup or attach
+  const handleDriveAttach = () => {
+    setShowAddMenu(false);
+    setIsDriveSetupOpen(true);
+  };
+
+  // Global & Composer Clipboard Paste
+  const handlePaste = useCallback(async (e: React.ClipboardEvent | ClipboardEvent) => {
+    const clipboardData = e.clipboardData;
+    if (!clipboardData) return;
+
+    const items = Array.from(clipboardData.items);
+    const filesToRead: File[] = [];
+
+    for (const item of items) {
+      if (item.kind === 'file') {
+        const file = item.getAsFile();
+        if (file) {
+          filesToRead.push(file);
+        }
+      }
+    }
+
+    if (filesToRead.length > 0) {
+      // Don't prevent default if there's plain text too, but if it's purely files/images, prevent default
+      const hasText = clipboardData.types.includes('text/plain') && filesToRead.length === 1 && !filesToRead[0].type.startsWith('image/');
+      if (!hasText) {
+        e.preventDefault();
+      }
+      const newAttachments = await Promise.all(filesToRead.map(f => readFileAsAttachment(f)));
+      addAttachmentItems(newAttachments);
+    }
+  }, [addAttachmentItems]);
+
+  // Global & Composer Drag and Drop
+  const handleDragEnter = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounterRef.current += 1;
+    if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
+      setIsDragging(true);
+    }
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounterRef.current -= 1;
+    if (dragCounterRef.current <= 0) {
+      dragCounterRef.current = 0;
+      setIsDragging(false);
+    }
+  }, []);
+
+  const handleDrop = useCallback(async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dragCounterRef.current = 0;
+    setIsDragging(false);
+
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      await handleFilesChosen(files);
+    }
+  }, [handleFilesChosen]);
+
+  // Attach global paste listener on window so pasting screenshots anywhere in chat workspace attaches them
+  useEffect(() => {
+    const onWindowPaste = (e: ClipboardEvent) => {
+      // If active element is another input/textarea outside chat workspace, let it paste normally unless it's files
+      const target = e.target as HTMLElement;
+      if (target && target.tagName === 'INPUT' && target !== textareaRef.current) {
+        return;
+      }
+      if (e.clipboardData?.files && e.clipboardData.files.length > 0) {
+        handlePaste(e);
+      }
+    };
+    window.addEventListener('paste', onWindowPaste);
+    return () => window.removeEventListener('paste', onWindowPaste);
+  }, [handlePaste]);
+
   const handleFolderSelect = async () => {
     try {
       // Use File System Access API to avoid "Upload X files" browser prompt
@@ -276,14 +583,28 @@ export function IdeaAIInterface() {
   return (
     <div className="flex h-screen w-full font-sans overflow-hidden bg-[#fafafa] text-[#171717]">
       {/* Hidden file inputs for system dialogs */}
-      {/* Note: Folder input removed in favor of window.showDirectoryPicker */}
       <input 
         type="file" 
         ref={fileInputRef} 
-        onChange={handleFileSelect} 
+        onChange={(e) => {
+          if (e.target.files) handleFilesChosen(e.target.files);
+          e.target.value = '';
+          setShowAddMenu(false);
+        }} 
         style={{ display: 'none' }} 
-        accept="image/*,application/pdf" 
+        accept="*/*" 
         multiple 
+      />
+      <input 
+        type="file" 
+        ref={directoryInputRef} 
+        onChange={(e) => {
+          handleDirectoryChosen(e);
+          e.target.value = '';
+          setShowAddMenu(false);
+        }} 
+        style={{ display: 'none' }} 
+        {...({ webkitdirectory: "", directory: "" } as any)} 
       />
       
       {/* SIDEBAR */}
@@ -611,12 +932,73 @@ export function IdeaAIInterface() {
 
             <form 
               onSubmit={handleCustomSubmit}
-              className={`w-full bg-[#f4f4f4] rounded-[24px] border-none transition-all duration-300 flex flex-col shadow-[0_2px_10px_rgba(0,0,0,0.04)] ${
-                isFocused ? "shadow-[0_4px_20px_rgba(0,0,0,0.08)] ring-1 ring-[#d4d4d4]" : ""
+              onDragEnter={handleDragEnter}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              className={`w-full bg-[#f4f4f4] rounded-[24px] border transition-all duration-300 flex flex-col shadow-[0_2px_10px_rgba(0,0,0,0.04)] ${
+                isDragging 
+                  ? "border-[#1a73e8] bg-[#eff6ff] ring-2 ring-[#1a73e8]/30 shadow-[0_4px_24px_rgba(26,115,232,0.15)]" 
+                  : isFocused 
+                    ? "border-[#d4d4d4] shadow-[0_4px_20px_rgba(0,0,0,0.08)] ring-1 ring-[#d4d4d4]" 
+                    : "border-transparent"
               }`}
             >
-              <div className="p-3 flex flex-col relative bg-[#f4f4f4] rounded-t-[24px]">
+              <div className="p-3 flex flex-col relative rounded-t-[24px]">
                 
+                {/* Inline Attachment Chips Above Input */}
+                {attachments.length > 0 && (
+                  <div className="flex flex-wrap items-center gap-1.5 px-1 pt-1 pb-2">
+                    {attachments.map((att) => (
+                      <div
+                        key={att.id}
+                        className="group inline-flex items-center gap-1.5 max-w-[260px] h-[28px] pl-2 pr-1.5 rounded-full bg-white border border-[#e5e5e5] text-[#171717] text-[12px] font-medium shadow-[0_1px_2px_rgba(0,0,0,0.04)] transition-all hover:border-[#d4d4d4]"
+                        title={att.name}
+                      >
+                        {/* Compact Preview for Image or Type Badge */}
+                        {att.category === "image" && att.base64 ? (
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <img
+                              src={att.base64}
+                              alt={att.name}
+                              className="w-4 h-4 rounded-[4px] object-cover border border-[#e5e5e5]"
+                            />
+                            <span className="text-[10px] font-bold px-1 py-0.2 rounded bg-[#e8f0fe] text-[#1a73e8] uppercase tracking-wide">
+                              {att.typeBadge}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded tracking-wide uppercase shrink-0 ${
+                            att.category === "folder"
+                              ? "bg-amber-100 text-amber-800"
+                              : att.category === "link"
+                                ? "bg-emerald-100 text-emerald-800"
+                                : "bg-neutral-200 text-neutral-800"
+                          }`}>
+                            {att.typeBadge}
+                          </span>
+                        )}
+
+                        <span className="truncate max-w-[140px] text-[12px] font-sans">
+                          {att.name}
+                        </span>
+
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeAttachment(att.id);
+                          }}
+                          aria-label={`Remove ${att.name}`}
+                          className="w-4 h-4 rounded-full flex items-center justify-center text-[#737373] hover:text-[#171717] hover:bg-[#e5e5e5] transition-colors ml-0.5"
+                        >
+                          <X className="w-3 h-3" strokeWidth={2.5} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
                 {/* Textarea */}
                 <div className="px-1 pt-1 pb-2">
                   <textarea
@@ -625,6 +1007,7 @@ export function IdeaAIInterface() {
                     value={localInput}
                     onChange={(e) => setLocalInput(e.target.value)}
                     onKeyDown={handleKeyDown}
+                    onPaste={handlePaste}
                     onFocus={() => setIsFocused(true)}
                     onBlur={() => setIsFocused(false)}
                     placeholder="Ask anything, @ to mention, / for actions"
@@ -649,24 +1032,63 @@ export function IdeaAIInterface() {
 
                     {/* Popover Menu for + button */}
                     {showAddMenu && (
-                      <div ref={addMenuRef} className="absolute bottom-[calc(100%+12px)] left-[-4px] mb-1 w-[200px] bg-[#f4f4f4] rounded-[16px] shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-[#e5e5e5] flex flex-col z-50 py-2">
-                        <div className="px-3 pb-2 pt-1 text-[13px] font-semibold text-[#737373]">
+                      <div ref={addMenuRef} className="absolute bottom-[calc(100%+12px)] left-[-4px] mb-1 w-[220px] bg-[#fafafa] rounded-[16px] shadow-[0_8px_30px_rgba(0,0,0,0.12)] border border-[#e5e5e5] flex flex-col z-50 py-2 animate-in fade-in zoom-in-95 duration-150">
+                        <div className="px-3 pb-2 pt-1 text-[12px] font-semibold tracking-wider text-[#737373] uppercase">
                           Add Context
                         </div>
-                        <button onClick={handleFolderSelect} className="w-full flex items-center gap-3 px-3 py-[7px] text-[14px] text-[#525252] hover:bg-[#e5e5e5] text-left transition-colors">
-                          <LayoutGrid className="w-[18px] h-[18px] text-[#525252]" strokeWidth={1.5} /> New Project
+                        {/* Files item */}
+                        <button 
+                          type="button"
+                          onClick={() => { setShowAddMenu(false); fileInputRef.current?.click(); }} 
+                          className="w-full flex items-center gap-3 px-3 py-[8px] text-[13.5px] text-[#171717] hover:bg-[#f0f0f0] text-left transition-colors font-medium"
+                        >
+                          <Paperclip className="w-[17px] h-[17px] text-[#525252]" strokeWidth={2} /> Files
                         </button>
-                        <button onClick={() => fileInputRef.current?.click()} className="w-full flex items-center gap-3 px-3 py-[7px] text-[14px] text-[#525252] hover:bg-[#e5e5e5] text-left transition-colors">
-                          <ImageIcon className="w-[18px] h-[18px] text-[#525252]" strokeWidth={1.5} /> Media
+                        {/* Folder item */}
+                        <button 
+                          type="button"
+                          onClick={handleFolderPicker} 
+                          className="w-full flex items-center gap-3 px-3 py-[8px] text-[13.5px] text-[#171717] hover:bg-[#f0f0f0] text-left transition-colors font-medium"
+                        >
+                          <FolderIcon className="w-[17px] h-[17px] text-[#525252]" strokeWidth={2} /> Folder
                         </button>
-                        <button onClick={() => insertAction('@')} className="w-full flex items-center gap-3 px-3 py-[7px] text-[14px] text-[#525252] hover:bg-[#e5e5e5] text-left transition-colors">
-                          <span className="text-[#525252] text-[17px] leading-none w-[18px] text-center font-normal">@</span> Mentions
+                        {/* Mentions item */}
+                        <button 
+                          type="button"
+                          onClick={() => insertAction('@')} 
+                          className="w-full flex items-center gap-3 px-3 py-[8px] text-[13.5px] text-[#171717] hover:bg-[#f0f0f0] text-left transition-colors font-medium"
+                        >
+                          <span className="text-[#525252] text-[16px] leading-none w-[17px] text-center font-semibold">@</span> Mentions
                         </button>
-                        <button onClick={() => insertAction('/')} className="w-full flex items-center gap-3 px-3 py-[7px] text-[14px] text-[#525252] hover:bg-[#e5e5e5] text-left transition-colors">
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-[#525252]"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg> Actions
+                        {/* Actions item */}
+                        <button 
+                          type="button"
+                          onClick={() => insertAction('/')} 
+                          className="w-full flex items-center gap-3 px-3 py-[8px] text-[13.5px] text-[#171717] hover:bg-[#f0f0f0] text-left transition-colors font-medium"
+                        >
+                          <span className="text-[#525252] text-[16px] leading-none w-[17px] text-center font-semibold">/</span> Actions
                         </button>
-                        <button onClick={() => setShowAddMenu(false)} className="w-full flex items-center gap-3 px-3 py-[7px] text-[14px] text-[#525252] hover:bg-[#e5e5e5] text-left transition-colors">
-                          <Globe className="w-[18px] h-[18px] text-[#525252]" strokeWidth={1.5} /> Browser
+                        {/* Browser item */}
+                        <button 
+                          type="button"
+                          onClick={handleAttachBrowser} 
+                          className="w-full flex items-center gap-3 px-3 py-[8px] text-[13.5px] text-[#171717] hover:bg-[#f0f0f0] text-left transition-colors font-medium"
+                        >
+                          <Globe className="w-[17px] h-[17px] text-[#525252]" strokeWidth={2} /> Browser
+                        </button>
+                        {/* Drive item */}
+                        <button 
+                          type="button"
+                          onClick={handleDriveAttach} 
+                          className="w-full flex items-center justify-between px-3 py-[8px] text-[13.5px] text-[#171717] hover:bg-[#f0f0f0] text-left transition-colors font-medium"
+                        >
+                          <div className="flex items-center gap-3">
+                            <Triangle className="w-[17px] h-[17px] text-[#525252]" strokeWidth={2} />
+                            <span>Drive</span>
+                          </div>
+                          <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-[#e8f0fe] text-[#1a73e8]">
+                            Set up
+                          </span>
                         </button>
                       </div>
                     )}
@@ -734,9 +1156,9 @@ export function IdeaAIInterface() {
                     ) : (
                       <button 
                         type="submit"
-                        disabled={!localInput.trim()}
+                        disabled={!localInput.trim() && attachments.length === 0}
                         className={`flex items-center justify-center w-[36px] h-[36px] rounded-full transition-all shadow-sm mr-1 ${
-                          localInput.trim() 
+                          (localInput.trim() || attachments.length > 0)
                             ? "bg-[#1a73e8] text-white hover:bg-[#1557b0]" 
                             : "bg-[#e5e5e5] text-[#a3a3a3] cursor-not-allowed"
                         }`}
@@ -833,6 +1255,51 @@ export function IdeaAIInterface() {
         onClose={() => setIsTeamModalOpen(false)}
         userEmail={userEmail}
       />
+
+      {/* Google Drive Setup Modal */}
+      {isDriveSetupOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+          <div className="bg-[#fafafa] dark:bg-[#0a0a0a] rounded-[24px] border border-[#e5e5e5] dark:border-[#262626] shadow-2xl w-full max-w-md p-6 relative text-[#171717] dark:text-[#fafafa]">
+            <button
+              onClick={() => setIsDriveSetupOpen(false)}
+              className="absolute top-5 right-5 p-1.5 rounded-full text-[#737373] hover:text-[#171717] hover:bg-[#e5e5e5] dark:hover:bg-[#1f1f1f] transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            <div className="w-12 h-12 rounded-2xl bg-[#e8f0fe] dark:bg-[#1a73e8]/20 flex items-center justify-center text-[#1a73e8] mb-4">
+              <Triangle className="w-6 h-6" strokeWidth={2} />
+            </div>
+            <h3 className="text-[18px] font-semibold tracking-tight mb-2">Connect Google Drive</h3>
+            <p className="text-[13px] text-[#737373] dark:text-[#a3a3a3] leading-relaxed mb-6">
+              Attach files, docs, and spreadsheets directly from your Google Drive into IdeaAI chat context.
+            </p>
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={() => {
+                  setIsDriveSetupOpen(false);
+                  addAttachmentItems([{
+                    id: `drive-${Date.now()}`,
+                    name: 'Google Drive (Workspace)',
+                    typeBadge: 'DRIVE',
+                    category: 'link',
+                    url: 'https://drive.google.com',
+                    content: 'Attached Google Drive workspace documents.'
+                  }]);
+                }}
+                className="w-full py-2.5 px-4 rounded-xl bg-[#1a73e8] hover:bg-[#1557b0] text-white text-[14px] font-medium transition-colors shadow-sm text-center"
+              >
+                Connect Account & Attach
+              </button>
+              <button
+                onClick={() => setIsDriveSetupOpen(false)}
+                className="w-full py-2 px-4 rounded-xl text-[#737373] hover:text-[#171717] text-[13px] font-medium transition-colors text-center"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

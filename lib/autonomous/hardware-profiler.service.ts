@@ -118,11 +118,12 @@ export class HardwareProfilerService {
   }
 
   /**
-   * Classifies hardware into 4 tiers:
-   * - Small (<= 4 GB VRAM or <= 8 GB RAM) -> num_ctx: 4096
+   * Classifies hardware into 4 tiers. Local Ollama always receives a safe
+   * context window: never below 8192 and never above 16384.
+   * - Small (<= 4 GB VRAM or <= 8 GB RAM) -> num_ctx: 8192
    * - Medium (6-8 GB VRAM or 16 GB RAM) -> num_ctx: 8192
    * - Large (12-16 GB VRAM or 32 GB RAM) -> num_ctx: 16384
-   * - Massive (24+ GB VRAM or 64+ GB Unified/System RAM) -> num_ctx: 32768
+   * - Massive (24+ GB VRAM or 64+ GB Unified/System RAM) -> num_ctx: 16384
    */
   public classifyTier(ramBytes: number, vramBytes: number): {
     tier: DeviceTier;
@@ -137,8 +138,8 @@ export class HardwareProfilerService {
     if (vramGB >= 22 || ramGB >= 60) {
       return {
         tier: 'massive',
-        recommendedNumCtx: 32768,
-        tierLabel: 'Massive (32k Context)',
+        recommendedNumCtx: 16384,
+        tierLabel: 'Massive (16k Context)',
         tierDescription: 'High-end workstation or server GPU with 24GB+ VRAM or 64GB+ unified RAM. Perfect for 32B-70B models.',
       };
     }
@@ -163,8 +164,8 @@ export class HardwareProfilerService {
 
     return {
       tier: 'small',
-      recommendedNumCtx: 4096,
-      tierLabel: 'Small (4k Context)',
+      recommendedNumCtx: 8192,
+      tierLabel: 'Small (8k Context)',
       tierDescription: 'Lightweight setup with <=4GB VRAM or <=8GB RAM. Optimized for high-efficiency 3B models.',
     };
   }

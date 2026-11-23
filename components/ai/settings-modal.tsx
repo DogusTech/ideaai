@@ -8,7 +8,8 @@ import { getStoredSkills, saveStoredSkills, type AgentSkill } from "./skills-mod
 import { Check, Copy } from "lucide-react"
 import { AgentBridge } from "@/app/utils/agent-bridge"
 import { TuraenLogo } from "@/components/brand/turaen-logo"
-import { STRIPE_PAYMENT_LINK_URL, type PlanState, isPro, savePlanState } from "@/lib/plan-entitlements"
+import { type PlanState, hasUnlimitedQuota, isPro, planDisplayName, savePlanState } from "@/lib/plan-entitlements"
+import { startStripeCheckout } from "@/lib/stripe-billing"
 
 type SettingsTab = "general" | "skills" | "provider-local" | "provider-account" | "provider-byok" | "agent" | "terminal" | "keybindings" | "about"
 type SettingsModalProps = {
@@ -54,6 +55,8 @@ export function SettingsModal({ isOpen, onClose, initialTab = "general", userEma
   const [githubAuth, setGithubAuth] = useState<{ configured?: boolean; authenticated?: boolean; account?: string; source?: string } | null>(null)
   const [githubMessage, setGithubMessage] = useState("")
   const [githubBusy, setGithubBusy] = useState(false)
+  const [billingBusy, setBillingBusy] = useState(false)
+  const [billingError, setBillingError] = useState("")
 
   useEffect(() => {
     if (isOpen) {
@@ -186,6 +189,12 @@ export function SettingsModal({ isOpen, onClose, initialTab = "general", userEma
     } else setGithubMessage(result?.error || "Could not save GitHub PAT.")
   }
 
+  const openStripeCheckout = async () => {
+    if (hasUnlimitedQuota(plan)) return
+    setBillingBusy(true); setBillingError("")
+    try { await startStripeCheckout("pro") } catch (error) { setBillingError(error instanceof Error ? error.message : "Could not start checkout."); setBillingBusy(false) }
+  }
+
   return (
     <div data-research-lab className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 p-3 backdrop-blur-sm sm:p-6">
       <section role="dialog" aria-modal="true" aria-labelledby="settings-title" className="flex h-[min(800px,92vh)] w-full max-w-6xl min-w-0 overflow-hidden rounded-[24px] border border-[#e0e0e0] dark:border-[#333333] bg-white dark:bg-[#111111] text-[#000000] dark:text-[#ffffff] shadow-[0px_4px_24px_rgba(0,0,0,0.06)] dark:shadow-[0px_4px_32px_rgba(0,0,0,0.4)]">
@@ -248,7 +257,38 @@ export function SettingsModal({ isOpen, onClose, initialTab = "general", userEma
 
           {activeTab === "provider-account" && <section className="max-w-xl space-y-5">
             <header><h3 className="text-2xl font-semibold tracking-tight">Account & Billing</h3><p className="mt-2 text-sm text-[#666666] dark:text-[#999999]">Manage your workspace identity, plan, and Stripe-ready Pro access.</p></header>
-            <div className="rounded-[20px] border border-[#dcdcdc] bg-[#fafafa] p-4 dark:border-[#303030] dark:bg-[#181818]"><div className="flex items-start justify-between gap-4"><div><p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#777]">Current plan</p><p className="mt-2 text-lg font-semibold">{isPro(plan) ? "Turaen Pro" : "Turaen Free"}</p><p className="mt-1 text-xs text-[#777] dark:text-[#aaa]">{isPro(plan) ? "Full local and autonomous engineering access." : "Lightweight local models and focused workspace limits."}</p></div><span className="rounded-full bg-black px-2.5 py-1 text-[10px] font-semibold text-white dark:bg-white dark:text-black">{isPro(plan) ? "PRO" : "FREE"}</span></div><div className="mt-4 flex flex-wrap gap-2"><a href={STRIPE_PAYMENT_LINK_URL} target="_blank" rel="noreferrer" className="inline-flex h-9 items-center rounded-full bg-black px-4 text-xs font-medium text-white dark:bg-white dark:text-black">Upgrade with Stripe</a><button type="button" onClick={async () => { const next = await savePlanState({ tier: isPro(plan) ? "free" : "pro", devPreview: !isPro(plan) }); onPlanChange?.(next) }} className="h-9 rounded-full border border-[#d8d8d8] px-4 text-xs font-medium hover:bg-black/5 dark:border-[#3a3a3a] dark:hover:bg-white/10">{isPro(plan) ? "Disable dev preview" : "Enable Pro dev preview"}</button></div><p className="mt-3 text-[11px] text-[#888]">Dev preview is local-only and lets you test both tiers before connecting Stripe webhooks.</p></div>
+            <div className="rounded-[20px] border border-[#dcdcdc] bg-[#fafafa] p-4 dark:border-[#303030] dark:bg-[#181818]">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#777]">Current plan</p>
+                  <p className="mt-2 text-lg font-semibold">{isPro(plan) ? `Turaen ${planDisplayName(plan)}` : "Turaen Free"}</p>
+                  <p className="mt-1 text-xs text-[#777] dark:text-[#aaa]">
+                    {plan.localEntitlement
+                      ? "Local development entitlement — unlimited usage on this machine."
+                      : isPro(plan)
+                        ? "Full local and autonomous engineering access."
+                        : "Lightweight local models and focused workspace limits."}
+                  </p>
+                </div>
+                <span className="rounded-full bg-black px-2.5 py-1 text-[10px] font-semibold text-white dark:bg-white dark:text-black">{isPro(plan) ? "PRO" : "FREE"}</span>
+              </div>
+              <div className="mt-4 flex flex-wrap gap-2">
+                <button type="button" onClick={() => void openStripeCheckout()} disabled={billingBusy || isPro(plan)} className="inline-flex h-9 items-center rounded-full bg-zinc-900 px-4 text-xs font-medium text-white hover:bg-zinc-800 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white">
+                  {plan.localEntitlement ? "Pro active locally" : isPro(plan) ? "Pro active" : billingBusy ? "Opening checkout…" : "See plans"}
+                </button>
+                {plan.localEntitlement ? (
+                  <span className="inline-flex h-9 items-center rounded-full border border-[#d8d8d8] px-4 text-xs font-medium text-[#777] dark:border-[#3a3a3a] dark:text-[#aaa]">Local entitlement active</span>
+                ) : (
+                  <button type="button" onClick={async () => { const next = await savePlanState({ tier: isPro(plan) ? "free" : "pro", devPreview: !isPro(plan) }); onPlanChange?.(next) }} className="h-9 rounded-full border border-[#d8d8d8] px-4 text-xs font-medium hover:bg-black/5 dark:border-[#3a3a3a] dark:hover:bg-white/10">{isPro(plan) ? "Disable dev preview" : "Enable Pro dev preview"}</button>
+                )}
+              </div>
+              {billingError && <p role="alert" className="mt-2 text-xs text-red-600 dark:text-red-400">{billingError}</p>}
+              <p className="mt-3 text-[11px] text-[#888]">
+                {plan.localEntitlement
+                  ? "Localhost development sessions unlock the highest tier with unlimited prompts, files, and Night Shift tasks. Stripe checkout is bypassed only while running locally in development."
+                  : "Dev preview is local-only and lets you test both tiers before connecting Stripe."}
+              </p>
+            </div>
             <div className="rounded-[20px] border border-[#e0e0e0] dark:border-[#262626] p-4"><p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#666666] dark:text-[#999999]">Current account</p><p className="mt-2 text-sm font-medium">{userEmail || currentUser?.email || (isGuest ? "Guest session" : "Signed in")}</p><p className="mt-1 text-xs text-[#666666] dark:text-[#999999]">{isGuest ? "Your guest session stays available on this device." : "Account linked to Turaen."}</p></div>
             {isGuest && <div className="space-y-3">
               <button type="button" onClick={() => void linkGoogle()} disabled={accountBusy || !currentUser} className="h-[36px] px-5 rounded-[40px] border border-[#e0e0e0] dark:border-[#333333] text-sm hover:bg-[#f5f5f5] dark:hover:bg-[#202020] disabled:opacity-50">Link Google account</button>
@@ -267,7 +307,20 @@ export function SettingsModal({ isOpen, onClose, initialTab = "general", userEma
               {githubMessage && <p role="status" className="mt-2 text-xs text-[#666666] dark:text-[#999999]">{githubMessage}</p>}
             </div>
             <label className="flex items-center justify-between rounded-[20px] border border-[#e0e0e0] dark:border-[#262626] bg-[#fcfcfc] dark:bg-[#181818] px-4 py-3 text-sm">Cloud sync<input type="checkbox" checked={preference.cloudSync === "true"} onChange={(event) => savePreference("cloudSync", String(event.target.checked))} className="accent-black dark:accent-white" /></label>
-            <div className="rounded-[20px] border border-[#e0e0e0] dark:border-[#262626] bg-[#fcfcfc] dark:bg-[#181818] p-4"><p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#92959c]">Usage</p><p className="mt-2 text-sm">Local model requests are private to this device.</p><p className="mt-1 text-xs text-[#858990]">Cloud usage is managed by your linked Turaen account.</p></div>
+            <div className="rounded-[20px] border border-[#e0e0e0] dark:border-[#262626] bg-[#fcfcfc] dark:bg-[#181818] p-4">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[#92959c]">Usage</p>
+              {hasUnlimitedQuota(plan) ? (
+                <>
+                  <p className="mt-2 text-sm">Unlimited usage on this local development session.</p>
+                  <p className="mt-1 text-xs text-[#858990]">Prompts, attachments, model tiers, and Night Shift scheduling never hit a quota while the app runs on localhost in development.</p>
+                </>
+              ) : (
+                <>
+                  <p className="mt-2 text-sm">Local model requests are private to this device.</p>
+                  <p className="mt-1 text-xs text-[#858990]">Cloud usage is managed by your linked Turaen account.</p>
+                </>
+              )}
+            </div>
           </section>}
 
           {activeTab === "provider-byok" && <section className="max-w-2xl space-y-6">

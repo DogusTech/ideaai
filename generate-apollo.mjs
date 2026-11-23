@@ -29,7 +29,7 @@ Return exactly the 1-2 sentences. Nothing else.`;
         stream: false,
         options: {
             temperature: 0.6,
-            num_ctx: 2048
+            num_ctx: 8192
         }
       })
     });
